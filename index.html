@@ -1,0 +1,4237 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Energie &amp; Asset Management</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <style>
+/* ===== Themenradar ===== */
+
+    :root {
+      --swm-blau:        #63a2b4;
+      --swm-blau-dunkel: #2d7a8e;
+      --swm-blau-hell:   #e8f4f7;
+      --swm-grau-dunkel: #333333;
+      --swm-grau-mittel: #666666;
+      --swm-grau-hell:   #f5f5f5;
+      --swm-weiss:       #ffffff;
+      --farbe-regulatorisch:  #2d7a8e;
+      --farbe-marktlich:      #63a2b4;
+      --farbe-technologisch:  #4a8a6f;
+      --farbe-wettbewerblich: #7a6ea0;
+      --farbe-kritisch:   #c0392b;
+      --farbe-relevant:   #e67e22;
+      --farbe-beobachten: #27ae60;
+    }
+    #site-nav {
+      background: var(--swm-blau-dunkel);
+      padding: 0 16px;
+      margin-bottom: 0;
+      overflow: hidden;
+    }
+
+    .nav-link {
+      display: inline-block;
+      padding: 8px 14px 7px;
+      font-size: 12px;
+      font-weight: 600;
+      color: rgba(255,255,255,0.8);
+      text-decoration: none;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -2px;
+      transition: background 0.15s, color 0.15s;
+    }
+
+    .nav-link:hover {
+      background: rgba(255,255,255,0.1);
+      color: #fff;
+    }
+
+    .nav-link.aktiv {
+      color: #fff;
+      border-bottom-color: #fff;
+    }
+
+    /* ── Thema-Formular Modal ─────────────────────────── */
+    #thema-formular {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .tf-box {
+      background: #fff;
+      border-radius: 10px;
+      padding: 24px;
+      width: 100%;
+      max-width: 600px;
+      max-height: 90vh;
+      overflow-y: auto;
+      position: relative;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+    }
+
+    .tf-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    .tf-header h2 { font-size: 18px; font-weight: 600; margin: 0; }
+
+    .tf-schliessen {
+      background: none;
+      border: none;
+      font-size: 22px;
+      cursor: pointer;
+      color: #ccc;
+      line-height: 1;
+      padding: 0;
+    }
+
+    .tf-schliessen:hover { color: #333; }
+
+    .tf-gruppe { margin-bottom: 12px; }
+
+    .tf-label {
+      display: block;
+      font-size: 12px;
+      color: #888;
+      font-weight: 500;
+      margin-bottom: 4px;
+    }
+
+    .tf-pflicht { color: var(--farbe-kritisch); margin-left: 1px; }
+
+    .tf-label-hint {
+      color: #bbb;
+      font-weight: 400;
+      font-size: 11px;
+      margin-left: 4px;
+    }
+
+    .tf-input, .tf-select, .tf-textarea {
+      width: 100%;
+      padding: 7px 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 13px;
+      font-family: inherit;
+      box-sizing: border-box;
+    }
+
+    .tf-input:focus, .tf-select:focus, .tf-textarea:focus {
+      outline: none;
+      border-color: var(--swm-blau);
+      box-shadow: 0 0 0 2px rgba(99,162,180,0.2);
+    }
+
+    .tf-textarea { min-height: 80px; resize: vertical; }
+
+    .tf-zweispaltig {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .tf-range-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 6px;
+    }
+
+    .tf-range-wrap input[type="range"] {
+      flex: 1;
+      accent-color: var(--swm-blau);
+      height: 4px;
+      cursor: pointer;
+    }
+
+    .tf-range-einheit { font-size: 11px; color: #bbb; }
+
+    .tf-range-wert {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--swm-blau);
+      min-width: 10px;
+      text-align: center;
+    }
+
+    .tf-slider-anzeige {
+      white-space: nowrap;
+      min-width: 100px;
+      text-align: right;
+      line-height: 1.2;
+    }
+
+    .tf-trennlinie {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--swm-blau-dunkel);
+      border-top: 1px solid #eee;
+      padding-top: 14px;
+      margin: 18px 0 12px;
+    }
+
+    .tf-hinweis {
+      font-size: 11px;
+      color: #bbb;
+      margin-top: 3px;
+    }
+
+    #f-score-anzeige {
+      background: #f5f5f5;
+      border-radius: 4px;
+      padding: 6px 10px;
+      font-family: monospace;
+      font-size: 13px;
+      color: #888;
+      min-height: 32px;
+      display: flex;
+      align-items: center;
+    }
+
+    .tf-checkboxen {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 4px;
+    }
+
+    .tf-checkboxen label {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 12px;
+      cursor: pointer;
+      background: #f5f5f5;
+      padding: 3px 9px;
+      border-radius: 3px;
+      user-select: none;
+    }
+
+    .tf-checkboxen label:hover { background: #eaeaea; }
+
+    .tf-fehler {
+      font-size: 12px;
+      color: var(--farbe-kritisch);
+      margin-top: 4px;
+      display: none;
+    }
+
+    .tf-footer {
+      display: flex;
+      gap: 10px;
+      margin-top: 24px;
+      padding-top: 16px;
+      border-top: 1px solid #eee;
+    }
+
+    .tf-btn-primaer {
+      background: var(--swm-blau);
+      color: var(--swm-weiss);
+      border: none; border-radius: 4px;
+      font-size: 12px; font-weight: 600;
+      padding: 6px 12px; cursor: pointer;
+    }
+
+    .tf-btn-primaer:hover { background: var(--swm-blau-dunkel); }
+
+    .tf-btn-sekundaer {
+      background: var(--swm-weiss);
+      color: var(--swm-blau-dunkel);
+      border: 1px solid var(--swm-blau);
+      border-radius: 4px;
+      font-size: 12px; padding: 6px 12px; cursor: pointer;
+    }
+
+    .tf-btn-sekundaer:hover { background: var(--swm-blau-hell); }
+
+    /* Fehlerzustand für Eingabefelder */
+    .tf-fehler-feld { border: 2px solid var(--farbe-kritisch) !important; }
+
+    /* ── Löschen-Bestätigungs-Modal ──────────────────────── */
+    #loeschen-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 1100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .lm-box {
+      background: #fff;
+      border-radius: 8px;
+      padding: 28px 32px;
+      max-width: 380px;
+      width: 90%;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+      text-align: center;
+    }
+
+    .lm-frage {
+      font-size: 16px;
+      font-weight: 600;
+      margin: 0 0 10px;
+      color: #333;
+    }
+
+    #lm-titel {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--farbe-kritisch);
+      margin: 0 0 22px;
+    }
+
+    .lm-buttons { display: flex; gap: 10px; justify-content: center; }
+
+    .lm-btn-loeschen {
+      padding: 8px 22px;
+      background: var(--farbe-kritisch);
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .lm-btn-loeschen:hover { background: #a93226; }
+
+    .lm-btn-abbrechen {
+      padding: 8px 18px;
+      background: #f5f5f5;
+      color: #555;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    .lm-btn-abbrechen:hover { background: #eaeaea; }
+
+    /* ── Kompakt-Layout für 1400 × 1050 px ─────────────── */
+    html { margin: 0; }
+    body { margin: 0; overflow-x: hidden; font-family: "Open Sans", Arial, Helvetica, sans-serif; background: var(--swm-grau-hell); color: var(--swm-grau-dunkel); }
+
+    #radar-svg {
+      height: 100%;
+      max-height: 580px;
+      display: block;
+    }
+
+    #rang-tabelle th,
+    #rang-tabelle td {
+      padding: 4px 8px !important;
+      font-size: 12px !important;
+    }
+
+    /* ── Filter-Panel kompakt ───────────────────────────── */
+    #filter-panel h3 {
+      color: var(--swm-blau-dunkel);
+      font-size: 12px;
+      font-weight: 600;
+      margin: 6px 0 4px;
+    }
+
+    .fp-checkbox-zeile {
+      font-size: 12px;
+      padding: 2px 0;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      line-height: 1.3;
+    }
+
+    .fp-checkbox-zeile input { accent-color: var(--swm-blau); }
+
+    #suche {
+      height: 28px;
+      font-size: 12px;
+      width: 100%;
+      box-sizing: border-box;
+      padding: 0 8px;
+      border: 1px solid var(--swm-blau);
+      border-radius: 4px;
+      margin-top: 6px;
+    }
+
+    #fp-legende {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2px 6px;
+      font-size: 11px;
+    }
+
+    #fp-legende-hinweis {
+      font-size: 10px;
+      color: #aaa;
+      margin-top: 5px;
+      line-height: 1.4;
+    }
+
+    /* ── PESTEL-Bereich ─────────────────────────────── */
+    #pestel-bereich {
+      clear: both;
+      padding: 4px 0 24px;
+    }
+
+    #pestel-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 8px;
+    }
+
+    .pestel-spalte {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    .pestel-header {
+      padding: 4px 6px;
+      border-radius: 6px 6px 0 0;
+      color: #fff;
+      text-align: center;
+    }
+
+    .pestel-header-kuerzel {
+      font-size: 13px;
+      font-weight: 700;
+      line-height: 1.2;
+    }
+
+    .pestel-header-name {
+      font-size: 9px;
+      opacity: 0.85;
+      line-height: 1.2;
+    }
+
+    .pestel-karten {
+      max-height: 210px;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      background: #f9f9f9;
+      border: 1px solid #eee;
+      border-top: none;
+      border-radius: 0 0 4px 4px;
+      padding: 3px 4px;
+      flex: 1;
+    }
+
+    .pestel-karten::-webkit-scrollbar { width: 3px; }
+    .pestel-karten::-webkit-scrollbar-track { background: transparent; }
+    .pestel-karten::-webkit-scrollbar-thumb { background: #ccc; border-radius: 2px; }
+
+    .pestel-karte {
+      background: #fff;
+      border: 0.5px solid #ddd;
+      border-radius: 4px;
+      padding: 4px 6px;
+      margin-bottom: 4px;
+      cursor: pointer;
+      font-size: 11px;
+      border-left: 3px solid #ccc;
+      transition: background 0.1s;
+    }
+
+    .pestel-karte:hover { background: var(--swm-blau-hell); }
+
+    /* ── Detail-Panel Overlay ───────────────────────── */
+    #detail-panel {
+      position: fixed;
+      top: 50%;
+      right: 16px;
+      transform: translateY(-50%);
+      width: 280px;
+      max-height: 70vh;
+      overflow-y: auto;
+      background: #fff;
+      border-radius: 10px;
+      border-top: 3px solid var(--swm-blau);
+      box-shadow: 0 4px 24px rgba(0,0,0,0.18);
+      z-index: 500;
+      padding: 14px 16px;
+      box-sizing: border-box;
+    }
+
+    #dp-schliessen {
+      position: absolute;
+      top: 10px;
+      right: 12px;
+      background: none;
+      border: none;
+      font-size: 16px;
+      line-height: 1;
+      cursor: pointer;
+      color: var(--swm-blau);
+      padding: 0;
+    }
+
+    #dp-schliessen:hover { color: var(--swm-blau-dunkel); }
+
+    /* Bestätigungs-Banner (oben zentriert, schwebend) */
+    #thema-banner {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 10px 28px;
+      border-radius: 5px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #fff;
+      z-index: 2000;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.3s;
+      white-space: nowrap;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+    }
+  
+/* ===== Meilensteine ===== */
+
+    :root {
+      --swm-blau:        #63a2b4;
+      --swm-blau-dunkel: #2d7a8e;
+      --swm-blau-hell:   #e8f4f7;
+      --swm-grau-dunkel: #333333;
+      --swm-grau-mittel: #666666;
+      --swm-grau-hell:   #f5f5f5;
+      --swm-weiss:       #ffffff;
+      --farbe-regulatorisch:  #2d7a8e;
+      --farbe-marktlich:      #63a2b4;
+      --farbe-technologisch:  #4a8a6f;
+      --farbe-wettbewerblich: #7a6ea0;
+      --farbe-kritisch:   #c0392b;
+      --farbe-relevant:   #e67e22;
+      --farbe-beobachten: #27ae60;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: "Open Sans", Arial, Helvetica, sans-serif;
+      font-size: 14px;
+      background: var(--swm-grau-hell);
+      color: var(--swm-grau-dunkel);
+    }
+
+    /* Header */
+    #ms-header {
+      background: var(--swm-blau);
+      border-left: 4px solid var(--swm-blau-dunkel);
+      padding: 12px 16px;
+      margin-bottom: 0;
+      overflow: hidden;
+    }
+
+    #ms-header strong { font-size: 20px; font-weight: 600; color: #fff; }
+
+    #ms-header a {
+      float: right;
+      font-size: 13px;
+      color: #fff;
+      text-decoration: none;
+      line-height: 27px;
+      margin-left: 16px;
+    }
+
+    #ms-header a:hover {
+      text-decoration: underline;
+    }
+
+    #ms-stand-datum {
+      font-size: 13px;
+      color: rgba(255,255,255,0.75);
+      margin-left: 12px;
+    }
+
+    /* Zweispaltiges Layout */
+    #ms-layout {
+      overflow: hidden;
+      padding: 0 12px;
+    }
+
+    #ms-filter-panel {
+      width: 25%;
+      float: left;
+      padding-right: 16px;
+    }
+
+    #ms-gantt-bereich {
+      width: 75%;
+      float: left;
+      min-height: 500px;
+    }
+
+    /* Detail-Panel */
+    #ms-detail-panel {
+      clear: both;
+      display: none;
+      border-top: 1px solid #ccc;
+      padding: 16px;
+      min-height: 100px;
+      margin-top: 8px;
+      position: relative;
+      background: #fff;
+    }
+
+    /* ── Filter-Panel ─────────────────────────────────── */
+    #ms-filter-panel h3 {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--swm-blau-dunkel);
+      margin: 16px 0 6px;
+    }
+
+    #ms-filter-panel h3:first-child { margin-top: 4px; }
+
+    #ms-filter-panel select {
+      width: 100%;
+      padding: 5px 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 13px;
+      background: #fff;
+      color: #333;
+    }
+
+    .ms-filter-zeile {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      margin-bottom: 5px;
+      font-size: 13px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .ms-filter-zeile input[type="checkbox"] { cursor: pointer; accent-color: var(--swm-blau); }
+
+    .ms-filter-punkt {
+      display: inline-block;
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    #btn-filter-reset {
+      margin-top: 16px;
+      width: 100%;
+      padding: 6px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      background: #fff;
+      font-size: 12px;
+      cursor: pointer;
+      color: #666;
+    }
+
+    #btn-filter-reset:hover { background: #f5f5f5; }
+
+    /* ── Badges ───────────────────────────────────────── */
+    .ms-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 3px;
+      font-size: 11px;
+      font-weight: 600;
+      color: #fff;
+      vertical-align: middle;
+      white-space: nowrap;
+    }
+
+    .ms-badge-cluster {
+      background: #eaeaea !important;
+      color: #555 !important;
+      font-weight: 400;
+    }
+
+    /* ── Detail-Panel Inhalt ──────────────────────────── */
+    #ms-detail-schliessen {
+      position: absolute;
+      top: 14px;
+      right: 16px;
+      background: none;
+      border: none;
+      font-size: 22px;
+      line-height: 1;
+      cursor: pointer;
+      color: #ccc;
+      padding: 0;
+    }
+
+    #ms-detail-schliessen:hover { color: #555; }
+
+    .ms-detail-kopf {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+      padding-right: 32px;
+    }
+
+    .ms-detail-kopf h2 {
+      font-size: 16px;
+      font-weight: 600;
+      margin: 0;
+    }
+
+    .ms-detail-grid {
+      display: grid;
+      grid-template-columns: 130px 1fr;
+      gap: 7px 12px;
+      font-size: 13px;
+      margin-bottom: 14px;
+      align-items: start;
+    }
+
+    .ms-detail-label {
+      color: #999;
+      font-size: 12px;
+      padding-top: 3px;
+    }
+
+    .ms-detail-value {
+      color: #333;
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+
+    .ms-fortschritt-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      width: 100%;
+    }
+
+    .ms-fortschritt-track {
+      flex: 1;
+      height: 10px;
+      background: #eee;
+      border-radius: 5px;
+      overflow: hidden;
+    }
+
+    .ms-fortschritt-fill {
+      height: 100%;
+      border-radius: 5px;
+      transition: width 0.2s;
+    }
+
+    .ms-fortschritt-input {
+      width: 52px;
+      padding: 3px 6px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 12px;
+      text-align: right;
+    }
+
+    .ms-detail-notiz-label {
+      font-size: 12px;
+      color: #999;
+      margin-bottom: 4px;
+    }
+
+    .ms-detail-notiz {
+      width: 100%;
+      min-height: 68px;
+      padding: 7px 9px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 13px;
+      font-family: inherit;
+      resize: vertical;
+    }
+
+    .ms-detail-notiz:focus {
+      outline: none;
+      border-color: var(--swm-blau);
+      box-shadow: 0 0 0 2px rgba(99,162,180,0.2);
+    }
+
+    #btn-detail-speichern {
+      padding: 6px 18px;
+      background: var(--swm-blau);
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    #btn-detail-speichern:hover { background: var(--swm-blau-dunkel); }
+
+    .ms-abhaengig-liste {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+
+    .ms-abhaengig-liste li {
+      font-size: 12px;
+      background: #f2f2f2;
+      padding: 2px 8px;
+      border-radius: 3px;
+      color: #555;
+    }
+
+    .ms-thema-link {
+      color: var(--swm-blau-dunkel);
+      text-decoration: none;
+      font-size: 13px;
+    }
+
+    .ms-thema-link:hover { text-decoration: underline; }
+
+    /* ── Site Navigation (geteilt mit themenradar.html) ── */
+    #site-nav {
+      background: var(--swm-blau-dunkel);
+      padding: 0 16px;
+      margin-bottom: 0;
+      overflow: hidden;
+    }
+
+    .nav-link {
+      display: inline-block;
+      padding: 8px 14px 7px;
+      font-size: 12px;
+      font-weight: 600;
+      color: rgba(255,255,255,0.8);
+      text-decoration: none;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -2px;
+      transition: background 0.15s, color 0.15s;
+    }
+
+    .nav-link:hover {
+      background: rgba(255,255,255,0.1);
+      color: #fff;
+    }
+
+    .nav-link.aktiv {
+      color: #fff;
+      border-bottom-color: #fff;
+    }
+
+    /* ── Import-Banner ────────────────────────────────── */
+    #ms-import-banner {
+      display: none;
+      background: var(--swm-blau);
+      color: #fff;
+      padding: 8px 16px 8px 16px;
+      font-size: 13px;
+      margin: -4px 0 10px;
+      transition: opacity 0.4s;
+    }
+
+    /* ── Export-Button (Header) ───────────────────────── */
+    #btn-ms-export {
+      float: right;
+      font-size: 13px;
+      color: #fff;
+      background: none;
+      border: none;
+      cursor: pointer;
+      line-height: 27px;
+      margin-left: 16px;
+      padding: 0;
+      font-family: inherit;
+    }
+
+    #btn-ms-export:hover { text-decoration: underline; }
+  
+/* ===== Lageplan ===== */
+
+    /* ── CSS-Variablen (SWM Corporate Design) ────────── */
+    :root {
+      --swm-blau:        #63a2b4;
+      --swm-blau-dunkel: #2d7a8e;
+      --swm-blau-hell:   #e8f4f7;
+      --swm-grau-dunkel: #333333;
+      --swm-grau-mittel: #666666;
+      --swm-grau-hell:   #f5f5f5;
+      --swm-weiss:       #ffffff;
+      --farbe-regulatorisch:  #2d7a8e;
+      --farbe-marktlich:      #63a2b4;
+      --farbe-technologisch:  #4a8a6f;
+      --farbe-wettbewerblich: #7a6ea0;
+      --farbe-kritisch:   #c0392b;
+      --farbe-relevant:   #e67e22;
+      --farbe-beobachten: #27ae60;
+    }
+
+    /* ── Reset & Basis ────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { margin: 0; }
+
+    body {
+      font-family: "Open Sans", Arial, Helvetica, sans-serif;
+      font-size: 13px;
+      color: var(--swm-grau-dunkel);
+      background: var(--swm-grau-hell);
+      overflow-x: hidden;
+    }
+
+    /* ── Header ───────────────────────────────────────── */
+    #lp-header {
+      background: var(--swm-blau);
+      border-left: 4px solid var(--swm-blau-dunkel);
+      padding: 8px 16px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    #lp-logo-placeholder {
+      width: 32px;
+      height: 32px;
+      background: rgba(255,255,255,0.25);
+      border-radius: 4px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      color: rgba(255,255,255,0.7);
+      font-weight: 600;
+      letter-spacing: 0.02em;
+    }
+
+    #lp-header-text { flex: 1; min-width: 0; }
+
+    #lp-titel {
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--swm-weiss);
+      line-height: 1.2;
+    }
+
+    #lp-untertitel {
+      font-size: 12px;
+      color: rgba(255,255,255,0.75);
+      margin-top: 1px;
+    }
+
+    /* ── Navigation ───────────────────────────────────── */
+    #site-nav {
+      background: var(--swm-blau-dunkel);
+      padding: 0 16px;
+      margin-bottom: 0;
+      overflow: hidden;
+    }
+
+    .nav-link {
+      display: inline-block;
+      padding: 8px 14px 7px;
+      font-size: 12px;
+      font-weight: 600;
+      color: rgba(255,255,255,0.8);
+      text-decoration: none;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -2px;
+      transition: background 0.15s, color 0.15s;
+    }
+
+    .nav-link:hover {
+      background: rgba(255,255,255,0.1);
+      color: #fff;
+    }
+
+    .nav-link.aktiv {
+      color: #fff;
+      border-bottom-color: #fff;
+    }
+
+    /* ── Hauptbereich ─────────────────────────────────── */
+    #lp-main {
+      max-width: 1380px;
+      margin: 0 auto;
+      padding: 12px;
+    }
+
+    /* SCHRITT LP2: Statusleiste */
+    #status-leiste {
+      background: var(--swm-blau-hell);
+      border-bottom: 2px solid var(--swm-blau);
+      padding: 6px 16px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .status-kachel {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+
+    .status-ampel {
+      font-size: 10px;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+
+    .status-label {
+      font-size: 11px;
+      color: var(--swm-grau-mittel);
+    }
+
+    .status-wert {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--swm-grau-dunkel);
+    }
+
+    .status-trennlinie {
+      width: 1px;
+      height: 24px;
+      background: var(--swm-blau);
+      opacity: 0.25;
+      flex-shrink: 0;
+    }
+
+    /* SCHRITT LP3: Hauptraster */
+    #lageplan-raster {
+      display: grid;
+      grid-template:
+        "horizont    horizont"
+        "ziele       meilensteine"
+        "projekte    betrieb"
+        / 1fr 1fr;
+      gap: 10px;
+      height: calc(100vh - 140px);
+      min-height: 520px;
+    }
+
+    .lp-kachel {
+      background: var(--swm-weiss);
+      border-radius: 6px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      min-height: 0; /* verhindert Flex-Overflow im Grid */
+    }
+
+    /* Grid-Areas */
+    .lp-kachel[data-bereich="horizont"]    { grid-area: horizont; }
+    .lp-kachel[data-bereich="ziele"]       { grid-area: ziele; }
+    .lp-kachel[data-bereich="meilensteine"]{ grid-area: meilensteine; }
+    .lp-kachel[data-bereich="projekte"]    { grid-area: projekte; }
+    .lp-kachel[data-bereich="betrieb"]     { grid-area: betrieb; }
+
+    /* Ebenen-Farben (border-top) */
+    .lp-kachel[data-bereich="horizont"]    { border-top: 3px solid #2d7a8e; }
+    .lp-kachel[data-bereich="ziele"]       { border-top: 3px solid #4a8a6f; }
+    .lp-kachel[data-bereich="meilensteine"]{ border-top: 3px solid #63a2b4; }
+    .lp-kachel[data-bereich="projekte"]    { border-top: 3px solid #7a6ea0; }
+    .lp-kachel[data-bereich="betrieb"]     { border-top: 3px solid #8e6b2d; }
+
+    /* SCHRITT LP4: Ebenen-Kacheln */
+    .lp-kachel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 12px;
+      border-bottom: 1px solid var(--swm-blau-hell);
+      flex-shrink: 0;
+    }
+
+    .lp-kachel-titel {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--swm-grau-dunkel);
+    }
+
+    .lp-quelle-badge {
+      font-size: 10px;
+      color: var(--swm-grau-mittel);
+      background: var(--swm-grau-hell);
+      border-radius: 3px;
+      padding: 1px 6px;
+      white-space: nowrap;
+    }
+
+    .lp-kachel-body {
+      flex: 1;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    /* iframe-Kacheln */
+    .lp-iframe-banner {
+      background: var(--swm-blau-hell);
+      font-size: 10px;
+      color: var(--swm-blau-dunkel);
+      padding: 3px 8px;
+      flex-shrink: 0;
+      border-bottom: 1px solid var(--swm-blau);
+      opacity: 0.85;
+    }
+
+    .lp-iframe {
+      flex: 1;
+      width: 100%;
+      border: none;
+      display: block;
+    }
+
+    /* Platzhalter-Kacheln */
+    .lp-platzhalter {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .lp-platzhalter-icon {
+      font-size: 36px;
+      opacity: 0.45;
+      line-height: 1;
+    }
+
+    .lp-platzhalter-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--swm-grau-dunkel);
+    }
+
+    .lp-platzhalter-beschr {
+      font-size: 11px;
+      color: var(--swm-grau-mittel);
+      max-width: 220px;
+      line-height: 1.5;
+    }
+
+    .lp-platzhalter-btn {
+      display: inline-block;
+      margin-top: 4px;
+      padding: 6px 14px;
+      background: var(--swm-blau);
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 600;
+      text-decoration: none;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .lp-platzhalter-btn:hover { background: var(--swm-blau-dunkel); }
+
+    .lp-platzhalter-hinweis {
+      font-size: 10px;
+      color: var(--farbe-relevant);
+    }
+
+    /* ── Kennzahlen-Badge im Kachel-Header ───────────── */
+    .lp-kz-badge {
+      background: var(--swm-blau-hell);
+      color: var(--swm-blau-dunkel);
+      font-size: 10px;
+      border-radius: 3px;
+      padding: 1px 6px;
+      margin-left: 6px;
+      white-space: nowrap;
+      font-weight: 400;
+    }
+
+    /* ── Vollbild-Toggle ──────────────────────────────── */
+    .lp-vollbild-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 14px;
+      color: var(--swm-grau-mittel);
+      padding: 2px 4px;
+      border-radius: 3px;
+      line-height: 1;
+      margin-left: 4px;
+      transition: color 0.15s, background 0.15s;
+      flex-shrink: 0;
+    }
+
+    .lp-vollbild-btn:hover {
+      color: var(--swm-blau-dunkel);
+      background: var(--swm-blau-hell);
+    }
+
+    .lp-kachel.vollbild {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 900;
+      border-radius: 0;
+      box-shadow: none;
+    }
+
+    .lp-vollbild-exit {
+      display: none;
+      position: absolute;
+      top: 10px;
+      right: 14px;
+      background: rgba(0,0,0,0.55);
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 5px 12px;
+      cursor: pointer;
+      z-index: 901;
+      font-family: inherit;
+    }
+
+    .lp-kachel.vollbild .lp-vollbild-exit { display: block; }
+
+  
+/* ===== Einstellungen ===== */
+
+    /* ── CSS-Variablen (SWM Corporate Design) ────────── */
+    :root {
+      --swm-blau:        #63a2b4;
+      --swm-blau-dunkel: #2d7a8e;
+      --swm-blau-hell:   #e8f4f7;
+      --swm-grau-dunkel: #333333;
+      --swm-grau-mittel: #666666;
+      --swm-grau-hell:   #f5f5f5;
+      --swm-weiss:       #ffffff;
+      --farbe-regulatorisch:  #2d7a8e;
+      --farbe-marktlich:      #63a2b4;
+      --farbe-technologisch:  #4a8a6f;
+      --farbe-wettbewerblich: #7a6ea0;
+      --farbe-kritisch:   #c0392b;
+      --farbe-relevant:   #e67e22;
+      --farbe-beobachten: #27ae60;
+    }
+
+    /* ── Reset & Basis ────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { margin: 0; }
+
+    body {
+      font-family: "Open Sans", Arial, Helvetica, sans-serif;
+      font-size: 13px;
+      color: var(--swm-grau-dunkel);
+      background: var(--swm-grau-hell);
+      overflow-x: hidden;
+    }
+
+    /* ── Header ───────────────────────────────────────── */
+    #st-header {
+      background: var(--swm-blau);
+      border-left: 4px solid var(--swm-blau-dunkel);
+      padding: 8px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    #st-logo-placeholder {
+      width: 32px;
+      height: 32px;
+      background: rgba(255,255,255,0.25);
+      border-radius: 4px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      color: rgba(255,255,255,0.7);
+      font-weight: 600;
+      letter-spacing: 0.02em;
+    }
+
+    #st-header-text { flex: 1; min-width: 0; }
+
+    #st-titel {
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--swm-weiss);
+      line-height: 1.2;
+    }
+
+    #st-untertitel {
+      font-size: 12px;
+      color: rgba(255,255,255,0.75);
+      margin-top: 1px;
+    }
+
+    /* ── Navigation ───────────────────────────────────── */
+    #site-nav {
+      background: var(--swm-blau-dunkel);
+      padding: 0 16px;
+      overflow: hidden;
+    }
+
+    .nav-link {
+      display: inline-block;
+      padding: 8px 14px 7px;
+      font-size: 12px;
+      font-weight: 600;
+      color: rgba(255,255,255,0.8);
+      text-decoration: none;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -2px;
+      transition: background 0.15s, color 0.15s;
+    }
+
+    .nav-link:hover {
+      background: rgba(255,255,255,0.1);
+      color: #fff;
+    }
+
+    .nav-link.aktiv {
+      color: #fff;
+      border-bottom-color: #fff;
+    }
+
+    /* ── Hauptbereich ─────────────────────────────────── */
+    #st-main {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 16px;
+    }
+
+    /* ── Einstellungs-Karte ───────────────────────────── */
+    .settings-karte {
+      background: var(--swm-weiss);
+      border-radius: 6px;
+      border-top: 3px solid var(--swm-blau);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+
+    .settings-karte-kopf {
+      margin-bottom: 12px;
+    }
+
+    .settings-karte-kopf h3 {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--swm-grau-dunkel);
+      margin-bottom: 3px;
+    }
+
+    .settings-karte-beschr {
+      font-size: 12px;
+      color: var(--swm-grau-mittel);
+      line-height: 1.5;
+    }
+
+    .settings-karte-inhalt {
+      /* wird in S-1b bis S-1d befüllt */
+    }
+
+    /* ── Aktions-Footer ───────────────────────────────── */
+    #st-footer {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 16px 24px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .st-btn-primaer {
+      padding: 9px 22px;
+      background: var(--swm-blau);
+      color: var(--swm-weiss);
+      border: none;
+      border-radius: 4px;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .st-btn-primaer:hover { background: var(--swm-blau-dunkel); }
+
+    .st-btn-sekundaer {
+      padding: 9px 18px;
+      background: var(--swm-weiss);
+      color: var(--swm-blau-dunkel);
+      border: 1px solid var(--swm-blau);
+      border-radius: 4px;
+      font-family: inherit;
+      font-size: 13px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .st-btn-sekundaer:hover { background: var(--swm-blau-hell); }
+
+    /* ── Bestätigungs-Banner ──────────────────────────── */
+    #save-banner {
+      display: none;
+      padding: 8px 16px;
+      background: var(--farbe-beobachten);
+      color: #fff;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 600;
+      margin-left: 8px;
+      transition: opacity 0.3s;
+    }
+
+  
+
+/* ===== Tab-Navigation & Panel-Scoping (index.html) ===== */
+html { margin: 0; }
+body {
+  margin: 0;
+  font-family: "Open Sans", Arial, Helvetica, sans-serif;
+  background: var(--swm-grau-hell);
+  color: var(--swm-grau-dunkel);
+  overflow-x: hidden;
+}
+#app-header {
+  background: var(--swm-blau);
+  border-left: 4px solid var(--swm-blau-dunkel);
+  padding: 8px 16px;
+  display: flex; align-items: center; gap: 12px;
+}
+#app-logo {
+  width: 32px; height: 32px;
+  background: rgba(255,255,255,0.25);
+  border-radius: 4px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; color: rgba(255,255,255,0.7); font-weight: 600;
+}
+#app-titel { font-size: 18px; font-weight: 600; color: #fff; line-height: 1.2; }
+#app-untertitel { font-size: 12px; color: rgba(255,255,255,0.75); }
+#app-tabbar {
+  background: var(--swm-blau-dunkel);
+  padding: 0 16px; display: flex; flex-wrap: wrap; align-items: flex-end;
+  overflow: hidden;
+}
+.app-tab {
+  display: inline-block; padding: 9px 16px 8px;
+  font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.8);
+  border: none; border-bottom: 2px solid transparent;
+  background: none; cursor: pointer; font-family: inherit;
+}
+.app-tab:hover { background: rgba(255,255,255,0.1); color: #fff; }
+.app-tab.aktiv { color: #fff; border-bottom-color: #fff; }
+.tab-panel { display: none; }
+#panel-themenradar  { font-size: 13px; }
+#panel-meilensteine { font-size: 14px; }
+#panel-lageplan     { font-size: 13px; }
+#panel-settings     { font-size: 13px; }
+/* Original-Seitenheader etwas kompakter unter der Tableiste */
+#panel-themenradar #header,
+#panel-meilensteine #ms-header { border-radius: 0; }
+
+  </style>
+</head>
+<body>
+
+  <div id="app-header">
+    <div id="app-logo">SWM</div>
+    <div>
+      <div id="app-titel">Energie &amp; Asset Management</div>
+      <div id="app-untertitel">Strategisches Cockpit</div>
+    </div>
+  </div>
+
+  <div id="app-tabbar">
+    <button class="app-tab" id="tab-lageplan"     data-tab="lageplan">Lageplan</button>
+    <button class="app-tab" id="tab-themenradar"  data-tab="themenradar">Themenradar</button>
+    <button class="app-tab" id="tab-meilensteine" data-tab="meilensteine">Meilensteine &amp; GANTT</button>
+    <button class="app-tab" id="tab-settings"     data-tab="settings">Einstellungen</button>
+  </div>
+
+  <div class="tab-panel" id="panel-lageplan">
+
+  <!-- ── Header ─────────────────────────────────────── -->
+  <div id="lp-header">
+    <div id="lp-logo-placeholder">SWM</div>
+    <div id="lp-header-text">
+      <div id="lp-titel">Strategischer Lageplan</div>
+      <div id="lp-untertitel">Energie / Asset Management – Stand: <span id="lp-stand-datum"></span></div>
+    </div>
+  </div>
+
+  <!-- ── Navigation ─────────────────────────────────── -->
+  
+
+  <!-- ── Statusleiste (LP2) ────────────────────────── -->
+  <div id="status-leiste">
+
+    <div class="status-kachel">
+      <span class="status-ampel" id="ampel-themen">●</span>
+      <span class="status-label">Themen im Radar</span>
+      <span class="status-wert" id="wert-themen">–</span>
+    </div>
+
+    <div class="status-trennlinie"></div>
+
+    <div class="status-kachel">
+      <span class="status-ampel" id="ampel-kritisch">●</span>
+      <span class="status-label">Kritische Themen</span>
+      <span class="status-wert" id="wert-kritisch">–</span>
+    </div>
+
+    <div class="status-trennlinie"></div>
+
+    <div class="status-kachel">
+      <span class="status-ampel" id="ampel-meilensteine">●</span>
+      <span class="status-label">Offene Meilensteine</span>
+      <span class="status-wert" id="wert-meilensteine">–</span>
+    </div>
+
+    <div class="status-trennlinie"></div>
+
+    <div class="status-kachel">
+      <span class="status-ampel" id="ampel-verzoegert">●</span>
+      <span class="status-label">Verzögerte MS</span>
+      <span class="status-wert" id="wert-verzoegert">–</span>
+    </div>
+
+    <div class="status-trennlinie"></div>
+
+    <div class="status-kachel">
+      <span class="status-ampel" id="ampel-update">●</span>
+      <span class="status-label">Letzte Aktualisierung</span>
+      <span class="status-wert" id="wert-update">–</span>
+    </div>
+
+  </div>
+
+  <!-- ── Hauptbereich ───────────────────────────────── -->
+  <div id="lp-main">
+
+    <!-- SCHRITT LP3: Hauptraster -->
+    <div id="lageplan-raster">
+
+      <!-- ── Kachel 1: Horizont & Themenradar ────────── -->
+      <div class="lp-kachel" data-bereich="horizont">
+        <button class="lp-vollbild-exit" onclick="LP.beendeVollbild(this)">✕ Vollbild beenden</button>
+        <div class="lp-kachel-header">
+          <span class="lp-kachel-titel">Horizont &amp; Themenradar</span>
+          <span id="kz-horizont" class="lp-kz-badge" style="display:none"></span>
+          <span class="lp-quelle-badge">HTML lokal</span>
+          <button class="lp-vollbild-btn" title="Vollbild" onclick="LP.toggleVollbild(this.closest('.lp-kachel'))">⛶</button>
+        </div>
+        <div class="lp-kachel-body">
+          
+          <div class="lp-mini-wrap"><div id="lp-radar-mini" class="lp-mini-radar"></div><button class="lp-mini-link" data-jump="themenradar" title="Zum vollständigen Themenradar">Themenradar öffnen &rarr;</button></div>
+        </div>
+      </div>
+
+      <!-- ── Kachel 2: Strategische Ziele ─────────────── -->
+      <div class="lp-kachel" data-bereich="ziele">
+        <button class="lp-vollbild-exit" onclick="LP.beendeVollbild(this)">✕ Vollbild beenden</button>
+        <div class="lp-kachel-header">
+          <span class="lp-kachel-titel">Strategische Ziele</span>
+          <span class="lp-quelle-badge">Power BI</span>
+          <button class="lp-vollbild-btn" title="Vollbild" onclick="LP.toggleVollbild(this.closest('.lp-kachel'))">⛶</button>
+        </div>
+        <div class="lp-kachel-body">
+          <div class="lp-platzhalter">
+            <div class="lp-platzhalter-icon">📊</div>
+            <div class="lp-platzhalter-name">Power BI Scorecard</div>
+            <div class="lp-platzhalter-beschr">Verbindung zur Power BI Ziel-Scorecard</div>
+            <a class="lp-platzhalter-btn" href="#" target="_blank" rel="noopener">Power BI öffnen →</a>
+            <div class="lp-platzhalter-hinweis">Bitte Power BI Link in href eintragen</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Kachel 3: Meilensteine & GANTT ────────────── -->
+      <div class="lp-kachel" data-bereich="meilensteine">
+        <button class="lp-vollbild-exit" onclick="LP.beendeVollbild(this)">✕ Vollbild beenden</button>
+        <div class="lp-kachel-header">
+          <span class="lp-kachel-titel">Meilensteine &amp; GANTT</span>
+          <span id="kz-meilensteine" class="lp-kz-badge" style="display:none"></span>
+          <span class="lp-quelle-badge">HTML lokal</span>
+          <button class="lp-vollbild-btn" title="Vollbild" onclick="LP.toggleVollbild(this.closest('.lp-kachel'))">⛶</button>
+        </div>
+        <div class="lp-kachel-body">
+          
+          <div class="lp-platzhalter"><div class="lp-platzhalter-icon">📅</div><div class="lp-platzhalter-name">Meilensteine &amp; GANTT</div><div class="lp-platzhalter-beschr">GANTT-Zeitplan mit Abh&auml;ngigkeiten, Fortschritt und Status.</div><button class="lp-platzhalter-btn" data-jump="meilensteine">Zu den Meilensteinen &rarr;</button></div>
+        </div>
+      </div>
+
+      <!-- ── Kachel 4: Projekte & Umsetzung ────────────── -->
+      <div class="lp-kachel" data-bereich="projekte">
+        <button class="lp-vollbild-exit" onclick="LP.beendeVollbild(this)">✕ Vollbild beenden</button>
+        <div class="lp-kachel-header">
+          <span class="lp-kachel-titel">Projekte &amp; Umsetzung</span>
+          <span class="lp-quelle-badge">SAP AC</span>
+          <button class="lp-vollbild-btn" title="Vollbild" onclick="LP.toggleVollbild(this.closest('.lp-kachel'))">⛶</button>
+        </div>
+        <div class="lp-kachel-body">
+          <div class="lp-platzhalter">
+            <div class="lp-platzhalter-icon">🏗️</div>
+            <div class="lp-platzhalter-name">SAP Analytic Cloud</div>
+            <div class="lp-platzhalter-beschr">Projektportfolio und Meilensteine aus SAP AC</div>
+            <a class="lp-platzhalter-btn" href="#" target="_blank" rel="noopener">SAP AC öffnen →</a>
+            <div class="lp-platzhalter-hinweis">Bitte SAP AC Link in href eintragen</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Kachel 5: Betrieb & Performance ───────────── -->
+      <div class="lp-kachel" data-bereich="betrieb">
+        <button class="lp-vollbild-exit" onclick="LP.beendeVollbild(this)">✕ Vollbild beenden</button>
+        <div class="lp-kachel-header">
+          <span class="lp-kachel-titel">Betrieb &amp; Performance</span>
+          <span class="lp-quelle-badge">Power BI</span>
+          <button class="lp-vollbild-btn" title="Vollbild" onclick="LP.toggleVollbild(this.closest('.lp-kachel'))">⛶</button>
+        </div>
+        <div class="lp-kachel-body">
+          <div class="lp-platzhalter">
+            <div class="lp-platzhalter-icon">⚡</div>
+            <div class="lp-platzhalter-name">Power BI Betriebsmonitoring</div>
+            <div class="lp-platzhalter-beschr">Operative KPIs auf Basis SAP S/4HANA Utilities</div>
+            <a class="lp-platzhalter-btn" href="#" target="_blank" rel="noopener">Betriebsbericht öffnen →</a>
+            <div class="lp-platzhalter-hinweis">Bitte Power BI Link in href eintragen</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  
+
+</div>
+  <div class="tab-panel" id="panel-themenradar">
+  <div id="header" style="background:#63a2b4;border-left:4px solid #2d7a8e;border-bottom:none;padding:6px 16px;margin-bottom:0;overflow:hidden;box-sizing:border-box">
+    <strong style="font-size:20px;font-weight:600;color:#fff">Themenradar – Energienetz Asset Management</strong>
+    <span id="stand-datum" style="font-size:13px;color:rgba(255,255,255,0.75);margin-left:12px"></span>
+    <button style="padding:6px 12px;cursor:pointer;margin-left:8px;float:right;background:#fff;color:#2d7a8e;border:none;border-radius:4px;font-size:12px;font-weight:600"
+      onclick="TR.oeffneThemaFormular()">+ Thema hinzufügen</button>
+    <button style="padding:6px 12px;cursor:pointer;margin-left:8px;float:right;background:rgba(255,255,255,0.15);color:#fff;border:1px solid rgba(255,255,255,0.4);border-radius:4px;font-size:12px"
+      onclick="TR.exportiereJSON()">Daten exportieren (JSON)</button>
+    <button style="padding:6px 12px;cursor:pointer;margin-left:8px;float:right;background:rgba(255,255,255,0.15);color:#fff;border:1px solid rgba(255,255,255,0.4);border-radius:4px;font-size:12px"
+      onclick="document.getElementById('vorschlaege-import').click()">⬆ Vorschläge importieren</button>
+    <input type="file" id="vorschlaege-import" accept=".json" style="display:none"
+      onchange="TR.ladeVorschlaege(this)">
+    <button id="btn-aktualisieren" style="padding:6px 12px;cursor:pointer;margin-left:8px;float:right;background:rgba(255,255,255,0.15);color:#fff;border:1px solid rgba(255,255,255,0.4);border-radius:4px;font-size:12px"
+      onclick="TR.starteAktualisierung()">Radar aktualisieren</button>
+    <span id="update-status" style="font-size:12px;margin-left:8px;float:right;line-height:28px"></span>
+  </div>
+  
+
+  <!-- ── Modales Formular: Neues Thema erfassen ──────── -->
+  <div id="thema-formular" style="display:none" onclick="TR.schliesseThemaFormular()">
+    <div class="tf-box" onclick="event.stopPropagation()">
+
+      <div class="tf-header">
+        <h2>Neues Thema erfassen</h2>
+        <button class="tf-schliessen" onclick="TR.schliesseThemaFormular()" title="Schließen">✕</button>
+      </div>
+
+      <!-- 1. Titel -->
+      <div class="tf-gruppe">
+        <label class="tf-label" for="f-titel">
+          Titel <span class="tf-pflicht">*</span>
+        </label>
+        <input id="f-titel" type="text" class="tf-input" required
+          placeholder="z. B. Novelle Messstellenbetriebsgesetz">
+        <div id="f-titel-fehler" class="tf-fehler">Bitte einen Titel eingeben.</div>
+      </div>
+
+      <!-- 2. Kategorie -->
+      <div class="tf-gruppe">
+        <label class="tf-label" for="f-kategorie">
+          Kategorie <span class="tf-pflicht">*</span>
+        </label>
+        <select id="f-kategorie" class="tf-select" required onchange="TR.aktualisiereScore()">
+          <option value="">Bitte wählen …</option>
+          <option value="regulatorisch">Regulatorisch</option>
+          <option value="marktlich">Marktlich</option>
+          <option value="technologisch">Technologisch</option>
+          <option value="wettbewerblich">Wettbewerblich</option>
+        </select>
+        <div id="f-kategorie-fehler" class="tf-fehler">Bitte eine Kategorie wählen.</div>
+      </div>
+
+      <!-- 3. Zeithorizont -->
+      <div class="tf-gruppe">
+        <label class="tf-label" for="f-zeithorizont">
+          Zeithorizont <span class="tf-pflicht">*</span>
+        </label>
+        <select id="f-zeithorizont" class="tf-select" required onchange="TR.aktualisiereScore()">
+          <option value="">Bitte wählen …</option>
+          <option value="kurzfristig">Kurzfristig (0–1 Jahr)</option>
+          <option value="mittelfristig">Mittelfristig (1–3 Jahre)</option>
+          <option value="langfristig">Langfristig (&gt; 3 Jahre)</option>
+        </select>
+        <div id="f-zeithorizont-fehler" class="tf-fehler">Bitte einen Zeithorizont wählen.</div>
+      </div>
+
+      <!-- 4. Auswirkung -->
+      <div class="tf-gruppe">
+        <label class="tf-label">
+          Auswirkung auf den Bereich <span class="tf-pflicht">*</span>
+          <span class="tf-label-hint">(1 = gering, 5 = sehr hoch)</span>
+        </label>
+        <div class="tf-range-wrap">
+          <input id="f-auswirkung" type="range" min="1" max="5" step="1" value="3"
+            oninput="TR.aktualisiereSlider('f-auswirkung','f-auswirkung-anzeige'); TR.aktualisiereScore()">
+          <span id="f-auswirkung-anzeige" class="tf-slider-anzeige"></span>
+        </div>
+      </div>
+
+      <!-- 5. Unsicherheit -->
+      <div class="tf-gruppe">
+        <label class="tf-label">
+          Unsicherheit <span class="tf-pflicht">*</span>
+          <span class="tf-label-hint">(1 = sicher, 5 = sehr unsicher)</span>
+        </label>
+        <div class="tf-range-wrap">
+          <input id="f-unsicherheit" type="range" min="1" max="5" step="1" value="3"
+            oninput="TR.aktualisiereSlider('f-unsicherheit','f-unsicherheit-anzeige')">
+          <span id="f-unsicherheit-anzeige" class="tf-slider-anzeige"></span>
+        </div>
+      </div>
+
+      <!-- Weitere Details -->
+      <div class="tf-trennlinie">Weitere Details</div>
+
+      <!-- 6. Beschreibung -->
+      <div class="tf-gruppe">
+        <label class="tf-label" for="f-beschreibung">Beschreibung</label>
+        <textarea id="f-beschreibung" class="tf-textarea" rows="3"
+          placeholder="2–3 Sätze zur Relevanz für den Bereich …"></textarea>
+      </div>
+
+      <!-- 7. Strategische Cluster -->
+      <div class="tf-gruppe">
+        <label class="tf-label">Strategische Cluster</label>
+        <div class="tf-checkboxen">
+          <label><input type="checkbox" class="f-cluster" value="Netzanschluss"> Netzanschluss</label>
+          <label><input type="checkbox" class="f-cluster" value="Messstellenbetrieb"> Messstellenbetrieb</label>
+          <label><input type="checkbox" class="f-cluster" value="Netzwirtschaft"> Netzwirtschaft</label>
+          <label><input type="checkbox" class="f-cluster" value="Technologie"> Technologie</label>
+          <label><input type="checkbox" class="f-cluster" value="Organisation"> Organisation</label>
+        </div>
+      </div>
+
+      <!-- 8. Tags -->
+      <div class="tf-gruppe">
+        <label class="tf-label" for="f-tags">Tags</label>
+        <input id="f-tags" type="text" class="tf-input"
+          placeholder="z. B. BNetzA, Regulierung, Netzausbau">
+        <div class="tf-hinweis">Einzelne Schlagworte mit Komma trennen</div>
+      </div>
+
+      <!-- 9. Quelle -->
+      <div class="tf-gruppe">
+        <label class="tf-label" for="f-quelle">Quelle / Link</label>
+        <input id="f-quelle" type="url" class="tf-input"
+          placeholder="https://…">
+      </div>
+
+      <!-- 10. Score-Vorschau -->
+      <div class="tf-gruppe">
+        <label class="tf-label">Radar-Score <span class="tf-label-hint">(automatisch berechnet)</span></label>
+        <div id="f-score-anzeige">–</div>
+      </div>
+
+      <div class="tf-footer">
+        <button class="tf-btn-primaer" onclick="TR.speichereThema()">Thema speichern</button>
+        <button class="tf-btn-sekundaer" onclick="TR.schliesseThemaFormular()">Abbrechen</button>
+      </div>
+
+    </div>
+  </div>
+
+  <div id="thema-banner"></div>
+
+  <!-- ── Löschen-Bestätigungsdialog ────────────────────── -->
+  <div id="loeschen-modal" style="display:none" onclick="TR.schliesseLoeschenModal()">
+    <div class="lm-box" onclick="event.stopPropagation()">
+      <p class="lm-frage">Thema wirklich löschen?</p>
+      <p id="lm-titel"></p>
+      <div class="lm-buttons">
+        <button class="lm-btn-loeschen" id="btn-lm-bestaetigen">Ja, löschen</button>
+        <button class="lm-btn-abbrechen" onclick="TR.schliesseLoeschenModal()">Abbrechen</button>
+      </div>
+    </div>
+  </div>
+  <div id="hinweis" style="position:absolute;top:70px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:8px 16px;border-radius:4px;font-size:13px;opacity:1;transition:opacity 1s;pointer-events:none;z-index:100">
+    Hover über einen Punkt für Details – Klick für Vollansicht
+  </div>
+  <div id="radar-canvas" style="width:70%;height:calc(100vh - 400px);min-height:500px;float:left;box-sizing:border-box">
+    <svg id="radar-svg" width="100%" height="100%" viewBox="0 0 600 600">
+      <line x1="20" y1="300" x2="580" y2="300" stroke="#dde8eb" stroke-width="1"></line>
+      <line x1="300" y1="20" x2="300" y2="580" stroke="#dde8eb" stroke-width="1"></line>
+      <text x="300" y="12" text-anchor="middle" font-size="13" font-weight="600" fill="#2d7a8e">Regulatorisch</text>
+      <text x="590" y="304" text-anchor="end" font-size="13" font-weight="600" fill="#2d7a8e">Marktlich</text>
+      <text x="300" y="598" text-anchor="middle" font-size="13" font-weight="600" fill="#2d7a8e">Technologisch</text>
+      <text x="5" y="304" text-anchor="start" font-size="13" font-weight="600" fill="#2d7a8e">Wettbewerblich</text>
+      <circle cx="300" cy="300" r="100" fill="none" stroke="#cce0e7" stroke-width="1"></circle>
+      <text x="300" y="197" text-anchor="middle" font-size="11" fill="#666666">0–1 Jahr</text>
+      <circle cx="300" cy="300" r="200" fill="none" stroke="#cce0e7" stroke-width="1"></circle>
+      <text x="300" y="97" text-anchor="middle" font-size="11" fill="#666666">1–3 Jahre</text>
+      <circle cx="300" cy="300" r="280" fill="none" stroke="#cce0e7" stroke-width="1"></circle>
+      <text x="300" y="17" text-anchor="middle" font-size="11" fill="#666666">&gt; 3 Jahre</text>
+    </svg>
+  </div>
+  <div id="filter-panel" style="width:28%;float:right;height:calc(100vh - 400px);min-height:500px;overflow-y:auto;box-sizing:border-box;padding:8px">
+    <h3>Strategische Cluster</h3>
+    <div class="fp-checkbox-zeile"><input type="checkbox" id="cluster-netzanschluss" value="Netzanschluss" onchange="TR.filterAktualisieren()"><label for="cluster-netzanschluss">Netzanschluss</label></div>
+    <div class="fp-checkbox-zeile"><input type="checkbox" id="cluster-messstellenbetrieb" value="Messstellenbetrieb" onchange="TR.filterAktualisieren()"><label for="cluster-messstellenbetrieb">Messstellenbetrieb</label></div>
+    <div class="fp-checkbox-zeile"><input type="checkbox" id="cluster-netzwirtschaft" value="Netzwirtschaft" onchange="TR.filterAktualisieren()"><label for="cluster-netzwirtschaft">Netzwirtschaft</label></div>
+    <div class="fp-checkbox-zeile"><input type="checkbox" id="cluster-technologie" value="Technologie" onchange="TR.filterAktualisieren()"><label for="cluster-technologie">Technologie</label></div>
+    <div class="fp-checkbox-zeile"><input type="checkbox" id="cluster-organisation" value="Organisation" onchange="TR.filterAktualisieren()"><label for="cluster-organisation">Organisation</label></div>
+    <button style="margin-top:6px;padding:4px 10px;height:28px;font-size:12px;cursor:pointer"
+      onclick="document.querySelectorAll('#filter-panel input[type=checkbox]').forEach(cb => cb.checked = false); document.getElementById('suche').value = ''; TR.filterAktualisieren()">
+      Filter zurücksetzen
+    </button>
+    <div id="manuell-counter" style="margin-top:4px;font-size:10px;color:#bbb;min-height:12px"></div>
+
+    <h3>Suche</h3>
+    <input type="text" id="suche" placeholder="Thema suchen …" oninput="TR.filterAktualisieren()">
+
+    <h3>Legende</h3>
+    <div id="fp-legende">
+      <div><span style="color:#2d7a8e">●</span> Regulatorisch</div>
+      <div><span style="color:#63a2b4">●</span> Marktlich</div>
+      <div><span style="color:#4a8a6f">●</span> Technologisch</div>
+      <div><span style="color:#7a6ea0">●</span> Wettbewerblich</div>
+    </div>
+    <div id="fp-legende-hinweis">
+      <span style="font-size:9px">●</span> klein = geringe &nbsp;·&nbsp;
+      <span style="font-size:13px">●</span> groß = hohe Auswirkung
+    </div>
+  </div>
+  <div id="vorschlaege-panel" style="clear:both;display:none;border:2px solid #63a2b4;border-radius:6px;padding:16px;margin:16px 0">
+    <div style="overflow:hidden;margin-bottom:12px">
+      <strong style="font-size:16px">🔎 Neue Themen-Vorschläge (Recherche-Ergebnis)</strong>
+      <button onclick="document.getElementById('vorschlaege-panel').style.display='none'"
+        style="float:right;cursor:pointer;background:none;border:none;font-size:18px;line-height:1">✕</button>
+      <span id="vorschlaege-meta" style="font-size:12px;color:#888;margin-left:12px"></span>
+    </div>
+    <div id="vorschlaege-liste"></div>
+  </div>
+  <div id="rangliste" style="clear:both;padding:6px 0;max-height:160px;overflow-y:auto">
+    <h3 style="margin:0 0 4px;font-size:13px">Top 5 nach Priorität</h3>
+    <table id="rang-tabelle" style="border-collapse:collapse;width:100%">
+      <thead>
+        <tr style="text-align:left;border-bottom:2px solid #ddd">
+          <th style="padding:4px 8px;font-size:12px">Rang</th>
+          <th style="padding:4px 8px;font-size:12px">Titel</th>
+          <th style="padding:4px 8px;font-size:12px">Kategorie</th>
+          <th style="padding:4px 8px;font-size:12px">Zeithorizont</th>
+          <th style="padding:4px 8px;font-size:12px">Score</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+  <div id="pestel-bereich">
+    <h3 style="margin:6px 0 4px;font-size:13px">PESTEL-Analyse<span id="pestel-gefiltert-badge" style="display:none;color:#e67e22;font-size:10px;font-weight:400;margin-left:6px">(gefiltert)</span></h3>
+    <div id="pestel-filter-info" style="font-size:11px;color:#aaa;margin-bottom:4px"></div>
+    <div id="pestel-grid">
+
+      <div class="pestel-spalte" data-dimension="political">
+        <div class="pestel-header" style="background:#2d7a8e">
+          <div class="pestel-header-kuerzel">P</div>
+          <div class="pestel-header-name">Political</div>
+        </div>
+        <div class="pestel-karten"></div>
+      </div>
+
+      <div class="pestel-spalte" data-dimension="economic">
+        <div class="pestel-header" style="background:#63a2b4">
+          <div class="pestel-header-kuerzel">E</div>
+          <div class="pestel-header-name">Economic</div>
+        </div>
+        <div class="pestel-karten"></div>
+      </div>
+
+      <div class="pestel-spalte" data-dimension="social">
+        <div class="pestel-header" style="background:#4a8a6f">
+          <div class="pestel-header-kuerzel">S</div>
+          <div class="pestel-header-name">Social</div>
+        </div>
+        <div class="pestel-karten"></div>
+      </div>
+
+      <div class="pestel-spalte" data-dimension="technological">
+        <div class="pestel-header" style="background:#7a6ea0">
+          <div class="pestel-header-kuerzel">T</div>
+          <div class="pestel-header-name">Technological</div>
+        </div>
+        <div class="pestel-karten"></div>
+      </div>
+
+      <div class="pestel-spalte" data-dimension="environmental">
+        <div class="pestel-header" style="background:#3a7a5a">
+          <div class="pestel-header-kuerzel">E</div>
+          <div class="pestel-header-name">Environmental</div>
+        </div>
+        <div class="pestel-karten"></div>
+      </div>
+
+      <div class="pestel-spalte" data-dimension="legal">
+        <div class="pestel-header" style="background:#8e6b2d">
+          <div class="pestel-header-kuerzel">L</div>
+          <div class="pestel-header-name">Legal</div>
+        </div>
+        <div class="pestel-karten"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <div id="detail-panel" style="display:none">
+    <button id="dp-schliessen" onclick="document.getElementById('detail-panel').style.display='none'">✕</button>
+    <div id="detail-inhalt"></div>
+  </div>
+  
+</div>
+  <div class="tab-panel" id="panel-meilensteine">
+
+  <div id="ms-header">
+    <strong>Meilenstein-Zielrahmen</strong>
+    <span id="ms-stand-datum"></span>
+    <button id="btn-ms-export" onclick="MS.exportiereJSON()">↓ Meilensteine exportieren (JSON)</button>
+  </div>
+  
+
+  <div id="ms-import-banner"></div>
+
+  <div id="ms-layout">
+    <div id="ms-filter-panel"></div>
+    <div id="ms-gantt-bereich"></div>
+  </div>
+
+  <div id="ms-detail-panel"></div>
+
+  
+
+</div>
+  <div class="tab-panel" id="panel-settings">
+
+  <!-- ── Header ─────────────────────────────────────── -->
+  <div id="st-header">
+    <div id="st-logo-placeholder">SWM</div>
+    <div id="st-header-text">
+      <div id="st-titel">Einstellungen &amp; Konfiguration</div>
+      <div id="st-untertitel">Energie / Asset Management</div>
+    </div>
+  </div>
+
+  <!-- ── Navigation ─────────────────────────────────── -->
+  
+
+  <!-- ── Hauptbereich ───────────────────────────────── -->
+  <div id="st-main">
+
+    <!-- Sektion: Suchbegriffe & Keywords -->
+    <div class="settings-karte" id="sektion-keywords">
+      <div class="settings-karte-kopf">
+        <h3>Suchbegriffe &amp; Keywords</h3>
+        <div class="settings-karte-beschr">
+          Keywords für die automatische Themenrecherche und Relevanzprüfung.
+        </div>
+      </div>
+      <div class="settings-karte-inhalt">
+        <!-- S-1b: Inhalt folgt -->
+      </div>
+    </div>
+
+    <!-- Sektion: RSS-Feeds & Google Alerts -->
+    <div class="settings-karte" id="sektion-feeds">
+      <div class="settings-karte-kopf">
+        <h3>RSS-Feeds &amp; Google Alerts</h3>
+        <div class="settings-karte-beschr">
+          Externe Quellen für die automatische Aktualisierung des Themenradars.
+        </div>
+      </div>
+      <div class="settings-karte-inhalt">
+        <!-- S-1b: Inhalt folgt -->
+      </div>
+    </div>
+
+    <!-- Sektion: Behörden & Quellen -->
+    <div class="settings-karte" id="sektion-quellen">
+      <div class="settings-karte-kopf">
+        <h3>Behörden &amp; Quellen</h3>
+        <div class="settings-karte-beschr">
+          Relevante Behörden, Verbände und Institutionen als Beobachtungsquellen.
+        </div>
+      </div>
+      <div class="settings-karte-inhalt">
+        <!-- S-1b: Inhalt folgt -->
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── Aktions-Footer ─────────────────────────────── -->
+  <div id="st-footer">
+    <button class="st-btn-primaer" onclick="ST.speichereEinstellungen()">
+      Alle Einstellungen speichern
+    </button>
+    <button class="st-btn-sekundaer" onclick="ST.resetteEinstellungen()">
+      Einstellungen zurücksetzen
+    </button>
+    <span id="save-banner"></span>
+  </div>
+
+  
+
+</div>
+
+<script>/* ===== Themenradar ===== */
+(function(){
+
+    // Themenradar Energie & Asset Management
+    // Kategorien: regulatorisch | marktlich | technologisch | wettbewerblich
+    // Score-Formel: (zeitgewicht * 0.6) + (auswirkung/5 * 0.4)
+
+    document.title = "Themenradar | Energie & Asset Management";
+    (function() {
+      const hinweis = document.getElementById("hinweis");
+      setTimeout(() => { hinweis.style.opacity = "0"; }, 3000);
+      setTimeout(() => { hinweis.style.display  = "none"; }, 4000);
+    })();
+    document.getElementById("stand-datum").textContent =
+      "Stand: " + new Date().toLocaleDateString("de-DE");
+
+    function berechneScore(eintrag) {
+      const zeitgewicht = { kurzfristig: 1.0, mittelfristig: 0.6, langfristig: 0.3 };
+      const score = (zeitgewicht[eintrag.zeithorizont] * 0.6) + ((eintrag.auswirkung / 5) * 0.4);
+      return Math.round(score * 100) / 100;
+    }
+
+    const radarData = [
+      { id:1, titel:"MsbG-Novelle", kategorie:"regulatorisch", zeithorizont:"kurzfristig", auswirkung:5, unsicherheit:2, beschreibung:"Die Novellierung des Messstellenbetriebsgesetzes verschärft Rollout-Pflichten für iMSys. Netzbetreiber müssen Einbauquoten nachweisen und haften bei Verzug.", strategische_cluster:["Messstellenbetrieb","Netzwirtschaft"], tags:["MsbG","Smart Meter","Rollout","Regulierung"] },
+      { id:2, titel:"Netzentgeltreform BNetzA", kategorie:"regulatorisch", zeithorizont:"kurzfristig", auswirkung:5, unsicherheit:3, beschreibung:"Die Bundesnetzagentur überarbeitet die Systematik der Netzentgelte grundlegend. Änderungen der Erlösobergrenzen und Wälzungsmechanismen betreffen direkt die Erlössituation.", strategische_cluster:["Netzwirtschaft"], tags:["Netzentgelt","BNetzA","Regulierung","Erlösobergrenze"] },
+      { id:3, titel:"§14a EnWG Flexibilität", kategorie:"regulatorisch", zeithorizont:"kurzfristig", auswirkung:4, unsicherheit:2, beschreibung:"Die Umsetzung von §14a EnWG verpflichtet Netzbetreiber zum steuerbaren Netzanschluss für steuerbare Verbrauchseinrichtungen. Prozesse und IT-Systeme müssen angepasst werden.", strategische_cluster:["Netzanschluss","Technologie"], tags:["§14a","Flexibilität","Steuerung","EnWG"] },
+      { id:4, titel:"Eigenkapitalverzinsung ARegV", kategorie:"regulatorisch", zeithorizont:"mittelfristig", auswirkung:4, unsicherheit:4, beschreibung:"Die anstehende Überprüfung des Eigenkapitalzinssatzes in der Anreizregulierung beeinflusst die Investitionsrendite erheblich. Steigende Zinsen könnten zu Anpassungen führen.", strategische_cluster:["Netzwirtschaft"], tags:["ARegV","Eigenkapital","Verzinsung","Regulierung"] },
+      { id:5, titel:"Flexibilitätsmärkte", kategorie:"marktlich", zeithorizont:"mittelfristig", auswirkung:4, unsicherheit:3, beschreibung:"Lokale und überregionale Flexibilitätsmärkte gewinnen an Bedeutung. Netzbetreiber müssen Schnittstellen zu Aggregatoren und Flexibilitätsanbietern schaffen.", strategische_cluster:["Netzwirtschaft","Technologie"], tags:["Flexibilität","Markt","Aggregator","Redispatch"] },
+      { id:6, titel:"Wärmepumpen-Hochlauf", kategorie:"marktlich", zeithorizont:"kurzfristig", auswirkung:5, unsicherheit:2, beschreibung:"Der starke Anstieg von Wärmepumpen erzeugt lokale Lastspitzen im Niederspannungsnetz. Netzplanung und Netzausbau müssen beschleunigt werden.", strategische_cluster:["Netzanschluss","Technologie"], tags:["Wärmepumpe","Last","Niederspannung","Netzausbau"] },
+      { id:7, titel:"Eigenverbrauch Gewerbe", kategorie:"marktlich", zeithorizont:"mittelfristig", auswirkung:3, unsicherheit:3, beschreibung:"Zunehmende PV-Anlagen mit Eigenverbrauchsoptimierung verändern Lastprofile im Gewerbebereich. Rückspeisungen und Nulleinspeisung erfordern neue Messlösungen.", strategische_cluster:["Messstellenbetrieb","Netzanschluss"], tags:["PV","Eigenverbrauch","Gewerbe","Einspeisung"] },
+      { id:8, titel:"Smart Meter Gateway Rollout", kategorie:"technologisch", zeithorizont:"kurzfristig", auswirkung:4, unsicherheit:2, beschreibung:"Der verpflichtende Einbau von Smart Meter Gateways erfordert umfangreiche Logistik, IT-Integration und Feldprozesse. Interoperabilität mit Backendsystemen ist kritisch.", strategische_cluster:["Messstellenbetrieb","Technologie"], tags:["SMGW","Smart Meter","Rollout","IT"] },
+      { id:9, titel:"Digitaler Zwilling Netz", kategorie:"technologisch", zeithorizont:"mittelfristig", auswirkung:3, unsicherheit:4, beschreibung:"Digitale Abbilder des Netzes ermöglichen Echtzeit-Simulation und vorausschauende Wartung. Datenverfügbarkeit und Modellpflege sind zentrale Herausforderungen.", strategische_cluster:["Technologie","Organisation"], tags:["Digitalisierung","Simulation","Asset Management","GIS"] },
+      { id:10, titel:"Netzautomatisierung SCADA", kategorie:"technologisch", zeithorizont:"langfristig", auswirkung:4, unsicherheit:3, beschreibung:"Automatisierte Schalthandlungen und selbstheilende Netze reduzieren Ausfallzeiten. Investitionen in Fernwirktechnik und Cybersicherheit sind erforderlich.", strategische_cluster:["Technologie","Netzwirtschaft"], tags:["SCADA","Automatisierung","Fernwirk","Cybersicherheit"] },
+      { id:11, titel:"Neue Messstellenbetreiber", kategorie:"wettbewerblich", zeithorizont:"kurzfristig", auswirkung:4, unsicherheit:2, beschreibung:"Dritte Messstellenbetreiber drängen in den Markt und übernehmen Einbau und Betrieb von Messsystemen. Marktanteilsverluste im Messstellenbetrieb sind realistisch.", strategische_cluster:["Messstellenbetrieb","Organisation"], tags:["Wettbewerb","MSB","Dritte","Marktöffnung"] },
+      { id:12, titel:"Sektorkonvergenz Energie & IT", kategorie:"wettbewerblich", zeithorizont:"langfristig", auswirkung:3, unsicherheit:5, beschreibung:"Technologieunternehmen und Startups dringen in die Energiewirtschaft vor. Neue Geschäftsmodelle rund um Daten und Plattformen konkurrieren mit klassischen Netzbetreiberleistungen.", strategische_cluster:["Organisation","Technologie"], tags:["Disruption","Plattform","Digitalisierung","Wettbewerb"] }
+    ];
+
+    radarData.forEach(d => d.radar_score = berechneScore(d));
+
+    const winkelMap = {
+      regulatorisch:  270 * Math.PI / 180,
+      marktlich:        0 * Math.PI / 180,
+      technologisch:   90 * Math.PI / 180,
+      wettbewerblich: 180 * Math.PI / 180
+    };
+
+    const radiusMap = { kurzfristig: 100, mittelfristig: 200, langfristig: 280 };
+
+    const farbMap = {
+      regulatorisch:  "#2d7a8e",
+      marktlich:      "#63a2b4",
+      technologisch:  "#4a8a6f",
+      wettbewerblich: "#7a6ea0"
+    };
+
+    const tooltip = d3.select("body")
+      .append("div")
+      .attr("id", "tooltip")
+      .style("position",      "absolute")
+      .style("background",    "#2a2a2a")
+      .style("color",         "#fff")
+      .style("padding",       "10px 12px")
+      .style("border-radius", "6px")
+      .style("font-size",     "12px")
+      .style("pointer-events","auto")
+      .style("min-width",     "220px")
+      .style("max-width",     "300px")
+      .style("line-height",   "1.5")
+      .style("box-shadow",    "0 4px 16px rgba(0,0,0,0.3)")
+      .style("z-index",       "500")
+      .style("opacity",       0);
+
+    // Verzögertes Ausblenden — damit der Quelle-Link anklickbar bleibt
+    let _tooltipTimer = null;
+    tooltip
+      .on("mouseenter", () => clearTimeout(_tooltipTimer))
+      .on("mouseleave", () => {
+        _tooltipTimer = setTimeout(() => tooltip.style("opacity", 0), 150);
+      });
+
+    // Verteilt Punkte gleichmäßig innerhalb des Quadranten (±40°), alphabetisch sortiert
+    function berechnePositionen() {
+      const quadrantBreite = 80;
+      const zentrumsGrad = { regulatorisch: 270, marktlich: 0, technologisch: 90, wettbewerblich: 180 };
+      const gruppen = {};
+      radarData.forEach(d => {
+        const key = d.kategorie + "|" + d.zeithorizont;
+        if (!gruppen[key]) gruppen[key] = [];
+        gruppen[key].push(d);
+      });
+      Object.entries(gruppen).forEach(([key, punkte]) => {
+        punkte.sort((a, b) => a.titel.localeCompare(b.titel, "de"));
+        const kat = key.split("|")[0];
+        const zentrum = zentrumsGrad[kat];
+        const n = punkte.length;
+        punkte.forEach((d, i) => {
+          const offset = n === 1 ? 0 : ((i / (n - 1)) - 0.5) * quadrantBreite;
+          const winkel = (zentrum + offset) * Math.PI / 180;
+          const r = radiusMap[d.zeithorizont];
+          d.x       = 300 + r * Math.cos(winkel);
+          d.y       = 300 + r * Math.sin(winkel);
+          d.size    = d.auswirkung * 3;
+          d.farbe   = farbMap[d.kategorie];
+          d.opacity = 1 - (d.unsicherheit - 1) * 0.15;
+        });
+      });
+    }
+
+    function zeichnePunkte() {
+      berechnePositionen();
+      d3.select("#radar-svg").selectAll("circle.punkt").remove();
+      d3.select("#radar-svg").selectAll("g.punkt-label").remove();
+
+      // ── Kreise ───────────────────────────────────────────
+      d3.select("#radar-svg")
+        .selectAll("circle.punkt")
+        .data(radarData, d => d.id)
+        .enter()
+        .append("circle")
+          .attr("class", "punkt")
+          .attr("cx",      d => d.x)
+          .attr("cy",      d => d.y)
+          .attr("r",       d => d.size)
+          .attr("fill",    d => d.farbe)
+          .attr("opacity", d => d.opacity)
+        .on("mouseover", function(event, d) {
+          clearTimeout(_tooltipTimer);
+
+          const katFarbe   = farbMap[d.kategorie];
+          const score      = d.radar_score || 0;
+          const scoreFarbe = score >= 0.7 ? "#c0392b"
+                           : score >= 0.5 ? "#e67e22"
+                           :                "#27ae60";
+          const sterne     = n => "★".repeat(n) + "☆".repeat(5 - n);
+          const cluster    = (d.strategische_cluster || []).join(", ") || "–";
+          const quelleHTML = (d.quelle && d.quelle.trim())
+            ? `<div style="margin-top:6px;padding-top:5px;border-top:1px solid rgba(255,255,255,0.15);font-size:11px">
+                 Quelle: <a href="${d.quelle}" target="_blank"
+                   style="color:#7ab8f0;text-decoration:none">
+                   ${d.quelle.length > 30 ? d.quelle.slice(0, 30) + "…" : d.quelle}
+                 </a>
+               </div>`
+            : "";
+
+          tooltip
+            .style("opacity", 1)
+            .html(`
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+                <span style="background:${katFarbe};color:#fff;border-radius:3px;padding:1px 7px;font-size:11px">${d.kategorie}</span>
+                <span style="font-weight:700;color:${scoreFarbe};margin-left:8px;font-size:12px">Score: ${score.toFixed(2)}</span>
+              </div>
+              <div style="font-weight:600;font-size:13px;line-height:1.3;margin-bottom:6px">${d.titel}</div>
+              <div style="border-top:1px solid rgba(255,255,255,0.2);margin-bottom:6px"></div>
+              <div style="font-size:11px;line-height:1.9">
+                <div>Zeithorizont: <strong>${d.zeithorizont}</strong></div>
+                <div>Auswirkung:&ensp;<span style="color:#f5a623">${sterne(d.auswirkung)}</span></div>
+                <div>Unsicherheit: <span style="color:#f5a623">${sterne(d.unsicherheit)}</span></div>
+                <div>Cluster: ${cluster}</div>
+              </div>
+              ${quelleHTML}
+            `);
+
+          const ttw = 320;
+          const tx  = (event.pageX + ttw > window.innerWidth) ? event.pageX - ttw : event.pageX + 14;
+          const ty  = (event.pageY - 20  < 0)                 ? event.pageY + 20  : event.pageY - 20;
+          tooltip.style("left", tx + "px").style("top", ty + "px");
+        })
+        .on("mousemove", function(event) {
+          const ttw = 320;
+          const tx  = (event.pageX + ttw > window.innerWidth) ? event.pageX - ttw : event.pageX + 14;
+          const ty  = (event.pageY - 20  < 0)                 ? event.pageY + 20  : event.pageY - 20;
+          tooltip.style("left", tx + "px").style("top", ty + "px");
+        })
+        .on("mouseout", () => {
+          _tooltipTimer = setTimeout(() => tooltip.style("opacity", 0), 150);
+        })
+        .on("click", function(event, d) {
+          if (d3.select(this).attr("opacity") > 0.15) zeigeDetail(d);
+        });
+
+      // ── Beschriftungen (rect + text, über den Kreisen) ───
+      d3.select("#radar-svg")
+        .selectAll("g.punkt-label")
+        .data(radarData, d => d.id)
+        .enter()
+        .append("g")
+          .attr("class",          "punkt-label")
+          .attr("pointer-events", "none")
+          .each(function(d) {
+            const g         = d3.select(this);
+            const kurzTitel = d.titel.length > 22 ? d.titel.slice(0, 22) + "…" : d.titel;
+            const breite    = kurzTitel.length * 5.5;
+            const lx        = d.x;
+            const ly        = d.y - d.size - 6;
+
+            // Hintergrund-Rechteck
+            g.append("rect")
+              .attr("x",       lx - breite / 2)
+              .attr("y",       ly - 11)
+              .attr("width",   breite)
+              .attr("height",  14)
+              .attr("rx",      3)
+              .attr("fill",    "white")
+              .attr("opacity", 0.75);
+
+            // Titeltext
+            g.append("text")
+              .attr("x",           lx)
+              .attr("y",           ly)
+              .attr("text-anchor", "middle")
+              .attr("font-size",   "10px")
+              .attr("fill",        "#333")
+              .attr("font-weight", "500")
+              .text(kurzTitel);
+
+            // Initiale Sichtbarkeit: nur ab auswirkung >= 3
+            g.attr("opacity", d.auswirkung >= 3 ? 1 : 0);
+          });
+
+      filterAktualisieren();
+      zeichneMeilensteinBadges();
+    }
+
+    function zeigeDetail(d) {
+      const katFarben = {
+        regulatorisch:  "#2d7a8e",
+        marktlich:      "#63a2b4",
+        technologisch:  "#4a8a6f",
+        wettbewerblich: "#7a6ea0"
+      };
+      const statusFarben = {
+        "offen":          "#bbb",
+        "in Bearbeitung": "#378ADD",
+        "abgeschlossen":  "#1D9E75",
+        "verzögert":      "#E24B4A"
+      };
+      const sterne = "★".repeat(d.auswirkung) + "☆".repeat(5 - d.auswirkung);
+      const clusterBadges = (d.strategische_cluster || []).map(c =>
+        `<span style="background:#e8e8e8;border-radius:3px;padding:1px 6px;margin-right:3px;font-size:10px;display:inline-block;margin-bottom:3px">${c}</span>`
+      ).join("");
+      const tagBadges = (d.tags || []).map(t =>
+        `<span style="background:#eef2ff;border-radius:3px;padding:1px 5px;margin-right:3px;font-size:10px;display:inline-block;margin-bottom:3px">${t}</span>`
+      ).join("");
+
+      // Abgeleitete Meilensteine aus localStorage
+      const meilensteine = meilensteinCache.filter(m => m.thema_id === d.id);
+      const msListeHTML = meilensteine.length === 0
+        ? `<p style="color:#bbb;font-size:11px;margin:4px 0">Keine Meilensteine abgeleitet.</p>`
+        : meilensteine.map(ms => {
+            const sf    = statusFarben[ms.status] || "#bbb";
+            const datum = new Date(ms.ende).toLocaleDateString("de-DE",
+              { day: "2-digit", month: "short" });
+            return `
+              <div style="border:1px solid #eee;border-radius:4px;padding:6px 8px;margin-bottom:4px">
+                <div style="display:flex;justify-content:space-between;align-items:center;gap:6px;margin-bottom:3px">
+                  <span style="font-size:11px;font-weight:500;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${ms.titel}</span>
+                  <span style="background:${sf};color:#fff;border-radius:3px;padding:1px 5px;font-size:10px;white-space:nowrap;flex-shrink:0">${ms.status}</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:6px">
+                  <div style="flex:1;height:4px;background:#eee;border-radius:2px;overflow:hidden">
+                    <div style="width:${ms.fortschritt || 0}%;height:100%;background:${sf};border-radius:2px"></div>
+                  </div>
+                  <span style="font-size:10px;color:#aaa;white-space:nowrap">${ms.fortschritt || 0}% · ${datum}</span>
+                </div>
+              </div>`;
+          }).join("");
+
+      const heute        = new Date().toISOString().slice(0, 10);
+      const dreiMonate   = new Date();
+      dreiMonate.setMonth(dreiMonate.getMonth() + 3);
+      const dreiMonateStr = dreiMonate.toISOString().slice(0, 10);
+      const titelSafe    = d.titel.replace(/"/g, "&quot;");
+      const beschrLang   = (d.beschreibung || "").length > 120;
+
+      // Kein Flicker: Panel erst einblenden, dann Inhalt setzen
+      const panel = document.getElementById("detail-panel");
+      if (panel.style.display === "none" || panel.style.display === "") {
+        panel.style.display = "block";
+      }
+
+      document.getElementById("detail-inhalt").innerHTML = `
+        <div style="padding-right:20px;margin-bottom:6px">
+          <div style="font-size:14px;font-weight:600;line-height:1.35;word-break:break-word">${d.titel}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;flex-wrap:wrap">
+          <span style="background:${katFarben[d.kategorie]};color:#fff;border-radius:3px;padding:1px 6px;font-size:10px">${d.kategorie}</span>
+          <span style="font-size:11px;color:#888">${d.zeithorizont}</span>
+          <span style="font-size:12px;color:#2d7a8e;font-weight:700;margin-left:auto">Score: ${d.radar_score}</span>
+        </div>
+        <div style="font-size:14px;color:#f5a623;margin-bottom:6px;letter-spacing:1px">${sterne}</div>
+        ${clusterBadges ? `<div style="margin-bottom:4px;line-height:1.6">${clusterBadges}</div>` : ""}
+        ${tagBadges     ? `<div style="margin-bottom:6px;line-height:1.6">${tagBadges}</div>`     : ""}
+        ${d.beschreibung ? `
+        <div style="margin-bottom:6px">
+          <div id="dp-beschr"
+            style="font-size:11px;color:#555;line-height:1.5;overflow:hidden;${beschrLang ? "display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical" : ""}">${d.beschreibung}</div>
+          ${beschrLang ? `<button id="dp-mehr" style="font-size:10px;color:#63a2b4;background:none;border:none;padding:2px 0;cursor:pointer">mehr anzeigen ▾</button>` : ""}
+        </div>` : ""}
+        ${d.quelle ? `<div style="margin-bottom:6px;font-size:11px;color:#aaa">Quelle: <a href="${d.quelle}" target="_blank" rel="noopener" style="color:#63a2b4">${d.quelle.replace(/^https?:\/\//, "")}</a></div>` : ""}
+
+        <div style="margin-top:8px;border-top:1px solid #eee;padding-top:8px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+            <strong style="font-size:11px;color:#555">Meilensteine</strong>
+            <a href="#" onclick="App.activate('meilensteine');return false;" style="font-size:10px;color:#63a2b4;text-decoration:none">Alle →</a>
+          </div>
+          ${msListeHTML}
+          <button id="btn-meilenstein-ableiten"
+            style="margin-top:4px;padding:4px 10px;font-size:11px;background:#f5f5f5;border:1px solid #ddd;border-radius:4px;cursor:pointer;width:100%">
+            + Meilenstein ableiten
+          </button>
+          <div id="ableitungs-formular"
+            style="display:none;margin-top:8px;padding:10px;background:#f9f9f9;border-radius:4px;border:1px solid #eee">
+            <div style="margin-bottom:6px">
+              <label style="font-size:11px;color:#888;display:block;margin-bottom:2px">Titel *</label>
+              <input id="form-ms-titel" type="text" value="Meilenstein: ${titelSafe}"
+                style="width:100%;padding:4px 7px;border:1px solid #ddd;border-radius:4px;font-size:12px;box-sizing:border-box">
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px">
+              <div>
+                <label style="font-size:11px;color:#888;display:block;margin-bottom:2px">Start *</label>
+                <input id="form-ms-start" type="date" value="${heute}"
+                  style="width:100%;padding:4px 6px;border:1px solid #ddd;border-radius:4px;font-size:11px;box-sizing:border-box">
+              </div>
+              <div>
+                <label style="font-size:11px;color:#888;display:block;margin-bottom:2px">Ende *</label>
+                <input id="form-ms-ende" type="date" value="${dreiMonateStr}"
+                  style="width:100%;padding:4px 6px;border:1px solid #ddd;border-radius:4px;font-size:11px;box-sizing:border-box">
+              </div>
+            </div>
+            <div style="margin-bottom:8px">
+              <label style="font-size:11px;color:#888;display:block;margin-bottom:2px">Verantwortlicher</label>
+              <input id="form-ms-verantwortlicher" type="text" placeholder="Name"
+                style="width:100%;padding:4px 7px;border:1px solid #ddd;border-radius:4px;font-size:12px;box-sizing:border-box">
+            </div>
+            <div style="display:flex;gap:6px">
+              <button id="btn-ms-erstellen"
+                style="flex:1;padding:4px 0;background:#63a2b4;color:#fff;border:none;border-radius:4px;font-size:11px;cursor:pointer">
+                Erstellen
+              </button>
+              <button id="btn-ms-abbrechen"
+                style="padding:4px 10px;background:none;border:1px solid #ddd;border-radius:4px;font-size:11px;cursor:pointer;color:#888">
+                Abbrechen
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Aktions-Footer -->
+        <div style="margin-top:8px;padding-top:8px;border-top:1px solid #eee;display:flex;align-items:center;gap:6px">
+          <button id="btn-thema-bearbeiten"
+            style="padding:4px 10px;font-size:11px;background:#f5f5f5;border:1px solid #ddd;border-radius:4px;cursor:pointer">
+            ✎ Bearbeiten
+          </button>
+          ${d.manuell_erfasst
+            ? `<button id="btn-thema-loeschen"
+                style="margin-left:auto;background:none;border:none;font-size:11px;color:#c0392b;cursor:pointer;padding:4px 0">
+                Löschen
+               </button>`
+            : `<span style="margin-left:auto;font-size:10px;color:#ccc;text-align:right;line-height:1.3">
+                Nur via JSON löschbar
+               </span>`
+          }
+        </div>
+      `;
+
+      // Beschreibung "mehr anzeigen" Toggle
+      if (beschrLang) {
+        const btnMehr = document.getElementById("dp-mehr");
+        if (btnMehr) {
+          let expanded = false;
+          btnMehr.addEventListener("click", function() {
+            expanded = !expanded;
+            const el = document.getElementById("dp-beschr");
+            if (expanded) {
+              el.style.display = "block";
+              el.style.webkitLineClamp = "";
+              el.style.webkitBoxOrient = "";
+              btnMehr.textContent = "weniger anzeigen ▴";
+            } else {
+              el.style.display = "-webkit-box";
+              el.style.webkitLineClamp = "3";
+              el.style.webkitBoxOrient = "vertical";
+              btnMehr.textContent = "mehr anzeigen ▾";
+            }
+          });
+        }
+      }
+
+      // Toggle Ableitungs-Formular
+      document.getElementById("btn-meilenstein-ableiten").addEventListener("click", function() {
+        const form = document.getElementById("ableitungs-formular");
+        const offen = form.style.display === "none";
+        form.style.display = offen ? "block" : "none";
+        if (offen) document.getElementById("form-ms-titel").focus();
+      });
+
+      document.getElementById("btn-ms-abbrechen").addEventListener("click", function() {
+        document.getElementById("ableitungs-formular").style.display = "none";
+      });
+
+      // Meilenstein speichern
+      document.getElementById("btn-ms-erstellen").addEventListener("click", function() {
+        const titel = document.getElementById("form-ms-titel").value.trim();
+        const start = document.getElementById("form-ms-start").value;
+        const ende  = document.getElementById("form-ms-ende").value;
+        const verantwortlicher = document.getElementById("form-ms-verantwortlicher").value.trim();
+
+        if (!titel || !start || !ende) {
+          alert("Bitte Titel, Start- und Enddatum angeben."); return;
+        }
+        if (new Date(ende) < new Date(start)) {
+          alert("Ende-Datum muss nach dem Start-Datum liegen."); return;
+        }
+
+        speichereMeilensteinInLocalStorage({
+          id:                   "M" + Date.now(),
+          titel,
+          thema_id:             d.id,
+          thema_titel:          d.titel,
+          kategorie:            d.kategorie,
+          start,
+          ende,
+          verantwortlicher:     verantwortlicher || "–",
+          status:               "offen",
+          fortschritt:          0,
+          abhaengig_von:        [],
+          strategische_cluster: d.strategische_cluster || [],
+          radar_score:          d.radar_score,
+          notiz:                ""
+        });
+
+        zeichneMeilensteinBadges();
+        zeigeDetail(d);   // Panel in-place aktualisieren (kein Flicker)
+      });
+
+      // Bearbeiten-Button
+      document.getElementById("btn-thema-bearbeiten").addEventListener("click", function() {
+        oeffneThemaFormularBearbeiten(d);
+      });
+      // Löschen-Button (nur bei manuell erfassten Themen)
+      if (d.manuell_erfasst) {
+        document.getElementById("btn-thema-loeschen").addEventListener("click", function() {
+          zeigeLoeschenModal(d);
+        });
+      }
+    }
+
+    function aktualisiereRangliste(gefilterteDaten) {
+      const top5 = [...gefilterteDaten]
+        .sort((a, b) => b.radar_score - a.radar_score)
+        .slice(0, 5);
+      const tbody = document.querySelector("#rang-tabelle tbody");
+      tbody.innerHTML = "";
+      top5.forEach((d, i) => {
+        const tr = document.createElement("tr");
+        tr.style.cursor = "pointer";
+        tr.style.borderBottom = "1px solid #eee";
+        tr.innerHTML = `
+          <td style="padding:4px 8px;font-size:12px">${i + 1}</td>
+          <td style="padding:4px 8px;font-size:12px">${d.titel}</td>
+          <td style="padding:4px 8px;font-size:12px">${d.kategorie}</td>
+          <td style="padding:4px 8px;font-size:12px">${d.zeithorizont}</td>
+          <td style="padding:4px 8px;font-size:12px">${d.radar_score}</td>
+        `;
+        tr.addEventListener("mouseover", () => tr.style.background = "#f5f5f5");
+        tr.addEventListener("mouseout",  () => tr.style.background = "");
+        tr.addEventListener("click",     () => zeigeDetail(d));
+        tbody.appendChild(tr);
+      });
+    }
+
+    // ── Kollisionserkennung für Punkt-Titel ───────────────
+    // Läuft nach jedem filterAktualisieren()-Aufruf.
+    // Behält immer den Titel mit dem höheren radar_score sichtbar.
+    function pruefeKollisionen() {
+      // 1. Snapshot aller momentan sichtbaren Labels
+      const kandidaten = [];
+      d3.selectAll("g.punkt-label").each(function(d) {
+        if (parseFloat(d3.select(this).attr("opacity") || 0) <= 0) return;
+        const rectEl = this.querySelector("rect");
+        if (!rectEl) return;
+        const bbox = rectEl.getBBox();
+        if (bbox.width === 0) return;   // noch nicht gerendert – überspringen
+        kandidaten.push({ node: d3.select(this), datum: d, bbox });
+      });
+
+      // 2. Absteigend nach radar_score sortieren (höherer Score gewinnt)
+      kandidaten.sort((a, b) => (b.datum.radar_score || 0) - (a.datum.radar_score || 0));
+
+      // 3. O(n²)-Überlappungstest: erster gewinnt immer gegen späteren
+      const versteckt = new Set();
+      for (let i = 0; i < kandidaten.length; i++) {
+        if (versteckt.has(i)) continue;
+        const a = kandidaten[i].bbox;
+        for (let j = i + 1; j < kandidaten.length; j++) {
+          if (versteckt.has(j)) continue;
+          const b = kandidaten[j].bbox;
+          if (a.x < b.x + b.width  &&
+              a.x + a.width  > b.x  &&
+              a.y < b.y + b.height &&
+              a.y + a.height > b.y) {
+            kandidaten[j].node.attr("opacity", 0);
+            versteckt.add(j);
+          }
+        }
+      }
+    }
+
+    function getPestelDimension(kategorie) {
+      const mapping = {
+        "regulatorisch": ["P", "L"],
+        "marktlich":     ["E"],
+        "technologisch": ["T"],
+        "wettbewerblich":["E"]
+      };
+      return mapping[kategorie] || ["S"];
+    }
+
+    function befuellePestel(daten) {
+      const katFarben = {
+        regulatorisch:  "#2d7a8e",
+        marktlich:      "#63a2b4",
+        technologisch:  "#4a8a6f",
+        wettbewerblich: "#7a6ea0"
+      };
+      const dimMap = {
+        P: "political",
+        E: "economic",
+        S: "social",
+        T: "technological",
+        L: "legal"
+      };
+
+      // Alle Karten-Container leeren
+      document.querySelectorAll(".pestel-karten").forEach(el => el.innerHTML = "");
+
+      // Score-absteigend sortieren, damit wichtigste Karten oben erscheinen
+      const sortiert = [...daten].sort((a, b) => (b.radar_score || 0) - (a.radar_score || 0));
+
+      sortiert.forEach(d => {
+        const dimensionen = getPestelDimension(d.kategorie);
+        dimensionen.forEach(letter => {
+          const dimKey = dimMap[letter];
+          if (!dimKey) return;
+          const spalte = document.querySelector(`.pestel-spalte[data-dimension="${dimKey}"]`);
+          if (!spalte) return;
+          const container = spalte.querySelector(".pestel-karten");
+          if (!container) return;
+
+          const scoreColor = d.radar_score >= 0.7 ? "#c0392b"
+                           : d.radar_score >= 0.5 ? "#e67e22"
+                           : "#27ae60";
+          const borderColor = katFarben[d.kategorie] || "#ccc";
+
+          const karte = document.createElement("div");
+          karte.className = "pestel-karte";
+          karte.style.borderLeftColor = borderColor;
+          karte.innerHTML = `
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:4px">
+              <div style="font-size:11px;font-weight:500;line-height:1.3;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${d.titel}</div>
+              <span style="font-size:10px;font-weight:700;color:${scoreColor};flex-shrink:0">${d.radar_score}</span>
+            </div>
+            <div style="font-size:9px;color:#aaa;margin-top:1px">${d.zeithorizont}</div>
+          `;
+          karte.addEventListener("click", () => zeigeDetail(d));
+          container.appendChild(karte);
+        });
+      });
+
+      // Nach dem Befüllen: leere Spalten kennzeichnen + Zähler-Badge im Header setzen
+      document.querySelectorAll(".pestel-spalte").forEach(spalte => {
+        const container = spalte.querySelector(".pestel-karten");
+        const header    = spalte.querySelector(".pestel-header");
+        if (!container || !header) return;
+
+        const anzahl = container.querySelectorAll(".pestel-karte").length;
+
+        // Leer-Hinweis
+        if (anzahl === 0) {
+          container.innerHTML =
+            `<div style="font-size:10px;color:#bbb;padding:4px 0;">Keine Themen</div>`;
+        }
+
+        // Zähler-Badge: vorhandenen entfernen, neuen setzen
+        const alterBadge = header.querySelector(".pestel-zaehler");
+        if (alterBadge) alterBadge.remove();
+        const kuerzelEl = header.querySelector(".pestel-header-kuerzel");
+        if (kuerzelEl) {
+          const badge = document.createElement("span");
+          badge.className = "pestel-zaehler";
+          badge.textContent = anzahl;
+          badge.style.cssText =
+            "background:rgba(255,255,255,0.25);color:#fff;font-size:9px;" +
+            "border-radius:8px;padding:0 5px;margin-left:4px;font-weight:400;";
+          kuerzelEl.appendChild(badge);
+        }
+      });
+    }
+
+    function filterAktualisieren() {
+      const aktiveCluster = Array.from(
+        document.querySelectorAll("#filter-panel input[type=checkbox]:checked")
+      ).map(cb => cb.value);
+      const suchtext = document.getElementById("suche").value.toLowerCase();
+
+      function istAktiv(d) {
+        const clusterMatch = aktiveCluster.length === 0 ||
+          aktiveCluster.some(c => d.strategische_cluster.includes(c));
+        const suchMatch = suchtext === "" ||
+          (d.titel + " " + d.beschreibung + " " + d.tags.join(" ")).toLowerCase().includes(suchtext);
+        return clusterMatch && suchMatch;
+      }
+
+      d3.selectAll("circle.punkt")
+        .attr("opacity",        d => istAktiv(d) ? d.opacity : 0.15)
+        .style("pointer-events",d => istAktiv(d) ? "auto"    : "none");
+
+      // Beschriftungen mitfiltern:
+      // auswirkung < 3 → immer unsichtbar; aktiv → 1; inaktiv → 0.15
+      d3.selectAll("g.punkt-label")
+        .attr("opacity", d => {
+          if (d.auswirkung < 3) return 0;
+          return istAktiv(d) ? 1 : 0.15;
+        });
+
+      // Überlappende Titel ausblenden (Titel mit höherem Score bleibt sichtbar)
+      pruefeKollisionen();
+
+      const aktiveDaten = radarData.filter(istAktiv);
+      aktualisiereRangliste(aktiveDaten);
+      befuellePestel(aktiveDaten);
+
+      // Filter-Info und Badge synchron halten
+      const filterAktiv = aktiveCluster.length > 0 || suchtext !== "";
+      const infoEl  = document.getElementById("pestel-filter-info");
+      const badgeEl = document.getElementById("pestel-gefiltert-badge");
+      if (infoEl)  infoEl.textContent  = `${aktiveDaten.length} von ${radarData.length} Themen`;
+      if (badgeEl) badgeEl.style.display = filterAktiv ? "inline" : "none";
+    }
+
+    let _bearbeitungsId  = null;   // null = neues Thema | sonst ID des zu bearbeitenden Eintrags
+    let meilensteinCache = [];
+    ladeMeilensteineAusLocalStorage();
+    ladeManuellErfassteThemen();
+    zeichnePunkte();
+
+    function uebernehmeVorschlag(v, btn) {
+      const neueId = Math.max(...radarData.map(d => d.id)) + 1;
+      const neuerEintrag = {
+        id:                   neueId,
+        titel:                v.titel || "Neues Thema",
+        kategorie:            v.vorgeschlagene_kategorie  || "regulatorisch",
+        zeithorizont:         v.vorgeschlagener_zeithorizont || "mittelfristig",
+        auswirkung:           v.vorgeschlagene_auswirkung  || 3,
+        unsicherheit:         3,
+        beschreibung:         v.zusammenfassung || "",
+        strategische_cluster: v.vorgeschlagene_cluster || [],
+        tags:                 v.vorgeschlagene_tags    || [],
+      };
+      neuerEintrag.radar_score = berechneScore(neuerEintrag);
+      radarData.push(neuerEintrag);
+      zeichnePunkte();
+      btn.textContent = "✓ Im Radar";
+      btn.disabled    = true;
+      btn.style.cssText = "padding:4px 10px;font-size:11px;cursor:default;background:#aaa;color:#fff;border:none;border-radius:3px;margin-top:8px";
+    }
+
+    function ladeVorschlaege(input) {
+      const file = input.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        let daten;
+        try {
+          daten = JSON.parse(e.target.result);
+        } catch(err) {
+          alert("Fehler beim Lesen der JSON-Datei: " + err.message);
+          return;
+        }
+        if (!Array.isArray(daten) || daten.length === 0) {
+          alert("Keine Vorschläge in der Datei gefunden.");
+          return;
+        }
+
+        const katFarben = {
+          regulatorisch:  "#2d7a8e",
+          marktlich:      "#63a2b4",
+          technologisch:  "#4a8a6f",
+          wettbewerblich: "#7a6ea0"
+        };
+
+        document.getElementById("vorschlaege-meta").textContent =
+          `${daten.length} Vorschläge aus ${file.name}`;
+
+        const liste = document.getElementById("vorschlaege-liste");
+        liste.innerHTML = "";
+
+        daten.forEach((v, i) => {
+          const farbe = katFarben[v.vorgeschlagene_kategorie] || "#888";
+          const sterne = "★".repeat(v.vorgeschlagene_auswirkung || 1) +
+                         "☆".repeat(5 - (v.vorgeschlagene_auswirkung || 1));
+          const clusterBadges = (v.vorgeschlagene_cluster || []).map(c =>
+            `<span style="background:#e0e0e0;border-radius:3px;padding:1px 7px;margin-right:3px;font-size:11px">${c}</span>`
+          ).join("");
+          const tagBadges = (v.vorgeschlagene_tags || []).map(t =>
+            `<span style="background:#f0f4ff;border-radius:3px;padding:1px 6px;margin-right:3px;font-size:11px">${t}</span>`
+          ).join("");
+
+          const karte = document.createElement("div");
+          karte.style.cssText = "border:1px solid #ddd;border-radius:5px;padding:12px 14px;margin-bottom:10px;background:#fafafa";
+          karte.innerHTML = `
+            <div style="overflow:hidden;margin-bottom:6px">
+              <strong style="font-size:14px">${v.titel || "–"}</strong>
+              <span style="background:${farbe};color:#fff;border-radius:3px;padding:1px 8px;font-size:11px;margin-left:8px">${v.vorgeschlagene_kategorie || "–"}</span>
+              <span style="float:right;font-size:11px;color:#888">${v.datum || ""} · <a href="${v.link || '#'}" target="_blank" style="color:#63a2b4">Quelle ↗</a></span>
+            </div>
+            <div style="font-size:12px;color:#555;margin-bottom:6px">${v.zusammenfassung ? v.zusammenfassung.slice(0,200) + (v.zusammenfassung.length > 200 ? "…" : "") : ""}</div>
+            <div style="margin-bottom:4px">
+              <span style="font-size:12px"><strong>Horizont:</strong> ${v.vorgeschlagener_zeithorizont || "–"}</span>
+              <span style="font-size:16px;color:#f5a623;margin-left:12px">${sterne}</span>
+            </div>
+            <div style="margin-bottom:4px">${clusterBadges}</div>
+            <div style="margin-bottom:6px">${tagBadges}</div>
+            <div style="font-size:11px;color:#888;font-style:italic">${v.begruendung || ""}</div>
+          `;
+          const btn = document.createElement("button");
+          btn.textContent = "⊕ In Radar übernehmen";
+          btn.style.cssText = "padding:4px 10px;font-size:11px;cursor:pointer;background:#27ae60;color:#fff;border:none;border-radius:3px;margin-top:8px";
+          btn.addEventListener("click", () => uebernehmeVorschlag(v, btn));
+          karte.appendChild(btn);
+          liste.appendChild(karte);
+        });
+
+        document.getElementById("vorschlaege-panel").style.display = "block";
+        document.getElementById("vorschlaege-panel").scrollIntoView({behavior:"smooth"});
+        input.value = "";
+      };
+      reader.readAsText(file, "utf-8");
+    }
+
+    // -----------------------------------------------------------------------
+    // Server-Kommunikation
+    // -----------------------------------------------------------------------
+
+    let _serverRetryTimer = null;
+
+    async function pruefeServerStatus() {
+      const btn    = document.getElementById("btn-aktualisieren");
+      const status = document.getElementById("update-status");
+      try {
+        const controller = new AbortController();
+        const abortTimer = setTimeout(() => controller.abort(), 2000);
+        const res  = await fetch("http://localhost:5050/status", { signal: controller.signal });
+        clearTimeout(abortTimer);
+        const data = await res.json();
+
+        // Server erreichbar → Retry-Timer stoppen falls aktiv
+        if (_serverRetryTimer) {
+          clearInterval(_serverRetryTimer);
+          _serverRetryTimer = null;
+        }
+
+        const lauf = data.letzter_lauf?.letzter_lauf;
+        if (lauf) {
+          const dt = new Date(lauf);
+          status.textContent = "Zuletzt aktualisiert: " + dt.toLocaleDateString("de-DE");
+        } else {
+          status.textContent = "Server aktiv – noch kein Lauf";
+        }
+        status.style.color = "#555";
+        btn.disabled = false;
+      } catch {
+        status.style.color = "#c0392b";
+        status.textContent = "⚠ Server nicht aktiv – wird automatisch erkannt …";
+        btn.disabled = true;
+
+        // Alle 10 Sekunden erneut prüfen bis Server antwortet
+        if (!_serverRetryTimer) {
+          _serverRetryTimer = setInterval(pruefeServerStatus, 10000);
+        }
+      }
+    }
+
+    async function starteAktualisierung() {
+      const btn    = document.getElementById("btn-aktualisieren");
+      const status = document.getElementById("update-status");
+      btn.disabled    = true;
+      btn.textContent = "Läuft…";
+      status.style.color = "#555";
+      status.textContent = "Analyse wird durchgeführt…";
+      try {
+        const res  = await fetch("http://localhost:5050/starte-update");
+        const data = await res.json();
+        if (data.status === "gestartet") {
+          const startZeit = new Date();
+          pollStatus(startZeit);
+        } else if (data.status === "laeuft-bereits") {
+          status.textContent = "Analyse läuft bereits – bitte warten";
+          const startZeit = new Date();
+          pollStatus(startZeit);
+        }
+      } catch {
+        status.textContent = "Fehler – Server erreichbar?";
+        status.style.color = "#c0392b";
+        btn.disabled    = false;
+        btn.textContent = "Radar aktualisieren";
+      }
+    }
+
+    function pollStatus(startZeit) {
+      const btn    = document.getElementById("btn-aktualisieren");
+      const status = document.getElementById("update-status");
+      const maxWait   = 120000;
+      const intervall = 3000;
+      let vergangen   = 0;
+
+      const timer = setInterval(async () => {
+        vergangen += intervall;
+        try {
+          const res  = await fetch("http://localhost:5050/status");
+          const data = await res.json();
+          const lauf = data.letzter_lauf?.letzter_lauf;
+          if (lauf && new Date(lauf) > startZeit) {
+            clearInterval(timer);
+            btn.disabled    = false;
+            btn.textContent = "Radar aktualisieren";
+            status.style.color = "#27ae60";
+            status.textContent = "✓ Update fertig – Vorschläge werden geladen…";
+
+            // Vorschläge automatisch nachladen und anzeigen
+            try {
+              const vRes  = await fetch("http://localhost:5050/vorschlaege");
+              const vDaten = await vRes.json();
+              const liste = Array.isArray(vDaten) ? vDaten
+                          : (Array.isArray(vDaten.vorschlaege) ? vDaten.vorschlaege : []);
+              if (liste.length > 0) {
+                zeigeAutoVorschlaege(liste);
+                status.textContent = `✓ ${liste.length} neue Vorschläge verfügbar`;
+              } else {
+                status.textContent = "✓ Update fertig – keine neuen Treffer";
+              }
+            } catch {
+              status.textContent = "✓ Update fertig – Vorschläge manuell importieren";
+            }
+            return;
+          }
+        } catch { /* Server kurz nicht erreichbar – weiter warten */ }
+
+        if (vergangen >= maxWait) {
+          clearInterval(timer);
+          btn.disabled    = false;
+          btn.textContent = "Radar aktualisieren";
+          status.style.color = "#c0392b";
+          status.textContent = "Timeout – kein Ergebnis nach 120 s";
+        }
+      }, intervall);
+    }
+
+    function zeigeAutoVorschlaege(daten) {
+      const katFarben = {
+        regulatorisch:  "#2d7a8e",
+        marktlich:      "#63a2b4",
+        technologisch:  "#4a8a6f",
+        wettbewerblich: "#7a6ea0"
+      };
+      const panel = document.getElementById("vorschlaege-panel");
+      panel.style.cssText = "clear:both;border:1px solid #f0c040;background:#fffdf0;border-radius:8px;padding:12px;margin-top:12px";
+
+      document.getElementById("vorschlaege-meta").textContent =
+        `${daten.length} Vorschläge aus automatischer Recherche`;
+
+      const liste = document.getElementById("vorschlaege-liste");
+      liste.innerHTML = "";
+
+      daten.forEach(v => {
+        const farbe    = katFarben[v.vorgeschlagene_kategorie] || "#888";
+        const katBadge = `<span style="background:${farbe};color:#fff;border-radius:3px;padding:1px 7px;font-size:11px;margin-right:4px">${v.vorgeschlagene_kategorie || "–"}</span>`;
+        const hzBadge  = `<span style="background:#e8e8e8;border-radius:3px;padding:1px 7px;font-size:11px">${v.vorgeschlagener_zeithorizont || "–"}</span>`;
+
+        const karte = document.createElement("div");
+        karte.style.cssText = "border:1px solid #e8d88a;border-radius:5px;padding:10px 12px;margin-bottom:8px;background:#fff";
+        karte.innerHTML = `
+          <div style="overflow:hidden;margin-bottom:4px">
+            <strong style="font-size:13px">${v.titel || "–"}</strong>
+            <span style="float:right;font-size:11px;color:#999">${v.datum || ""} ·
+              <a href="${v.link || '#'}" target="_blank" style="color:#63a2b4">${v.name || "Quelle"} ↗</a>
+            </span>
+          </div>
+          <div style="margin-bottom:5px">${katBadge}${hzBadge}</div>
+          <div style="font-size:11px;color:#888;font-style:italic;margin-bottom:6px">${v.begruendung || ""}</div>
+        `;
+
+        const btnUebernehmen = document.createElement("button");
+        btnUebernehmen.textContent = "⊕ In Radar übernehmen";
+        btnUebernehmen.style.cssText = "padding:3px 9px;font-size:11px;cursor:pointer;background:#27ae60;color:#fff;border:none;border-radius:3px;margin-right:6px";
+        btnUebernehmen.addEventListener("click", () => {
+          uebernehmeVorschlag(v, btnUebernehmen);
+          zeigeDetail(radarData[radarData.length - 1]);
+        });
+
+        const btnIgnorieren = document.createElement("button");
+        btnIgnorieren.textContent = "Ignorieren";
+        btnIgnorieren.style.cssText = "padding:3px 9px;font-size:11px;cursor:pointer;background:none;border:1px solid #ccc;border-radius:3px;color:#888";
+        btnIgnorieren.addEventListener("click", () => {
+          karte.style.display = "none";
+        });
+
+        karte.appendChild(btnUebernehmen);
+        karte.appendChild(btnIgnorieren);
+        liste.appendChild(karte);
+      });
+
+      panel.style.display = "block";
+      panel.scrollIntoView({ behavior: "smooth" });
+    }
+
+    // -----------------------------------------------------------------------
+    // Meilenstein-Verbindung (localStorage)
+    // -----------------------------------------------------------------------
+
+    function ladeMeilensteineAusLocalStorage() {
+      try {
+        const raw = localStorage.getItem("meilensteine");
+        meilensteinCache = raw ? JSON.parse(raw) : [];
+        if (!Array.isArray(meilensteinCache)) meilensteinCache = [];
+      } catch (e) {
+        meilensteinCache = [];
+      }
+    }
+
+    function speichereMeilensteinInLocalStorage(ms) {
+      ladeMeilensteineAusLocalStorage();       // frisch lesen (Mehrfach-Tab-Sicherheit)
+      meilensteinCache.push(ms);
+      localStorage.setItem("meilensteine", JSON.stringify(meilensteinCache));
+      localStorage.setItem("last_update", new Date().toLocaleString("de-DE"));
+      ladeMeilensteineAusLocalStorage();       // Cache aktualisieren
+    }
+
+    function zeichneMeilensteinBadges() {
+      d3.select("#radar-svg").selectAll("g.ms-badge-g").remove();
+
+      // Gruppierung nach thema_id
+      const gruppen = {};
+      meilensteinCache.forEach(ms => {
+        if (ms.thema_id == null) return;
+        if (!gruppen[ms.thema_id]) gruppen[ms.thema_id] = [];
+        gruppen[ms.thema_id].push(ms);
+      });
+
+      const svg = d3.select("#radar-svg");
+
+      radarData.forEach(d => {
+        const liste = gruppen[d.id];
+        if (!liste || liste.length === 0) return;
+
+        const anzahl            = liste.length;
+        const alleAbgeschlossen = liste.every(m => m.status === "abgeschlossen");
+        const einerVerzögert    = liste.some(m  => m.status === "verzögert");
+        const badgeFarbe        = alleAbgeschlossen ? "#27ae60"
+                                : einerVerzögert    ? "#c0392b"
+                                :                    "#63a2b4";
+
+        // Badge oben rechts am Punkt
+        const bx = d.x + d.size * 0.72;
+        const by = d.y - d.size * 0.72;
+
+        const g = svg.append("g").attr("class", "ms-badge-g").style("cursor", "pointer");
+
+        g.append("circle")
+          .attr("cx", bx).attr("cy", by).attr("r", 7)
+          .attr("fill", badgeFarbe)
+          .attr("stroke", "#fff").attr("stroke-width", 1.5);
+
+        g.append("text")
+          .attr("x", bx).attr("y", by + 3.5)
+          .attr("text-anchor", "middle")
+          .attr("font-size", "9px").attr("font-weight", "bold")
+          .attr("fill", "#fff").attr("pointer-events", "none")
+          .text(anzahl);
+
+        // Hover-Tooltip mit Titel-Liste
+        g.on("mouseover", function(event) {
+          const zeilen = liste.map(ms => {
+            const sym = ms.status === "abgeschlossen" ? "✓"
+                      : ms.status === "verzögert"     ? "⚠"
+                      : ms.status === "in Bearbeitung"? "◑"
+                      :                                 "○";
+            return `${sym} ${ms.titel}`;
+          }).join("<br>");
+          const tx = (event.pageX + 230 > window.innerWidth) ? event.pageX - 230 : event.pageX + 12;
+          const ty = event.pageY - 10;
+          tooltip
+            .style("opacity", 1)
+            .html(`<strong>${anzahl} Meilenstein${anzahl === 1 ? "" : "e"}</strong><br>`
+                + `<span style="font-size:11px;line-height:1.7">${zeilen}</span>`)
+            .style("left", tx + "px")
+            .style("top",  ty + "px");
+        })
+        .on("mouseout",  () => tooltip.style("opacity", 0))
+        .on("click", (event) => { event.stopPropagation(); zeigeDetail(d); });
+      });
+    }
+
+    pruefeServerStatus();
+
+    function exportiereJSON() {
+      const blob = new Blob([JSON.stringify(radarData, null, 2)], {type:"application/json"});
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      const datum = new Date().toISOString().slice(0,10);
+      link.download = "themenradar-export-" + datum + ".json";
+      link.click();
+    }
+
+    // -----------------------------------------------------------------------
+    // Thema-Formular: Öffnen / Schließen / Speichern
+    // -----------------------------------------------------------------------
+
+    function aktualisiereSlider(id, anzeigeId) {
+      const val = parseInt(document.getElementById(id).value);
+      document.getElementById(anzeigeId).innerHTML =
+        `<strong style="color:#63a2b4;font-size:15px">${val}</strong>`
+        + `&ensp;<span style="color:#f5a623;font-size:15px;letter-spacing:2px">`
+        + `${"★".repeat(val)}${"☆".repeat(5 - val)}</span>`;
+    }
+
+    function aktualisiereScore() {
+      const kat = document.getElementById("f-kategorie").value;
+      const hz  = document.getElementById("f-zeithorizont").value;
+      const aw  = parseInt(document.getElementById("f-auswirkung").value);
+      const anzeige = document.getElementById("f-score-anzeige");
+      if (!kat || !hz) {
+        anzeige.textContent = "– (Kategorie und Zeithorizont wählen)";
+        return;
+      }
+      const score = berechneScore({ kategorie: kat, zeithorizont: hz, auswirkung: aw });
+      const bar   = Math.round(score * 100);
+      anzeige.innerHTML =
+        `<span style="font-weight:700;color:#63a2b4;font-size:15px;margin-right:10px">${score.toFixed(2)}</span>`
+        + `<span style="flex:1;height:6px;background:#e0e0e0;border-radius:3px;display:inline-flex;overflow:hidden;margin-right:8px">`
+        + `<span style="width:${bar}%;background:#63a2b4;border-radius:3px;transition:width 0.3s"></span></span>`
+        + `<span style="font-size:11px;color:#aaa">${bar}%</span>`;
+    }
+
+    function oeffneThemaFormular() {
+      _bearbeitungsId = null;
+      // Pflichtfelder zurücksetzen
+      document.getElementById("f-titel").value        = "";
+      document.getElementById("f-kategorie").value    = "";
+      document.getElementById("f-zeithorizont").value = "";
+      document.getElementById("f-auswirkung").value   = 3;
+      document.getElementById("f-unsicherheit").value = 3;
+      // Detailfelder zurücksetzen
+      document.getElementById("f-beschreibung").value = "";
+      document.getElementById("f-tags").value          = "";
+      document.getElementById("f-quelle").value        = "";
+      document.querySelectorAll("input.f-cluster").forEach(cb => cb.checked = false);
+      // Schieberegler-Anzeige initialisieren
+      aktualisiereSlider("f-auswirkung",   "f-auswirkung-anzeige");
+      aktualisiereSlider("f-unsicherheit", "f-unsicherheit-anzeige");
+      aktualisiereScore();
+      // Fehlermeldungen und rote Rahmen zurücksetzen
+      document.querySelectorAll("#thema-formular .tf-fehler-feld")
+        .forEach(el => el.classList.remove("tf-fehler-feld"));
+      ["f-titel-fehler", "f-kategorie-fehler", "f-zeithorizont-fehler"]
+        .forEach(id => document.getElementById(id).style.display = "none");
+      // Header und Speichern-Button in Neu-Modus setzen
+      document.querySelector("#thema-formular .tf-header h2").textContent = "Neues Thema erfassen";
+      document.querySelector("#thema-formular .tf-btn-primaer").textContent = "Thema speichern";
+
+      document.getElementById("thema-formular").style.display = "flex";
+      setTimeout(() => document.getElementById("f-titel").focus(), 50);
+    }
+
+    function schliesseThemaFormular() {
+      document.getElementById("thema-formular").style.display = "none";
+    }
+
+    // Escape-Taste schließt alle Modals
+    document.addEventListener("keydown", function(e) {
+      if (e.key === "Escape") {
+        schliesseThemaFormular();
+        schliesseLoeschenModal();
+      }
+    });
+
+    function speichereThema() {
+      let hatFehler = false;
+
+      // 1. Titel
+      const titelEl     = document.getElementById("f-titel");
+      const titelFehler = document.getElementById("f-titel-fehler");
+      const titel        = titelEl.value.trim();
+      if (!titel) {
+        titelEl.classList.add("tf-fehler-feld");
+        titelFehler.style.display = "block";
+        hatFehler = true;
+      } else {
+        titelEl.classList.remove("tf-fehler-feld");
+        titelFehler.style.display = "none";
+      }
+
+      // 2. Kategorie
+      const katEl     = document.getElementById("f-kategorie");
+      const kFehler   = document.getElementById("f-kategorie-fehler");
+      const kategorie  = katEl.value;
+      if (!kategorie) {
+        katEl.classList.add("tf-fehler-feld");
+        kFehler.style.display = "block";
+        hatFehler = true;
+      } else {
+        katEl.classList.remove("tf-fehler-feld");
+        kFehler.style.display = "none";
+      }
+
+      // 3. Zeithorizont
+      const hzEl         = document.getElementById("f-zeithorizont");
+      const zFehler      = document.getElementById("f-zeithorizont-fehler");
+      const zeithorizont  = hzEl.value;
+      if (!zeithorizont) {
+        hzEl.classList.add("tf-fehler-feld");
+        zFehler.style.display = "block";
+        hatFehler = true;
+      } else {
+        hzEl.classList.remove("tf-fehler-feld");
+        zFehler.style.display = "none";
+      }
+
+      if (hatFehler) {
+        document.querySelector("#thema-formular .tf-fehler-feld")
+          ?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        return;
+      }
+
+      // Werte der Detailfelder lesen
+      const auswirkung   = parseInt(document.getElementById("f-auswirkung").value);
+      const unsicherheit = parseInt(document.getElementById("f-unsicherheit").value);
+      const beschreibung = document.getElementById("f-beschreibung").value.trim();
+      const quelle       = document.getElementById("f-quelle").value.trim();
+      const cluster      = Array.from(
+        document.querySelectorAll("input.f-cluster:checked")
+      ).map(cb => cb.value);
+      const tags = document.getElementById("f-tags").value
+        .split(",").map(t => t.trim()).filter(Boolean);
+
+      let gespeichert;
+
+      if (_bearbeitungsId !== null) {
+        // ── Bearbeiten-Modus: bestehenden Eintrag überschreiben ──
+        const idx = radarData.findIndex(d => d.id === _bearbeitungsId);
+        if (idx !== -1) {
+          const manuellFlag = radarData[idx].manuell_erfasst; // beibehalten
+          radarData[idx] = {
+            id: _bearbeitungsId,
+            titel, kategorie, zeithorizont,
+            auswirkung, unsicherheit, beschreibung,
+            strategische_cluster: cluster,
+            tags, quelle,
+            manuell_erfasst: manuellFlag
+          };
+          radarData[idx].radar_score = berechneScore(radarData[idx]);
+          gespeichert = radarData[idx];
+        }
+        _bearbeitungsId = null;
+        zeigeBanner("✓ Thema aktualisiert", "#27ae60");
+      } else {
+        // ── Neu-Modus: neuen Eintrag anlegen ──
+        gespeichert = {
+          id: Date.now(),
+          titel, kategorie, zeithorizont,
+          auswirkung, unsicherheit, beschreibung,
+          strategische_cluster: cluster,
+          tags, quelle,
+          manuell_erfasst: true
+        };
+        gespeichert.radar_score = berechneScore(gespeichert);
+        radarData.push(gespeichert);
+        zeigeBanner("✓ Thema erfolgreich hinzugefügt", "#27ae60");
+      }
+
+      zeichnePunkte();
+      schliesseThemaFormular();
+      if (gespeichert) zeigeDetail(gespeichert);
+      speichereManuelleThemen();
+      localStorage.setItem("last_update", new Date().toLocaleString("de-DE"));
+    }
+
+    // ── Thema bearbeiten: Formular im Bearbeiten-Modus öffnen ──
+    function oeffneThemaFormularBearbeiten(d) {
+      _bearbeitungsId = d.id;
+
+      // Fehlerzustand zurücksetzen
+      document.querySelectorAll("#thema-formular .tf-fehler-feld")
+        .forEach(el => el.classList.remove("tf-fehler-feld"));
+      ["f-titel-fehler", "f-kategorie-fehler", "f-zeithorizont-fehler"]
+        .forEach(id => document.getElementById(id).style.display = "none");
+
+      // Alle Felder mit vorhandenen Werten befüllen
+      document.getElementById("f-titel").value        = d.titel;
+      document.getElementById("f-kategorie").value    = d.kategorie;
+      document.getElementById("f-zeithorizont").value = d.zeithorizont;
+      document.getElementById("f-auswirkung").value   = d.auswirkung;
+      document.getElementById("f-unsicherheit").value = d.unsicherheit;
+      document.getElementById("f-beschreibung").value = d.beschreibung   || "";
+      document.getElementById("f-tags").value          = (d.tags || []).join(", ");
+      document.getElementById("f-quelle").value        = d.quelle         || "";
+
+      // Cluster-Checkboxen entsprechend der gespeicherten Werte setzen
+      document.querySelectorAll("input.f-cluster").forEach(cb => {
+        cb.checked = (d.strategische_cluster || []).includes(cb.value);
+      });
+
+      // Slider-Anzeigen und Score aktualisieren
+      aktualisiereSlider("f-auswirkung",   "f-auswirkung-anzeige");
+      aktualisiereSlider("f-unsicherheit", "f-unsicherheit-anzeige");
+      aktualisiereScore();
+
+      // Header und Speichern-Button auf Bearbeiten-Modus umstellen
+      document.querySelector("#thema-formular .tf-header h2").textContent = "Thema bearbeiten";
+      document.querySelector("#thema-formular .tf-btn-primaer").textContent = "Änderungen speichern";
+
+      document.getElementById("thema-formular").style.display = "flex";
+      setTimeout(() => document.getElementById("f-titel").focus(), 50);
+    }
+
+    // ── Löschen-Modal ─────────────────────────────────────
+    function zeigeLoeschenModal(d) {
+      document.getElementById("lm-titel").textContent = d.titel;
+      document.getElementById("btn-lm-bestaetigen").onclick = function() {
+        loescheThema(d.id);
+      };
+      document.getElementById("loeschen-modal").style.display = "flex";
+    }
+
+    function schliesseLoeschenModal() {
+      document.getElementById("loeschen-modal").style.display = "none";
+    }
+
+    function loescheThema(id) {
+      const idx = radarData.findIndex(d => d.id === id);
+      if (idx !== -1) radarData.splice(idx, 1);
+      schliesseLoeschenModal();
+      zeichnePunkte();
+      document.getElementById("detail-panel").style.display = "none";
+      speichereManuelleThemen();
+      zeigeBanner("Thema gelöscht", "#c0392b");
+    }
+
+    // ── Banner-Helper ─────────────────────────────────────
+    function zeigeBanner(text, farbe) {
+      const b = document.getElementById("thema-banner");
+      b.textContent = text;
+      b.style.background = farbe;
+      b.style.opacity = "1";
+      clearTimeout(b._timer);
+      b._timer = setTimeout(() => { b.style.opacity = "0"; }, 3000);
+    }
+
+    // ── Manuell-Counter aktualisieren ────────────────────
+    function aktualisiereManuellCounter() {
+      const el = document.getElementById("manuell-counter");
+      if (!el) return;
+      const x = radarData.filter(d => d.manuell_erfasst).length;
+      const y = radarData.length;
+      el.textContent = x > 0
+        ? `${x} von ${y} Themen manuell erfasst`
+        : `${y} Themen gesamt (keine manuell erfasst)`;
+    }
+
+    // ── Manuell erfasste Themen in localStorage sichern ──
+    function speichereManuelleThemen() {
+      const manuell = radarData.filter(d => d.manuell_erfasst);
+      try {
+        localStorage.setItem("radarData-manuell", JSON.stringify(manuell));
+      } catch (e) { /* Storage voll – ignorieren */ }
+      aktualisiereManuellCounter();
+    }
+
+    // ── Beim Seitenstart: manuell erfasste Themen laden ──
+    function ladeManuellErfassteThemen() {
+      try {
+        const raw = localStorage.getItem("radarData-manuell");
+        if (!raw) { aktualisiereManuellCounter(); return; }
+        const gespeichert = JSON.parse(raw);
+        if (!Array.isArray(gespeichert) || gespeichert.length === 0) {
+          aktualisiereManuellCounter(); return;
+        }
+        const vorhandeneIds = new Set(radarData.map(d => d.id));
+        let wiederhergestellt = 0;
+        gespeichert.forEach(d => {
+          if (d.id && !vorhandeneIds.has(d.id)) {
+            d.radar_score = berechneScore(d);
+            radarData.push(d);
+            vorhandeneIds.add(d.id);
+            wiederhergestellt++;
+          }
+        });
+        if (wiederhergestellt > 0) {
+          console.log(`${wiederhergestellt} manuell erfasste Themen wiederhergestellt`);
+        }
+      } catch (e) { /* ignorieren */ }
+      aktualisiereManuellCounter();
+    }
+  
+
+window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisierung,schliesseThemaFormular,aktualisiereScore,aktualisiereSlider,speichereThema,schliesseLoeschenModal,filterAktualisieren,zeigeDetail,redraw:zeichnePunkte};
+})();
+</script>
+<script>/* ===== Meilensteine ===== */
+(function(){
+
+    document.title = "Meilensteine | Energie & Asset Management";
+    document.getElementById("ms-stand-datum").textContent =
+      "Stand: " + new Date().toLocaleDateString("de-DE");
+
+    const meilensteinData = [
+      {
+        id: "M001",
+        titel: "§14a EnWG Prozesse umgestellt",
+        thema_id: 3,
+        thema_titel: "§14a EnWG Flexibilität",
+        kategorie: "regulatorisch",
+        start: "2025-01-01",
+        ende: "2025-09-30",
+        verantwortlicher: "Maier",
+        status: "abgeschlossen",
+        fortschritt: 100,
+        abhaengig_von: ["M002"],
+        strategische_cluster: ["Netzanschluss"],
+        radar_score: 0.84,
+        notiz: "Rollout in allen Netzgebieten abgeschlossen, Dokumentation liegt vor."
+      },
+      {
+        id: "M002",
+        titel: "IT-Schnittstelle Flexibilitätsmanagement live",
+        thema_id: 3,
+        thema_titel: "§14a EnWG Flexibilität",
+        kategorie: "technologisch",
+        start: "2024-10-01",
+        ende: "2025-06-30",
+        verantwortlicher: "Schneider",
+        status: "abgeschlossen",
+        fortschritt: 100,
+        abhaengig_von: [],
+        strategische_cluster: ["Technologie", "Netzanschluss"],
+        radar_score: 0.76,
+        notiz: "API-Anbindung an Aggregatoren erfolgreich getestet."
+      },
+      {
+        id: "M003",
+        titel: "Smart Meter Rollout Pflichtquote erreicht",
+        thema_id: 8,
+        thema_titel: "Smart Meter Gateway Rollout",
+        kategorie: "regulatorisch",
+        start: "2025-03-01",
+        ende: "2025-12-31",
+        verantwortlicher: "Bauer",
+        status: "verzögert",
+        fortschritt: 82,
+        abhaengig_von: ["M004"],
+        strategische_cluster: ["Messstellenbetrieb"],
+        radar_score: 0.76,
+        notiz: "Lieferengpässe bei SMGW-Hardware verzögern Erreichung der Pflichtquote."
+      },
+      {
+        id: "M004",
+        titel: "SMGW Backend-Integration abgeschlossen",
+        thema_id: 8,
+        thema_titel: "Smart Meter Gateway Rollout",
+        kategorie: "technologisch",
+        start: "2024-11-01",
+        ende: "2025-09-30",
+        verantwortlicher: "Schneider",
+        status: "abgeschlossen",
+        fortschritt: 100,
+        abhaengig_von: [],
+        strategische_cluster: ["Messstellenbetrieb", "Technologie"],
+        radar_score: 0.76,
+        notiz: "WAN-Anbindung und Zertifikatsmanagement vollständig implementiert."
+      },
+      {
+        id: "M005",
+        titel: "Netzentgelt-Kalkulation neue Systematik",
+        thema_id: 2,
+        thema_titel: "Netzentgeltreform BNetzA",
+        kategorie: "regulatorisch",
+        start: "2025-10-01",
+        ende: "2026-03-31",
+        verantwortlicher: "Fischer",
+        status: "abgeschlossen",
+        fortschritt: 100,
+        abhaengig_von: [],
+        strategische_cluster: ["Netzwirtschaft"],
+        radar_score: 0.88,
+        notiz: "Neue Kalkulationsmethodik BNetzA fristgerecht implementiert und geprüft."
+      },
+      {
+        id: "M006",
+        titel: "Digitaler Zwilling Pilotbereich",
+        thema_id: 9,
+        thema_titel: "Digitaler Zwilling Netz",
+        kategorie: "technologisch",
+        start: "2026-01-01",
+        ende: "2026-06-30",
+        verantwortlicher: "Wagner",
+        status: "in Bearbeitung",
+        fortschritt: 50,
+        abhaengig_von: ["M004"],
+        strategische_cluster: ["Technologie", "Organisation"],
+        radar_score: 0.60,
+        notiz: "Pilotgebiet Nord im Aufbau, GIS-Datenabgleich läuft."
+      },
+      {
+        id: "M007",
+        titel: "Wärmepumpen Netzanschluss Prozess optimiert",
+        thema_id: 6,
+        thema_titel: "Wärmepumpen-Hochlauf",
+        kategorie: "marktlich",
+        start: "2025-01-01",
+        ende: "2025-06-30",
+        verantwortlicher: "Müller",
+        status: "abgeschlossen",
+        fortschritt: 100,
+        abhaengig_von: [],
+        strategische_cluster: ["Netzanschluss"],
+        radar_score: 0.80,
+        notiz: "Standardprozess für WP-Netzanschluss inklusive §14a-Steuerung eingeführt."
+      },
+      {
+        id: "M008",
+        titel: "MSB-Wettbewerber Monitoring eingeführt",
+        thema_id: 11,
+        thema_titel: "Neue Messstellenbetreiber",
+        kategorie: "wettbewerblich",
+        start: "2025-04-01",
+        ende: "2025-09-30",
+        verantwortlicher: "Weber",
+        status: "verzögert",
+        fortschritt: 65,
+        abhaengig_von: [],
+        strategische_cluster: ["Messstellenbetrieb", "Organisation"],
+        radar_score: 0.68,
+        notiz: "Datenerfassung läuft, Dashboard-Fertigstellung steht noch aus."
+      }
+    ];
+
+    // -----------------------------------------------------------------------
+    // Shared constants
+    // -----------------------------------------------------------------------
+
+    const katFarben = {
+      regulatorisch:  "#2d7a8e",
+      marktlich:      "#63a2b4",
+      technologisch:  "#4a8a6f",
+      wettbewerblich: "#7a6ea0"
+    };
+
+    const statusFarben = {
+      "offen":          "#bbb",
+      "in Bearbeitung": "#378ADD",
+      "abgeschlossen":  "#1D9E75",
+      "verzögert":      "#E24B4A"
+    };
+
+    const statusSymbole = {
+      "offen":          "○",
+      "in Bearbeitung": "◑",
+      "abgeschlossen":  "●",
+      "verzögert":      "●"
+    };
+
+    // -----------------------------------------------------------------------
+    // Filter-Zustand
+    // -----------------------------------------------------------------------
+
+    let filterState = {
+      zeitraum:    18,
+      kategorien:  new Set(["regulatorisch","marktlich","technologisch","wettbewerblich"]),
+      statusWerte: new Set(["offen","in Bearbeitung","abgeschlossen","verzögert"])
+    };
+
+    function gefilterteDaten() {
+      const heute = new Date();
+      heute.setHours(0, 0, 0, 0);
+      const datumBis = new Date(heute);
+      datumBis.setMonth(datumBis.getMonth() + filterState.zeitraum);
+
+      return meilensteinData.filter(ms =>
+        new Date(ms.start) <= datumBis &&
+        filterState.kategorien.has(ms.kategorie) &&
+        filterState.statusWerte.has(ms.status)
+      );
+    }
+
+    // -----------------------------------------------------------------------
+    // Filter-Panel aufbauen
+    // -----------------------------------------------------------------------
+
+    function baueFilterPanel() {
+      const panel = document.getElementById("ms-filter-panel");
+
+      panel.innerHTML = `
+        <h3>Zeitraum</h3>
+        <select id="filter-zeitraum">
+          <option value="6">Nächste 6 Monate</option>
+          <option value="12">Nächste 12 Monate</option>
+          <option value="18" selected>Nächste 18 Monate</option>
+        </select>
+
+        <h3>Kategorie</h3>
+        ${["regulatorisch","marktlich","technologisch","wettbewerblich"].map(k => `
+          <label class="ms-filter-zeile">
+            <input type="checkbox" data-gruppe="kategorie" value="${k}" checked>
+            <span class="ms-filter-punkt" style="background:${katFarben[k]}"></span>
+            ${k.charAt(0).toUpperCase() + k.slice(1)}
+          </label>
+        `).join("")}
+
+        <h3>Status</h3>
+        ${["offen","in Bearbeitung","abgeschlossen","verzögert"].map(s => `
+          <label class="ms-filter-zeile">
+            <input type="checkbox" data-gruppe="status" value="${s}" checked>
+            <span class="ms-filter-punkt" style="background:${statusFarben[s]}"></span>
+            ${s.charAt(0).toUpperCase() + s.slice(1)}
+          </label>
+        `).join("")}
+
+        <button id="btn-filter-reset">Filter zurücksetzen</button>
+      `;
+
+      document.getElementById("filter-zeitraum").addEventListener("change", function() {
+        filterState.zeitraum = parseInt(this.value);
+        zeichneGantt(gefilterteDaten());
+      });
+
+      panel.querySelectorAll("input[data-gruppe='kategorie']").forEach(cb => {
+        cb.addEventListener("change", function() {
+          if (this.checked) filterState.kategorien.add(this.value);
+          else              filterState.kategorien.delete(this.value);
+          zeichneGantt(gefilterteDaten());
+        });
+      });
+
+      panel.querySelectorAll("input[data-gruppe='status']").forEach(cb => {
+        cb.addEventListener("change", function() {
+          if (this.checked) filterState.statusWerte.add(this.value);
+          else              filterState.statusWerte.delete(this.value);
+          zeichneGantt(gefilterteDaten());
+        });
+      });
+
+      document.getElementById("btn-filter-reset").addEventListener("click", function() {
+        filterState.zeitraum    = 18;
+        filterState.kategorien  = new Set(["regulatorisch","marktlich","technologisch","wettbewerblich"]);
+        filterState.statusWerte = new Set(["offen","in Bearbeitung","abgeschlossen","verzögert"]);
+        document.getElementById("filter-zeitraum").value = "18";
+        panel.querySelectorAll("input[type='checkbox']").forEach(cb => cb.checked = true);
+        zeichneGantt(gefilterteDaten());
+      });
+    }
+
+    // -----------------------------------------------------------------------
+    // Hilfsfunktionen
+    // -----------------------------------------------------------------------
+
+    function formatDatum(dateStr) {
+      return new Date(dateStr).toLocaleDateString("de-DE",
+        { day: "2-digit", month: "2-digit", year: "numeric" });
+    }
+
+    // -----------------------------------------------------------------------
+    // Detail-Panel
+    // -----------------------------------------------------------------------
+
+    let _aktivesMeilensteinId = null;
+
+    function zeigeDetail(ms) {
+      _aktivesMeilensteinId = ms.id;
+      const panel = document.getElementById("ms-detail-panel");
+      panel.style.display = "block";
+
+      const vorgaenger = (ms.abhaengig_von || [])
+        .map(id => meilensteinData.find(m => m.id === id))
+        .filter(Boolean);
+
+      const clusterBadges = (ms.strategische_cluster || [])
+        .map(c => `<span class="ms-badge ms-badge-cluster">${c}</span>`)
+        .join(" ");
+
+      const vorgaengerItems = vorgaenger.length > 0
+        ? vorgaenger.map(v => `<li>${v.id}: ${v.titel}</li>`).join("")
+        : `<li style="color:#bbb">Keine Vorgänger</li>`;
+
+      panel.innerHTML = `
+        <button id="ms-detail-schliessen" title="Schließen">×</button>
+        <div class="ms-detail-kopf">
+          <h2>${ms.titel}</h2>
+          <span class="ms-badge" style="background:${katFarben[ms.kategorie]}">${ms.kategorie}</span>
+          <span class="ms-badge" style="background:${statusFarben[ms.status]}">${ms.status}</span>
+          <span style="font-size:12px;color:#aaa;margin-left:2px">${ms.id}</span>
+        </div>
+        <div class="ms-detail-grid">
+
+          <span class="ms-detail-label">Zeitraum</span>
+          <span class="ms-detail-value">${formatDatum(ms.start)} – ${formatDatum(ms.ende)}</span>
+
+          <span class="ms-detail-label">Verantwortlicher</span>
+          <span class="ms-detail-value">${ms.verantwortlicher}</span>
+
+          <span class="ms-detail-label">Fortschritt</span>
+          <div class="ms-detail-value">
+            <div class="ms-fortschritt-wrap">
+              <div class="ms-fortschritt-track">
+                <div class="ms-fortschritt-fill" id="detail-fortschritt-fill"
+                     style="width:${ms.fortschritt}%;background:${katFarben[ms.kategorie]}"></div>
+              </div>
+              <input type="number" id="detail-fortschritt-input"
+                     class="ms-fortschritt-input" min="0" max="100"
+                     value="${ms.fortschritt}">
+              <span style="font-size:12px;color:#888">%</span>
+            </div>
+          </div>
+
+          <span class="ms-detail-label">Thema</span>
+          <span class="ms-detail-value">
+            <a href="#" onclick="App.activate('themenradar');return false;" class="ms-thema-link"
+               title="Im Themenradar anzeigen">↗ ${ms.thema_titel}</a>
+          </span>
+
+          <span class="ms-detail-label">Cluster</span>
+          <span class="ms-detail-value">${clusterBadges}</span>
+
+          <span class="ms-detail-label">Abhängigkeiten</span>
+          <span class="ms-detail-value">
+            <ul class="ms-abhaengig-liste">${vorgaengerItems}</ul>
+          </span>
+
+          <span class="ms-detail-label">Radar-Score</span>
+          <span class="ms-detail-value">${ms.radar_score.toFixed(2)}</span>
+
+        </div>
+        <div class="ms-detail-notiz-label">Notiz</div>
+        <textarea id="detail-notiz" class="ms-detail-notiz">${ms.notiz}</textarea>
+        <div style="margin-top:10px;display:flex;align-items:center;gap:10px">
+          <button id="btn-detail-speichern">Speichern</button>
+          <span id="detail-speichern-feedback"
+                style="font-size:12px;color:#27ae60;display:none">✓ Gespeichert</span>
+        </div>
+      `;
+
+      // Fortschritts-Balken live mitführen
+      document.getElementById("detail-fortschritt-input").addEventListener("input", function() {
+        const val = Math.min(100, Math.max(0, parseInt(this.value) || 0));
+        document.getElementById("detail-fortschritt-fill").style.width = val + "%";
+      });
+
+      // Schließen
+      document.getElementById("ms-detail-schliessen").addEventListener("click", schliesseDetail);
+
+      // Speichern
+      document.getElementById("btn-detail-speichern").addEventListener("click", function() {
+        const msObj = meilensteinData.find(m => m.id === _aktivesMeilensteinId);
+        if (!msObj) return;
+        msObj.fortschritt = Math.min(100, Math.max(0,
+          parseInt(document.getElementById("detail-fortschritt-input").value) || 0
+        ));
+        msObj.notiz = document.getElementById("detail-notiz").value;
+
+        localStorage.setItem("last_update", new Date().toLocaleString("de-DE"));
+
+        const fb = document.getElementById("detail-speichern-feedback");
+        fb.style.display = "inline";
+        setTimeout(() => { fb.style.display = "none"; }, 2000);
+
+        zeichneGantt(gefilterteDaten());
+      });
+
+      panel.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+
+    function schliesseDetail() {
+      document.getElementById("ms-detail-panel").style.display = "none";
+      _aktivesMeilensteinId = null;
+    }
+
+    // -----------------------------------------------------------------------
+    // GANTT-Zeichnung
+    // -----------------------------------------------------------------------
+
+    function zeichneGantt(daten) {
+      d3.select("#gantt-svg").remove();
+      d3.select("#gantt-leer").remove();
+
+      if (!daten || daten.length === 0) {
+        d3.select("#ms-gantt-bereich")
+          .append("div")
+          .attr("id", "gantt-leer")
+          .style("padding", "32px 16px")
+          .style("color", "#aaa")
+          .style("font-size", "14px")
+          .text("Keine Meilensteine entsprechen dem aktuellen Filter.");
+        return;
+      }
+
+      const container    = document.getElementById("ms-gantt-bereich");
+      const cWidth       = container.getBoundingClientRect().width || 900;
+      const titleWidth   = 220;
+      const rowHeight    = 50;
+      const headerHeight = 60;
+      const barHeight    = 20;
+      const paddingRight = 20;
+      const chartWidth   = cWidth - titleWidth - paddingRight;
+      const svgHeight    = headerHeight + daten.length * rowHeight + 10;
+
+      const heute = new Date();
+      heute.setHours(0, 0, 0, 0);
+
+      const allDates = daten.flatMap(ms => [new Date(ms.start), new Date(ms.ende)]);
+      const rangeStart = new Date(Math.min(...allDates));
+      rangeStart.setDate(1);
+
+      const rangeEnde18 = new Date(heute);
+      rangeEnde18.setMonth(rangeEnde18.getMonth() + filterState.zeitraum);
+      const rangeEnd = new Date(Math.max(
+        ...allDates.map(d => d.getTime()), rangeEnde18.getTime()
+      ));
+      rangeEnd.setDate(1);
+      rangeEnd.setMonth(rangeEnd.getMonth() + 1);
+
+      const xScale = d3.scaleTime()
+        .domain([rangeStart, rangeEnd])
+        .range([0, chartWidth]);
+
+      // SVG anlegen
+      const svg = d3.select("#ms-gantt-bereich")
+        .append("svg")
+          .attr("id", "gantt-svg")
+          .attr("width", cWidth)
+          .attr("height", svgHeight);
+
+      // Pfeilspitzen-Marker
+      const defs = svg.append("defs");
+      defs.append("marker")
+        .attr("id", "pfeil-normal")
+        .attr("viewBox", "0 0 10 10")
+        .attr("refX", 8).attr("refY", 5)
+        .attr("markerWidth", 6).attr("markerHeight", 6)
+        .attr("orient", "auto")
+        .append("path").attr("d", "M 0 0 L 10 5 L 0 10 z").attr("fill", "#999");
+      defs.append("marker")
+        .attr("id", "pfeil-warnung")
+        .attr("viewBox", "0 0 10 10")
+        .attr("refX", 8).attr("refY", 5)
+        .attr("markerWidth", 6).attr("markerHeight", 6)
+        .attr("orient", "auto")
+        .append("path").attr("d", "M 0 0 L 10 5 L 0 10 z").attr("fill", "#c0392b");
+
+      // Monats-Raster + Labels
+      const monate = d3.timeMonths(rangeStart, rangeEnd);
+      const gridG = svg.append("g")
+        .attr("transform", `translate(${titleWidth},0)`);
+
+      monate.forEach(m => {
+        const x = xScale(m);
+        gridG.append("line")
+          .attr("x1", x).attr("y1", headerHeight - 10)
+          .attr("x2", x).attr("y2", svgHeight)
+          .attr("stroke", "#eee").attr("stroke-width", 1);
+        gridG.append("text")
+          .attr("x", x + 3).attr("y", headerHeight - 16)
+          .attr("font-size", "11px").attr("fill", "#999")
+          .text(m.toLocaleDateString("de-DE", { month: "short", year: "numeric" }));
+      });
+
+      // Heute-Linie
+      const todayX = xScale(heute);
+      gridG.append("line")
+        .attr("x1", todayX).attr("y1", 0)
+        .attr("x2", todayX).attr("y2", svgHeight)
+        .attr("stroke", "#e74c3c").attr("stroke-width", 1.5)
+        .attr("stroke-dasharray", "4,4");
+      gridG.append("text")
+        .attr("x", todayX + 3).attr("y", 12)
+        .attr("font-size", "10px").attr("fill", "#e74c3c")
+        .text("Heute");
+
+      // Header-Trennlinie
+      svg.append("line")
+        .attr("x1", 0).attr("y1", headerHeight)
+        .attr("x2", cWidth).attr("y2", headerHeight)
+        .attr("stroke", "#ddd").attr("stroke-width", 1);
+
+      // Zeilen
+      daten.forEach((ms, i) => {
+        const y          = headerHeight + i * rowHeight;
+        const bgFarbe    = i % 2 === 0 ? "#fafafa" : "#ffffff";
+        const bgHover    = i % 2 === 0 ? "#f0f4ff" : "#f5f8ff";
+        const rowG = svg.append("g")
+          .attr("class", "ms-zeile")
+          .attr("transform", `translate(0,${y})`);
+
+        // Zebra-Hintergrund
+        rowG.append("rect")
+          .attr("x", 0).attr("y", 0)
+          .attr("width", cWidth).attr("height", rowHeight)
+          .attr("fill", bgFarbe);
+
+        // Status-Ampel
+        rowG.append("text")
+          .attr("x", 6).attr("y", rowHeight / 2 + 5)
+          .attr("font-size", "15px")
+          .attr("fill", statusFarben[ms.status] || "#bbb")
+          .text(statusSymbole[ms.status] || "○");
+
+        // ID (klein)
+        rowG.append("text")
+          .attr("x", 26).attr("y", rowHeight / 2 - 3)
+          .attr("font-size", "10px").attr("fill", "#aaa")
+          .text(ms.id);
+
+        // Titel
+        const kurz = ms.titel.length > 25 ? ms.titel.slice(0, 25) + "…" : ms.titel;
+        rowG.append("text")
+          .attr("x", 26).attr("y", rowHeight / 2 + 9)
+          .attr("font-size", "12px").attr("fill", "#333")
+          .text(kurz);
+
+        // Verantwortlicher
+        rowG.append("text")
+          .attr("x", 26).attr("y", rowHeight / 2 + 20)
+          .attr("font-size", "10px").attr("fill", "#bbb")
+          .text(ms.verantwortlicher);
+
+        // Gantt-Balken
+        const x1    = xScale(new Date(ms.start));
+        const x2    = xScale(new Date(ms.ende));
+        const barW  = Math.max(2, x2 - x1);
+        const barY  = (rowHeight - barHeight) / 2;
+        const farbe = katFarben[ms.kategorie] || "#888";
+        const pW    = Math.max(4, barW * (ms.fortschritt / 100));
+
+        rowG.append("rect")
+          .attr("x", titleWidth + x1).attr("y", barY)
+          .attr("width", barW).attr("height", barHeight)
+          .attr("fill", farbe).attr("opacity", 0.28)
+          .attr("rx", 4);
+
+        rowG.append("rect")
+          .attr("x", titleWidth + x1).attr("y", barY)
+          .attr("width", pW).attr("height", barHeight)
+          .attr("fill", farbe).attr("opacity", 0.85)
+          .attr("rx", 4);
+
+        if (pW > 22) {
+          rowG.append("text")
+            .attr("x", titleWidth + x1 + pW / 2)
+            .attr("y", barY + barHeight / 2 + 4)
+            .attr("text-anchor", "middle")
+            .attr("font-size", "10px").attr("fill", "#fff")
+            .text(ms.fortschritt + "%");
+        }
+
+        // Zeilen-Trennlinie
+        rowG.append("line")
+          .attr("x1", 0).attr("y1", rowHeight)
+          .attr("x2", cWidth).attr("y2", rowHeight)
+          .attr("stroke", "#eee").attr("stroke-width", 0.5);
+
+        // Klick-Overlay (transparent, gesamte Zeile)
+        rowG.append("rect")
+          .attr("x", 0).attr("y", 0)
+          .attr("width", cWidth).attr("height", rowHeight)
+          .attr("fill", "transparent")
+          .style("cursor", "pointer")
+          .on("click", () => zeigeDetail(ms))
+          .on("mouseover", function() {
+            d3.select(this.parentNode).select("rect").attr("fill", bgHover);
+          })
+          .on("mouseout", function() {
+            d3.select(this.parentNode).select("rect").attr("fill", bgFarbe);
+          });
+      });
+
+      // Abhängigkeitspfeile
+      const msMap = {};
+      daten.forEach((ms, i) => {
+        msMap[ms.id] = {
+          yMid:   headerHeight + i * rowHeight + rowHeight / 2,
+          xStart: titleWidth + xScale(new Date(ms.start)),
+          xEnde:  titleWidth + xScale(new Date(ms.ende))
+        };
+      });
+
+      const arrowG = svg.append("g").attr("class", "ms-pfeile");
+
+      daten.forEach(ms => {
+        if (!ms.abhaengig_von || ms.abhaengig_von.length === 0) return;
+        ms.abhaengig_von.forEach(vorId => {
+          const vor  = meilensteinData.find(m => m.id === vorId);
+          const ziel = msMap[ms.id];
+          const vorg = msMap[vorId];
+          if (!vor || !ziel || !vorg) return;
+
+          const warnung  = vor.status !== "abgeschlossen" && new Date(ms.start) <= heute;
+          const farbe    = warnung ? "#c0392b" : "#999";
+          const markerId = warnung ? "pfeil-warnung" : "pfeil-normal";
+
+          const ax1  = vorg.xEnde;
+          const ay1  = vorg.yMid;
+          const ax2  = ziel.xStart;
+          const ay2  = ziel.yMid;
+          const kink = ax1 + 12;
+
+          arrowG.append("path")
+            .attr("d", `M ${ax1} ${ay1} L ${kink} ${ay1} L ${kink} ${ay2} L ${ax2} ${ay2}`)
+            .attr("fill", "none")
+            .attr("stroke", farbe)
+            .attr("stroke-width", 1.5)
+            .attr("stroke-dasharray", "4,3")
+            .attr("marker-end", `url(#${markerId})`);
+        });
+      });
+    }
+
+    // -----------------------------------------------------------------------
+    // localStorage-Import
+    // -----------------------------------------------------------------------
+
+    function ladeAusLocalStorage() {
+      const raw = localStorage.getItem("meilensteine");
+      if (!raw) return;
+
+      let gespeichert;
+      try {
+        gespeichert = JSON.parse(raw);
+      } catch (e) {
+        console.warn("meilensteine.html: localStorage-Daten ungültig.", e);
+        return;
+      }
+
+      if (!Array.isArray(gespeichert) || gespeichert.length === 0) return;
+
+      const vorhandeneIds = new Set(meilensteinData.map(m => m.id));
+      const neu = gespeichert.filter(m => m.id && !vorhandeneIds.has(m.id));
+      neu.forEach(m => meilensteinData.push(m));
+
+      if (neu.length > 0) {
+        const einheit = neu.length === 1
+          ? "1 neuer Meilenstein aus Themenradar übernommen"
+          : `${neu.length} neue Meilensteine aus Themenradar übernommen`;
+        const banner = document.getElementById("ms-import-banner");
+        banner.textContent = einheit;
+        banner.style.display = "block";
+        banner.style.opacity = "1";
+        setTimeout(() => {
+          banner.style.opacity = "0";
+          setTimeout(() => { banner.style.display = "none"; }, 450);
+        }, 4000);
+      }
+    }
+
+    // -----------------------------------------------------------------------
+    // JSON-Export
+    // -----------------------------------------------------------------------
+
+    function exportiereJSON() {
+      const datum    = new Date().toISOString().slice(0, 10);
+      const dateiname = `meilensteine-export-${datum}.json`;
+      const blob = new Blob(
+        [JSON.stringify(meilensteinData, null, 2)],
+        { type: "application/json" }
+      );
+      const url = URL.createObjectURL(blob);
+      const a   = document.createElement("a");
+      a.href     = url;
+      a.download = dateiname;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    // -----------------------------------------------------------------------
+    // Start
+    // -----------------------------------------------------------------------
+    ladeAusLocalStorage();
+    baueFilterPanel();
+    zeichneGantt(gefilterteDaten());
+  
+
+window.MS={exportiereJSON,redraw:function(){zeichneGantt(gefilterteDaten());}};
+})();
+</script>
+<script>/* ===== Lageplan ===== */
+(function(){
+
+    document.title = "Lageplan | Energie & Asset Management";
+    document.getElementById("lp-stand-datum").textContent =
+      new Date().toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit", year: "numeric" });
+
+    // ── Statusleiste befüllen ──────────────────────────
+    (function() {
+      const C = {
+        blau:      "#63a2b4",
+        kritisch:  "#c0392b",
+        relevant:  "#e67e22",
+        beobachten:"#27ae60"
+      };
+
+      function setKachel(ampelId, wertId, wert, farbe) {
+        document.getElementById(wertId).textContent   = wert;
+        document.getElementById(ampelId).style.color  = farbe;
+      }
+
+      // ── Radar-Themen ────────────────────────────────
+      let themenGesamt = 0;
+      let themenKritisch = 0;
+      try {
+        const raw = localStorage.getItem("radarData-manuell");
+        const manuell = raw ? JSON.parse(raw) : [];
+        if (Array.isArray(manuell)) {
+          themenGesamt    = manuell.length;
+          themenKritisch  = manuell.filter(d => (d.radar_score || 0) >= 0.7).length;
+        }
+      } catch(e) {}
+
+      setKachel(
+        "ampel-themen", "wert-themen",
+        themenGesamt > 0 ? themenGesamt : "Keine Daten",
+        themenGesamt > 0 ? C.blau : C.beobachten
+      );
+
+      setKachel(
+        "ampel-kritisch", "wert-kritisch",
+        themenKritisch,
+        themenKritisch > 3 ? C.kritisch : (themenKritisch > 0 ? C.relevant : C.beobachten)
+      );
+
+      // Kachel-Header Badge Horizont
+      if (themenGesamt > 0) {
+        const kzH = document.getElementById("kz-horizont");
+        if (kzH) {
+          kzH.textContent = `${themenGesamt} Themen · ${themenKritisch} kritisch`;
+          kzH.style.display = "inline";
+        }
+      }
+
+      // ── Meilensteine ────────────────────────────────
+      let msGesamt = 0;
+      let msOffen = 0;
+      let msVerzoegert = 0;
+      try {
+        const raw = localStorage.getItem("meilensteine");
+        const liste = raw ? JSON.parse(raw) : [];
+        if (Array.isArray(liste)) {
+          msGesamt     = liste.length;
+          msOffen      = liste.filter(m => m.status === "offen" || m.status === "in Bearbeitung").length;
+          msVerzoegert = liste.filter(m => m.status === "verzögert").length;
+        }
+      } catch(e) {}
+
+      setKachel(
+        "ampel-meilensteine", "wert-meilensteine",
+        msOffen > 0 ? msOffen : "Keine",
+        msOffen > 0 ? C.blau : C.beobachten
+      );
+
+      setKachel(
+        "ampel-verzoegert", "wert-verzoegert",
+        msVerzoegert > 0 ? msVerzoegert : "Keine",
+        msVerzoegert > 0 ? C.relevant : C.beobachten
+      );
+
+      // Kachel-Header Badge Meilensteine
+      if (msGesamt > 0) {
+        const kzM = document.getElementById("kz-meilensteine");
+        if (kzM) {
+          kzM.textContent = `${msGesamt} Meilensteine · ${msOffen} offen`;
+          kzM.style.display = "inline";
+        }
+      }
+
+      // ── Letzte Aktualisierung ────────────────────────
+      // last_update ist bereits ein formatierter String (toLocaleString)
+      let letzteAktualisierung = "Noch nicht aktualisiert";
+      try {
+        const ts = localStorage.getItem("last_update");
+        if (ts) letzteAktualisierung = ts;
+      } catch(e) {}
+
+      setKachel(
+        "ampel-update", "wert-update",
+        letzteAktualisierung,
+        letzteAktualisierung === "Noch nicht aktualisiert" ? C.relevant : C.blau
+      );
+    })();
+
+    // ── Vollbild-Toggle ────────────────────────────────
+    function toggleVollbild(kachelEl) {
+      const istVollbild = kachelEl.classList.contains("vollbild");
+      // Zuerst alle offenen Vollbilder schließen
+      document.querySelectorAll(".lp-kachel.vollbild").forEach(k => {
+        k.classList.remove("vollbild");
+        const btn = k.querySelector(".lp-vollbild-btn");
+        if (btn) btn.textContent = "⛶";
+      });
+      // Nur öffnen wenn es vorher kein Vollbild war
+      if (!istVollbild) {
+        kachelEl.classList.add("vollbild");
+        const btn = kachelEl.querySelector(".lp-vollbild-btn");
+        if (btn) btn.textContent = "⊡";
+      }
+    }
+
+    function beendeVollbild(exitBtn) {
+      const kachelEl = exitBtn.closest(".lp-kachel");
+      if (!kachelEl) return;
+      kachelEl.classList.remove("vollbild");
+      const btn = kachelEl.querySelector(".lp-vollbild-btn");
+      if (btn) btn.textContent = "⛶";
+    }
+
+    document.addEventListener("keydown", function(e) {
+      if (e.key === "Escape") {
+        document.querySelectorAll(".lp-kachel.vollbild").forEach(k => {
+          k.classList.remove("vollbild");
+          const btn = k.querySelector(".lp-vollbild-btn");
+          if (btn) btn.textContent = "⛶";
+        });
+      }
+    });
+  
+
+window.LP={toggleVollbild,beendeVollbild};
+})();
+</script>
+<script>/* ===== Einstellungen ===== */
+(function(){
+
+    document.title = "Einstellungen | Energie & Asset Management";
+
+    function speichereEinstellungen() {
+      // Wird in S-1b bis S-1d mit Logik befüllt
+      const banner = document.getElementById("save-banner");
+      banner.textContent = "✓ Einstellungen gespeichert";
+      banner.style.display = "inline-block";
+      banner.style.opacity = "1";
+      setTimeout(() => {
+        banner.style.opacity = "0";
+        setTimeout(() => { banner.style.display = "none"; banner.style.opacity = "1"; }, 350);
+      }, 2500);
+    }
+
+    function resetteEinstellungen() {
+      if (!confirm("Alle Einstellungen auf Standardwerte zurücksetzen?")) return;
+      // Wird in S-1b bis S-1d mit Logik befüllt
+      const banner = document.getElementById("save-banner");
+      banner.textContent = "Einstellungen zurückgesetzt";
+      banner.style.background = "var(--farbe-relevant)";
+      banner.style.display = "inline-block";
+      banner.style.opacity = "1";
+      setTimeout(() => {
+        banner.style.opacity = "0";
+        setTimeout(() => {
+          banner.style.display = "none";
+          banner.style.opacity = "1";
+          banner.style.background = "var(--farbe-beobachten)";
+        }, 350);
+      }, 2500);
+    }
+  
+
+window.ST={speichereEinstellungen,resetteEinstellungen};
+})();
+</script>
+<script>/* ===== App-Controller / Tab-Navigation ===== */
+(function(){
+  var PANELS = ["lageplan","themenradar","meilensteine","settings"];
+  var TITLES = {
+    lageplan:     "Lageplan | Energie & Asset Management",
+    themenradar:  "Themenradar | Energie & Asset Management",
+    meilensteine: "Meilensteine | Energie & Asset Management",
+    settings:     "Einstellungen | Energie & Asset Management"
+  };
+  function activate(name){
+    PANELS.forEach(function(p){
+      var panel = document.getElementById("panel-"+p);
+      var tab   = document.getElementById("tab-"+p);
+      if (panel) panel.style.display = (p===name) ? "block" : "none";
+      if (tab)   tab.classList.toggle("aktiv", p===name);
+    });
+    if (TITLES[name]) document.title = TITLES[name];
+    // Neu zeichnen, sobald das Panel sichtbar ist (korrekte Breiten)
+    if (name==="themenradar"  && window.TR && TR.redraw) { try { TR.redraw(); } catch(e){} }
+    if (name==="meilensteine" && window.MS && MS.redraw) { try { MS.redraw(); } catch(e){} }
+    if (name==="lageplan") {
+      if (window.TR && TR.renderMini) { try { TR.renderMini(); } catch(e){} }
+      if (window.MS && MS.renderMini) { try { MS.renderMini(); } catch(e){} }
+    }
+  }
+  document.querySelectorAll(".app-tab").forEach(function(t){
+    t.addEventListener("click", function(e){ e.preventDefault(); activate(t.dataset.tab); });
+  });
+  document.querySelectorAll("[data-jump]").forEach(function(b){
+    b.addEventListener("click", function(e){ e.preventDefault(); activate(b.dataset.jump); });
+  });
+  window.App = { activate: activate };
+  activate("lageplan");
+})();
+</script>
+
+</body>
+</html>
