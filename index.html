@@ -1564,18 +1564,6 @@
     #feed-hinzufuegen:hover { background: var(--swm-blau-hell); }
 
     /* ── Google-Alert-Box ─────────────────────────── */
-    #feed-alert-box {
-      background: var(--swm-blau-hell);
-      border-left: 3px solid var(--swm-blau);
-      padding: 12px;
-      border-radius: 0 4px 4px 0;
-    }
-    #feed-alert-titel {
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--swm-grau-dunkel);
-      margin-bottom: 8px;
-    }
     #feed-alert-schritte {
       margin: 0 0 10px 18px;
       padding: 0;
@@ -1610,6 +1598,113 @@
       color: var(--swm-blau-dunkel);
       font-weight: 600;
       margin-left: 4px;
+    }
+
+    /* ── Quellen-Liste ────────────────────────────── */
+    #quelle-kopfzeile {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--swm-grau-mittel);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .quelle-col-name  { width: 180px; flex-shrink: 0; }
+    .quelle-col-url   { width: 280px; flex-shrink: 0; }
+    .quelle-col-sel   { width: 150px; flex-shrink: 0; }
+    .quelle-col-aktiv { width: 44px;  flex-shrink: 0; text-align: center; }
+    #quelle-liste {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      margin-bottom: 10px;
+    }
+    .quelle-zeile {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .quelle-zeile input[type="text"] {
+      padding: 5px 8px;
+      font-family: inherit;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      outline: none;
+      color: var(--swm-grau-dunkel);
+      background: var(--swm-weiss);
+      transition: border-color 0.15s;
+      box-sizing: border-box;
+    }
+    .quelle-zeile input[type="text"]:focus { border-color: var(--swm-blau); }
+    .quelle-name     { width: 180px; font-size: 12px; }
+    .quelle-url      { width: 280px; font-size: 11px; }
+    .quelle-selektor { width: 150px; font-size: 11px; }
+    .quelle-toggle {
+      width: 44px;
+      text-align: center;
+      cursor: pointer;
+      accent-color: var(--swm-blau);
+      flex-shrink: 0;
+    }
+    .quelle-entfernen {
+      color: var(--swm-grau-mittel);
+      cursor: pointer;
+      font-size: 14px;
+      border: none;
+      background: transparent;
+      font-family: inherit;
+      padding: 0 2px;
+      line-height: 1;
+    }
+    .quelle-entfernen:hover { color: #d32f2f; }
+    #quelle-aktionen { margin-bottom: 16px; }
+    #quelle-hinzufuegen {
+      padding: 6px 14px;
+      background: var(--swm-weiss);
+      color: var(--swm-blau-dunkel);
+      border: 1px solid var(--swm-blau);
+      border-radius: 4px;
+      font-family: inherit;
+      font-size: 13px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    #quelle-hinzufuegen:hover { background: var(--swm-blau-hell); }
+
+    /* ── Geteilter Info-Box-Stil ──────────────────── */
+    #feed-alert-box,
+    #quelle-info-box {
+      background: var(--swm-blau-hell);
+      border-left: 3px solid var(--swm-blau);
+      padding: 12px;
+      border-radius: 0 4px 4px 0;
+    }
+    .st-info-box-titel {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--swm-grau-dunkel);
+      margin-bottom: 8px;
+    }
+    .st-info-box-text {
+      margin: 0 0 8px;
+      font-size: 12px;
+      color: var(--swm-grau-mittel);
+      line-height: 1.6;
+    }
+    .st-info-box-beispiele {
+      font-size: 12px;
+      color: var(--swm-grau-mittel);
+      line-height: 2;
+    }
+    .st-info-box-beispiele code {
+      background: rgba(99,162,180,0.15);
+      color: var(--swm-blau-dunkel);
+      padding: 1px 5px;
+      border-radius: 3px;
+      font-size: 11px;
     }
 
     /* ── Bestätigungs-Banner ──────────────────────────── */
@@ -2225,7 +2320,7 @@ body {
 
         <!-- Teil 2: Google Alerts Anleitung -->
         <div id="feed-alert-box">
-          <div id="feed-alert-titel">Google Alerts als RSS einbinden</div>
+          <div class="st-info-box-titel">Google Alerts als RSS einbinden</div>
           <ol id="feed-alert-schritte">
             <li>Gehen Sie zu <strong>google.com/alerts</strong></li>
             <li>Suchbegriff eingeben (z.B. „Netzentgelt BNetzA")</li>
@@ -2245,11 +2340,37 @@ body {
       <div class="settings-karte-kopf">
         <h3>Behörden &amp; Quellen</h3>
         <div class="settings-karte-beschr">
-          Relevante Behörden, Verbände und Institutionen als Beobachtungsquellen.
+          Definieren Sie welche Behörden-Websites beim
+          Update-Lauf durchsucht werden.
         </div>
       </div>
       <div class="settings-karte-inhalt">
-        <!-- S-1b: Inhalt folgt -->
+
+        <div id="quelle-kopfzeile">
+          <span class="quelle-col-name">Name</span>
+          <span class="quelle-col-url">URL</span>
+          <span class="quelle-col-sel">CSS-Selektor</span>
+          <span class="quelle-col-aktiv">Aktiv</span>
+        </div>
+        <div id="quelle-liste"></div>
+        <div id="quelle-aktionen">
+          <button id="quelle-hinzufuegen">+ Quelle hinzufügen</button>
+        </div>
+
+        <div id="quelle-info-box">
+          <div class="st-info-box-titel">Hinweis zum CSS-Selektor</div>
+          <p class="st-info-box-text">
+            Der CSS-Selektor bestimmt welcher Bereich der Website durchsucht wird.
+            Bei Unsicherheit „body" eingeben – dann wird die gesamte Seite durchsucht.
+            Beispiele:
+          </p>
+          <div class="st-info-box-beispiele">
+            <code>div.c-teaser__content</code> → BNetzA Teaserboxen<br>
+            <code>div.press-release</code> → Pressemitteilungen<br>
+            <code>article.news-item</code> → News-Artikel
+          </div>
+        </div>
+
       </div>
     </div>
 
@@ -4437,6 +4558,16 @@ window.LP={toggleVollbild,beendeVollbild};
       "BDEW Netzwirtschaft"
     ];
 
+    /* ─────────────────── Quellen ───────────────────── */
+    var STANDARD_QUELLEN = [
+      { name: "Bundesnetzagentur",  url: "https://www.bundesnetzagentur.de", selektor: "div.c-teaser__content", aktiv: true  },
+      { name: "BDEW",               url: "https://www.bdew.de",              selektor: "div.press-release",     aktiv: true  },
+      { name: "dena",               url: "https://www.dena.de",              selektor: "article.news-item",     aktiv: true  },
+      { name: "VKU",                url: "https://www.vku.de",               selektor: "body",                  aktiv: true  },
+      { name: "Netztransparenz.de", url: "https://www.netztransparenz.de",   selektor: "body",                  aktiv: false }
+    ];
+    var LS_KEY_QUELLEN = "config-quellen";
+
     /* ── Keywords laden/speichern ─── */
     function ladeKeywords() {
       try {
@@ -4554,6 +4685,15 @@ window.LP={toggleVollbild,beendeVollbild};
       });
 
       rendereAlertChips();
+
+      /* Quellen */
+      rendereQuellen(ladeQuellen());
+
+      var btnQuelle = document.getElementById("quelle-hinzufuegen");
+      if (btnQuelle) btnQuelle.addEventListener("click", function() {
+        var container = document.getElementById("quelle-liste");
+        if (container) container.appendChild(erstelleQuelleZeile({ name:"", url:"", selektor:"", aktiv:true }));
+      });
     });
 
     /* ── Feeds laden/speichern ─── */
@@ -4653,10 +4793,91 @@ window.LP={toggleVollbild,beendeVollbild};
       });
     }
 
+    /* ── Quellen laden/speichern ─── */
+    function ladeQuellen() {
+      try {
+        var raw = localStorage.getItem(LS_KEY_QUELLEN);
+        if (raw) {
+          var parsed = JSON.parse(raw);
+          if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        }
+      } catch(e) {}
+      return STANDARD_QUELLEN.map(function(q){ return Object.assign({}, q); });
+    }
+
+    function speichereQuellen(liste) {
+      localStorage.setItem(LS_KEY_QUELLEN, JSON.stringify(liste));
+    }
+
+    function aktuelleQuellen() {
+      return Array.from(
+        document.querySelectorAll(".quelle-zeile"),
+        function(zeile) {
+          return {
+            name:     zeile.querySelector(".quelle-name").value,
+            url:      zeile.querySelector(".quelle-url").value,
+            selektor: zeile.querySelector(".quelle-selektor").value,
+            aktiv:    zeile.querySelector(".quelle-toggle").checked
+          };
+        }
+      );
+    }
+
+    function erstelleQuelleZeile(q) {
+      var zeile = document.createElement("div");
+      zeile.className = "quelle-zeile";
+
+      var inpName = document.createElement("input");
+      inpName.type = "text";
+      inpName.className = "quelle-name";
+      inpName.value = q.name || "";
+      inpName.placeholder = "Name";
+
+      var inpUrl = document.createElement("input");
+      inpUrl.type = "text";
+      inpUrl.className = "quelle-url";
+      inpUrl.value = q.url || "";
+      inpUrl.placeholder = "https://...";
+
+      var inpSel = document.createElement("input");
+      inpSel.type = "text";
+      inpSel.className = "quelle-selektor";
+      inpSel.value = q.selektor || "";
+      inpSel.placeholder = "div.teaser__content";
+
+      var toggle = document.createElement("input");
+      toggle.type = "checkbox";
+      toggle.className = "quelle-toggle";
+      toggle.checked = !!q.aktiv;
+
+      var btnX = document.createElement("button");
+      btnX.className = "quelle-entfernen";
+      btnX.textContent = "✕";
+      btnX.title = "Quelle entfernen";
+      btnX.addEventListener("click", function() { zeile.remove(); });
+
+      zeile.appendChild(inpName);
+      zeile.appendChild(inpUrl);
+      zeile.appendChild(inpSel);
+      zeile.appendChild(toggle);
+      zeile.appendChild(btnX);
+      return zeile;
+    }
+
+    function rendereQuellen(liste) {
+      var container = document.getElementById("quelle-liste");
+      if (!container) return;
+      container.innerHTML = "";
+      liste.forEach(function(q) {
+        container.appendChild(erstelleQuelleZeile(q));
+      });
+    }
+
     /* ── Einstellungen speichern / zurücksetzen ─── */
     function speichereEinstellungen() {
       speichereKeywords(aktuelleKeywords());
       speichereFeeds(aktuelleFeeds());
+      speichereQuellen(aktuelleQuellen());
       var banner = document.getElementById("save-banner");
       banner.textContent = "✓ Einstellungen gespeichert";
       banner.style.display = "inline-block";
@@ -4671,8 +4892,10 @@ window.LP={toggleVollbild,beendeVollbild};
       if (!confirm("Alle Einstellungen auf Standardwerte zurücksetzen?")) return;
       localStorage.removeItem(LS_KEY);
       localStorage.removeItem(LS_KEY_FEEDS);
+      localStorage.removeItem(LS_KEY_QUELLEN);
       rendereKeywords(STANDARD_KEYWORDS.slice());
       rendereFeeds(STANDARD_FEEDS.map(function(f){ return Object.assign({}, f); }));
+      rendereQuellen(STANDARD_QUELLEN.map(function(q){ return Object.assign({}, q); }));
       var banner = document.getElementById("save-banner");
       banner.textContent = "Einstellungen zurückgesetzt";
       banner.style.background = "var(--farbe-relevant)";
