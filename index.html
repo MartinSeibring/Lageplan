@@ -1402,6 +1402,95 @@
 
     .st-btn-sekundaer:hover { background: var(--swm-blau-hell); }
 
+    /* ── Keywords ─────────────────────────────────── */
+    #keyword-liste {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+    .keyword-tag {
+      background: var(--swm-blau-hell);
+      color: var(--swm-blau-dunkel);
+      border-radius: 20px;
+      padding: 3px 10px;
+      font-size: 12px;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .keyword-tag-x {
+      color: var(--swm-blau-dunkel);
+      cursor: pointer;
+      font-size: 14px;
+      border: none;
+      background: transparent;
+      line-height: 1;
+      padding: 0;
+      font-family: inherit;
+    }
+    .keyword-tag-x:hover { opacity: 0.7; }
+    #kw-eingabe-zeile {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 12px;
+    }
+    #neues-keyword {
+      width: 250px;
+      padding: 6px 10px;
+      font-size: 13px;
+      font-family: inherit;
+      border: 1px solid var(--swm-blau);
+      border-radius: 4px;
+      outline: none;
+      color: var(--swm-grau-dunkel);
+      background: var(--swm-weiss);
+      box-sizing: border-box;
+      transition: border-color 0.15s;
+    }
+    #neues-keyword:focus { border-color: var(--swm-blau-dunkel); }
+    #neues-keyword.fehler { border-color: #d32f2f; }
+    #kw-hinzufuegen {
+      padding: 6px 14px;
+      background: var(--swm-blau);
+      color: var(--swm-weiss);
+      border: none;
+      border-radius: 4px;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    #kw-hinzufuegen:hover { background: var(--swm-blau-dunkel); }
+    #kw-fehler {
+      font-size: 12px;
+      color: #d32f2f;
+      margin-top: 4px;
+      min-height: 16px;
+    }
+    #kw-meta {
+      margin-top: 10px;
+      font-size: 12px;
+      color: var(--swm-grau-mittel);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    #kw-restore {
+      color: var(--swm-blau-dunkel);
+      cursor: pointer;
+      text-decoration: underline;
+      font-size: 12px;
+      background: none;
+      border: none;
+      font-family: inherit;
+      padding: 0;
+    }
+    #kw-restore:hover { opacity: 0.75; }
+
     /* ── Bestätigungs-Banner ──────────────────────────── */
     #save-banner {
       display: none;
@@ -1971,11 +2060,22 @@ body {
       <div class="settings-karte-kopf">
         <h3>Suchbegriffe &amp; Keywords</h3>
         <div class="settings-karte-beschr">
-          Keywords für die automatische Themenrecherche und Relevanzprüfung.
+          Diese Keywords werden bei jeder Radar-Aktualisierung
+          zur Suche verwendet. Treffer erhöhen den Relevanz-Score
+          eines gefundenen Themas.
         </div>
       </div>
       <div class="settings-karte-inhalt">
-        <!-- S-1b: Inhalt folgt -->
+        <div id="keyword-liste"></div>
+        <div id="kw-eingabe-zeile">
+          <input type="text" id="neues-keyword" placeholder="Neues Keyword eingeben...">
+          <button id="kw-hinzufuegen">+ Hinzufügen</button>
+        </div>
+        <div id="kw-fehler"></div>
+        <div id="kw-meta">
+          <span>Derzeit <strong id="kw-anzahl">0</strong> Keywords aktiv</span>
+          <button id="kw-restore">Standard-Keywords wiederherstellen</button>
+        </div>
       </div>
     </div>
 
@@ -4161,38 +4261,151 @@ window.LP={toggleVollbild,beendeVollbild};
 <script>/* ===== Einstellungen ===== */
 (function(){
 
-    document.title = "Einstellungen | Energie & Asset Management";
+    var STANDARD_KEYWORDS = [
+      "Netzentgelt","Messstellenbetrieb","14a","Flexibilität",
+      "Smart Meter","Netzanschluss","Regulierung","Eigenkapital",
+      "Anreizregulierung","Redispatch","Wärmepumpe","Rollout"
+    ];
+    var LS_KEY = "config-keywords";
 
+    /* ── Keywords laden/speichern ─── */
+    function ladeKeywords() {
+      try {
+        var raw = localStorage.getItem(LS_KEY);
+        if (raw) {
+          var parsed = JSON.parse(raw);
+          if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        }
+      } catch(e) {}
+      return STANDARD_KEYWORDS.slice();
+    }
+
+    function speichereKeywords(liste) {
+      localStorage.setItem(LS_KEY, JSON.stringify(liste));
+    }
+
+    function aktuelleKeywords() {
+      return Array.from(
+        document.querySelectorAll(".keyword-tag[data-kw]"),
+        el => el.dataset.kw
+      );
+    }
+
+    /* ── Tag-Liste rendern ─── */
+    function rendereKeywords(liste) {
+      var container = document.getElementById("keyword-liste");
+      if (!container) return;
+      container.innerHTML = "";
+      liste.forEach(function(kw) {
+        var tag = document.createElement("div");
+        tag.className = "keyword-tag";
+        tag.dataset.kw = kw;
+        var text = document.createTextNode(kw);
+        var btn = document.createElement("button");
+        btn.className = "keyword-tag-x";
+        btn.textContent = "✕";
+        btn.title = "Entfernen";
+        btn.addEventListener("click", function() {
+          tag.remove();
+          aktualisiereAnzahl();
+        });
+        tag.appendChild(text);
+        tag.appendChild(btn);
+        container.appendChild(tag);
+      });
+      aktualisiereAnzahl();
+    }
+
+    function aktualisiereAnzahl() {
+      var el = document.getElementById("kw-anzahl");
+      if (el) el.textContent = aktuelleKeywords().length;
+    }
+
+    /* ── Neues Keyword hinzufügen ─── */
+    function zeigeKwFehler(msg) {
+      var err = document.getElementById("kw-fehler");
+      var inp = document.getElementById("neues-keyword");
+      if (err) err.textContent = msg;
+      if (inp) inp.classList.add("fehler");
+    }
+
+    function loescheKwFehler() {
+      var err = document.getElementById("kw-fehler");
+      var inp = document.getElementById("neues-keyword");
+      if (err) err.textContent = "";
+      if (inp) inp.classList.remove("fehler");
+    }
+
+    function fuegeKeywordHinzu() {
+      var inp = document.getElementById("neues-keyword");
+      if (!inp) return;
+      var val = inp.value.trim();
+      if (val.length < 3) {
+        zeigeKwFehler("Mindestens 3 Zeichen erforderlich.");
+        return;
+      }
+      var bestehende = aktuelleKeywords().map(function(k){ return k.toLowerCase(); });
+      if (bestehende.indexOf(val.toLowerCase()) !== -1) {
+        zeigeKwFehler("Dieses Keyword ist bereits vorhanden.");
+        return;
+      }
+      loescheKwFehler();
+      rendereKeywords(aktuelleKeywords().concat([val]));
+      inp.value = "";
+    }
+
+    /* ── Initialisierung ─── */
+    document.addEventListener("DOMContentLoaded", function() {
+      rendereKeywords(ladeKeywords());
+
+      var btn = document.getElementById("kw-hinzufuegen");
+      if (btn) btn.addEventListener("click", fuegeKeywordHinzu);
+
+      var inp = document.getElementById("neues-keyword");
+      if (inp) {
+        inp.addEventListener("keydown", function(e) {
+          if (e.key === "Enter") fuegeKeywordHinzu();
+        });
+        inp.addEventListener("input", loescheKwFehler);
+      }
+
+      var restore = document.getElementById("kw-restore");
+      if (restore) restore.addEventListener("click", function() {
+        rendereKeywords(STANDARD_KEYWORDS.slice());
+      });
+    });
+
+    /* ── Einstellungen speichern / zurücksetzen ─── */
     function speichereEinstellungen() {
-      // Wird in S-1b bis S-1d mit Logik befüllt
-      const banner = document.getElementById("save-banner");
+      speichereKeywords(aktuelleKeywords());
+      var banner = document.getElementById("save-banner");
       banner.textContent = "✓ Einstellungen gespeichert";
       banner.style.display = "inline-block";
       banner.style.opacity = "1";
-      setTimeout(() => {
+      setTimeout(function() {
         banner.style.opacity = "0";
-        setTimeout(() => { banner.style.display = "none"; banner.style.opacity = "1"; }, 350);
+        setTimeout(function() { banner.style.display = "none"; banner.style.opacity = "1"; }, 350);
       }, 2500);
     }
 
     function resetteEinstellungen() {
       if (!confirm("Alle Einstellungen auf Standardwerte zurücksetzen?")) return;
-      // Wird in S-1b bis S-1d mit Logik befüllt
-      const banner = document.getElementById("save-banner");
+      localStorage.removeItem(LS_KEY);
+      rendereKeywords(STANDARD_KEYWORDS.slice());
+      var banner = document.getElementById("save-banner");
       banner.textContent = "Einstellungen zurückgesetzt";
       banner.style.background = "var(--farbe-relevant)";
       banner.style.display = "inline-block";
       banner.style.opacity = "1";
-      setTimeout(() => {
+      setTimeout(function() {
         banner.style.opacity = "0";
-        setTimeout(() => {
+        setTimeout(function() {
           banner.style.display = "none";
           banner.style.opacity = "1";
           banner.style.background = "var(--farbe-beobachten)";
         }, 350);
       }, 2500);
     }
-  
 
 window.ST={speichereEinstellungen,resetteEinstellungen};
 })();
