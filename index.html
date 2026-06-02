@@ -1769,6 +1769,7 @@ body {
 }
 .app-tab:hover { background: rgba(255,255,255,0.1); color: #fff; }
 .app-tab.aktiv { color: #fff; border-bottom-color: #fff; }
+#tab-settings  { margin-left: auto; }
 .tab-panel { display: none; }
 #panel-themenradar  { font-size: 13px; }
 #panel-meilensteine { font-size: 14px; }
@@ -1850,6 +1851,14 @@ body {
       <span class="status-ampel" id="ampel-update">●</span>
       <span class="status-label">Letzte Aktualisierung</span>
       <span class="status-wert" id="wert-update">–</span>
+    </div>
+
+    <div class="status-trennlinie"></div>
+
+    <div class="status-kachel">
+      <span class="status-ampel" id="ampel-keywords" style="color:var(--swm-blau)">●</span>
+      <span class="status-label">Keywords aktiv</span>
+      <span class="status-wert" id="wert-keywords">–</span>
     </div>
 
   </div>
@@ -4497,6 +4506,18 @@ window.MS={exportiereJSON,redraw:function(){zeichneGantt(gefilterteDaten());}};
         letzteAktualisierung,
         letzteAktualisierung === "Noch nicht aktualisiert" ? C.relevant : C.blau
       );
+
+      // ── Keywords aktiv ──────────────────────────────
+      let kwAnzahl = 0;
+      try {
+        const raw = localStorage.getItem("config-keywords");
+        const kw  = raw ? JSON.parse(raw) : [];
+        if (Array.isArray(kw)) kwAnzahl = kw.length;
+      } catch(e) {}
+      if (kwAnzahl === 0) {
+        kwAnzahl = 12; // Standard-Keywords als Fallback
+      }
+      document.getElementById("wert-keywords").textContent = kwAnzahl;
     })();
 
     // ── Vollbild-Toggle ────────────────────────────────
