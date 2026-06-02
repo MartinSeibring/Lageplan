@@ -602,6 +602,31 @@
       background: var(--swm-blau-hell);
     }
 
+    @keyframes deadline-pulse {
+      0%,100% { opacity: 0.85; transform: scale(1);   }
+      50%      { opacity: 0;    transform: scale(1.8); }
+    }
+    .dl-puls {
+      animation: deadline-pulse 2s ease-in-out infinite;
+      transform-box: fill-box;
+      transform-origin: center;
+    }
+
+    #gantt-dl-tooltip {
+      position: fixed;
+      pointer-events: none;
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      padding: 7px 10px;
+      font-size: 11px;
+      line-height: 1.6;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.14);
+      max-width: 230px;
+      z-index: 9999;
+      display: none;
+    }
+
     /* Detail-Panel */
     #ms-detail-panel {
       clear: both;
@@ -4222,6 +4247,14 @@ window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisieru
       wettbewerblich: "#7a6ea0"
     };
 
+    const deadlineTypFarben = {
+      regulatorisch: "#E24B4A",
+      marktlich:     "#378ADD",
+      technologisch: "#1D9E75",
+      konzern:       "#534AB7",
+      intern:        "#666666"
+    };
+
     const statusFarben = {
       "offen":          "#bbb",
       "in Bearbeitung": "#378ADD",
@@ -4747,6 +4780,73 @@ window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisieru
           .on("mouseout", function() {
             d3.select(this.parentNode).select("rect").attr("fill", bgFarbe);
           });
+
+        // Deadline-Linie + Raute (nach dem Click-Overlay, damit Hover greift)
+        if (ms.pflicht_deadline) {
+          const dlDate = new Date(ms.pflicht_deadline);
+          if (dlDate >= rangeStart && dlDate <= rangeEnd) {
+            const dlX        = titleWidth + xScale(dlDate);
+            const dlFarbe    = deadlineTypFarben[ms.deadline_typ] || "#666";
+            const abgelaufen = dlDate < heute && ms.status !== "abgeschlossen";
+            const dlFarbe2   = abgelaufen ? "#E24B4A" : dlFarbe;
+
+            const dlG = rowG.append("g").attr("class", "ms-deadline");
+
+            // Pulsierender Ring bei überschrittener Deadline
+            if (abgelaufen) {
+              dlG.append("circle")
+                .attr("cx", dlX).attr("cy", 6)
+                .attr("r", 7)
+                .attr("fill", "none")
+                .attr("stroke", "#E24B4A")
+                .attr("stroke-width", 1.5)
+                .attr("class", "dl-puls");
+            }
+
+            // Vertikale Linie
+            dlG.append("line")
+              .attr("x1", dlX).attr("y1", 0)
+              .attr("x2", dlX).attr("y2", rowHeight)
+              .attr("stroke", dlFarbe2)
+              .attr("stroke-width", 2);
+
+            // Raute (Punkte relativ zur Zeile: y=0 oben)
+            dlG.append("polygon")
+              .attr("points",
+                `${dlX},${0} ${dlX+6},${6} ${dlX},${12} ${dlX-6},${6}`)
+              .attr("fill", dlFarbe2)
+              .attr("stroke", "#fff")
+              .attr("stroke-width", 1);
+
+            // Tooltip-Hover
+            const dlDatumStr = dlDate.toLocaleDateString("de-DE");
+            dlG.style("cursor", "default")
+              .on("mouseover", function(event) {
+                const tt = document.getElementById("gantt-dl-tooltip");
+                let html = `<strong>⚠ Pflicht-Deadline</strong><br>`;
+                html += `${dlDatumStr}<br>`;
+                if (ms.deadline_quelle) html += `${ms.deadline_quelle}<br>`;
+                html += `<span style="background:${dlFarbe2};color:#fff;padding:1px 6px;`
+                      + `border-radius:3px;font-size:10px">${ms.deadline_typ || ""}</span>`;
+                if (abgelaufen) {
+                  html += `<br><span style="color:#E24B4A;font-weight:600">`
+                        + `⚠ Deadline überschritten!</span>`;
+                }
+                tt.innerHTML = html;
+                tt.style.display = "block";
+                tt.style.left = (event.clientX + 14) + "px";
+                tt.style.top  = (event.clientY - 10) + "px";
+              })
+              .on("mousemove", function(event) {
+                const tt = document.getElementById("gantt-dl-tooltip");
+                tt.style.left = (event.clientX + 14) + "px";
+                tt.style.top  = (event.clientY - 10) + "px";
+              })
+              .on("mouseout", function() {
+                document.getElementById("gantt-dl-tooltip").style.display = "none";
+              });
+          }
+        }
       });
 
       // Abhängigkeitspfeile
@@ -4852,11 +4952,17 @@ window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisieru
 
     function erzeugeZoomLeiste() {
       if (document.getElementById("gantt-zoom-leiste")) return;
-      const leiste = document.createElement("div");
+      const bereich = document.getElementById("ms-gantt-bereich");
+      const leiste  = document.createElement("div");
       leiste.id = "gantt-zoom-leiste";
-      const ganttBereich = document.getElementById("ms-gantt-bereich");
-      ganttBereich.insertBefore(leiste, ganttBereich.firstChild);
+      bereich.appendChild(leiste);
+
+      const legende = document.createElement("div");
+      legende.id = "gantt-dl-legende";
+      bereich.appendChild(legende);
+
       aktualisiereZoomLeiste();
+      zeichneDeadlineLegende();
     }
 
     function aktualisiereZoomLeiste() {
@@ -4875,9 +4981,33 @@ window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisieru
       });
     }
 
+    function zeichneDeadlineLegende() {
+      const legende = document.getElementById("gantt-dl-legende");
+      if (!legende) return;
+      const typen = [
+        { typ: "regulatorisch", farbe: "#E24B4A" },
+        { typ: "marktlich",     farbe: "#378ADD" },
+        { typ: "technologisch", farbe: "#1D9E75" },
+        { typ: "konzern",       farbe: "#534AB7" },
+        { typ: "intern",        farbe: "#666666" }
+      ];
+      legende.innerHTML =
+        `<div style="display:flex;gap:14px;padding:0 0 5px 220px;align-items:center;flex-wrap:wrap">` +
+        typen.map(t =>
+          `<span style="display:flex;align-items:center;gap:3px;font-size:10px;color:#555">` +
+          `<svg width="10" height="10" viewBox="-5 -5 10 10" style="flex-shrink:0">` +
+          `<polygon points="0,-5 5,0 0,5 -5,0" fill="${t.farbe}"/></svg>` +
+          `${t.typ}</span>`
+        ).join("") +
+        `</div>`;
+    }
+
     // -----------------------------------------------------------------------
     // Start
     // -----------------------------------------------------------------------
+    // Tooltip-Div für Deadline-Hover
+    d3.select("body").append("div").attr("id", "gantt-dl-tooltip");
+
     ladeAusLocalStorage();
     baueFilterPanel();
     erzeugeZoomLeiste();
