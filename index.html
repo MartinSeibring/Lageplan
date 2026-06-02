@@ -578,6 +578,30 @@
       min-height: 500px;
     }
 
+    #gantt-zoom-leiste {
+      display: flex;
+      gap: 4px;
+      padding: 6px 0 6px 220px;
+      align-items: center;
+    }
+    .gantt-zoom-btn {
+      padding: 3px 10px;
+      border-radius: 3px;
+      font-size: 11px;
+      cursor: pointer;
+      border: 1px solid var(--swm-blau);
+      color: var(--swm-blau);
+      background: transparent;
+      line-height: 1.4;
+    }
+    .gantt-zoom-btn.aktiv {
+      background: var(--swm-blau);
+      color: #fff;
+    }
+    .gantt-zoom-btn:hover:not(.aktiv) {
+      background: var(--swm-blau-hell);
+    }
+
     /* Detail-Panel */
     #ms-detail-panel {
       clear: both;
@@ -4213,6 +4237,18 @@ window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisieru
     };
 
     // -----------------------------------------------------------------------
+    // Zoom-Stufen
+    // -----------------------------------------------------------------------
+
+    const zoomStufen = [
+      { label: "5J", monate: 60, einheit: "quartal" },
+      { label: "3J", monate: 36, einheit: "quartal" },
+      { label: "1J", monate: 12, einheit: "monat"   },
+      { label: "6M", monate:  6, einheit: "monat"   }
+    ];
+    let aktuellerZoom = 0;
+
+    // -----------------------------------------------------------------------
     // Filter-Zustand
     // -----------------------------------------------------------------------
 
@@ -4226,7 +4262,9 @@ window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisieru
       const heute = new Date();
       heute.setHours(0, 0, 0, 0);
       const datumBis = new Date(heute);
-      datumBis.setMonth(datumBis.getMonth() + filterState.zeitraum);
+      // Zoom-Fenster und Filter-Zeitraum: immer den größeren Wert nehmen
+      const horizont = Math.max(filterState.zeitraum, zoomStufen[aktuellerZoom].monate);
+      datumBis.setMonth(datumBis.getMonth() + horizont);
 
       return meilensteinData.filter(ms =>
         new Date(ms.start) <= datumBis &&
@@ -4445,36 +4483,46 @@ window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisieru
         return;
       }
 
-      const container    = document.getElementById("ms-gantt-bereich");
-      const cWidth       = container.getBoundingClientRect().width || 900;
-      const titleWidth   = 220;
-      const rowHeight    = 50;
-      const headerHeight = 60;
-      const barHeight    = 20;
-      const paddingRight = 20;
-      const chartWidth   = cWidth - titleWidth - paddingRight;
-      const svgHeight    = headerHeight + daten.length * rowHeight + 10;
+      const zoom       = zoomStufen[aktuellerZoom];
+      const container  = document.getElementById("ms-gantt-bereich");
+      const cWidth     = container.getBoundingClientRect().width || 900;
+      const titleWidth = 220;
+      const rowHeight  = 50;
+      const hdrHoch    = zoom.einheit === "quartal" ? 52 : 40;
+      const barHeight  = 20;
+      const svgBreite  = cWidth - titleWidth;
+      const svgHeight  = hdrHoch + daten.length * rowHeight + 10;
 
       const heute = new Date();
       heute.setHours(0, 0, 0, 0);
 
-      const allDates = daten.flatMap(ms => [new Date(ms.start), new Date(ms.ende)]);
-      const rangeStart = new Date(Math.min(...allDates));
-      rangeStart.setDate(1);
+      // Zeitfenster-Startpunkt: frühester Meilenstein oder heute, auf
+      // Quartals-/Monatsanfang gerundet
+      const allStarts = daten.map(ms => new Date(ms.start));
+      const fruehest  = new Date(Math.min(...allStarts.map(d => d.getTime())));
+      const basis     = fruehest < heute ? fruehest : heute;
 
-      const rangeEnde18 = new Date(heute);
-      rangeEnde18.setMonth(rangeEnde18.getMonth() + filterState.zeitraum);
-      const rangeEnd = new Date(Math.max(
-        ...allDates.map(d => d.getTime()), rangeEnde18.getTime()
-      ));
-      rangeEnd.setDate(1);
-      rangeEnd.setMonth(rangeEnd.getMonth() + 1);
+      let rangeStart;
+      if (zoom.einheit === "quartal") {
+        rangeStart = new Date(basis.getFullYear(),
+          Math.floor(basis.getMonth() / 3) * 3, 1);
+      } else {
+        rangeStart = new Date(basis.getFullYear(), basis.getMonth(), 1);
+      }
+
+      const rangeEnd = new Date(rangeStart);
+      rangeEnd.setMonth(rangeEnd.getMonth() + zoom.monate);
+
+      const anzahlEinheiten = zoom.einheit === "quartal"
+        ? zoom.monate / 3
+        : zoom.monate;
+      const einheitBreite = svgBreite / anzahlEinheiten;
 
       const xScale = d3.scaleTime()
         .domain([rangeStart, rangeEnd])
-        .range([0, chartWidth]);
+        .range([0, svgBreite]);
 
-      // SVG anlegen
+      // SVG
       const svg = d3.select("#ms-gantt-bereich")
         .append("svg")
           .attr("id", "gantt-svg")
@@ -4498,118 +4546,195 @@ window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisieru
         .attr("orient", "auto")
         .append("path").attr("d", "M 0 0 L 10 5 L 0 10 z").attr("fill", "#c0392b");
 
-      // Monats-Raster + Labels
-      const monate = d3.timeMonths(rangeStart, rangeEnd);
+      // Zeitachse
       const gridG = svg.append("g")
         .attr("transform", `translate(${titleWidth},0)`);
 
-      monate.forEach(m => {
-        const x = xScale(m);
-        gridG.append("line")
-          .attr("x1", x).attr("y1", headerHeight - 10)
-          .attr("x2", x).attr("y2", svgHeight)
-          .attr("stroke", "#eee").attr("stroke-width", 1);
-        gridG.append("text")
-          .attr("x", x + 3).attr("y", headerHeight - 16)
-          .attr("font-size", "11px").attr("fill", "#999")
-          .text(m.toLocaleDateString("de-DE", { month: "short", year: "numeric" }));
-      });
+      if (zoom.einheit === "quartal") {
+        // ── Quartal-Modus ─────────────────────────────
+        const hdrJahrY   = 17;  // y für Jahres-Label
+        const hdrQuartY  = hdrHoch - 8; // y für Quartals-Label
 
-      // Heute-Linie
-      const todayX = xScale(heute);
-      gridG.append("line")
-        .attr("x1", todayX).attr("y1", 0)
-        .attr("x2", todayX).attr("y2", svgHeight)
-        .attr("stroke", "#e74c3c").attr("stroke-width", 1.5)
-        .attr("stroke-dasharray", "4,4");
-      gridG.append("text")
-        .attr("x", todayX + 3).attr("y", 12)
-        .attr("font-size", "10px").attr("fill", "#e74c3c")
-        .text("Heute");
+        let cur = new Date(rangeStart);
+        while (cur < rangeEnd) {
+          const qX       = xScale(cur);
+          const qNum     = Math.floor(cur.getMonth() / 3) + 1;
+          const istJahr  = cur.getMonth() === 0;
+
+          // Trennlinie (Jahr: etwas dicker + dunklere Farbe)
+          gridG.append("line")
+            .attr("x1", qX).attr("y1", istJahr ? 0 : hdrHoch - 28)
+            .attr("x2", qX).attr("y2", svgHeight)
+            .attr("stroke", istJahr ? "#aac9d4" : "#dde8eb")
+            .attr("stroke-width", istJahr ? 1.5 : 1);
+
+          if (istJahr) {
+            // Jahres-Label: mittig über dem Jahr-Span
+            const naechstesJahr = new Date(cur.getFullYear() + 1, 0, 1);
+            const jahrEndX = Math.min(xScale(naechstesJahr), svgBreite);
+            gridG.append("text")
+              .attr("x", (qX + jahrEndX) / 2)
+              .attr("y", hdrJahrY)
+              .attr("text-anchor", "middle")
+              .attr("font-size", "11px")
+              .attr("font-weight", "600")
+              .attr("fill", "#2d7a8e")
+              .text(cur.getFullYear());
+          }
+
+          // Quartals-Label mittig im Quartal-Span
+          const qEnd  = new Date(cur);
+          qEnd.setMonth(qEnd.getMonth() + 3);
+          const qEndX = Math.min(xScale(qEnd), svgBreite);
+          if (einheitBreite >= 18) {
+            gridG.append("text")
+              .attr("x", (qX + qEndX) / 2)
+              .attr("y", hdrQuartY)
+              .attr("text-anchor", "middle")
+              .attr("font-size", "10px")
+              .attr("fill", "#777")
+              .text(`Q${qNum}`);
+          }
+
+          cur.setMonth(cur.getMonth() + 3);
+        }
+
+      } else {
+        // ── Monats-Modus ──────────────────────────────
+        const monate = d3.timeMonths(rangeStart, rangeEnd);
+        monate.forEach((m, idx) => {
+          const mX   = xScale(m);
+          const nM   = new Date(m.getFullYear(), m.getMonth() + 1, 1);
+          const mW   = Math.min(xScale(nM), svgBreite) - mX;
+
+          // Abwechselnder Hintergrund (jeder zweite Monat)
+          if (idx % 2 === 1) {
+            gridG.append("rect")
+              .attr("x", mX).attr("y", 0)
+              .attr("width", mW).attr("height", svgHeight)
+              .attr("fill", "#f0f0f0").attr("opacity", 0.55);
+          }
+
+          // Trennlinie
+          gridG.append("line")
+            .attr("x1", mX).attr("y1", hdrHoch - 14)
+            .attr("x2", mX).attr("y2", svgHeight)
+            .attr("stroke", "#dde8eb").attr("stroke-width", 1);
+
+          // Monats-Label
+          const label = m.toLocaleDateString("de-DE",
+            { month: "short", year: "2-digit" });
+          gridG.append("text")
+            .attr("x", mX + mW / 2)
+            .attr("y", hdrHoch - 6)
+            .attr("text-anchor", "middle")
+            .attr("font-size", "10px")
+            .attr("fill", "#666")
+            .text(label);
+        });
+      }
 
       // Header-Trennlinie
       svg.append("line")
-        .attr("x1", 0).attr("y1", headerHeight)
-        .attr("x2", cWidth).attr("y2", headerHeight)
+        .attr("x1", 0).attr("y1", hdrHoch)
+        .attr("x2", cWidth).attr("y2", hdrHoch)
         .attr("stroke", "#ddd").attr("stroke-width", 1);
+
+      // Heute-Linie (nur wenn im sichtbaren Bereich)
+      if (heute >= rangeStart && heute <= rangeEnd) {
+        const todayX  = xScale(heute);
+        const lblW    = 30;
+        const lblH    = 14;
+        gridG.append("line")
+          .attr("x1", todayX).attr("y1", 0)
+          .attr("x2", todayX).attr("y2", svgHeight)
+          .attr("stroke", "#63a2b4")
+          .attr("stroke-width", 1.5)
+          .attr("stroke-dasharray", "4,4");
+        gridG.append("rect")
+          .attr("x", todayX - lblW / 2).attr("y", 2)
+          .attr("width", lblW).attr("height", lblH)
+          .attr("rx", 2).attr("fill", "#63a2b4");
+        gridG.append("text")
+          .attr("x", todayX)
+          .attr("y", 2 + lblH / 2 + 3.5)
+          .attr("text-anchor", "middle")
+          .attr("font-size", "9px").attr("fill", "#fff")
+          .text("Heute");
+      }
 
       // Zeilen
       daten.forEach((ms, i) => {
-        const y          = headerHeight + i * rowHeight;
-        const bgFarbe    = i % 2 === 0 ? "#fafafa" : "#ffffff";
-        const bgHover    = i % 2 === 0 ? "#f0f4ff" : "#f5f8ff";
-        const rowG = svg.append("g")
+        const y       = hdrHoch + i * rowHeight;
+        const bgFarbe = i % 2 === 0 ? "#fafafa" : "#ffffff";
+        const bgHover = i % 2 === 0 ? "#f0f4ff" : "#f5f8ff";
+        const rowG    = svg.append("g")
           .attr("class", "ms-zeile")
           .attr("transform", `translate(0,${y})`);
 
-        // Zebra-Hintergrund
         rowG.append("rect")
           .attr("x", 0).attr("y", 0)
           .attr("width", cWidth).attr("height", rowHeight)
           .attr("fill", bgFarbe);
 
-        // Status-Ampel
         rowG.append("text")
           .attr("x", 6).attr("y", rowHeight / 2 + 5)
           .attr("font-size", "15px")
           .attr("fill", statusFarben[ms.status] || "#bbb")
           .text(statusSymbole[ms.status] || "○");
 
-        // ID (klein)
         rowG.append("text")
           .attr("x", 26).attr("y", rowHeight / 2 - 3)
           .attr("font-size", "10px").attr("fill", "#aaa")
           .text(ms.id);
 
-        // Titel
         const kurz = ms.titel.length > 25 ? ms.titel.slice(0, 25) + "…" : ms.titel;
         rowG.append("text")
           .attr("x", 26).attr("y", rowHeight / 2 + 9)
           .attr("font-size", "12px").attr("fill", "#333")
           .text(kurz);
 
-        // Verantwortlicher
         rowG.append("text")
           .attr("x", 26).attr("y", rowHeight / 2 + 20)
           .attr("font-size", "10px").attr("fill", "#bbb")
           .text(ms.verantwortlicher);
 
-        // Gantt-Balken
-        const x1    = xScale(new Date(ms.start));
-        const x2    = xScale(new Date(ms.ende));
-        const barW  = Math.max(2, x2 - x1);
-        const barY  = (rowHeight - barHeight) / 2;
-        const farbe = katFarben[ms.kategorie] || "#888";
-        const pW    = Math.max(4, barW * (ms.fortschritt / 100));
+        // Balken (geclippt auf sichtbaren Bereich)
+        const msStart = new Date(ms.start);
+        const msEnde  = new Date(ms.ende);
+        const x1raw   = xScale(msStart < rangeStart ? rangeStart : msStart);
+        const x2raw   = xScale(msEnde  > rangeEnd   ? rangeEnd   : msEnde);
+        const barW    = Math.max(2, x2raw - x1raw);
+        const barY    = (rowHeight - barHeight) / 2;
+        const farbe   = katFarben[ms.kategorie] || "#888";
+        const pW      = Math.max(4, barW * (ms.fortschritt / 100));
 
-        rowG.append("rect")
-          .attr("x", titleWidth + x1).attr("y", barY)
-          .attr("width", barW).attr("height", barHeight)
-          .attr("fill", farbe).attr("opacity", 0.28)
-          .attr("rx", 4);
-
-        rowG.append("rect")
-          .attr("x", titleWidth + x1).attr("y", barY)
-          .attr("width", pW).attr("height", barHeight)
-          .attr("fill", farbe).attr("opacity", 0.85)
-          .attr("rx", 4);
-
-        if (pW > 22) {
-          rowG.append("text")
-            .attr("x", titleWidth + x1 + pW / 2)
-            .attr("y", barY + barHeight / 2 + 4)
-            .attr("text-anchor", "middle")
-            .attr("font-size", "10px").attr("fill", "#fff")
-            .text(ms.fortschritt + "%");
+        if (msEnde >= rangeStart && msStart <= rangeEnd) {
+          rowG.append("rect")
+            .attr("x", titleWidth + x1raw).attr("y", barY)
+            .attr("width", barW).attr("height", barHeight)
+            .attr("fill", farbe).attr("opacity", 0.28)
+            .attr("rx", 4);
+          rowG.append("rect")
+            .attr("x", titleWidth + x1raw).attr("y", barY)
+            .attr("width", pW).attr("height", barHeight)
+            .attr("fill", farbe).attr("opacity", 0.85)
+            .attr("rx", 4);
+          if (pW > 22) {
+            rowG.append("text")
+              .attr("x", titleWidth + x1raw + pW / 2)
+              .attr("y", barY + barHeight / 2 + 4)
+              .attr("text-anchor", "middle")
+              .attr("font-size", "10px").attr("fill", "#fff")
+              .text(ms.fortschritt + "%");
+          }
         }
 
-        // Zeilen-Trennlinie
         rowG.append("line")
           .attr("x1", 0).attr("y1", rowHeight)
           .attr("x2", cWidth).attr("y2", rowHeight)
           .attr("stroke", "#eee").attr("stroke-width", 0.5);
 
-        // Klick-Overlay (transparent, gesamte Zeile)
         rowG.append("rect")
           .attr("x", 0).attr("y", 0)
           .attr("width", cWidth).attr("height", rowHeight)
@@ -4627,15 +4752,16 @@ window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisieru
       // Abhängigkeitspfeile
       const msMap = {};
       daten.forEach((ms, i) => {
+        const msStart = new Date(ms.start);
+        const msEnde  = new Date(ms.ende);
         msMap[ms.id] = {
-          yMid:   headerHeight + i * rowHeight + rowHeight / 2,
-          xStart: titleWidth + xScale(new Date(ms.start)),
-          xEnde:  titleWidth + xScale(new Date(ms.ende))
+          yMid:   hdrHoch + i * rowHeight + rowHeight / 2,
+          xStart: titleWidth + xScale(msStart < rangeStart ? rangeStart : msStart),
+          xEnde:  titleWidth + xScale(msEnde  > rangeEnd   ? rangeEnd   : msEnde)
         };
       });
 
       const arrowG = svg.append("g").attr("class", "ms-pfeile");
-
       daten.forEach(ms => {
         if (!ms.abhaengig_von || ms.abhaengig_von.length === 0) return;
         ms.abhaengig_von.forEach(vorId => {
@@ -4647,11 +4773,8 @@ window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisieru
           const warnung  = vor.status !== "abgeschlossen" && new Date(ms.start) <= heute;
           const farbe    = warnung ? "#c0392b" : "#999";
           const markerId = warnung ? "pfeil-warnung" : "pfeil-normal";
-
-          const ax1  = vorg.xEnde;
-          const ay1  = vorg.yMid;
-          const ax2  = ziel.xStart;
-          const ay2  = ziel.yMid;
+          const ax1 = vorg.xEnde, ay1 = vorg.yMid;
+          const ax2 = ziel.xStart, ay2 = ziel.yMid;
           const kink = ax1 + 12;
 
           arrowG.append("path")
@@ -4724,10 +4847,40 @@ window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisieru
     }
 
     // -----------------------------------------------------------------------
+    // Zoom-Leiste
+    // -----------------------------------------------------------------------
+
+    function erzeugeZoomLeiste() {
+      if (document.getElementById("gantt-zoom-leiste")) return;
+      const leiste = document.createElement("div");
+      leiste.id = "gantt-zoom-leiste";
+      const ganttBereich = document.getElementById("ms-gantt-bereich");
+      ganttBereich.insertBefore(leiste, ganttBereich.firstChild);
+      aktualisiereZoomLeiste();
+    }
+
+    function aktualisiereZoomLeiste() {
+      const leiste = document.getElementById("gantt-zoom-leiste");
+      if (!leiste) return;
+      leiste.innerHTML = zoomStufen.map((z, i) =>
+        `<button class="gantt-zoom-btn${i === aktuellerZoom ? " aktiv" : ""}"
+          data-zoom="${i}">${z.label}</button>`
+      ).join("");
+      leiste.querySelectorAll(".gantt-zoom-btn").forEach(btn => {
+        btn.addEventListener("click", function() {
+          aktuellerZoom = parseInt(this.dataset.zoom);
+          aktualisiereZoomLeiste();
+          zeichneGantt(gefilterteDaten());
+        });
+      });
+    }
+
+    // -----------------------------------------------------------------------
     // Start
     // -----------------------------------------------------------------------
     ladeAusLocalStorage();
     baueFilterPanel();
+    erzeugeZoomLeiste();
     zeichneGantt(gefilterteDaten());
   
 
