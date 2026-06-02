@@ -922,7 +922,83 @@
     }
 
     #btn-ms-export:hover { text-decoration: underline; }
-  
+
+    #btn-ms-neu {
+      float: right;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--swm-blau-dunkel);
+      background: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      line-height: 1;
+      margin-left: 16px;
+      padding: 7px 14px;
+      font-family: inherit;
+    }
+    #btn-ms-neu:hover { background: var(--swm-blau-hell); }
+
+    #ms-neu-banner {
+      display: none;
+      background: #1D9E75;
+      color: #fff;
+      padding: 8px 16px;
+      font-size: 13px;
+      margin: -4px 0 10px;
+      transition: opacity 0.4s;
+    }
+
+    #ms-neu-formular {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+    #ms-neu-formular.offen { display: flex; }
+
+    .msf-detail-feld { margin-bottom: 12px; }
+
+    .msf-detail-buttons {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+    }
+    .msf-detail-buttons button {
+      padding: 5px 14px;
+      border-radius: 4px;
+      font-size: 12px;
+      cursor: pointer;
+      font-family: inherit;
+      border: 1px solid #ddd;
+      background: #fff;
+      color: #555;
+    }
+    #btn-detail-bearbeiten {
+      border-color: var(--swm-blau);
+      color: var(--swm-blau-dunkel);
+    }
+    #btn-detail-bearbeiten:hover { background: var(--swm-blau-hell); }
+    #btn-detail-loeschen {
+      border-color: var(--farbe-kritisch);
+      color: var(--farbe-kritisch);
+    }
+    #btn-detail-loeschen:hover { background: #fdecea; }
+
+    #ms-loeschen-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 1100;
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+    #ms-loeschen-modal.offen { display: flex; }
+
 /* ===== Lageplan ===== */
 
     /* ── CSS-Variablen (SWM Corporate Design) ────────── */
@@ -2389,10 +2465,12 @@ body {
     <strong>Meilenstein-Zielrahmen</strong>
     <span id="ms-stand-datum"></span>
     <button id="btn-ms-export" onclick="MS.exportiereJSON()">↓ Meilensteine exportieren (JSON)</button>
+    <button id="btn-ms-neu" onclick="MS.oeffneMsFormular()">+ Meilenstein anlegen</button>
   </div>
-  
+
 
   <div id="ms-import-banner"></div>
+  <div id="ms-neu-banner"></div>
 
   <div id="ms-layout">
     <div id="ms-filter-panel"></div>
@@ -2401,7 +2479,160 @@ body {
 
   <div id="ms-detail-panel"></div>
 
-  
+  <!-- ── Meilenstein-Formular (Anlegen / Bearbeiten) ──────── -->
+  <div id="ms-neu-formular" onclick="MS.schliesseMsFormular()">
+    <div class="tf-box" onclick="event.stopPropagation()">
+
+      <div class="tf-header">
+        <h2 id="msf-titel-h2">Neuen Meilenstein anlegen</h2>
+        <button class="tf-schliessen" onclick="MS.schliesseMsFormular()" title="Schließen">✕</button>
+      </div>
+
+      <!-- 1. Titel -->
+      <div class="tf-gruppe">
+        <label class="tf-label" for="msf-titel">Titel <span class="tf-pflicht">*</span></label>
+        <input id="msf-titel" type="text" class="tf-input" required
+          placeholder="z. B. Smart-Meter-Rollout Phase 2">
+        <div id="msf-titel-fehler" class="tf-fehler">Bitte einen Titel eingeben.</div>
+      </div>
+
+      <!-- 2. Kategorie -->
+      <div class="tf-gruppe">
+        <label class="tf-label" for="msf-kategorie">Kategorie (Herkunft) <span class="tf-pflicht">*</span></label>
+        <select id="msf-kategorie" class="tf-select">
+          <option value="regulatorisch">Regulatorisch</option>
+          <option value="marktlich">Marktlich</option>
+          <option value="technologisch">Technologisch</option>
+          <option value="wettbewerblich">Wettbewerblich</option>
+        </select>
+      </div>
+
+      <!-- 3./4. Start + Ende -->
+      <div class="tf-zweispaltig">
+        <div class="tf-gruppe">
+          <label class="tf-label" for="msf-start">Start-Datum <span class="tf-pflicht">*</span></label>
+          <input id="msf-start" type="date" class="tf-input" required>
+          <div id="msf-start-fehler" class="tf-fehler">Bitte ein Startdatum wählen.</div>
+        </div>
+        <div class="tf-gruppe">
+          <label class="tf-label" for="msf-ende">Zieldatum <span class="tf-pflicht">*</span></label>
+          <input id="msf-ende" type="date" class="tf-input" required>
+          <div id="msf-ende-fehler" class="tf-fehler">Zieldatum muss nach dem Start liegen.</div>
+        </div>
+      </div>
+
+      <!-- 5. Strategische Cluster -->
+      <div class="tf-gruppe">
+        <label class="tf-label">Strategische Cluster</label>
+        <div class="tf-checkboxen">
+          <label><input type="checkbox" class="msf-cluster" value="Netzanschluss"> Netzanschluss</label>
+          <label><input type="checkbox" class="msf-cluster" value="Messstellenbetrieb"> Messstellenbetrieb</label>
+          <label><input type="checkbox" class="msf-cluster" value="Netzwirtschaft"> Netzwirtschaft</label>
+          <label><input type="checkbox" class="msf-cluster" value="Technologie"> Technologie</label>
+          <label><input type="checkbox" class="msf-cluster" value="Organisation"> Organisation</label>
+        </div>
+      </div>
+
+      <!-- 6./7. Status + Verantwortlicher -->
+      <div class="tf-zweispaltig">
+        <div class="tf-gruppe">
+          <label class="tf-label" for="msf-status">Status</label>
+          <select id="msf-status" class="tf-select">
+            <option value="offen" selected>Offen</option>
+            <option value="in Bearbeitung">In Bearbeitung</option>
+            <option value="abgeschlossen">Abgeschlossen</option>
+            <option value="verzögert">Verzögert</option>
+          </select>
+        </div>
+        <div class="tf-gruppe">
+          <label class="tf-label" for="msf-verantwortlicher">Verantwortlicher</label>
+          <input id="msf-verantwortlicher" type="text" class="tf-input" placeholder="z. B. Schneider">
+        </div>
+      </div>
+
+      <!-- Detailfelder -->
+      <div class="tf-trennlinie">Pflicht-Deadline &amp; Verknüpfungen</div>
+
+      <!-- 8. Pflicht-Deadline -->
+      <div class="tf-gruppe">
+        <label class="tf-label" for="msf-deadline">
+          Pflicht-Deadline
+          <span class="tf-label-hint">Gesetzlicher/regulatorischer Stichtag</span>
+        </label>
+        <input id="msf-deadline" type="date" class="tf-input"
+          oninput="MS.toggleDeadlineFelder()" onchange="MS.toggleDeadlineFelder()">
+      </div>
+
+      <!-- 9. Deadline-Quelle -->
+      <div class="tf-gruppe msf-detail-feld" id="msf-deadline-quelle-wrap" style="display:none">
+        <label class="tf-label" for="msf-deadline-quelle">Deadline-Quelle</label>
+        <input id="msf-deadline-quelle" type="text" class="tf-input"
+          placeholder="z.B. §45 MsbG Abs. 3">
+      </div>
+
+      <!-- 10. Deadline-Typ -->
+      <div class="tf-gruppe msf-detail-feld" id="msf-deadline-typ-wrap" style="display:none">
+        <label class="tf-label" for="msf-deadline-typ">Deadline-Typ</label>
+        <select id="msf-deadline-typ" class="tf-select">
+          <option value="regulatorisch">Regulatorisch</option>
+          <option value="marktlich">Marktlich</option>
+          <option value="technologisch">Technologisch</option>
+          <option value="konzern">Konzern</option>
+          <option value="intern">Intern</option>
+        </select>
+      </div>
+
+      <!-- 11. Verknüpftes Thema -->
+      <div class="tf-gruppe">
+        <label class="tf-label" for="msf-thema">Verknüpftes Thema</label>
+        <select id="msf-thema" class="tf-select" onchange="MS.themaGewaehlt()">
+          <option value="">Kein Thema</option>
+        </select>
+      </div>
+
+      <!-- 12. Abhängig von -->
+      <div class="tf-gruppe">
+        <label class="tf-label" for="msf-abhaengig">Abhängig von</label>
+        <select id="msf-abhaengig" class="tf-select" multiple size="4"></select>
+        <div class="tf-hinweis">Strg+Klick für Mehrfachauswahl</div>
+      </div>
+
+      <!-- 13. Fortschritt -->
+      <div class="tf-gruppe">
+        <label class="tf-label">Fortschritt</label>
+        <div class="tf-range-wrap">
+          <input id="msf-fortschritt" type="range" min="0" max="100" step="5" value="0"
+            oninput="document.getElementById('msf-fortschritt-wert').textContent = this.value + '%'">
+          <span id="msf-fortschritt-wert" class="tf-range-wert">0%</span>
+        </div>
+      </div>
+
+      <!-- 14. Notiz -->
+      <div class="tf-gruppe">
+        <label class="tf-label" for="msf-notiz">Notiz</label>
+        <textarea id="msf-notiz" class="tf-textarea" rows="2"
+          placeholder="Kurze Beschreibung / Kontext …"></textarea>
+      </div>
+
+      <div class="tf-footer">
+        <button class="tf-btn-primaer" onclick="MS.speichereMs()">Meilenstein speichern</button>
+        <button class="tf-btn-sekundaer" onclick="MS.schliesseMsFormular()">Abbrechen</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── Löschen-Bestätigung ──────────────────────────────── -->
+  <div id="ms-loeschen-modal" onclick="MS.schliesseLoeschen()">
+    <div class="lm-box" onclick="event.stopPropagation()">
+      <p class="lm-frage">Meilenstein wirklich löschen?</p>
+      <p id="ms-lm-titel"></p>
+      <div class="lm-buttons">
+        <button class="lm-btn-loeschen" onclick="MS.bestaetigeLoeschen()">Ja, löschen</button>
+        <button class="lm-btn-abbrechen" onclick="MS.schliesseLoeschen()">Abbrechen</button>
+      </div>
+    </div>
+  </div>
 
 </div>
   <div class="tab-panel" id="panel-settings">
@@ -4593,7 +4824,22 @@ window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisieru
           <span id="detail-speichern-feedback"
                 style="font-size:12px;color:#27ae60;display:none">✓ Gespeichert</span>
         </div>
+        <div class="msf-detail-buttons">
+          <button id="btn-detail-bearbeiten">✎ Bearbeiten</button>
+          ${ms.manuell_erfasst === true
+            ? `<button id="btn-detail-loeschen">🗑 Löschen</button>`
+            : ""}
+        </div>
       `;
+
+      // Bearbeiten / Löschen
+      document.getElementById("btn-detail-bearbeiten").addEventListener("click", function() {
+        oeffneMsFormular(ms.id);
+      });
+      const btnLoeschen = document.getElementById("btn-detail-loeschen");
+      if (btnLoeschen) {
+        btnLoeschen.addEventListener("click", function() { fragenLoeschen(ms.id); });
+      }
 
       // Fortschritts-Balken live mitführen
       document.getElementById("detail-fortschritt-input").addEventListener("input", function() {
@@ -5314,7 +5560,232 @@ window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisieru
       }
     }
 
-window.MS={exportiereJSON,zeigeDetail,renderMini,getDaten:function(){ return meilensteinData; },redraw:function(){zeichneGantt(gefilterteDaten());}};
+    // -----------------------------------------------------------------------
+    // Meilenstein anlegen / bearbeiten / löschen
+    // -----------------------------------------------------------------------
+
+    let _bearbeitenId = null;
+    let _loeschenId   = null;
+
+    function speichereMeilensteineLocal() {
+      try { localStorage.setItem("meilensteine", JSON.stringify(meilensteinData)); } catch (e) {}
+      localStorage.setItem("last_update", new Date().toLocaleString("de-DE"));
+    }
+
+    function zeigeMsBanner(text) {
+      const b = document.getElementById("ms-neu-banner");
+      if (!b) return;
+      b.textContent = "✓ " + text;
+      b.style.display = "block";
+      b.style.opacity = "1";
+      setTimeout(() => {
+        b.style.opacity = "0";
+        setTimeout(() => { b.style.display = "none"; }, 450);
+      }, 3000);
+    }
+
+    function refreshGanttUndMini() {
+      zeichneGantt(gefilterteDaten());
+      aktualisiereFilterInfo();
+      try { renderMini(false); } catch (e) {}
+      if (window.LP && LP.aktualisiereStatusleiste) { try { LP.aktualisiereStatusleiste(); } catch (e) {} }
+    }
+
+    function toggleDeadlineFelder() {
+      const hat = !!document.getElementById("msf-deadline").value;
+      document.getElementById("msf-deadline-quelle-wrap").style.display = hat ? "block" : "none";
+      document.getElementById("msf-deadline-typ-wrap").style.display    = hat ? "block" : "none";
+    }
+
+    function themaGewaehlt() {
+      const val = document.getElementById("msf-thema").value;
+      if (!val) return;
+      const themen = (window.TR && TR.getDaten) ? TR.getDaten() : [];
+      const t = themen.find(x => String(x.id) === String(val));
+      if (t && t.kategorie) document.getElementById("msf-kategorie").value = t.kategorie;
+    }
+
+    function oeffneMsFormular(id) {
+      _bearbeitenId = (typeof id === "string") ? id : null;
+
+      // Thema-Dropdown füllen
+      const themaSel = document.getElementById("msf-thema");
+      const themen   = (window.TR && TR.getDaten) ? TR.getDaten() : [];
+      themaSel.innerHTML = `<option value="">Kein Thema</option>` +
+        themen.map(t => `<option value="${t.id}">${t.titel}</option>`).join("");
+
+      // Abhängig-von-Dropdown füllen (sich selbst ausschließen)
+      const abhSel = document.getElementById("msf-abhaengig");
+      abhSel.innerHTML = meilensteinData
+        .filter(m => m.id !== _bearbeitenId)
+        .map(m => `<option value="${m.id}">${m.id}: ${m.titel}</option>`).join("");
+
+      const heute      = new Date().toISOString().slice(0, 10);
+      const startInput = document.getElementById("msf-start");
+
+      if (_bearbeitenId) {
+        const m = meilensteinData.find(x => x.id === _bearbeitenId);
+        document.getElementById("msf-titel-h2").textContent     = "Meilenstein bearbeiten";
+        document.getElementById("msf-titel").value              = m.titel || "";
+        document.getElementById("msf-kategorie").value          = m.kategorie || "regulatorisch";
+        startInput.removeAttribute("min"); // Bestandsdaten dürfen in der Vergangenheit liegen
+        document.getElementById("msf-start").value              = m.start || "";
+        document.getElementById("msf-ende").value               = m.ende || "";
+        document.querySelectorAll(".msf-cluster").forEach(cb => {
+          cb.checked = (m.strategische_cluster || []).includes(cb.value);
+        });
+        document.getElementById("msf-status").value             = m.status || "offen";
+        document.getElementById("msf-verantwortlicher").value   = m.verantwortlicher || "";
+        document.getElementById("msf-deadline").value           = m.pflicht_deadline || "";
+        document.getElementById("msf-deadline-quelle").value    = m.deadline_quelle || "";
+        document.getElementById("msf-deadline-typ").value       = m.deadline_typ || "regulatorisch";
+        themaSel.value = (m.thema_id != null) ? String(m.thema_id) : "";
+        Array.from(abhSel.options).forEach(o => {
+          o.selected = (m.abhaengig_von || []).includes(o.value);
+        });
+        document.getElementById("msf-fortschritt").value        = m.fortschritt || 0;
+        document.getElementById("msf-fortschritt-wert").textContent = (m.fortschritt || 0) + "%";
+        document.getElementById("msf-notiz").value              = m.notiz || "";
+      } else {
+        document.getElementById("msf-titel-h2").textContent     = "Neuen Meilenstein anlegen";
+        document.getElementById("msf-titel").value              = "";
+        document.getElementById("msf-kategorie").value          = "regulatorisch";
+        startInput.setAttribute("min", heute);
+        document.getElementById("msf-start").value              = heute;
+        document.getElementById("msf-ende").value               = "";
+        document.querySelectorAll(".msf-cluster").forEach(cb => cb.checked = false);
+        document.getElementById("msf-status").value             = "offen";
+        document.getElementById("msf-verantwortlicher").value   = "";
+        document.getElementById("msf-deadline").value           = "";
+        document.getElementById("msf-deadline-quelle").value    = "";
+        document.getElementById("msf-deadline-typ").value       = "regulatorisch";
+        themaSel.value = "";
+        document.getElementById("msf-fortschritt").value        = 0;
+        document.getElementById("msf-fortschritt-wert").textContent = "0%";
+        document.getElementById("msf-notiz").value              = "";
+      }
+
+      // Fehler-Zustände zurücksetzen
+      ["msf-titel", "msf-start", "msf-ende"].forEach(fid => {
+        const f = document.getElementById(fid + "-fehler");
+        if (f) f.style.display = "none";
+        document.getElementById(fid).classList.remove("tf-fehler-feld");
+      });
+
+      toggleDeadlineFelder();
+      document.getElementById("ms-neu-formular").classList.add("offen");
+    }
+
+    function schliesseMsFormular() {
+      document.getElementById("ms-neu-formular").classList.remove("offen");
+      _bearbeitenId = null;
+    }
+
+    function speichereMs() {
+      const titel = document.getElementById("msf-titel").value.trim();
+      const start = document.getElementById("msf-start").value;
+      const ende  = document.getElementById("msf-ende").value;
+
+      // Validierung
+      let ok = true;
+      ["msf-titel", "msf-start", "msf-ende"].forEach(fid => {
+        const f = document.getElementById(fid + "-fehler");
+        if (f) f.style.display = "none";
+        document.getElementById(fid).classList.remove("tf-fehler-feld");
+      });
+      if (!titel) {
+        document.getElementById("msf-titel-fehler").style.display = "block";
+        document.getElementById("msf-titel").classList.add("tf-fehler-feld");
+        ok = false;
+      }
+      if (!start) {
+        document.getElementById("msf-start-fehler").style.display = "block";
+        document.getElementById("msf-start").classList.add("tf-fehler-feld");
+        ok = false;
+      }
+      if (!ende || (start && new Date(ende) <= new Date(start))) {
+        document.getElementById("msf-ende-fehler").style.display = "block";
+        document.getElementById("msf-ende").classList.add("tf-fehler-feld");
+        ok = false;
+      }
+      if (!ok) return;
+
+      // Werte einsammeln
+      const cluster = Array.from(document.querySelectorAll(".msf-cluster:checked")).map(c => c.value);
+      const deadline = document.getElementById("msf-deadline").value || null;
+      const dlQuelle = deadline ? document.getElementById("msf-deadline-quelle").value.trim() : "";
+      const dlTyp    = deadline ? document.getElementById("msf-deadline-typ").value : "intern";
+
+      const themaVal = document.getElementById("msf-thema").value;
+      let themaId = null, themaTitel = "(kein Thema)", radarScore = 0;
+      if (themaVal) {
+        const themen = (window.TR && TR.getDaten) ? TR.getDaten() : [];
+        const t = themen.find(x => String(x.id) === String(themaVal));
+        if (t) { themaId = t.id; themaTitel = t.titel; radarScore = t.radar_score || 0; }
+      }
+
+      const abh = Array.from(document.getElementById("msf-abhaengig").selectedOptions).map(o => o.value);
+      const fortschritt      = parseInt(document.getElementById("msf-fortschritt").value) || 0;
+      const notiz            = document.getElementById("msf-notiz").value;
+      const kategorie        = document.getElementById("msf-kategorie").value;
+      const status           = document.getElementById("msf-status").value;
+      const verantwortlicher = document.getElementById("msf-verantwortlicher").value.trim();
+
+      if (_bearbeitenId) {
+        const obj = meilensteinData.find(m => m.id === _bearbeitenId);
+        if (obj) {
+          Object.assign(obj, {
+            titel, kategorie, start, ende, strategische_cluster: cluster,
+            status, verantwortlicher, pflicht_deadline: deadline,
+            deadline_quelle: dlQuelle, deadline_typ: dlTyp,
+            thema_id: themaId, thema_titel: themaTitel, radar_score: radarScore,
+            abhaengig_von: abh, fortschritt, notiz
+          });
+        }
+        zeigeMsBanner("Meilenstein aktualisiert");
+      } else {
+        meilensteinData.push({
+          id: "M" + Date.now(),
+          titel, kategorie, start, ende, strategische_cluster: cluster,
+          status, verantwortlicher, pflicht_deadline: deadline,
+          deadline_quelle: dlQuelle, deadline_typ: dlTyp,
+          thema_id: themaId, thema_titel: themaTitel, radar_score: radarScore,
+          abhaengig_von: abh, fortschritt, notiz,
+          manuell_erfasst: true
+        });
+        zeigeMsBanner("Meilenstein angelegt");
+      }
+
+      speichereMeilensteineLocal();
+      schliesseMsFormular();
+      refreshGanttUndMini();
+    }
+
+    function fragenLoeschen(id) {
+      _loeschenId = id;
+      const m = meilensteinData.find(x => x.id === id);
+      document.getElementById("ms-lm-titel").textContent = m ? (m.id + ": " + m.titel) : "";
+      document.getElementById("ms-loeschen-modal").classList.add("offen");
+    }
+
+    function schliesseLoeschen() {
+      document.getElementById("ms-loeschen-modal").classList.remove("offen");
+      _loeschenId = null;
+    }
+
+    function bestaetigeLoeschen() {
+      if (_loeschenId) {
+        const idx = meilensteinData.findIndex(x => x.id === _loeschenId);
+        if (idx !== -1) meilensteinData.splice(idx, 1);
+        speichereMeilensteineLocal();
+        schliesseDetail();
+        refreshGanttUndMini();
+        zeigeMsBanner("Meilenstein gelöscht");
+      }
+      schliesseLoeschen();
+    }
+
+window.MS={exportiereJSON,zeigeDetail,renderMini,oeffneMsFormular,schliesseMsFormular,speichereMs,toggleDeadlineFelder,themaGewaehlt,fragenLoeschen,schliesseLoeschen,bestaetigeLoeschen,getDaten:function(){ return meilensteinData; },redraw:function(){zeichneGantt(gefilterteDaten());}};
 })();
 </script>
 <script>/* ===== Lageplan ===== */
