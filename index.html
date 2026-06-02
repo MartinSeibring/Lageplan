@@ -1119,6 +1119,72 @@
       border-top: 1px solid #eee;
     }
 
+    .ki-anleitung {
+      font-size: 12px;
+      color: #555;
+      line-height: 1.6;
+      margin-bottom: 10px;
+    }
+
+    .ki-anleitung strong { color: var(--swm-blau-dunkel); }
+
+    .ki-anleitung ol {
+      margin: 6px 0 0 16px;
+      padding: 0;
+    }
+
+    #ki-prompt-box {
+      background: #f5f8fa;
+      border: 1px solid #dde8eb;
+      border-radius: 4px;
+      padding: 8px 10px;
+      font-size: 10px;
+      font-family: monospace;
+      line-height: 1.55;
+      max-height: 90px;
+      overflow-y: auto;
+      color: #555;
+      white-space: pre-wrap;
+      margin-bottom: 6px;
+    }
+
+    #ki-kopieren-btn {
+      padding: 3px 10px;
+      font-size: 11px;
+      background: none;
+      border: 1px solid var(--swm-blau);
+      border-radius: 4px;
+      color: var(--swm-blau-dunkel);
+      cursor: pointer;
+      font-family: inherit;
+      margin-bottom: 12px;
+    }
+    #ki-kopieren-btn:hover { background: var(--swm-blau-hell); }
+
+    #ki-json-eingabe {
+      width: 100%;
+      padding: 7px 9px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 11px;
+      font-family: monospace;
+      resize: vertical;
+      box-sizing: border-box;
+      line-height: 1.5;
+    }
+    #ki-json-eingabe:focus {
+      outline: none;
+      border-color: var(--swm-blau);
+      box-shadow: 0 0 0 2px rgba(99,162,180,0.18);
+    }
+
+    #ki-json-fehler {
+      font-size: 11px;
+      color: #c0392b;
+      margin-top: 4px;
+      display: none;
+    }
+
     #ki-fortschritt {
       display: none;
       margin-top: 12px;
@@ -2766,12 +2832,25 @@ body {
 
         <!-- Tab-Leiste -->
         <div class="ki-tab-leiste">
-          <button class="ki-tab aktiv" id="ki-tab-url" onclick="TR._kiWechsleTab('url')">🔗 URL eingeben</button>
-          <button class="ki-tab" id="ki-tab-pdf" onclick="TR._kiWechsleTab('pdf')">📄 PDF hochladen</button>
+          <button class="ki-tab aktiv" id="ki-tab-json" onclick="TR._kiWechsleTab('json')">📋 JSON einfügen</button>
+          <button class="ki-tab" id="ki-tab-url"  onclick="TR._kiWechsleTab('url')">🔗 URL</button>
+          <button class="ki-tab" id="ki-tab-pdf"  onclick="TR._kiWechsleTab('pdf')">📄 PDF</button>
+        </div>
+
+        <!-- Tab 0: JSON einfügen (Standard) -->
+        <div id="tab-json">
+          <div class="ki-anleitung">
+            Öffne <strong>claude.ai</strong>, lade dein Dokument hoch und sende den folgenden Prompt. Füge dann die JSON-Antwort unten ein:
+          </div>
+          <div id="ki-prompt-box"></div>
+          <button id="ki-kopieren-btn" onclick="TR._kiKopierePrompt()">📋 Prompt kopieren</button>
+          <label class="ki-feld-label" for="ki-json-eingabe">JSON-Antwort von Claude einfügen</label>
+          <textarea id="ki-json-eingabe" rows="5" placeholder='[{"titel": "...", "deadline": "2025-12-31", ...}]'></textarea>
+          <div id="ki-json-fehler"></div>
         </div>
 
         <!-- Tab 1: URL -->
-        <div id="tab-url">
+        <div id="tab-url" style="display:none">
           <label class="ki-feld-label" for="ki-url">URL des Dokuments</label>
           <input type="url" id="ki-url" placeholder="https://www.gesetze-im-internet.de/...">
           <div class="ki-schnell-chips">
@@ -2792,8 +2871,8 @@ body {
           </div>
         </div>
 
-        <!-- Gemeinsame Felder -->
-        <div class="ki-gemeinschaft">
+        <!-- Gemeinsame Felder (URL + PDF) -->
+        <div class="ki-gemeinschaft" id="ki-gemeinschaft">
           <label class="ki-feld-label" for="ki-kontext">Kontext für die Analyse (optional)</label>
           <textarea id="ki-kontext" rows="2"
             placeholder="z.B. Fokus auf Rollout-Pflichten für Verteilnetzbetreiber mit &lt; 100.000 Messpunkten"></textarea>
@@ -2801,7 +2880,13 @@ body {
           <div id="ki-verknuepft">—</div>
         </div>
 
-        <!-- Fortschrittsanzeige -->
+        <!-- Verknüpftes Thema (nur JSON-Tab) -->
+        <div id="ki-verknuepft-json" style="margin-top:10px">
+          <label class="ki-feld-label">Verknüpftes Thema</label>
+          <div id="ki-verknuepft2" style="background:var(--swm-grau-hell);padding:6px 8px;border-radius:4px;font-size:12px">—</div>
+        </div>
+
+        <!-- Fortschrittsanzeige (URL + PDF) -->
         <div id="ki-fortschritt">
           <div class="ki-ladebalken"><div class="ki-ladebalken-inner"></div></div>
           <div id="ki-fortschritt-text">Dokument wird analysiert – dies kann 15–30 Sekunden dauern...</div>
@@ -2810,7 +2895,7 @@ body {
       </div>
       <div class="ki-modal-footer">
         <button id="btn-ki-abbrechen" onclick="TR.schliesseKiModal()">Abbrechen</button>
-        <button id="btn-ki-starten" disabled onclick="TR.starteKiAnalyse()">Analyse starten</button>
+        <button id="btn-ki-starten" disabled onclick="TR.starteKiAnalyse()">JSON importieren</button>
       </div>
     </div>
   </div>
@@ -4608,6 +4693,9 @@ body {
       if (_kiFormularInitialisiert) return;
       _kiFormularInitialisiert = true;
 
+      var jsonEingabe = document.getElementById("ki-json-eingabe");
+      if (jsonEingabe) jsonEingabe.addEventListener("input", _kiValidiereEingabe);
+
       var urlInput = document.getElementById("ki-url");
       if (urlInput) urlInput.addEventListener("input", _kiValidiereEingabe);
 
@@ -4636,24 +4724,77 @@ body {
       }
     }
 
+    var _kiPromptText = [
+      "Analysiere das folgende Dokument und extrahiere ALLE konkreten Umsetzungsfristen,",
+      "Pflichttermine und zeitgebundenen Verpflichtungen.",
+      "",
+      "Antworte NUR mit einem JSON-Array ohne Markdown. Format je Eintrag:",
+      '[{',
+      '  "titel": "Kurzer prägnanter Titel der Pflicht",',
+      '  "beschreibung": "Genaue Beschreibung was umzusetzen ist",',
+      '  "paragraph": "Gesetzliche Grundlage z.B. §45 Abs.2 MsbG",',
+      '  "deadline": "YYYY-MM-DD oder null wenn kein fixes Datum",',
+      '  "deadline_beschreibung": "z.B. bis 31.12.2025",',
+      '  "deadline_typ": "regulatorisch",',
+      '  "kategorie": "regulatorisch",',
+      '  "auswirkung": 3,',
+      '  "vorgeschlagene_cluster": ["Netzwirtschaft"],',
+      '  "tags": ["tag1"],',
+      '  "unsicherheit": 3',
+      '}]'
+    ].join("\n");
+
     function _kiWechsleTab(tab) {
       _kiAktuellerTab = tab;
-      var tabUrlBtn  = document.getElementById("ki-tab-url");
-      var tabPdfBtn  = document.getElementById("ki-tab-pdf");
-      var panelUrl   = document.getElementById("tab-url");
-      var panelPdf   = document.getElementById("tab-pdf");
-      if (tab === "url") {
-        tabUrlBtn && tabUrlBtn.classList.add("aktiv");
-        tabPdfBtn && tabPdfBtn.classList.remove("aktiv");
-        panelUrl  && (panelUrl.style.display = "");
-        panelPdf  && (panelPdf.style.display = "none");
-      } else {
-        tabUrlBtn && tabUrlBtn.classList.remove("aktiv");
-        tabPdfBtn && tabPdfBtn.classList.add("aktiv");
-        panelUrl  && (panelUrl.style.display = "none");
-        panelPdf  && (panelPdf.style.display = "");
-      }
+      var tabs    = { json: "ki-tab-json", url: "ki-tab-url", pdf: "ki-tab-pdf" };
+      var panels  = { json: "tab-json",    url: "tab-url",    pdf: "tab-pdf" };
+      var gemein  = document.getElementById("ki-gemeinschaft");
+      var vjson   = document.getElementById("ki-verknuepft-json");
+      var btn     = document.getElementById("btn-ki-starten");
+
+      Object.keys(tabs).forEach(function(t) {
+        var tb = document.getElementById(tabs[t]);
+        var pn = document.getElementById(panels[t]);
+        if (tb) tb.classList.toggle("aktiv", t === tab);
+        if (pn) pn.style.display = (t === tab) ? "" : "none";
+      });
+
+      if (gemein) gemein.style.display  = (tab === "json") ? "none" : "";
+      if (vjson)  vjson.style.display   = (tab === "json") ? "" : "none";
+      if (btn)    btn.textContent       = (tab === "json") ? "JSON importieren" : "Analyse starten";
+
+      // Prompt-Box befüllen (einmalig)
+      var pb = document.getElementById("ki-prompt-box");
+      if (pb && !pb.textContent) pb.textContent = _kiPromptText;
+
       _kiValidiereEingabe();
+    }
+
+    function _kiKopierePrompt() {
+      var kopBtn = document.getElementById("ki-kopieren-btn");
+      function bestaetigen() {
+        if (kopBtn) {
+          kopBtn.textContent = "✓ Kopiert!";
+          setTimeout(function() { kopBtn.textContent = "📋 Prompt kopieren"; }, 2000);
+        }
+      }
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(_kiPromptText).then(bestaetigen).catch(function() {
+          _kiFallbackKopieren(_kiPromptText); bestaetigen();
+        });
+      } else {
+        _kiFallbackKopieren(_kiPromptText); bestaetigen();
+      }
+    }
+
+    function _kiFallbackKopieren(text) {
+      var ta = document.createElement("textarea");
+      ta.value = text;
+      ta.style.cssText = "position:fixed;top:-9999px;left:-9999px";
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand("copy"); } catch(e) {}
+      document.body.removeChild(ta);
     }
 
     function _kiSetzeUrl(url) {
@@ -4665,7 +4806,10 @@ body {
 
     function _kiValidiereEingabe() {
       var ok = false;
-      if (_kiAktuellerTab === "url") {
+      if (_kiAktuellerTab === "json") {
+        var ta = document.getElementById("ki-json-eingabe");
+        ok = !!(ta && ta.value.trim());
+      } else if (_kiAktuellerTab === "url") {
         var inp = document.getElementById("ki-url");
         if (inp && inp.value.trim()) {
           try { new URL(inp.value.trim()); ok = true; } catch(e) {}
@@ -4709,23 +4853,30 @@ body {
     function oeffneKiModal(themaId) {
       _kiAktivesThema = themaId || null;
 
-      // Reset URL + tab
+      // Reset Felder
+      var jsonEingabe = document.getElementById("ki-json-eingabe");
+      if (jsonEingabe) jsonEingabe.value = "";
+      var jsonFehler = document.getElementById("ki-json-fehler");
+      if (jsonFehler) jsonFehler.style.display = "none";
       var urlInput = document.getElementById("ki-url");
       if (urlInput) urlInput.value = "";
       var pdfInput = document.getElementById("ki-pdf");
       if (pdfInput) pdfInput.value = "";
       var dropzoneText = document.getElementById("dropzone-text");
       if (dropzoneText) dropzoneText.textContent = "PDF hier ablegen oder klicken zum Auswählen";
+      var ftDiv = document.getElementById("ki-fortschritt");
+      if (ftDiv) ftDiv.style.display = "none";
 
-      _kiAktuellerTab = "url";
-      _kiWechsleTab("url");
+      _kiAktuellerTab = "json";
+      _kiWechsleTab("json");
 
-      // Populate linked theme
-      var themaFeld = document.getElementById("ki-verknuepft");
-      if (themaFeld) {
-        var thema = radarData.find(function(d) { return d.id === themaId; });
-        themaFeld.textContent = thema ? thema.titel : "—";
-      }
+      // Verknüpftes Thema in beide Felder eintragen
+      var thema = radarData.find(function(d) { return d.id === themaId; });
+      var titelText = thema ? thema.titel : "—";
+      var themaFeld  = document.getElementById("ki-verknuepft");
+      var themaFeld2 = document.getElementById("ki-verknuepft2");
+      if (themaFeld)  themaFeld.textContent  = titelText;
+      if (themaFeld2) themaFeld2.textContent = titelText;
 
       _kiInitFormular();
 
@@ -4750,6 +4901,30 @@ body {
       var fortschritt  = document.getElementById("ki-fortschritt");
       var ftText       = document.getElementById("ki-fortschritt-text");
 
+      var themaId = _kiAktivesThema;
+
+      // ── Pfad A: JSON direkt einfügen (kein Server nötig) ──
+      if (_kiAktuellerTab === "json") {
+        var jsonText  = (document.getElementById("ki-json-eingabe") || {}).value || "";
+        var fehlerEl  = document.getElementById("ki-json-fehler");
+        if (fehlerEl) fehlerEl.style.display = "none";
+        var cleaned   = jsonText.trim().replace(/^```(?:json)?\s*/i, "").replace(/\s*```\s*$/i, "").trim();
+        var vorschlaege;
+        try {
+          vorschlaege = JSON.parse(cleaned);
+          if (!Array.isArray(vorschlaege)) throw new Error("Erwartet wird ein JSON-Array [...]");
+        } catch(e) {
+          if (fehlerEl) { fehlerEl.textContent = "⚠ Ungültiges JSON: " + e.message; fehlerEl.style.display = "block"; }
+          return;
+        }
+        kiVorschlaege = vorschlaege;
+        var thema = radarData.find(function(d) { return d.id === themaId; }) || null;
+        schliesseKiModal();
+        zeigeKiVorschlaege(vorschlaege, thema);
+        return;
+      }
+
+      // ── Pfad B: Server-Analyse (URL / PDF) ──
       // Schritt 1: Ladeanimation
       if (btn) { btn.disabled = true; btn.textContent = "⏳ Wird analysiert..."; btn.style.opacity = "0.7"; }
       if (abbrechenBtn) abbrechenBtn.disabled = true;
@@ -4758,7 +4933,6 @@ body {
 
       var kontext  = (document.getElementById("ki-kontext") || {}).value || "";
       var istPdf   = _kiAktuellerTab === "pdf";
-      var themaId  = _kiAktivesThema;
 
       try {
         // Schritt 2: Dokument vorbereiten
@@ -4787,7 +4961,7 @@ body {
 
       } catch(err) {
         if (ftText) ftText.innerHTML = "<span style='color:#c0392b'>⚠ " + (err.message || "Unbekannter Fehler") + "</span>";
-        if (btn) { btn.disabled = false; btn.textContent = "Analyse starten"; btn.style.opacity = ""; _kiValidiereEingabe(); }
+        if (btn) { btn.disabled = false; btn.textContent = (_kiAktuellerTab === "json") ? "JSON importieren" : "Analyse starten"; btn.style.opacity = ""; _kiValidiereEingabe(); }
         if (abbrechenBtn) abbrechenBtn.disabled = false;
       }
     }
@@ -5077,7 +5251,7 @@ body {
       document.body.appendChild(panel);
     }
 
-window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisierung,schliesseThemaFormular,aktualisiereScore,aktualisiereSlider,speichereThema,schliesseLoeschenModal,filterAktualisieren,zeigeDetail,oeffneKiModal,schliesseKiModal,_kiWechsleTab,_kiSetzeUrl,starteKiAnalyse,redraw:zeichnePunkte,renderMini:renderMini,getDaten:function(){ return radarData; }};
+window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisierung,schliesseThemaFormular,aktualisiereScore,aktualisiereSlider,speichereThema,schliesseLoeschenModal,filterAktualisieren,zeigeDetail,oeffneKiModal,schliesseKiModal,_kiWechsleTab,_kiSetzeUrl,_kiKopierePrompt,starteKiAnalyse,redraw:zeichnePunkte,renderMini:renderMini,getDaten:function(){ return radarData; }};
 })();
 </script>
 <script>/* ===== Meilensteine ===== */
