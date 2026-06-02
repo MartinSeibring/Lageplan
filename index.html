@@ -1116,7 +1116,8 @@
       text-decoration: none;
     }
     .lp-radar-footer-link:hover { color: var(--swm-blau-dunkel); }
-    #lp-radar-tooltip {
+    #lp-radar-tooltip,
+    #lp-gantt-tooltip {
       position: absolute;
       background: #2a2a2a;
       color: #fff;
@@ -1126,7 +1127,7 @@
       pointer-events: none;
       z-index: 600;
       opacity: 0;
-      max-width: 200px;
+      max-width: 220px;
       line-height: 1.5;
       transition: opacity 0.1s;
     }
@@ -1958,8 +1959,11 @@ body {
           <button class="lp-vollbild-btn" title="Vollbild" onclick="LP.toggleVollbild(this.closest('.lp-kachel'))">⛶</button>
         </div>
         <div class="lp-kachel-body">
-          
-          <div class="lp-platzhalter"><div class="lp-platzhalter-icon">📅</div><div class="lp-platzhalter-name">Meilensteine &amp; GANTT</div><div class="lp-platzhalter-beschr">GANTT-Zeitplan mit Abh&auml;ngigkeiten, Fortschritt und Status.</div><button class="lp-platzhalter-btn" data-jump="meilensteine">Zu den Meilensteinen &rarr;</button></div>
+          <svg id="lp-gantt-svg" width="100%" style="display:block;flex:1"></svg>
+          <div class="lp-radar-footer">
+            <span id="lp-gantt-footer-info" class="lp-radar-footer-info">– Meilensteine</span>
+            <button class="lp-radar-footer-link" data-jump="meilensteine">Vollansicht &rarr;</button>
+          </div>
         </div>
       </div>
 
@@ -4580,7 +4584,171 @@ window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisieru
     zeichneGantt(gefilterteDaten());
   
 
-window.MS={exportiereJSON,redraw:function(){zeichneGantt(gefilterteDaten());}};
+    // ── Mini-GANTT für Lageplan-Kachel ──────────────────
+    const _lp_gantt_tt = d3.select("body").append("div").attr("id","lp-gantt-tooltip");
+
+    function renderMini() {
+      const el = document.getElementById("lp-gantt-svg");
+      if (!el) return;
+      d3.select("#lp-gantt-svg").selectAll("*").remove();
+
+      const containerWidth = el.getBoundingClientRect().width || 0;
+      if (containerWidth < 10) return;
+
+      const svg         = d3.select("#lp-gantt-svg");
+      const titleWidth  = 120;
+      const rowHeight   = 22;
+      const hdrHeight   = 22;
+      const barHeight   = 10;
+      const chartWidth  = containerWidth - titleWidth - 6;
+
+      // Daten: nach radar_score absteigend, max 8
+      const MAX = 8;
+      const alle = meilensteinData.slice().sort((a,b) => (b.radar_score||0)-(a.radar_score||0));
+      const vis  = alle.slice(0, MAX);
+      const mehr = alle.length > MAX ? alle.length - MAX : 0;
+
+      // Zeitachse: Monatsanfang heute … +12 Monate
+      const heute = new Date(); heute.setHours(0,0,0,0);
+      const rs = new Date(heute); rs.setDate(1);
+      const re = new Date(rs); re.setMonth(re.getMonth() + 12);
+
+      const xSc = d3.scaleTime().domain([rs, re]).range([0, chartWidth]);
+
+      const svgH = hdrHeight + vis.length * rowHeight + (mehr ? rowHeight : 0) + 4;
+      svg.attr("height", svgH);
+
+      // Pfeilspitzen
+      const defs = svg.append("defs");
+      defs.append("marker").attr("id","lp-ms-pfeil")
+        .attr("viewBox","0 0 8 8").attr("refX",6).attr("refY",4)
+        .attr("markerWidth",4).attr("markerHeight",4).attr("orient","auto")
+        .append("path").attr("d","M 0 0 L 8 4 L 0 8 z").attr("fill","#bbb");
+
+      // Monats-Header + Rasterlinien
+      const hG = svg.append("g").attr("transform","translate("+titleWidth+",0)");
+      d3.timeMonths(rs, re).forEach(m => {
+        const x = xSc(m);
+        hG.append("line").attr("x1",x).attr("y1",hdrHeight)
+          .attr("x2",x).attr("y2",svgH).attr("stroke","#f0f0f0").attr("stroke-width",1);
+        hG.append("text").attr("x",x+2).attr("y",15)
+          .attr("font-size","9px").attr("fill","#999")
+          .text(m.toLocaleString("de-DE",{month:"short"}).replace(".","").slice(0,3));
+      });
+
+      // Heute-Linie
+      const hx = xSc(heute);
+      if (hx >= 0 && hx <= chartWidth) {
+        svg.append("line")
+          .attr("x1",titleWidth+hx).attr("y1",0)
+          .attr("x2",titleWidth+hx).attr("y2",svgH)
+          .attr("stroke","#63a2b4").attr("stroke-width",1).attr("stroke-dasharray","3,3");
+      }
+
+      // Zeilen
+      const idxMap = {};
+      vis.forEach((ms, i) => {
+        idxMap[ms.id] = i;
+        const rowY = hdrHeight + i * rowHeight;
+        const barY = rowY + (rowHeight - barHeight) / 2;
+
+        // Ampel
+        svg.append("circle").attr("cx",8).attr("cy",rowY+rowHeight/2).attr("r",3)
+          .attr("fill", statusFarben[ms.status] || "#bbb");
+
+        // Titel
+        const t = ms.titel.length > 16 ? ms.titel.slice(0,16)+"…" : ms.titel;
+        svg.append("text").attr("x",16).attr("y",rowY+rowHeight/2+4)
+          .attr("font-size","10px").attr("fill","#333").text(t);
+
+        // Balken
+        const bx0 = Math.max(xSc(new Date(ms.start)), 0);
+        const bx1 = Math.min(xSc(new Date(ms.ende)),  chartWidth);
+        if (bx1 > bx0) {
+          const bx = titleWidth + bx0;
+          const bw = bx1 - bx0;
+
+          // Hintergrund
+          svg.append("rect").attr("x",bx).attr("y",barY)
+            .attr("width",bw).attr("height",barHeight).attr("rx",3)
+            .attr("fill", katFarben[ms.kategorie]||"#63a2b4").attr("opacity",0.25);
+
+          // Fortschritt
+          const fw = bw * (ms.fortschritt||0) / 100;
+          if (fw > 0) {
+            svg.append("rect").attr("x",bx).attr("y",barY)
+              .attr("width",fw).attr("height",barHeight).attr("rx",3)
+              .attr("fill", katFarben[ms.kategorie]||"#63a2b4").attr("opacity",0.85);
+          }
+
+          // Hover-Rect
+          svg.append("rect").attr("x",bx).attr("y",rowY)
+            .attr("width",bw).attr("height",rowHeight)
+            .attr("fill","transparent").style("cursor","pointer")
+            .on("mouseover", function(event) {
+              const endD = new Date(ms.ende).toLocaleDateString("de-DE",{day:"2-digit",month:"2-digit",year:"numeric"});
+              _lp_gantt_tt.style("opacity",1)
+                .html("<strong>"+ms.titel+"</strong><br>"
+                  +"Status: "+ms.status+"<br>"
+                  +"Ende: "+endD+"<br>"
+                  +"Fortschritt: "+(ms.fortschritt||0)+"%");
+              const ttw=220, tx=event.pageX+ttw>window.innerWidth?event.pageX-ttw:event.pageX+10;
+              _lp_gantt_tt.style("left",tx+"px").style("top",(event.pageY-30)+"px");
+            })
+            .on("mousemove", function(event) {
+              const ttw=220, tx=event.pageX+ttw>window.innerWidth?event.pageX-ttw:event.pageX+10;
+              _lp_gantt_tt.style("left",tx+"px").style("top",(event.pageY-30)+"px");
+            })
+            .on("mouseout",  () => _lp_gantt_tt.style("opacity",0))
+            .on("click", () => {
+              if (window.App) App.activate("meilensteine");
+              setTimeout(() => { if (window.MS && MS.zeigeDetail) MS.zeigeDetail(ms); }, 60);
+            });
+        }
+      });
+
+      // Abhängigkeitspfeile
+      vis.forEach(ms => {
+        if (!ms.abhaengig_von || !ms.abhaengig_von.length) return;
+        const zi = idxMap[ms.id];
+        if (zi === undefined) return;
+        const zy = hdrHeight + zi * rowHeight + rowHeight/2;
+        const zx = titleWidth + Math.max(xSc(new Date(ms.start)), 0);
+        ms.abhaengig_von.forEach(srcId => {
+          const si = idxMap[srcId];
+          if (si === undefined) return;
+          const srcMs = vis[si];
+          const sy = hdrHeight + si * rowHeight + rowHeight/2;
+          const sx = titleWidth + Math.min(xSc(new Date(srcMs.ende)), chartWidth);
+          svg.append("path")
+            .attr("d","M "+sx+" "+sy+" L "+(zx-2)+" "+sy+" L "+(zx-2)+" "+zy)
+            .attr("fill","none").attr("stroke","#bbb").attr("stroke-width",1)
+            .attr("marker-end","url(#lp-ms-pfeil)");
+        });
+      });
+
+      // + X weitere
+      if (mehr > 0) {
+        const wy = hdrHeight + vis.length * rowHeight + rowHeight/2 + 4;
+        svg.append("text").attr("x",8).attr("y",wy)
+          .attr("font-size","10px").attr("fill","#aaa")
+          .text("+ "+mehr+" weitere");
+      }
+
+      // Footer
+      const total = meilensteinData.length;
+      const offen = meilensteinData.filter(m => m.status==="offen"||m.status==="in Bearbeitung").length;
+      const verz  = meilensteinData.filter(m => m.status==="verzögert").length;
+      const fi = document.getElementById("lp-gantt-footer-info");
+      if (fi) {
+        const vT = verz > 0
+          ? ' · <span style="color:#c0392b">'+verz+' verzögert</span>'
+          : ' · 0 verzögert';
+        fi.innerHTML = total+" Meilensteine · "+offen+" offen"+vT;
+      }
+    }
+
+window.MS={exportiereJSON,zeigeDetail,renderMini,redraw:function(){zeichneGantt(gefilterteDaten());}};
 })();
 </script>
 <script>/* ===== Lageplan ===== */
