@@ -4899,8 +4899,244 @@ body {
     }
 
     function zeigeKiVorschlaege(vorschlaege, thema) {
-      // Stub – Darstellung wird in KI-2 implementiert
-      console.log("KI-Vorschläge empfangen:", vorschlaege.length, "Einträge für Thema:", thema && thema.titel);
+      var altPanel = document.getElementById("ki-vorschlaege-panel");
+      if (altPanel) altPanel.remove();
+      if (!vorschlaege || !vorschlaege.length) return;
+
+      var heute    = new Date();
+      var heuteStr = heute.toISOString().slice(0, 10);
+      var in365Str = new Date(heute.getTime() + 365 * 86400000).toISOString().slice(0, 10);
+
+      var katFarben = {
+        regulatorisch: "#E24B4A", marktlich: "#378ADD",
+        technologisch: "#1D9E75", wettbewerblich: "#534AB7"
+      };
+
+      function deadlineFarbe(dl) {
+        if (!dl) return "#888";
+        var tage = Math.round((new Date(dl) - heute) / 86400000);
+        return tage < 180 ? "#E24B4A" : tage < 365 ? "#f5a623" : "#1D9E75";
+      }
+
+      function formatDatum(ds) {
+        if (!ds) return "Kein fixes Datum";
+        return new Date(ds).toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit", year: "numeric" });
+      }
+
+      function sterne(n) {
+        var s = "";
+        for (var i = 1; i <= 5; i++) s += (i <= n) ? "★" : "☆";
+        return s;
+      }
+
+      function baueMs(v) {
+        return {
+          id: "M" + Date.now() + Math.floor(Math.random() * 9000 + 1000),
+          titel: v.titel || "KI-Meilenstein",
+          thema_id: thema ? thema.id : null,
+          thema_titel: thema ? thema.titel : "",
+          kategorie: v.kategorie || "regulatorisch",
+          start: heuteStr,
+          ende: v.deadline || in365Str,
+          verantwortlicher: "",
+          status: "offen",
+          fortschritt: 0,
+          abhaengig_von: [],
+          pflicht_deadline: v.deadline || null,
+          deadline_quelle: v.paragraph || "",
+          deadline_typ: v.deadline_typ || "regulatorisch",
+          strategische_cluster: v.vorgeschlagene_cluster || [],
+          radar_score: thema ? (thema.radar_score || 0.5) : 0.5,
+          notiz: "",
+          tags: v.tags || [],
+          auswirkung: v.auswirkung || 3,
+          unsicherheit: v.unsicherheit || 3,
+          beschreibung: v.beschreibung || "",
+          manuell_erfasst: true,
+          ki_extrahiert: true
+        };
+      }
+
+      // Per-Karte Zustand
+      var zustand = vorschlaege.map(function() { return { uebernommen: false, ignoriert: false }; });
+
+      function uebernehmeSingle(idx) {
+        if (zustand[idx].uebernommen || zustand[idx].ignoriert) return;
+        zustand[idx].uebernommen = true;
+
+        var ms = baueMs(vorschlaege[idx]);
+        if (window.MS && MS.getDaten) {
+          MS.getDaten().push(ms);
+          try { localStorage.setItem("meilensteine", JSON.stringify(MS.getDaten())); } catch(e) {}
+          try { if (MS.refresh) MS.refresh(); else MS.redraw(); } catch(e) {}
+        }
+
+        var karte = document.getElementById("ki-karte-" + idx);
+        var btn   = document.getElementById("ki-btn-uebernehmen-" + idx);
+        if (karte) {
+          karte.style.borderLeftColor = "#1D9E75";
+          karte.style.background = "#f0faf5";
+        }
+        if (btn) {
+          btn.disabled = true;
+          btn.textContent = "✓ Übernommen";
+          btn.style.background = "#1D9E75";
+          btn.style.cursor = "default";
+        }
+      }
+
+      function ignoriereEintrag(idx) {
+        if (zustand[idx].uebernommen) return;
+        zustand[idx].ignoriert = true;
+        var karte = document.getElementById("ki-karte-" + idx);
+        if (karte) { karte.style.opacity = "0.3"; karte.style.pointerEvents = "none"; }
+      }
+
+      // Panel
+      var panel = document.createElement("div");
+      panel.id = "ki-vorschlaege-panel";
+      panel.style.cssText = "position:fixed;right:16px;top:80px;width:420px;max-height:calc(100vh - 100px);overflow-y:auto;z-index:800;background:#fff;border-radius:8px;border-top:3px solid var(--swm-blau);box-shadow:0 4px 24px rgba(0,0,0,0.15);font-family:inherit";
+
+      // Header (sticky)
+      var header = document.createElement("div");
+      header.style.cssText = "position:sticky;top:0;background:#fff;z-index:1;padding:14px 16px 10px;border-bottom:1px solid #eee";
+
+      var titelZeile = document.createElement("div");
+      titelZeile.style.cssText = "display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:6px";
+
+      var titelBlock = document.createElement("div");
+      var titelH = document.createElement("div");
+      titelH.style.cssText = "font-size:14px;font-weight:600;color:#333";
+      titelH.textContent = "Gefundene Umsetzungsfristen";
+      var untertitel = document.createElement("div");
+      untertitel.style.cssText = "font-size:11px;color:#888;margin-top:2px";
+      untertitel.textContent = "aus: " + (thema ? thema.titel : "—");
+      titelBlock.appendChild(titelH);
+      titelBlock.appendChild(untertitel);
+
+      var schliessenBtn = document.createElement("button");
+      schliessenBtn.textContent = "✕";
+      schliessenBtn.style.cssText = "background:none;border:none;font-size:16px;cursor:pointer;color:#888;padding:0 4px;line-height:1;flex-shrink:0";
+      schliessenBtn.onclick = function() { panel.remove(); };
+
+      titelZeile.appendChild(titelBlock);
+      titelZeile.appendChild(schliessenBtn);
+
+      var aktionsZeile = document.createElement("div");
+      aktionsZeile.style.cssText = "display:flex;align-items:center;gap:8px";
+
+      var badge = document.createElement("span");
+      badge.textContent = vorschlaege.length + " Fristen gefunden";
+      badge.style.cssText = "background:var(--swm-blau-hell);color:var(--swm-blau-dunkel);font-size:11px;padding:2px 8px;border-radius:10px;font-weight:600";
+
+      var alleBtn = document.createElement("button");
+      alleBtn.textContent = "Alle übernehmen";
+      alleBtn.style.cssText = "margin-left:auto;padding:4px 12px;font-size:11px;background:var(--swm-blau);color:#fff;border:none;border-radius:4px;cursor:pointer;font-weight:600;font-family:inherit";
+      alleBtn.onclick = function() {
+        vorschlaege.forEach(function(_, i) { uebernehmeSingle(i); });
+        alleBtn.disabled = true;
+        alleBtn.textContent = "✓ Alle übernommen";
+        alleBtn.style.background = "#1D9E75";
+        alleBtn.style.cursor = "default";
+      };
+
+      aktionsZeile.appendChild(badge);
+      aktionsZeile.appendChild(alleBtn);
+      header.appendChild(titelZeile);
+      header.appendChild(aktionsZeile);
+      panel.appendChild(header);
+
+      // Karten
+      var kartenContainer = document.createElement("div");
+      kartenContainer.style.cssText = "padding:12px 14px";
+
+      vorschlaege.forEach(function(v, idx) {
+        var karte = document.createElement("div");
+        karte.id = "ki-karte-" + idx;
+        karte.className = "ki-vorschlag";
+        var kf = katFarben[v.kategorie] || "#888";
+        karte.style.cssText = "border:0.5px solid #dde8eb;border-left:3px solid " + kf + ";border-radius:4px;padding:10px 12px;margin-bottom:8px;transition:opacity 0.3s,background 0.3s,border-left-color 0.3s";
+
+        // Titel + §-Badge
+        var tRow = document.createElement("div");
+        tRow.style.cssText = "display:flex;align-items:flex-start;gap:6px;margin-bottom:5px;flex-wrap:wrap";
+        var tEl = document.createElement("div");
+        tEl.style.cssText = "font-size:13px;font-weight:600;color:#333;flex:1;line-height:1.35;min-width:0";
+        tEl.textContent = v.titel || "—";
+        tRow.appendChild(tEl);
+        if (v.paragraph) {
+          var pb = document.createElement("span");
+          pb.style.cssText = "background:var(--swm-blau-hell);color:var(--swm-blau-dunkel);font-size:10px;border-radius:3px;padding:1px 6px;white-space:nowrap;flex-shrink:0;align-self:flex-start";
+          pb.textContent = v.paragraph;
+          tRow.appendChild(pb);
+        }
+        karte.appendChild(tRow);
+
+        // Deadline
+        var dlF = deadlineFarbe(v.deadline);
+        var dlZ = document.createElement("div");
+        dlZ.style.cssText = "font-size:11px;color:" + dlF + ";font-weight:600;margin-bottom:5px";
+        dlZ.textContent = "◆ " + formatDatum(v.deadline);
+        if (v.deadline_beschreibung) {
+          var dlD = document.createElement("span");
+          dlD.style.cssText = "font-weight:400;color:#888;margin-left:6px;font-size:10px";
+          dlD.textContent = v.deadline_beschreibung;
+          dlZ.appendChild(dlD);
+        }
+        karte.appendChild(dlZ);
+
+        // Beschreibung (3 Zeilen max)
+        if (v.beschreibung) {
+          var bEl = document.createElement("div");
+          bEl.style.cssText = "font-size:11px;color:#555;line-height:1.5;margin-bottom:6px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden";
+          bEl.textContent = v.beschreibung;
+          karte.appendChild(bEl);
+        }
+
+        // Cluster-Badges
+        if (v.vorgeschlagene_cluster && v.vorgeschlagene_cluster.length) {
+          var clDiv = document.createElement("div");
+          clDiv.style.cssText = "display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px";
+          v.vorgeschlagene_cluster.forEach(function(c) {
+            var cb = document.createElement("span");
+            cb.style.cssText = "font-size:9px;background:#e8f4f7;color:#2d7a8e;border-radius:3px;padding:1px 5px";
+            cb.textContent = c;
+            clDiv.appendChild(cb);
+          });
+          karte.appendChild(clDiv);
+        }
+
+        // Auswirkung (Sterne)
+        if (v.auswirkung) {
+          var aEl = document.createElement("div");
+          aEl.style.cssText = "font-size:11px;color:#f5a623;margin-bottom:7px;letter-spacing:1px";
+          aEl.textContent = sterne(v.auswirkung);
+          karte.appendChild(aEl);
+        }
+
+        // Buttons
+        var bZeile = document.createElement("div");
+        bZeile.style.cssText = "display:flex;align-items:center;gap:8px";
+
+        var uBtn = document.createElement("button");
+        uBtn.id = "ki-btn-uebernehmen-" + idx;
+        uBtn.textContent = "+ Übernehmen";
+        uBtn.style.cssText = "padding:3px 10px;font-size:11px;background:var(--swm-blau);color:#fff;border:none;border-radius:4px;cursor:pointer;font-weight:600;font-family:inherit";
+        uBtn.onclick = (function(i) { return function() { uebernehmeSingle(i); }; })(idx);
+
+        var iBtn = document.createElement("button");
+        iBtn.textContent = "Ignorieren";
+        iBtn.style.cssText = "background:none;border:none;font-size:11px;color:#aaa;cursor:pointer;padding:3px 0;font-family:inherit";
+        iBtn.onclick = (function(i) { return function() { ignoriereEintrag(i); }; })(idx);
+
+        bZeile.appendChild(uBtn);
+        bZeile.appendChild(iBtn);
+        karte.appendChild(bZeile);
+        kartenContainer.appendChild(karte);
+      });
+
+      panel.appendChild(kartenContainer);
+      document.body.appendChild(panel);
     }
 
 window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisierung,schliesseThemaFormular,aktualisiereScore,aktualisiereSlider,speichereThema,schliesseLoeschenModal,filterAktualisieren,zeigeDetail,oeffneKiModal,schliesseKiModal,_kiWechsleTab,_kiSetzeUrl,starteKiAnalyse,redraw:zeichnePunkte,renderMini:renderMini,getDaten:function(){ return radarData; }};
@@ -6589,7 +6825,7 @@ window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisieru
       schliesseLoeschen();
     }
 
-window.MS={exportiereJSON,zeigeDetail,renderMini,oeffneMsFormular,schliesseMsFormular,speichereMs,toggleDeadlineFelder,themaGewaehlt,fragenLoeschen,schliesseLoeschen,bestaetigeLoeschen,getDaten:function(){ return meilensteinData; },redraw:function(){zeichneGantt(gefilterteDaten());}};
+window.MS={exportiereJSON,zeigeDetail,renderMini,oeffneMsFormular,schliesseMsFormular,speichereMs,toggleDeadlineFelder,themaGewaehlt,fragenLoeschen,schliesseLoeschen,bestaetigeLoeschen,getDaten:function(){ return meilensteinData; },redraw:function(){zeichneGantt(gefilterteDaten());},refresh:refreshGanttUndMini};
 })();
 </script>
 <script>/* ===== Lageplan ===== */
