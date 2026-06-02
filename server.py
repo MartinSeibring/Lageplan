@@ -4,6 +4,7 @@ import re
 import subprocess
 from http.server import BaseHTTPRequestHandler, HTTPServer
 
+import anthropic
 import requests
 from bs4 import BeautifulSoup
 
@@ -219,6 +220,116 @@ class RadarHandler(BaseHTTPRequestHandler):
             print(f"  URL abgerufen: {url} – {zeichen} Zeichen")
             self._sende_json({"text": text, "titel": titel, "zeichen": zeichen})
 
+        # ------------------------------------------------------------------
+        # POST /ki-analyse
+        # ------------------------------------------------------------------
+        elif self.path == "/ki-analyse":
+            laenge = int(self.headers.get("Content-Length", 0))
+            try:
+                body  = self.rfile.read(laenge)
+                daten = json.loads(body.decode("utf-8"))
+            except (json.JSONDecodeError, UnicodeDecodeError) as e:
+                self._sende_json({"error": f"Ungültiges JSON: {e}"}, status=400)
+                return
+
+            # API-Key aus config.json
+            try:
+                with open(CONFIG_PATH, encoding="utf-8") as f:
+                    config = json.load(f)
+            except (json.JSONDecodeError, OSError) as e:
+                self._sende_json({"error": f"config.json nicht lesbar: {e}"}, status=500)
+                return
+
+            api_key = config.get("anthropic_api_key") or config.get("api_key") or ""
+            if not api_key:
+                self._sende_json(
+                    {"error": "Kein Anthropic API-Key in config.json (Feld: anthropic_api_key)"},
+                    status=500,
+                )
+                return
+
+            modus   = daten.get("modus", "url")       # "url" | "pdf"
+            inhalt  = daten.get("inhalt", "")
+            kontext = daten.get("kontext", "")
+
+            system_prompt = (
+                "Du bist ein Experte für deutsche Energieregulierung und Netzwirtschaft. "
+                "Analysiere das gegebene Dokument und extrahiere ALLE konkreten Umsetzungsfristen, "
+                "Pflichttermine und zeitgebundenen Verpflichtungen.\n\n"
+                "Antworte NUR mit einem JSON-Array ohne Markdown.\n"
+                "Format je Eintrag:\n"
+                '{\n'
+                '  "titel": "Kurzer prägnanter Titel der Pflicht",\n'
+                '  "beschreibung": "Genaue Beschreibung was umzusetzen ist",\n'
+                '  "paragraph": "Gesetzliche Grundlage z.B. §45 Abs.2 MsbG",\n'
+                '  "deadline": "YYYY-MM-DD oder null wenn kein fixes Datum",\n'
+                '  "deadline_beschreibung": "z.B. bis 31.12.2025 oder spätestens 5 Jahre nach Inkrafttreten",\n'
+                '  "deadline_typ": "regulatorisch",\n'
+                '  "kategorie": "regulatorisch|marktlich|technologisch|wettbewerblich",\n'
+                '  "auswirkung": "1-5",\n'
+                '  "vorgeschlagene_cluster": ["Netzanschluss","Messstellenbetrieb","Netzwirtschaft","Technologie","Organisation"],\n'
+                '  "tags": ["tag1","tag2"],\n'
+                '  "unsicherheit": "1-5"\n'
+                "}"
+            )
+
+            try:
+                client = anthropic.Anthropic(api_key=api_key)
+
+                if modus == "pdf":
+                    user_text = "Extrahiere alle Umsetzungsfristen." + (f" Kontext: {kontext}" if kontext else "")
+                    message = client.messages.create(
+                        model="claude-sonnet-4-20250514",
+                        max_tokens=4000,
+                        system=system_prompt,
+                        messages=[{
+                            "role": "user",
+                            "content": [
+                                {
+                                    "type": "document",
+                                    "source": {
+                                        "type": "base64",
+                                        "media_type": "application/pdf",
+                                        "data": inhalt,
+                                    },
+                                },
+                                {"type": "text", "text": user_text},
+                            ],
+                        }],
+                    )
+                else:
+                    user_text = f"Analysiere dieses Dokument:\n\n{inhalt}"
+                    if kontext:
+                        user_text += f"\n\nKontext: {kontext}"
+                    message = client.messages.create(
+                        model="claude-sonnet-4-20250514",
+                        max_tokens=4000,
+                        system=system_prompt,
+                        messages=[{"role": "user", "content": user_text}],
+                    )
+
+            except anthropic.APIStatusError as e:
+                self._sende_json({"error": f"Anthropic API-Fehler {e.status_code}: {e.message}"}, status=502)
+                return
+            except Exception as e:
+                self._sende_json({"error": f"API-Aufruf fehlgeschlagen: {e}"}, status=502)
+                return
+
+            raw_text = message.content[0].text if message.content else ""
+            # JSON-Fences entfernen falls vorhanden
+            cleaned = re.sub(r"^```(?:json)?\s*", "", raw_text.strip(), flags=re.IGNORECASE)
+            cleaned = re.sub(r"\s*```\s*$", "", cleaned)
+            try:
+                vorschlaege = json.loads(cleaned)
+                if not isinstance(vorschlaege, list):
+                    raise ValueError("Keine Liste")
+            except (json.JSONDecodeError, ValueError) as e:
+                self._sende_json({"error": f"Antwort konnte nicht geparst werden: {e}", "raw": raw_text[:500]}, status=502)
+                return
+
+            print(f"  KI-Analyse: {len(vorschlaege)} Vorschläge extrahiert (Modus: {modus})")
+            self._sende_json({"vorschlaege": vorschlaege})
+
         else:
             self._sende_json({"fehler": "Route nicht gefunden"}, status=404)
 
@@ -235,6 +346,7 @@ def main():
     print("  GET  /config         → liefert config.json")
     print("  POST /config         → speichert config.json")
     print("  POST /fetch-url      → ruft URL ab und liefert Volltext")
+    print("  POST /ki-analyse     → Anthropic-Analyse, gibt JSON-Array zurück")
     print("  Beenden mit Strg+C")
     try:
         server.serve_forever()
