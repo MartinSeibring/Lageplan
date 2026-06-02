@@ -1023,10 +1023,11 @@
     #lageplan-raster {
       display: grid;
       grid-template:
-        "horizont    horizont"
+        "horizont    meilensteine"
         "ziele       meilensteine"
         "projekte    betrieb"
-        / 1fr 1fr;
+        / 60% 40%;
+      grid-template-rows: 1fr 1fr 1fr;
       gap: 10px;
       height: calc(100vh - 140px);
       min-height: 520px;
@@ -1045,7 +1046,7 @@
     /* Grid-Areas */
     .lp-kachel[data-bereich="horizont"]    { grid-area: horizont; }
     .lp-kachel[data-bereich="ziele"]       { grid-area: ziele; }
-    .lp-kachel[data-bereich="meilensteine"]{ grid-area: meilensteine; }
+    .lp-kachel[data-bereich="meilensteine"]{ grid-area: meilensteine; grid-row: 1 / 3; }
     .lp-kachel[data-bereich="projekte"]    { grid-area: projekte; }
     .lp-kachel[data-bereich="betrieb"]     { grid-area: betrieb; }
 
