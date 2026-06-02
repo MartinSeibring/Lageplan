@@ -681,6 +681,54 @@
       flex-shrink: 0;
     }
 
+    #deadline-uebersicht {
+      display: none;
+      background: var(--swm-blau-hell);
+      border-radius: 4px;
+      padding: 6px 12px;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .dl-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: #fff;
+      border: 1px solid #d0e6ed;
+      border-radius: 4px;
+      padding: 3px 8px;
+      font-size: 11px;
+      cursor: pointer;
+      user-select: none;
+      white-space: nowrap;
+      transition: background 0.1s, border-color 0.1s;
+    }
+    .dl-chip:hover { background: var(--swm-blau-hell); border-color: var(--swm-blau); }
+
+    .dl-chip-mehr {
+      font-size: 11px;
+      color: var(--swm-blau-dunkel);
+      cursor: pointer;
+      font-weight: 600;
+      padding: 3px 6px;
+      white-space: nowrap;
+    }
+    .dl-chip-mehr:hover { text-decoration: underline; }
+
+    .dl-ue-label {
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--swm-blau-dunkel);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      white-space: nowrap;
+      margin-right: 4px;
+    }
+
     #ms-filter-info {
       margin-top: 10px;
       font-size: 11px;
@@ -2474,7 +2522,9 @@ body {
 
   <div id="ms-layout">
     <div id="ms-filter-panel"></div>
-    <div id="ms-gantt-bereich"></div>
+    <div id="ms-gantt-bereich">
+      <div id="deadline-uebersicht"></div>
+    </div>
   </div>
 
   <div id="ms-detail-panel"></div>
@@ -4899,7 +4949,7 @@ window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisieru
       const container  = document.getElementById("ms-gantt-bereich");
       const cWidth     = container.getBoundingClientRect().width || 900;
       const titleWidth = 220;
-      const rowHeight  = 50;
+      const rowHeight  = 60;
       const hdrHoch    = zoom.einheit === "quartal" ? 52 : 40;
       const barHeight  = 20;
       const svgBreite  = cWidth - titleWidth;
@@ -5079,37 +5129,79 @@ window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisieru
       daten.forEach((ms, i) => {
         const y       = hdrHoch + i * rowHeight;
         const bgFarbe = i % 2 === 0 ? "#fafafa" : "#ffffff";
-        const bgHover = i % 2 === 0 ? "#f0f4ff" : "#f5f8ff";
         const dimmed  = ms._aktiv === false;
         const rowG    = svg.append("g")
           .attr("class", "ms-zeile")
           .attr("transform", `translate(0,${y})`)
           .attr("opacity", dimmed ? 0.2 : 1);
 
+        // Hintergrund (volle Breite, Farbe via .style für CSS-Transition)
         rowG.append("rect")
           .attr("x", 0).attr("y", 0)
           .attr("width", cWidth).attr("height", rowHeight)
-          .attr("fill", bgFarbe);
+          .style("fill", bgFarbe)
+          .style("transition", "fill 0.1s");
 
+        // Kategorie-Farbstreifen (4px links)
+        rowG.append("rect")
+          .attr("x", 0).attr("y", 0)
+          .attr("width", 4).attr("height", rowHeight)
+          .attr("fill", katFarben[ms.kategorie] || "#888");
+
+        // Status-Symbol
         rowG.append("text")
-          .attr("x", 6).attr("y", rowHeight / 2 + 5)
+          .attr("x", 8).attr("y", 33)
           .attr("font-size", "15px")
           .attr("fill", statusFarben[ms.status] || "#bbb")
           .text(statusSymbole[ms.status] || "○");
 
+        // ID
         rowG.append("text")
-          .attr("x", 26).attr("y", rowHeight / 2 - 3)
+          .attr("x", 28).attr("y", 17)
           .attr("font-size", "10px").attr("fill", "#aaa")
           .text(ms.id);
 
+        // Titel
         const kurz = ms.titel.length > 25 ? ms.titel.slice(0, 25) + "…" : ms.titel;
         rowG.append("text")
-          .attr("x", 26).attr("y", rowHeight / 2 + 9)
+          .attr("x", 28).attr("y", 29)
           .attr("font-size", "12px").attr("fill", "#333")
           .text(kurz);
 
+        // Cluster-Badges (max 2 + "+N")
+        const cluster = ms.strategische_cluster || [];
+        let bx = 28;
+        const badgeRectY  = 33;
+        const badgeTextY  = 41;
+        const badgeH      = 9;
+        cluster.slice(0, 2).forEach(c => {
+          const bW = Math.round(c.length * 4.4 + 8);
+          rowG.append("rect")
+            .attr("x", bx).attr("y", badgeRectY)
+            .attr("width", bW).attr("height", badgeH)
+            .attr("rx", 2).attr("fill", "#e8f4f7");
+          rowG.append("text")
+            .attr("x", bx + 4).attr("y", badgeTextY)
+            .attr("font-size", "8px").attr("fill", "#2d7a8e")
+            .text(c);
+          bx += bW + 3;
+        });
+        if (cluster.length > 2) {
+          const plusLabel = "+" + (cluster.length - 2);
+          const bW = Math.round(plusLabel.length * 4.4 + 8);
+          rowG.append("rect")
+            .attr("x", bx).attr("y", badgeRectY)
+            .attr("width", bW).attr("height", badgeH)
+            .attr("rx", 2).attr("fill", "#e8f4f7");
+          rowG.append("text")
+            .attr("x", bx + 4).attr("y", badgeTextY)
+            .attr("font-size", "8px").attr("fill", "#2d7a8e")
+            .text(plusLabel);
+        }
+
+        // Verantwortlicher
         rowG.append("text")
-          .attr("x", 26).attr("y", rowHeight / 2 + 20)
+          .attr("x", 28).attr("y", 53)
           .attr("font-size", "10px").attr("fill", "#bbb")
           .text(ms.verantwortlicher);
 
@@ -5156,10 +5248,10 @@ window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisieru
           .style("cursor", "pointer")
           .on("click", () => zeigeDetail(ms))
           .on("mouseover", function() {
-            d3.select(this.parentNode).select("rect").attr("fill", bgHover);
+            d3.select(this.parentNode).select("rect").style("fill", "#e8f4f7");
           })
           .on("mouseout", function() {
-            d3.select(this.parentNode).select("rect").attr("fill", bgFarbe);
+            d3.select(this.parentNode).select("rect").style("fill", bgFarbe);
           });
 
         // Deadline-Linie + Raute (nach dem Click-Overlay, damit Hover greift)
@@ -5364,6 +5456,89 @@ window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisieru
       });
     }
 
+    // -----------------------------------------------------------------------
+    // Deadline-Übersicht (Chips oberhalb des GANTT)
+    // -----------------------------------------------------------------------
+
+    let _dlAlleAn = false;
+
+    function zeichneDeadlineUebersicht() {
+      const el = document.getElementById("deadline-uebersicht");
+      if (!el) return;
+
+      const heute = new Date(); heute.setHours(0, 0, 0, 0);
+      const SHOW  = 5;
+
+      const mitDl = meilensteinData
+        .filter(m => m.pflicht_deadline)
+        .sort((a, b) => new Date(a.pflicht_deadline) - new Date(b.pflicht_deadline));
+
+      if (mitDl.length === 0) {
+        el.innerHTML = "";
+        return;
+      }
+
+      const sichtbar = _dlAlleAn ? mitDl : mitDl.slice(0, SHOW);
+      const rest     = mitDl.length - SHOW;
+
+      const chips = sichtbar.map(m => {
+        const dl    = new Date(m.pflicht_deadline);
+        const tage  = Math.round((dl - heute) / 86400000);
+        const farbe = deadlineTypFarben[m.deadline_typ] || "#666";
+        const datum = dl.toLocaleDateString("de-DE",
+          { day: "2-digit", month: "2-digit", year: "numeric" });
+        const kurz  = m.titel.length > 20 ? m.titel.slice(0, 20) + "…" : m.titel;
+
+        let tageHtml;
+        if (tage < 0) {
+          tageHtml = `<span style="color:#E24B4A;font-weight:700">(ÜBERFÄLLIG)</span>`;
+        } else if (tage < 30) {
+          tageHtml = `<span style="color:#E24B4A;font-weight:700">(${tage}T)</span>`;
+        } else if (tage <= 90) {
+          tageHtml = `<span style="color:#d97706">(${tage}T)</span>`;
+        } else {
+          tageHtml = `<span style="color:#1D9E75">(${tage}T)</span>`;
+        }
+
+        return `<span class="dl-chip" data-ms-id="${m.id}" title="${m.titel}">` +
+          `<span style="color:${farbe}">◆</span> ` +
+          `${kurz} ` +
+          `<span style="color:#888">${datum}</span> ` +
+          tageHtml +
+          `</span>`;
+      }).join("");
+
+      let mehrHtml = "";
+      if (!_dlAlleAn && rest > 0) {
+        mehrHtml = `<span class="dl-chip-mehr" id="dl-mehr-btn">+ ${rest} weitere</span>`;
+      } else if (_dlAlleAn && mitDl.length > SHOW) {
+        mehrHtml = `<span class="dl-chip-mehr" id="dl-mehr-btn">weniger ↑</span>`;
+      }
+
+      el.innerHTML =
+        `<span class="dl-ue-label">Nächste Deadlines</span>` +
+        `<span id="dl-chips-wrap" style="display:flex;flex-wrap:wrap;gap:6px;align-items:center">` +
+        chips + `</span>` + mehrHtml;
+
+      el.querySelectorAll(".dl-chip[data-ms-id]").forEach(chip => {
+        chip.addEventListener("click", function() {
+          const ms = meilensteinData.find(m => m.id === this.dataset.msId);
+          if (!ms) return;
+          zeigeDetail(ms);
+          const detailEl = document.getElementById("ms-detail-panel");
+          if (detailEl) detailEl.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        });
+      });
+
+      const mehrBtn = document.getElementById("dl-mehr-btn");
+      if (mehrBtn) {
+        mehrBtn.addEventListener("click", function() {
+          _dlAlleAn = !_dlAlleAn;
+          zeichneDeadlineUebersicht();
+        });
+      }
+    }
+
     function zeichneDeadlineLegende() {
       const legende = document.getElementById("gantt-dl-legende");
       if (!legende) return;
@@ -5394,6 +5569,7 @@ window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisieru
     ladeAusLocalStorage();
     baueFilterPanel();
     erzeugeZoomLeiste();
+    zeichneDeadlineUebersicht();
     zeichneGantt(gefilterteDaten());
   
 
@@ -5585,6 +5761,7 @@ window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisieru
     }
 
     function refreshGanttUndMini() {
+      zeichneDeadlineUebersicht();
       zeichneGantt(gefilterteDaten());
       aktualisiereFilterInfo();
       try { renderMini(false); } catch (e) {}
