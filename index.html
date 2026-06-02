@@ -996,6 +996,129 @@
     }
     #btn-ki-abbrechen:hover { background: #f5f5f5; }
 
+    /* ── KI-Modal Formular ── */
+    .ki-tab-leiste {
+      display: flex;
+      border-bottom: 1px solid #eee;
+      margin-bottom: 14px;
+    }
+
+    .ki-tab {
+      padding: 8px 14px;
+      font-size: 12px;
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      cursor: pointer;
+      color: #666;
+      font-weight: 400;
+      margin-bottom: -1px;
+      font-family: inherit;
+    }
+
+    .ki-tab.aktiv {
+      border-bottom: 2px solid var(--swm-blau);
+      color: var(--swm-blau-dunkel);
+      font-weight: 600;
+    }
+
+    .ki-tab:hover:not(.aktiv) { color: var(--swm-blau); }
+
+    .ki-feld-label {
+      font-size: 11px;
+      color: #777;
+      display: block;
+      margin-bottom: 4px;
+      font-weight: 500;
+    }
+
+    #ki-url {
+      width: 100%;
+      padding: 7px 9px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 12px;
+      box-sizing: border-box;
+      margin-bottom: 8px;
+    }
+
+    #ki-url:focus {
+      outline: none;
+      border-color: var(--swm-blau);
+      box-shadow: 0 0 0 2px rgba(99,162,180,0.18);
+    }
+
+    .ki-schnell-chips {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 14px;
+    }
+
+    .ki-schnell-chip {
+      padding: 3px 10px;
+      border: 1px solid var(--swm-blau);
+      border-radius: 12px;
+      font-size: 11px;
+      color: var(--swm-blau-dunkel);
+      background: none;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .ki-schnell-chip:hover { background: var(--swm-blau-hell); }
+
+    #dropzone {
+      border: 2px dashed var(--swm-blau);
+      border-radius: 8px;
+      padding: 24px 16px;
+      text-align: center;
+      cursor: pointer;
+      transition: background 0.15s;
+      margin-bottom: 14px;
+    }
+
+    #dropzone.drag-ueber { background: var(--swm-blau-hell); }
+
+    #dropzone-text {
+      font-size: 12px;
+      color: var(--swm-grau-mittel);
+      line-height: 1.6;
+    }
+
+    #ki-kontext {
+      width: 100%;
+      padding: 7px 9px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 12px;
+      font-family: inherit;
+      resize: vertical;
+      box-sizing: border-box;
+      margin-bottom: 12px;
+    }
+
+    #ki-kontext:focus {
+      outline: none;
+      border-color: var(--swm-blau);
+      box-shadow: 0 0 0 2px rgba(99,162,180,0.18);
+    }
+
+    #ki-verknuepft {
+      background: var(--swm-grau-hell);
+      padding: 6px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      color: var(--swm-grau-dunkel);
+    }
+
+    .ki-gemeinschaft {
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px solid #eee;
+    }
+
     .ms-thema-link {
       color: var(--swm-blau-dunkel);
       text-decoration: none;
@@ -2604,7 +2727,44 @@ body {
         <button class="ki-modal-close" onclick="TR.schliesseKiModal()">✕</button>
       </div>
       <div class="ki-modal-body" id="ki-modal-body">
-        <!-- Inhalt wird in KI-1b befüllt -->
+
+        <!-- Tab-Leiste -->
+        <div class="ki-tab-leiste">
+          <button class="ki-tab aktiv" id="ki-tab-url" onclick="TR._kiWechsleTab('url')">🔗 URL eingeben</button>
+          <button class="ki-tab" id="ki-tab-pdf" onclick="TR._kiWechsleTab('pdf')">📄 PDF hochladen</button>
+        </div>
+
+        <!-- Tab 1: URL -->
+        <div id="tab-url">
+          <label class="ki-feld-label" for="ki-url">URL des Dokuments</label>
+          <input type="url" id="ki-url" placeholder="https://www.gesetze-im-internet.de/...">
+          <div class="ki-schnell-chips">
+            <span class="ki-feld-label" style="margin-bottom:0;flex-basis:100%">Schnellauswahl:</span>
+            <button class="ki-schnell-chip" onclick="TR._kiSetzeUrl('https://www.gesetze-im-internet.de/messbg/')">MsbG</button>
+            <button class="ki-schnell-chip" onclick="TR._kiSetzeUrl('https://www.gesetze-im-internet.de/enwg_2005/')">EnWG</button>
+            <button class="ki-schnell-chip" onclick="TR._kiSetzeUrl('https://www.gesetze-im-internet.de/nav/')">NAV</button>
+            <button class="ki-schnell-chip" onclick="TR._kiSetzeUrl('https://www.gesetze-im-internet.de/ndav/')">NDAV</button>
+          </div>
+        </div>
+
+        <!-- Tab 2: PDF -->
+        <div id="tab-pdf" style="display:none">
+          <label class="ki-feld-label">PDF-Dokument hochladen</label>
+          <input type="file" id="ki-pdf" accept=".pdf" style="display:none">
+          <div id="dropzone" onclick="document.getElementById('ki-pdf').click()">
+            <div id="dropzone-text">PDF hier ablegen oder klicken zum Auswählen</div>
+          </div>
+        </div>
+
+        <!-- Gemeinsame Felder -->
+        <div class="ki-gemeinschaft">
+          <label class="ki-feld-label" for="ki-kontext">Kontext für die Analyse (optional)</label>
+          <textarea id="ki-kontext" rows="2"
+            placeholder="z.B. Fokus auf Rollout-Pflichten für Verteilnetzbetreiber mit &lt; 100.000 Messpunkten"></textarea>
+          <label class="ki-feld-label">Verknüpftes Thema</label>
+          <div id="ki-verknuepft">—</div>
+        </div>
+
       </div>
       <div class="ki-modal-footer">
         <button id="btn-ki-abbrechen" onclick="TR.schliesseKiModal()">Abbrechen</button>
@@ -4399,11 +4559,138 @@ body {
 
     // ── KI-Modal ──
     var _kiAktivesThema = null;
+    var _kiAktuellerTab = "url";
+    var _kiFormularInitialisiert = false;
+
+    function _kiInitFormular() {
+      if (_kiFormularInitialisiert) return;
+      _kiFormularInitialisiert = true;
+
+      var urlInput = document.getElementById("ki-url");
+      if (urlInput) urlInput.addEventListener("input", _kiValidiereEingabe);
+
+      var pdfInput = document.getElementById("ki-pdf");
+      if (pdfInput) {
+        pdfInput.addEventListener("change", function() {
+          if (pdfInput.files && pdfInput.files[0]) _kiDateiAusgewaehlt(pdfInput.files[0]);
+        });
+      }
+
+      var dropzone = document.getElementById("dropzone");
+      if (dropzone) {
+        dropzone.addEventListener("dragover", function(e) {
+          e.preventDefault();
+          dropzone.classList.add("drag-ueber");
+        });
+        dropzone.addEventListener("dragleave", function() {
+          dropzone.classList.remove("drag-ueber");
+        });
+        dropzone.addEventListener("drop", function(e) {
+          e.preventDefault();
+          dropzone.classList.remove("drag-ueber");
+          var file = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+          if (file) _kiDateiAusgewaehlt(file);
+        });
+      }
+    }
+
+    function _kiWechsleTab(tab) {
+      _kiAktuellerTab = tab;
+      var tabUrlBtn  = document.getElementById("ki-tab-url");
+      var tabPdfBtn  = document.getElementById("ki-tab-pdf");
+      var panelUrl   = document.getElementById("tab-url");
+      var panelPdf   = document.getElementById("tab-pdf");
+      if (tab === "url") {
+        tabUrlBtn && tabUrlBtn.classList.add("aktiv");
+        tabPdfBtn && tabPdfBtn.classList.remove("aktiv");
+        panelUrl  && (panelUrl.style.display = "");
+        panelPdf  && (panelPdf.style.display = "none");
+      } else {
+        tabUrlBtn && tabUrlBtn.classList.remove("aktiv");
+        tabPdfBtn && tabPdfBtn.classList.add("aktiv");
+        panelUrl  && (panelUrl.style.display = "none");
+        panelPdf  && (panelPdf.style.display = "");
+      }
+      _kiValidiereEingabe();
+    }
+
+    function _kiSetzeUrl(url) {
+      var inp = document.getElementById("ki-url");
+      if (!inp) return;
+      inp.value = url;
+      _kiValidiereEingabe();
+    }
+
+    function _kiValidiereEingabe() {
+      var ok = false;
+      if (_kiAktuellerTab === "url") {
+        var inp = document.getElementById("ki-url");
+        if (inp && inp.value.trim()) {
+          try { new URL(inp.value.trim()); ok = true; } catch(e) {}
+        }
+      } else {
+        var pdfInp = document.getElementById("ki-pdf");
+        ok = !!(pdfInp && pdfInp.files && pdfInp.files[0]);
+      }
+      var btn = document.getElementById("btn-ki-starten");
+      if (btn) {
+        btn.disabled = !ok;
+        btn.style.opacity = ok ? "1" : "0.5";
+        btn.style.cursor  = ok ? "pointer" : "not-allowed";
+      }
+    }
+
+    function _kiDateiAusgewaehlt(file) {
+      var dropzoneText = document.getElementById("dropzone-text");
+      var pdfInput     = document.getElementById("ki-pdf");
+      if (!file.type.includes("pdf") && !file.name.toLowerCase().endsWith(".pdf")) {
+        if (dropzoneText) dropzoneText.innerHTML = "<span style='color:#c0392b'>Nur PDF-Dateien erlaubt.</span>";
+        return;
+      }
+      if (file.size > 10 * 1024 * 1024) {
+        if (dropzoneText) dropzoneText.innerHTML = "<span style='color:#c0392b'>Datei zu groß (max. 10 MB).</span>";
+        return;
+      }
+      var mb = (file.size / (1024 * 1024)).toFixed(2);
+      if (dropzoneText) {
+        dropzoneText.innerHTML =
+          "📄 <strong style='color:var(--swm-blau-dunkel)'>" + file.name + "</strong>" +
+          "<br><span style='font-size:10px;color:#888'>" + mb + " MB</span>";
+      }
+      // Sync file input when dropped (not clicked)
+      if (pdfInput && (!pdfInput.files || pdfInput.files.length === 0)) {
+        try { var dt = new DataTransfer(); dt.items.add(file); pdfInput.files = dt.files; } catch(e) {}
+      }
+      _kiValidiereEingabe();
+    }
 
     function oeffneKiModal(themaId) {
       _kiAktivesThema = themaId || null;
+
+      // Reset URL + tab
+      var urlInput = document.getElementById("ki-url");
+      if (urlInput) urlInput.value = "";
+      var pdfInput = document.getElementById("ki-pdf");
+      if (pdfInput) pdfInput.value = "";
+      var dropzoneText = document.getElementById("dropzone-text");
+      if (dropzoneText) dropzoneText.textContent = "PDF hier ablegen oder klicken zum Auswählen";
+
+      _kiAktuellerTab = "url";
+      _kiWechsleTab("url");
+
+      // Populate linked theme
+      var themaFeld = document.getElementById("ki-verknuepft");
+      if (themaFeld) {
+        var thema = radarData.find(function(d) { return d.id === themaId; });
+        themaFeld.textContent = thema ? thema.titel : "—";
+      }
+
+      _kiInitFormular();
+
       var modal = document.getElementById("ki-analyse-modal");
       if (modal) modal.classList.add("offen");
+
+      _kiValidiereEingabe();
     }
 
     function schliesseKiModal() {
@@ -4412,7 +4699,7 @@ body {
       _kiAktivesThema = null;
     }
 
-window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisierung,schliesseThemaFormular,aktualisiereScore,aktualisiereSlider,speichereThema,schliesseLoeschenModal,filterAktualisieren,zeigeDetail,oeffneKiModal,schliesseKiModal,redraw:zeichnePunkte,renderMini:renderMini,getDaten:function(){ return radarData; }};
+window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisierung,schliesseThemaFormular,aktualisiereScore,aktualisiereSlider,speichereThema,schliesseLoeschenModal,filterAktualisieren,zeigeDetail,oeffneKiModal,schliesseKiModal,_kiWechsleTab,_kiSetzeUrl,redraw:zeichnePunkte,renderMini:renderMini,getDaten:function(){ return radarData; }};
 })();
 </script>
 <script>/* ===== Meilensteine ===== */
