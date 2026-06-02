@@ -2763,7 +2763,7 @@ body {
         <div style="margin-top:8px;border-top:1px solid #eee;padding-top:8px">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
             <strong style="font-size:11px;color:#555">Meilensteine</strong>
-            <a href="#" onclick="App.activate('meilensteine');return false;" style="font-size:10px;color:#63a2b4;text-decoration:none">Alle →</a>
+            <a href="#" onclick="App.wechsleZuTab('meilensteine');return false;" style="font-size:10px;color:#63a2b4;text-decoration:none">Alle →</a>
           </div>
           ${msListeHTML}
           <button id="btn-meilenstein-ableiten"
@@ -3768,53 +3768,58 @@ body {
     // ── Mini-Zielscheibe für Lageplan-Kachel ────────────
     const _lp_tt = d3.select("body").append("div").attr("id","lp-radar-tooltip");
 
-    function renderMini() {
+    function renderMini(vollbild) {
       const svgEl = document.getElementById("lp-radar-svg");
       if (!svgEl) return;
       const svg = d3.select("#lp-radar-svg");
-      const cx = 250, cy = 250;
-      const radiiMini = { kurzfristig: 80, mittelfristig: 160, langfristig: 230 };
+
+      // Dimensionen je Modus
+      const cx  = vollbild ? 400 : 250;
+      const cy  = vollbild ? 400 : 250;
+      const vb  = vollbild ? 800 : 500;
+      const radiiMini = vollbild
+        ? { kurzfristig: 130, mittelfristig: 260, langfristig: 370 }
+        : { kurzfristig:  80, mittelfristig: 160, langfristig: 230 };
+      const rand = vollbild ? 20 : 12;
+
+      svg.attr("viewBox","0 0 "+vb+" "+vb);
+      svg.selectAll("*").remove();
+
       const quadrantBreite = 80;
       const zentrumsGrad = { regulatorisch: 270, marktlich: 0, technologisch: 90, wettbewerblich: 180 };
 
-      // Statische Elemente nur einmal zeichnen
-      if (!svgEl.dataset.miniInit) {
-        svgEl.dataset.miniInit = "1";
+      // Achsenlinien
+      svg.append("line").attr("x1",rand).attr("y1",cy).attr("x2",vb-rand).attr("y2",cy)
+        .attr("stroke","#dde8eb").attr("stroke-width",1);
+      svg.append("line").attr("x1",cx).attr("y1",rand).attr("x2",cx).attr("y2",vb-rand)
+        .attr("stroke","#dde8eb").attr("stroke-width",1);
 
-        // Quadranten-Trennlinien
-        svg.append("line").attr("x1",20).attr("y1",cy).attr("x2",480).attr("y2",cy)
-          .attr("stroke","#dde8eb").attr("stroke-width",1);
-        svg.append("line").attr("x1",cx).attr("y1",20).attr("x2",cx).attr("y2",480)
-          .attr("stroke","#dde8eb").attr("stroke-width",1);
+      // Ringe
+      Object.values(radiiMini).forEach(function(r) {
+        svg.append("circle").attr("cx",cx).attr("cy",cy).attr("r",r)
+          .attr("fill","none").attr("stroke","#cce0e7").attr("stroke-width",1);
+      });
 
-        // Ringe
-        [80, 160, 230].forEach(function(r) {
-          svg.append("circle").attr("cx",cx).attr("cy",cy).attr("r",r)
-            .attr("fill","none").attr("stroke","#cce0e7").attr("stroke-width",1);
-        });
-
-        // Ring-Beschriftung (knapp außerhalb, oben rechts am Ring)
-        [{r:80,t:"0–1J"},{r:160,t:"1–3J"},{r:230,t:">3J"}].forEach(function(d) {
-          svg.append("text")
-            .attr("x", cx + 4).attr("y", cy - d.r + 10)
+      // Ring-Labels
+      [{r:radiiMini.kurzfristig,t:"0–1J"},{r:radiiMini.mittelfristig,t:"1–3J"},{r:radiiMini.langfristig,t:">3J"}]
+        .forEach(function(d) {
+          svg.append("text").attr("x",cx+4).attr("y",cy-d.r+10)
             .attr("font-size","9px").attr("fill","#999").text(d.t);
         });
 
-        // Quadranten-Beschriftung
-        [
-          {x:cx,  y:12,  a:"middle", t:"Regulatorisch" },
-          {x:488, y:cy+4,a:"end",    t:"Marktlich"     },
-          {x:cx,  y:493, a:"middle", t:"Technologisch" },
-          {x:12,  y:cy+4,a:"start",  t:"Wettbewerblich"}
-        ].forEach(function(d) {
-          svg.append("text")
-            .attr("x",d.x).attr("y",d.y).attr("text-anchor",d.a)
-            .attr("font-size","11px").attr("font-weight","600").attr("fill","#2d7a8e")
-            .text(d.t);
-        });
-      }
+      // Quadranten-Labels
+      const fs = vollbild ? "13px" : "11px";
+      [
+        {x:cx,     y:rand+2,  a:"middle", t:"Regulatorisch" },
+        {x:vb-rand,y:cy+4,    a:"end",    t:"Marktlich"     },
+        {x:cx,     y:vb-rand, a:"middle", t:"Technologisch" },
+        {x:rand,   y:cy+4,    a:"start",  t:"Wettbewerblich"}
+      ].forEach(function(d) {
+        svg.append("text").attr("x",d.x).attr("y",d.y).attr("text-anchor",d.a)
+          .attr("font-size",fs).attr("font-weight","600").attr("fill","#2d7a8e").text(d.t);
+      });
 
-      // Positionen berechnen (eigene Kopien, nicht radarData verändern)
+      // Positionen berechnen
       var miniPunkte = radarData.map(function(d){ return Object.assign({},d); });
       var gruppen = {};
       miniPunkte.forEach(function(d) {
@@ -3839,10 +3844,7 @@ body {
         });
       });
 
-      // Datenpunkte zeichnen
-      svg.selectAll("circle.mini-punkt").remove();
-      svg.selectAll("g.mini-label").remove();
-
+      // Datenpunkte
       svg.selectAll("circle.mini-punkt")
         .data(miniPunkte, function(d){ return d.id; })
         .enter().append("circle")
@@ -3857,49 +3859,41 @@ body {
           var score = (d.radar_score||0).toFixed(2);
           _lp_tt.style("opacity",1)
             .html("<strong>"+d.titel+"</strong><br>Score: "+score);
-          var ttw=200;
-          var tx = event.pageX+ttw>window.innerWidth ? event.pageX-ttw : event.pageX+10;
+          var ttw=200, tx=event.pageX+ttw>window.innerWidth?event.pageX-ttw:event.pageX+10;
           _lp_tt.style("left",tx+"px").style("top",(event.pageY-24)+"px");
         })
         .on("mousemove",function(event){
-          var ttw=200;
-          var tx = event.pageX+ttw>window.innerWidth ? event.pageX-ttw : event.pageX+10;
+          var ttw=200, tx=event.pageX+ttw>window.innerWidth?event.pageX-ttw:event.pageX+10;
           _lp_tt.style("left",tx+"px").style("top",(event.pageY-24)+"px");
         })
         .on("mouseout",function(){ _lp_tt.style("opacity",0); })
         .on("click",function(event,d){
-          if (window.App) App.activate("themenradar");
-          setTimeout(function(){ if (window.TR) TR.zeigeDetail(d); },60);
+          if (window.App) App.wechsleZuTab("themenradar", d.id);
         });
 
-      // Labels (nur auswirkung >= 4)
+      // Labels (auswirkung >= 4)
       svg.selectAll("g.mini-label")
         .data(miniPunkte.filter(function(d){ return d.auswirkung>=4; }), function(d){ return d.id; })
         .enter().append("g")
-          .attr("class","mini-label")
-          .attr("pointer-events","none")
+          .attr("class","mini-label").attr("pointer-events","none")
           .each(function(d){
             var g = d3.select(this);
             var t = d.titel.length>18 ? d.titel.slice(0,18)+"…" : d.titel;
-            var bw = t.length*4.5+4;
-            var lx = d.mx, ly = d.my-d.msize-4;
-            g.append("rect")
-              .attr("x",lx-bw/2).attr("y",ly-9).attr("width",bw).attr("height",11)
+            var bw = t.length*4.5+4, lx=d.mx, ly=d.my-d.msize-4;
+            g.append("rect").attr("x",lx-bw/2).attr("y",ly-9).attr("width",bw).attr("height",11)
               .attr("rx",2).attr("fill","white").attr("opacity",0.8);
-            g.append("text")
-              .attr("x",lx).attr("y",ly).attr("text-anchor","middle")
-              .attr("font-size","8px").attr("fill","#333").attr("font-weight","500")
-              .text(t);
+            g.append("text").attr("x",lx).attr("y",ly).attr("text-anchor","middle")
+              .attr("font-size","8px").attr("fill","#333").attr("font-weight","500").text(t);
           });
 
-      // Footer aktualisieren
+      // Footer
       var total = radarData.length;
       var kritisch = radarData.filter(function(d){ return (d.radar_score||0)>=0.7; }).length;
       var fi = document.getElementById("lp-radar-footer-info");
       if (fi) fi.textContent = total+" Themen · "+kritisch+" kritisch";
     }
 
-window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisierung,schliesseThemaFormular,aktualisiereScore,aktualisiereSlider,speichereThema,schliesseLoeschenModal,filterAktualisieren,zeigeDetail,redraw:zeichnePunkte,renderMini:renderMini};
+window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisierung,schliesseThemaFormular,aktualisiereScore,aktualisiereSlider,speichereThema,schliesseLoeschenModal,filterAktualisieren,zeigeDetail,redraw:zeichnePunkte,renderMini:renderMini,getDaten:function(){ return radarData; }};
 })();
 </script>
 <script>/* ===== Meilensteine ===== */
@@ -4219,7 +4213,7 @@ window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisieru
 
           <span class="ms-detail-label">Thema</span>
           <span class="ms-detail-value">
-            <a href="#" onclick="App.activate('themenradar');return false;" class="ms-thema-link"
+            <a href="#" onclick="App.wechsleZuTab('themenradar');return false;" class="ms-thema-link"
                title="Im Themenradar anzeigen">↗ ${ms.thema_titel}</a>
           </span>
 
@@ -4587,7 +4581,7 @@ window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisieru
     // ── Mini-GANTT für Lageplan-Kachel ──────────────────
     const _lp_gantt_tt = d3.select("body").append("div").attr("id","lp-gantt-tooltip");
 
-    function renderMini() {
+    function renderMini(vollbild) {
       const el = document.getElementById("lp-gantt-svg");
       if (!el) return;
       d3.select("#lp-gantt-svg").selectAll("*").remove();
@@ -4602,11 +4596,11 @@ window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisieru
       const barHeight   = 10;
       const chartWidth  = containerWidth - titleWidth - 6;
 
-      // Daten: nach radar_score absteigend, max 8
-      const MAX = 8;
+      // Daten: nach radar_score absteigend; vollbild = alle, sonst max 8
+      const MAX = vollbild ? Infinity : 8;
       const alle = meilensteinData.slice().sort((a,b) => (b.radar_score||0)-(a.radar_score||0));
-      const vis  = alle.slice(0, MAX);
-      const mehr = alle.length > MAX ? alle.length - MAX : 0;
+      const vis  = vollbild ? alle : alle.slice(0, 8);
+      const mehr = (!vollbild && alle.length > 8) ? alle.length - 8 : 0;
 
       // Zeitachse: Monatsanfang heute … +12 Monate
       const heute = new Date(); heute.setHours(0,0,0,0);
@@ -4701,8 +4695,7 @@ window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisieru
             })
             .on("mouseout",  () => _lp_gantt_tt.style("opacity",0))
             .on("click", () => {
-              if (window.App) App.activate("meilensteine");
-              setTimeout(() => { if (window.MS && MS.zeigeDetail) MS.zeigeDetail(ms); }, 60);
+              if (window.App) App.wechsleZuTab("meilensteine", ms.id);
             });
         }
       });
@@ -4748,7 +4741,7 @@ window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisieru
       }
     }
 
-window.MS={exportiereJSON,zeigeDetail,renderMini,redraw:function(){zeichneGantt(gefilterteDaten());}};
+window.MS={exportiereJSON,zeigeDetail,renderMini,getDaten:function(){ return meilensteinData; },redraw:function(){zeichneGantt(gefilterteDaten());}};
 })();
 </script>
 <script>/* ===== Lageplan ===== */
@@ -4758,8 +4751,8 @@ window.MS={exportiereJSON,zeigeDetail,renderMini,redraw:function(){zeichneGantt(
     document.getElementById("lp-stand-datum").textContent =
       new Date().toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit", year: "numeric" });
 
-    // ── Statusleiste befüllen ──────────────────────────
-    (function() {
+    // ── Statusleiste befüllen (aufrufbar bei Tab-Wechsel) ─
+    function aktualisiereStatusleiste() {
       const C = {
         blau:      "#63a2b4",
         kritisch:  "#c0392b",
@@ -4768,142 +4761,151 @@ window.MS={exportiereJSON,zeigeDetail,renderMini,redraw:function(){zeichneGantt(
       };
 
       function setKachel(ampelId, wertId, wert, farbe) {
-        document.getElementById(wertId).textContent   = wert;
-        document.getElementById(ampelId).style.color  = farbe;
+        const wa = document.getElementById(ampelId);
+        const ww = document.getElementById(wertId);
+        if (ww) ww.textContent = wert;
+        if (wa) wa.style.color = farbe;
       }
 
-      // ── Radar-Themen ────────────────────────────────
-      let themenGesamt = 0;
-      let themenKritisch = 0;
+      // Radar-Themen: direkt aus TR.getDaten() wenn vorhanden
+      let themenGesamt = 0, themenKritisch = 0;
       try {
-        const raw = localStorage.getItem("radarData-manuell");
-        const manuell = raw ? JSON.parse(raw) : [];
-        if (Array.isArray(manuell)) {
-          themenGesamt    = manuell.length;
-          themenKritisch  = manuell.filter(d => (d.radar_score || 0) >= 0.7).length;
+        const daten = (window.TR && TR.getDaten) ? TR.getDaten() : [];
+        if (daten.length > 0) {
+          themenGesamt   = daten.length;
+          themenKritisch = daten.filter(d => (d.radar_score||0) >= 0.7).length;
+        } else {
+          const raw = localStorage.getItem("radarData-manuell");
+          const manuell = raw ? JSON.parse(raw) : [];
+          if (Array.isArray(manuell)) {
+            themenGesamt   = manuell.length;
+            themenKritisch = manuell.filter(d => (d.radar_score||0) >= 0.7).length;
+          }
         }
       } catch(e) {}
 
-      setKachel(
-        "ampel-themen", "wert-themen",
+      setKachel("ampel-themen","wert-themen",
         themenGesamt > 0 ? themenGesamt : "Keine Daten",
-        themenGesamt > 0 ? C.blau : C.beobachten
-      );
-
-      setKachel(
-        "ampel-kritisch", "wert-kritisch",
+        themenGesamt > 0 ? C.blau : C.beobachten);
+      setKachel("ampel-kritisch","wert-kritisch",
         themenKritisch,
-        themenKritisch > 3 ? C.kritisch : (themenKritisch > 0 ? C.relevant : C.beobachten)
-      );
+        themenKritisch > 3 ? C.kritisch : (themenKritisch > 0 ? C.relevant : C.beobachten));
 
-      // Kachel-Header Badge Horizont
-      if (themenGesamt > 0) {
-        const kzH = document.getElementById("kz-horizont");
-        if (kzH) {
-          kzH.textContent = `${themenGesamt} Themen · ${themenKritisch} kritisch`;
-          kzH.style.display = "inline";
-        }
+      const kzH = document.getElementById("kz-horizont");
+      if (kzH && themenGesamt > 0) {
+        kzH.textContent = `${themenGesamt} Themen · ${themenKritisch} kritisch`;
+        kzH.style.display = "inline";
       }
 
-      // ── Meilensteine ────────────────────────────────
-      let msGesamt = 0;
-      let msOffen = 0;
-      let msVerzoegert = 0;
+      // Meilensteine: direkt aus MS.getDaten() wenn vorhanden
+      let msGesamt = 0, msOffen = 0, msVerzoegert = 0;
       try {
-        const raw = localStorage.getItem("meilensteine");
-        const liste = raw ? JSON.parse(raw) : [];
-        if (Array.isArray(liste)) {
+        const liste = (window.MS && MS.getDaten) ? MS.getDaten() : [];
+        if (liste.length > 0) {
           msGesamt     = liste.length;
           msOffen      = liste.filter(m => m.status === "offen" || m.status === "in Bearbeitung").length;
           msVerzoegert = liste.filter(m => m.status === "verzögert").length;
+        } else {
+          const raw = localStorage.getItem("meilensteine");
+          const ls  = raw ? JSON.parse(raw) : [];
+          if (Array.isArray(ls)) {
+            msGesamt     = ls.length;
+            msOffen      = ls.filter(m => m.status === "offen" || m.status === "in Bearbeitung").length;
+            msVerzoegert = ls.filter(m => m.status === "verzögert").length;
+          }
         }
       } catch(e) {}
 
-      setKachel(
-        "ampel-meilensteine", "wert-meilensteine",
+      setKachel("ampel-meilensteine","wert-meilensteine",
         msOffen > 0 ? msOffen : "Keine",
-        msOffen > 0 ? C.blau : C.beobachten
-      );
-
-      setKachel(
-        "ampel-verzoegert", "wert-verzoegert",
+        msOffen > 0 ? C.blau : C.beobachten);
+      setKachel("ampel-verzoegert","wert-verzoegert",
         msVerzoegert > 0 ? msVerzoegert : "Keine",
-        msVerzoegert > 0 ? C.relevant : C.beobachten
-      );
+        msVerzoegert > 0 ? C.relevant : C.beobachten);
 
-      // Kachel-Header Badge Meilensteine
-      if (msGesamt > 0) {
-        const kzM = document.getElementById("kz-meilensteine");
-        if (kzM) {
-          kzM.textContent = `${msGesamt} Meilensteine · ${msOffen} offen`;
-          kzM.style.display = "inline";
-        }
+      const kzM = document.getElementById("kz-meilensteine");
+      if (kzM && msGesamt > 0) {
+        kzM.textContent = `${msGesamt} Meilensteine · ${msOffen} offen`;
+        kzM.style.display = "inline";
       }
 
-      // ── Letzte Aktualisierung ────────────────────────
-      // last_update ist bereits ein formatierter String (toLocaleString)
+      // Letzte Aktualisierung
       let letzteAktualisierung = "Noch nicht aktualisiert";
       try {
         const ts = localStorage.getItem("last_update");
         if (ts) letzteAktualisierung = ts;
       } catch(e) {}
-
-      setKachel(
-        "ampel-update", "wert-update",
+      setKachel("ampel-update","wert-update",
         letzteAktualisierung,
-        letzteAktualisierung === "Noch nicht aktualisiert" ? C.relevant : C.blau
-      );
+        letzteAktualisierung === "Noch nicht aktualisiert" ? C.relevant : C.blau);
 
-      // ── Keywords aktiv ──────────────────────────────
+      // Keywords
       let kwAnzahl = 0;
       try {
         const raw = localStorage.getItem("config-keywords");
         const kw  = raw ? JSON.parse(raw) : [];
         if (Array.isArray(kw)) kwAnzahl = kw.length;
       } catch(e) {}
-      if (kwAnzahl === 0) {
-        kwAnzahl = 12; // Standard-Keywords als Fallback
-      }
-      document.getElementById("wert-keywords").textContent = kwAnzahl;
-    })();
+      const wk = document.getElementById("wert-keywords");
+      if (wk) wk.textContent = kwAnzahl || 12;
+    }
+
+    aktualisiereStatusleiste();
+
+    // ── Wrapper für Mini-Visualisierungen ─────────────
+    function zeichneLpRadar(vollbild) {
+      if (window.TR && TR.renderMini) { try { TR.renderMini(vollbild); } catch(e){} }
+    }
+    function zeichneLpGantt(vollbild) {
+      if (window.MS && MS.renderMini) { try { MS.renderMini(vollbild); } catch(e){} }
+    }
 
     // ── Vollbild-Toggle ────────────────────────────────
-    function toggleVollbild(kachelEl) {
-      const istVollbild = kachelEl.classList.contains("vollbild");
-      // Zuerst alle offenen Vollbilder schließen
+    function _schliesseAlleVollbilder() {
       document.querySelectorAll(".lp-kachel.vollbild").forEach(k => {
         k.classList.remove("vollbild");
         const btn = k.querySelector(".lp-vollbild-btn");
         if (btn) btn.textContent = "⛶";
+        // Normalansicht neu zeichnen
+        const b = k.dataset.bereich;
+        if (b === "horizont")    zeichneLpRadar(false);
+        if (b === "meilensteine") zeichneLpGantt(false);
       });
-      // Nur öffnen wenn es vorher kein Vollbild war
+    }
+
+    function toggleVollbild(kachelEl) {
+      const istVollbild = kachelEl.classList.contains("vollbild");
+      _schliesseAlleVollbilder();
       if (!istVollbild) {
         kachelEl.classList.add("vollbild");
         const btn = kachelEl.querySelector(".lp-vollbild-btn");
         if (btn) btn.textContent = "⊡";
+        // Vollbild neu zeichnen (nach kurzer Verzögerung, damit Layout fertig ist)
+        const bereich = kachelEl.dataset.bereich;
+        setTimeout(function() {
+          if (bereich === "horizont")    zeichneLpRadar(true);
+          if (bereich === "meilensteine") zeichneLpGantt(true);
+        }, 50);
       }
     }
 
     function beendeVollbild(exitBtn) {
       const kachelEl = exitBtn.closest(".lp-kachel");
       if (!kachelEl) return;
+      const bereich = kachelEl.dataset.bereich;
       kachelEl.classList.remove("vollbild");
       const btn = kachelEl.querySelector(".lp-vollbild-btn");
       if (btn) btn.textContent = "⛶";
+      if (bereich === "horizont")    zeichneLpRadar(false);
+      if (bereich === "meilensteine") zeichneLpGantt(false);
     }
 
     document.addEventListener("keydown", function(e) {
-      if (e.key === "Escape") {
-        document.querySelectorAll(".lp-kachel.vollbild").forEach(k => {
-          k.classList.remove("vollbild");
-          const btn = k.querySelector(".lp-vollbild-btn");
-          if (btn) btn.textContent = "⛶";
-        });
-      }
+      if (e.key === "Escape") _schliesseAlleVollbilder();
     });
-  
 
-window.LP={toggleVollbild,beendeVollbild};
+
+window.LP={toggleVollbild,beendeVollbild,aktualisiereStatusleiste,zeichneLpRadar,zeichneLpGantt};
 })();
 </script>
 <script>/* ===== Einstellungen ===== */
@@ -5376,6 +5378,7 @@ window.ST={speichereEinstellungen,resetteEinstellungen};
     meilensteine: "Meilensteine | Energie & Asset Management",
     settings:     "Einstellungen | Energie & Asset Management"
   };
+
   function activate(name){
     PANELS.forEach(function(p){
       var panel = document.getElementById("panel-"+p);
@@ -5384,21 +5387,39 @@ window.ST={speichereEinstellungen,resetteEinstellungen};
       if (tab)   tab.classList.toggle("aktiv", p===name);
     });
     if (TITLES[name]) document.title = TITLES[name];
-    // Neu zeichnen, sobald das Panel sichtbar ist (korrekte Breiten)
-    if (name==="themenradar"  && window.TR && TR.redraw) { try { TR.redraw(); } catch(e){} }
-    if (name==="meilensteine" && window.MS && MS.redraw) { try { MS.redraw(); } catch(e){} }
+    if (name==="themenradar"  && window.TR && TR.redraw)  { try { TR.redraw();  } catch(e){} }
+    if (name==="meilensteine" && window.MS && MS.redraw)  { try { MS.redraw();  } catch(e){} }
     if (name==="lageplan") {
-      if (window.TR && TR.renderMini) { try { TR.renderMini(); } catch(e){} }
-      if (window.MS && MS.renderMini) { try { MS.renderMini(); } catch(e){} }
+      if (window.LP && LP.aktualisiereStatusleiste) { try { LP.aktualisiereStatusleiste(); } catch(e){} }
+      if (window.LP && LP.zeichneLpRadar) { try { LP.zeichneLpRadar(false); } catch(e){} }
+      if (window.LP && LP.zeichneLpGantt) { try { LP.zeichneLpGantt(false); } catch(e){} }
     }
   }
+
+  function wechsleZuTab(tabName, id) {
+    activate(tabName);
+    if (!id) return;
+    setTimeout(function() {
+      if (tabName === "themenradar" && window.TR) {
+        var daten = TR.getDaten ? TR.getDaten() : [];
+        var item  = daten.find(function(d){ return d.id === id; });
+        if (item && TR.zeigeDetail) TR.zeigeDetail(item);
+      }
+      if (tabName === "meilensteine" && window.MS) {
+        var daten = MS.getDaten ? MS.getDaten() : [];
+        var item  = daten.find(function(m){ return m.id === id; });
+        if (item && MS.zeigeDetail) MS.zeigeDetail(item);
+      }
+    }, 60);
+  }
+
   document.querySelectorAll(".app-tab").forEach(function(t){
     t.addEventListener("click", function(e){ e.preventDefault(); activate(t.dataset.tab); });
   });
   document.querySelectorAll("[data-jump]").forEach(function(b){
     b.addEventListener("click", function(e){ e.preventDefault(); activate(b.dataset.jump); });
   });
-  window.App = { activate: activate };
+  window.App = { activate: activate, wechsleZuTab: wechsleZuTab };
   activate("lageplan");
 })();
 </script>
