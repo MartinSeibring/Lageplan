@@ -1925,7 +1925,7 @@ body {
           <button class="lp-vollbild-btn" title="Vollbild" onclick="LP.toggleVollbild(this.closest('.lp-kachel'))">⛶</button>
         </div>
         <div class="lp-kachel-body">
-          <svg id="lp-radar-svg" width="100%" height="100%" style="display:block;flex:1"></svg>
+          <svg id="lp-radar-svg" style="display:block;flex:1;min-height:0;width:100%"></svg>
           <div class="lp-radar-footer">
             <span id="lp-radar-footer-info" class="lp-radar-footer-info">– Themen</span>
             <button class="lp-radar-footer-link" data-jump="themenradar">Vollansicht &rarr;</button>
@@ -3794,10 +3794,23 @@ body {
       if (!svgEl) return;
       const svg = d3.select("#lp-radar-svg");
 
-      // Tatsächliche Pixelgröße des SVG-Elements auslesen
-      const rect = svgEl.getBoundingClientRect();
-      const W  = vollbild ? 800 : Math.max(rect.width  || 400, 100);
-      const H  = vollbild ? 800 : Math.max(rect.height || 400, 100);
+      // Dimensionen aus dem Parent-Element lesen (SVG selbst hat im Flex-Layout
+      // noch keine stabile Höhe, wenn renderMini direkt nach display:block aufgerufen wird)
+      const body   = svgEl.parentElement;               // .lp-kachel-body
+      const footer = body.querySelector(".lp-radar-footer");
+      const bRect  = body.getBoundingClientRect();
+      const fH     = footer ? footer.offsetHeight : 32;
+      const rawW   = bRect.width;
+      const rawH   = bRect.height - fH;
+
+      // Wenn das Panel noch nicht gerendert ist, einen Frame abwarten und erneut versuchen
+      if (!vollbild && rawH < 20) {
+        requestAnimationFrame(function() { renderMini(vollbild); });
+        return;
+      }
+
+      const W = vollbild ? 800 : Math.max(rawW, 100);
+      const H = vollbild ? 800 : Math.max(rawH, 100);
       const cx = W / 2;
       const cy = H / 2;
 
@@ -4882,10 +4895,14 @@ window.MS={exportiereJSON,zeigeDetail,renderMini,getDaten:function(){ return mei
 
     // ── Wrapper für Mini-Visualisierungen ─────────────
     function zeichneLpRadar(vollbild) {
-      if (window.TR && TR.renderMini) { try { TR.renderMini(vollbild); } catch(e){} }
+      requestAnimationFrame(function() {
+        if (window.TR && TR.renderMini) { try { TR.renderMini(vollbild); } catch(e){} }
+      });
     }
     function zeichneLpGantt(vollbild) {
-      if (window.MS && MS.renderMini) { try { MS.renderMini(vollbild); } catch(e){} }
+      requestAnimationFrame(function() {
+        if (window.MS && MS.renderMini) { try { MS.renderMini(vollbild); } catch(e){} }
+      });
     }
 
     // ── Vollbild-Toggle ────────────────────────────────
