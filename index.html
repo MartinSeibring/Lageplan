@@ -1020,13 +1020,19 @@
     }
 
     /* SCHRITT LP3: Hauptraster */
+    #panel-lageplan {
+      font-size: 13px;
+      height: calc(100vh - 140px);
+      overflow-y: auto;
+      padding: 10px 16px;
+      box-sizing: border-box;
+    }
+
     #lageplan-raster {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      grid-template-rows: auto auto 1fr;
+      grid-template-rows: auto auto minmax(220px, auto);
       gap: 10px;
-      height: calc(100vh - 140px);
-      min-height: 520px;
     }
 
     .lp-kachel {
@@ -1039,15 +1045,12 @@
       min-height: 0; /* verhindert Flex-Overflow im Grid */
     }
 
-    /* Grid-Platzierung: 2 Spalten, 3 Zeilen.
-       Links Horizont quadratisch über 2 Zeilen, rechts daneben oben
-       Meilensteine (kleiner) und darunter Strategische Ziele.
-       Unterste Zeile: Projekte und Betrieb gleich breit nebeneinander. */
-    .lp-kachel[data-bereich="horizont"]     { grid-column: 1; grid-row: 1 / 3; aspect-ratio: 1; }
+    /* Grid-Platzierung: 2 Spalten, 3 Zeilen */
+    .lp-kachel[data-bereich="horizont"]     { grid-column: 1; grid-row: 1 / 3; aspect-ratio: 1; max-height: 46vh; align-self: start; }
     .lp-kachel[data-bereich="meilensteine"] { grid-column: 2; grid-row: 1; }
     .lp-kachel[data-bereich="ziele"]        { grid-column: 2; grid-row: 2; }
-    .lp-kachel[data-bereich="projekte"]     { grid-column: 1; grid-row: 3; }
-    .lp-kachel[data-bereich="betrieb"]      { grid-column: 2; grid-row: 3; }
+    .lp-kachel[data-bereich="projekte"]     { grid-column: 1; grid-row: 3; min-height: 220px; }
+    .lp-kachel[data-bereich="betrieb"]      { grid-column: 2; grid-row: 3; min-height: 220px; }
 
     /* Ebenen-Farben (border-top) */
     .lp-kachel[data-bereich="horizont"]    { border-top: 3px solid #2d7a8e; }
@@ -1815,7 +1818,6 @@ body {
 .tab-panel { display: none; }
 #panel-themenradar  { font-size: 13px; }
 #panel-meilensteine { font-size: 14px; }
-#panel-lageplan     { font-size: 13px; }
 #panel-settings     { font-size: 13px; }
 /* Original-Seitenheader etwas kompakter unter der Tableiste */
 #panel-themenradar #header,
