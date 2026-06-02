@@ -1925,7 +1925,7 @@ body {
           <button class="lp-vollbild-btn" title="Vollbild" onclick="LP.toggleVollbild(this.closest('.lp-kachel'))">⛶</button>
         </div>
         <div class="lp-kachel-body">
-          <svg id="lp-radar-svg" width="100%" height="calc(100% - 32px)" viewBox="0 0 500 500" style="display:block"></svg>
+          <svg id="lp-radar-svg" width="100%" height="100%" style="display:block;flex:1"></svg>
           <div class="lp-radar-footer">
             <span id="lp-radar-footer-info" class="lp-radar-footer-info">– Themen</span>
             <button class="lp-radar-footer-link" data-jump="themenradar">Vollansicht &rarr;</button>
@@ -3794,25 +3794,32 @@ body {
       if (!svgEl) return;
       const svg = d3.select("#lp-radar-svg");
 
-      // Dimensionen je Modus
-      const cx  = vollbild ? 400 : 250;
-      const cy  = vollbild ? 400 : 250;
-      const vb  = vollbild ? 800 : 500;
-      const radiiMini = vollbild
-        ? { kurzfristig: 130, mittelfristig: 260, langfristig: 370 }
-        : { kurzfristig:  80, mittelfristig: 160, langfristig: 230 };
-      const rand = vollbild ? 20 : 12;
+      // Tatsächliche Pixelgröße des SVG-Elements auslesen
+      const rect = svgEl.getBoundingClientRect();
+      const W  = vollbild ? 800 : Math.max(rect.width  || 400, 100);
+      const H  = vollbild ? 800 : Math.max(rect.height || 400, 100);
+      const cx = W / 2;
+      const cy = H / 2;
 
-      svg.attr("viewBox","0 0 "+vb+" "+vb);
+      // Radien so wählen, dass der äußerste Ring in die kleinste Dimension passt
+      const maxR = Math.min(W, H) / 2 - (vollbild ? 40 : 24);
+      const radiiMini = {
+        kurzfristig:   maxR * 0.35,
+        mittelfristig: maxR * 0.70,
+        langfristig:   maxR
+      };
+      const rand = vollbild ? 20 : 14;
+
+      svg.attr("viewBox", "0 0 "+W+" "+H);
       svg.selectAll("*").remove();
 
       const quadrantBreite = 80;
       const zentrumsGrad = { regulatorisch: 270, marktlich: 0, technologisch: 90, wettbewerblich: 180 };
 
       // Achsenlinien
-      svg.append("line").attr("x1",rand).attr("y1",cy).attr("x2",vb-rand).attr("y2",cy)
+      svg.append("line").attr("x1",rand).attr("y1",cy).attr("x2",W-rand).attr("y2",cy)
         .attr("stroke","#dde8eb").attr("stroke-width",1);
-      svg.append("line").attr("x1",cx).attr("y1",rand).attr("x2",cx).attr("y2",vb-rand)
+      svg.append("line").attr("x1",cx).attr("y1",rand).attr("x2",cx).attr("y2",H-rand)
         .attr("stroke","#dde8eb").attr("stroke-width",1);
 
       // Ringe
@@ -3831,10 +3838,10 @@ body {
       // Quadranten-Labels
       const fs = vollbild ? "13px" : "11px";
       [
-        {x:cx,     y:rand+2,  a:"middle", t:"Regulatorisch" },
-        {x:vb-rand,y:cy+4,    a:"end",    t:"Marktlich"     },
-        {x:cx,     y:vb-rand, a:"middle", t:"Technologisch" },
-        {x:rand,   y:cy+4,    a:"start",  t:"Wettbewerblich"}
+        {x:cx,     y:rand+10,  a:"middle", t:"Regulatorisch" },
+        {x:W-rand, y:cy+4,     a:"end",    t:"Marktlich"     },
+        {x:cx,     y:H-rand,   a:"middle", t:"Technologisch" },
+        {x:rand,   y:cy+4,     a:"start",  t:"Wettbewerblich"}
       ].forEach(function(d) {
         svg.append("text").attr("x",d.x).attr("y",d.y).attr("text-anchor",d.a)
           .attr("font-size",fs).attr("font-weight","600").attr("fill","#2d7a8e").text(d.t);
