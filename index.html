@@ -1119,6 +1119,42 @@
       border-top: 1px solid #eee;
     }
 
+    #ki-fortschritt {
+      display: none;
+      margin-top: 12px;
+      padding: 12px 14px;
+      background: #f8fbfc;
+      border-radius: 6px;
+      border: 1px solid #d6e9ef;
+    }
+
+    .ki-ladebalken {
+      height: 4px;
+      background: #ddedf2;
+      border-radius: 2px;
+      overflow: hidden;
+      margin-bottom: 8px;
+    }
+
+    @keyframes ki-ladebalken-anim {
+      0%   { transform: translateX(-150%); }
+      100% { transform: translateX(400%); }
+    }
+
+    .ki-ladebalken-inner {
+      height: 100%;
+      width: 35%;
+      background: var(--swm-blau);
+      border-radius: 2px;
+      animation: ki-ladebalken-anim 1.6s ease-in-out infinite;
+    }
+
+    #ki-fortschritt-text {
+      font-size: 12px;
+      color: var(--swm-grau-mittel);
+      line-height: 1.5;
+    }
+
     .ms-thema-link {
       color: var(--swm-blau-dunkel);
       text-decoration: none;
@@ -2765,10 +2801,16 @@ body {
           <div id="ki-verknuepft">—</div>
         </div>
 
+        <!-- Fortschrittsanzeige -->
+        <div id="ki-fortschritt">
+          <div class="ki-ladebalken"><div class="ki-ladebalken-inner"></div></div>
+          <div id="ki-fortschritt-text">Dokument wird analysiert – dies kann 15–30 Sekunden dauern...</div>
+        </div>
+
       </div>
       <div class="ki-modal-footer">
         <button id="btn-ki-abbrechen" onclick="TR.schliesseKiModal()">Abbrechen</button>
-        <button id="btn-ki-starten" disabled>Analyse starten</button>
+        <button id="btn-ki-starten" disabled onclick="TR.starteKiAnalyse()">Analyse starten</button>
       </div>
     </div>
   </div>
@@ -4699,7 +4741,169 @@ body {
       _kiAktivesThema = null;
     }
 
-window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisierung,schliesseThemaFormular,aktualisiereScore,aktualisiereSlider,speichereThema,schliesseLoeschenModal,filterAktualisieren,zeigeDetail,oeffneKiModal,schliesseKiModal,_kiWechsleTab,_kiSetzeUrl,redraw:zeichnePunkte,renderMini:renderMini,getDaten:function(){ return radarData; }};
+    // ── KI-Analyse Logik ──
+    var kiVorschlaege = null;
+
+    async function starteKiAnalyse() {
+      var btn          = document.getElementById("btn-ki-starten");
+      var abbrechenBtn = document.getElementById("btn-ki-abbrechen");
+      var fortschritt  = document.getElementById("ki-fortschritt");
+      var ftText       = document.getElementById("ki-fortschritt-text");
+
+      // Schritt 1: Ladeanimation
+      if (btn) { btn.disabled = true; btn.textContent = "⏳ Wird analysiert..."; btn.style.opacity = "0.7"; }
+      if (abbrechenBtn) abbrechenBtn.disabled = true;
+      if (fortschritt) fortschritt.style.display = "block";
+      if (ftText) ftText.textContent = "Dokument wird analysiert – dies kann 15–30 Sekunden dauern...";
+
+      var kontext  = (document.getElementById("ki-kontext") || {}).value || "";
+      var istPdf   = _kiAktuellerTab === "pdf";
+      var themaId  = _kiAktivesThema;
+
+      try {
+        // Schritt 2: API-Key laden
+        var apiKey = await _kiLadeApiKey();
+
+        // Schritt 2: Dokument vorbereiten
+        var inhalt;
+        if (istPdf) {
+          var pdfInput = document.getElementById("ki-pdf");
+          var file = pdfInput && pdfInput.files && pdfInput.files[0];
+          if (!file) throw new Error("Keine PDF-Datei ausgewählt.");
+          if (ftText) ftText.textContent = "PDF wird eingelesen...";
+          inhalt = await _kiLesePdfAlsBase64(file);
+        } else {
+          var urlWert = (document.getElementById("ki-url") || {}).value || "";
+          if (ftText) ftText.textContent = "URL wird abgerufen...";
+          inhalt = await _kiHoleDokumentText(urlWert.trim());
+          if (ftText) ftText.textContent = "Dokument wird analysiert – dies kann 15–30 Sekunden dauern...";
+        }
+
+        // Schritt 3: Anthropic API
+        var vorschlaege = await _kiRufeApiAuf(apiKey, inhalt, kontext, istPdf);
+
+        // Schritt 4: Antwort verarbeiten
+        kiVorschlaege = vorschlaege;
+        var thema = radarData.find(function(d) { return d.id === themaId; }) || null;
+        schliesseKiModal();
+        zeigeKiVorschlaege(vorschlaege, thema);
+
+      } catch(err) {
+        if (ftText) ftText.innerHTML = "<span style='color:#c0392b'>⚠ " + (err.message || "Unbekannter Fehler") + "</span>";
+        if (btn) { btn.disabled = false; btn.textContent = "Analyse starten"; btn.style.opacity = ""; _kiValidiereEingabe(); }
+        if (abbrechenBtn) abbrechenBtn.disabled = false;
+      }
+    }
+
+    async function _kiLadeApiKey() {
+      var cached = localStorage.getItem("anthropic_api_key");
+      if (cached) return cached;
+      var res = await fetch("http://localhost:5050/config");
+      if (!res.ok) throw new Error("Server nicht erreichbar (localhost:5050). Bitte API-Key konfigurieren.");
+      var cfg = await res.json();
+      var key = cfg.anthropic_api_key || cfg.api_key || "";
+      if (!key) throw new Error("Kein Anthropic API-Key in der Server-Konfiguration gefunden.");
+      return key;
+    }
+
+    async function _kiHoleDokumentText(url) {
+      var res = await fetch("http://localhost:5050/fetch-url", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url: url })
+      });
+      if (!res.ok) throw new Error("Dokument konnte nicht abgerufen werden (HTTP " + res.status + ").");
+      var data = await res.json();
+      var text = data.text || data.content || "";
+      if (!text) throw new Error("Dokument ist leer oder konnte nicht gelesen werden.");
+      return text.slice(0, 50000);
+    }
+
+    function _kiLesePdfAlsBase64(file) {
+      return new Promise(function(resolve, reject) {
+        var reader = new FileReader();
+        reader.onload = function(e) {
+          var parts = (e.target.result || "").split(",");
+          if (parts.length < 2 || !parts[1]) return reject(new Error("PDF konnte nicht gelesen werden."));
+          resolve(parts[1]);
+        };
+        reader.onerror = function() { reject(new Error("Fehler beim Lesen der PDF-Datei.")); };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    async function _kiRufeApiAuf(apiKey, inhalt, kontext, istPdf) {
+      var system = [
+        "Du bist ein Experte für deutsche Energieregulierung und Netzwirtschaft.",
+        "Analysiere das gegebene Dokument und extrahiere ALLE konkreten Umsetzungsfristen,",
+        "Pflichttermine und zeitgebundenen Verpflichtungen.",
+        "",
+        "Antworte NUR mit einem JSON-Array ohne Markdown.",
+        "Format je Eintrag:",
+        "{",
+        '  "titel": "Kurzer prägnanter Titel der Pflicht",',
+        '  "beschreibung": "Genaue Beschreibung was umzusetzen ist",',
+        '  "paragraph": "Gesetzliche Grundlage z.B. §45 Abs.2 MsbG",',
+        '  "deadline": "YYYY-MM-DD oder null wenn kein fixes Datum",',
+        '  "deadline_beschreibung": "z.B. bis 31.12.2025 oder spätestens 5 Jahre nach Inkrafttreten",',
+        '  "deadline_typ": "regulatorisch",',
+        '  "kategorie": "regulatorisch|marktlich|technologisch|wettbewerblich",',
+        '  "auswirkung": 1-5,',
+        '  "vorgeschlagene_cluster": ["Netzanschluss","Messstellenbetrieb","Netzwirtschaft","Technologie","Organisation"],',
+        '  "tags": ["tag1","tag2"],',
+        '  "unsicherheit": 1-5',
+        "}"
+      ].join("\n");
+
+      var messages;
+      if (istPdf) {
+        var userText = "Extrahiere alle Umsetzungsfristen." + (kontext ? " Kontext: " + kontext : "");
+        messages = [{ role: "user", content: [
+          { type: "document", source: { type: "base64", media_type: "application/pdf", data: inhalt } },
+          { type: "text", text: userText }
+        ]}];
+      } else {
+        var userText = "Analysiere dieses Dokument:\n\n" + inhalt + (kontext ? "\n\nKontext: " + kontext : "");
+        messages = [{ role: "user", content: userText }];
+      }
+
+      var res = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": apiKey,
+          "anthropic-version": "2023-06-01",
+          "anthropic-dangerous-direct-browser-access": "true"
+        },
+        body: JSON.stringify({ model: "claude-sonnet-4-20250514", max_tokens: 4000, system: system, messages: messages })
+      });
+
+      if (!res.ok) {
+        var errData = {};
+        try { errData = await res.json(); } catch(e) {}
+        throw new Error("API-Fehler " + res.status + ": " + ((errData.error && errData.error.message) || "Unbekannt"));
+      }
+
+      var data = await res.json();
+      var text = data.content && data.content[0] && data.content[0].text;
+      if (!text) throw new Error("Keine Antwort von der API erhalten.");
+
+      try {
+        var cleaned = text.replace(/^```(?:json)?\s*/i, "").replace(/\s*```\s*$/i, "").trim();
+        var vorschlaege = JSON.parse(cleaned);
+        if (!Array.isArray(vorschlaege)) throw new Error("Antwort ist kein Array.");
+        return vorschlaege;
+      } catch(e) {
+        throw new Error("API-Antwort konnte nicht geparst werden: " + e.message);
+      }
+    }
+
+    function zeigeKiVorschlaege(vorschlaege, thema) {
+      // Stub – Darstellung wird in KI-2 implementiert
+      console.log("KI-Vorschläge empfangen:", vorschlaege.length, "Einträge für Thema:", thema && thema.titel);
+    }
+
+window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisierung,schliesseThemaFormular,aktualisiereScore,aktualisiereSlider,speichereThema,schliesseLoeschenModal,filterAktualisieren,zeigeDetail,oeffneKiModal,schliesseKiModal,_kiWechsleTab,_kiSetzeUrl,starteKiAnalyse,redraw:zeichnePunkte,renderMini:renderMini,getDaten:function(){ return radarData; }};
 })();
 </script>
 <script>/* ===== Meilensteine ===== */
