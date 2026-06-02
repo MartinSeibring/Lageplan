@@ -681,6 +681,15 @@
       flex-shrink: 0;
     }
 
+    #ms-filter-info {
+      margin-top: 10px;
+      font-size: 11px;
+      color: #777;
+      line-height: 1.5;
+      border-top: 1px solid #eee;
+      padding-top: 8px;
+    }
+
     #btn-filter-reset {
       margin-top: 16px;
       width: 100%;
@@ -4286,24 +4295,53 @@ window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisieru
     // -----------------------------------------------------------------------
 
     let filterState = {
-      zeitraum:    18,
-      kategorien:  new Set(["regulatorisch","marktlich","technologisch","wettbewerblich"]),
-      statusWerte: new Set(["offen","in Bearbeitung","abgeschlossen","verzögert"])
+      zeitraumModus: "60",
+      zeitraumVon:   null,
+      zeitraumBis:   null,
+      cluster:       new Set(["Netzanschluss","Messstellenbetrieb","Netzwirtschaft","Technologie","Organisation"]),
+      deadlineTypen: new Set(["regulatorisch","marktlich","konzern","intern"]),
+      kategorien:    new Set(["regulatorisch","marktlich","technologisch","wettbewerblich"]),
+      statusWerte:   new Set(["offen","in Bearbeitung","abgeschlossen","verzögert"])
     };
 
     function gefilterteDaten() {
-      const heute = new Date();
-      heute.setHours(0, 0, 0, 0);
-      const datumBis = new Date(heute);
-      // Zoom-Fenster und Filter-Zeitraum: immer den größeren Wert nehmen
-      const horizont = Math.max(filterState.zeitraum, zoomStufen[aktuellerZoom].monate);
-      datumBis.setMonth(datumBis.getMonth() + horizont);
+      const heute = new Date(); heute.setHours(0, 0, 0, 0);
 
-      return meilensteinData.filter(ms =>
-        new Date(ms.start) <= datumBis &&
-        filterState.kategorien.has(ms.kategorie) &&
-        filterState.statusWerte.has(ms.status)
-      );
+      // Zeitfenster ermitteln (harter Filter)
+      let datumVon, datumBis;
+      if (filterState.zeitraumModus === "custom") {
+        datumVon = filterState.zeitraumVon ? new Date(filterState.zeitraumVon) : new Date(0);
+        datumBis = filterState.zeitraumBis ? new Date(filterState.zeitraumBis) : new Date("2099-12-31");
+      } else {
+        datumVon = new Date(heute);
+        datumBis = new Date(heute);
+        datumBis.setMonth(datumBis.getMonth() + parseInt(filterState.zeitraumModus));
+      }
+
+      return meilensteinData
+        .filter(ms => {
+          const s = new Date(ms.start), e = new Date(ms.ende);
+          return e >= datumVon && s <= datumBis;
+        })
+        .map(ms => {
+          // Cluster-Abgleich: leer = alle aktiv
+          const alleCluster = filterState.cluster.size === 5; // alle gewählt
+          const clusterOk = alleCluster ||
+            (ms.strategische_cluster || []).some(c => filterState.cluster.has(c));
+
+          // Deadline-Typ-Abgleich
+          const alleDeadlines = filterState.deadlineTypen.size === 4;
+          const checkTyp = (!ms.pflicht_deadline) ? "intern" : (ms.deadline_typ || "intern");
+          const deadlineOk = alleDeadlines || filterState.deadlineTypen.has(checkTyp);
+
+          // Kategorie- und Status-Abgleich
+          const katOk  = filterState.kategorien.has(ms.kategorie);
+          const statOk = filterState.statusWerte.has(ms.status);
+
+          return Object.assign({}, ms, {
+            _aktiv: clusterOk && deadlineOk && katOk && statOk
+          });
+        });
     }
 
     // -----------------------------------------------------------------------
@@ -4315,11 +4353,45 @@ window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisieru
 
       panel.innerHTML = `
         <h3>Zeitraum</h3>
-        <select id="filter-zeitraum">
+        <select id="filter-zeitraum-modus">
           <option value="6">Nächste 6 Monate</option>
           <option value="12">Nächste 12 Monate</option>
-          <option value="18" selected>Nächste 18 Monate</option>
+          <option value="36">Nächste 3 Jahre</option>
+          <option value="60" selected>Nächste 5 Jahre</option>
+          <option value="custom">Benutzerdefiniert</option>
         </select>
+        <div id="filter-zeitraum-custom" style="display:none;margin-top:6px">
+          <label style="font-size:11px;color:#666;display:block;margin-bottom:2px">Von</label>
+          <input type="date" id="filter-von"
+            style="width:100%;font-size:12px;padding:4px 6px;border:1px solid #ddd;border-radius:3px;box-sizing:border-box">
+          <label style="font-size:11px;color:#666;display:block;margin:5px 0 2px">Bis</label>
+          <input type="date" id="filter-bis"
+            style="width:100%;font-size:12px;padding:4px 6px;border:1px solid #ddd;border-radius:3px;box-sizing:border-box">
+        </div>
+
+        <h3>Strategische Cluster</h3>
+        ${["Netzanschluss","Messstellenbetrieb","Netzwirtschaft","Technologie","Organisation"].map(c => `
+          <label class="ms-filter-zeile">
+            <input type="checkbox" class="ms-cluster-filter" value="${c}" checked>
+            ${c}
+          </label>
+        `).join("")}
+
+        <h3>Deadline-Typ</h3>
+        ${[
+          { val: "regulatorisch", label: "Regulatorisch"          },
+          { val: "marktlich",     label: "Marktlich"              },
+          { val: "konzern",       label: "Konzern"                },
+          { val: "intern",        label: "Intern / Kein Pflichttermin" }
+        ].map(d => `
+          <label class="ms-filter-zeile">
+            <input type="checkbox" class="ms-deadline-filter" value="${d.val}" checked>
+            <span class="ms-filter-punkt"
+              style="background:${deadlineTypFarben[d.val]||'#ccc'};border-radius:0;
+                     transform:rotate(45deg);width:8px;height:8px"></span>
+            ${d.label}
+          </label>
+        `).join("")}
 
         <h3>Kategorie</h3>
         ${["regulatorisch","marktlich","technologisch","wettbewerblich"].map(k => `
@@ -4340,37 +4412,98 @@ window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisieru
         `).join("")}
 
         <button id="btn-filter-reset">Filter zurücksetzen</button>
+        <div id="ms-filter-info"></div>
       `;
 
-      document.getElementById("filter-zeitraum").addEventListener("change", function() {
-        filterState.zeitraum = parseInt(this.value);
-        zeichneGantt(gefilterteDaten());
+      // Zeitraum-Modus
+      document.getElementById("filter-zeitraum-modus").addEventListener("change", function() {
+        filterState.zeitraumModus = this.value;
+        document.getElementById("filter-zeitraum-custom").style.display =
+          this.value === "custom" ? "block" : "none";
+        wendeFilterAn();
+      });
+      document.getElementById("filter-von").addEventListener("change", function() {
+        filterState.zeitraumVon = this.value || null;
+        wendeFilterAn();
+      });
+      document.getElementById("filter-bis").addEventListener("change", function() {
+        filterState.zeitraumBis = this.value || null;
+        wendeFilterAn();
       });
 
+      // Cluster
+      panel.querySelectorAll(".ms-cluster-filter").forEach(cb => {
+        cb.addEventListener("change", function() {
+          if (this.checked) filterState.cluster.add(this.value);
+          else              filterState.cluster.delete(this.value);
+          wendeFilterAn();
+        });
+      });
+
+      // Deadline-Typ
+      panel.querySelectorAll(".ms-deadline-filter").forEach(cb => {
+        cb.addEventListener("change", function() {
+          if (this.checked) filterState.deadlineTypen.add(this.value);
+          else              filterState.deadlineTypen.delete(this.value);
+          wendeFilterAn();
+        });
+      });
+
+      // Kategorie
       panel.querySelectorAll("input[data-gruppe='kategorie']").forEach(cb => {
         cb.addEventListener("change", function() {
           if (this.checked) filterState.kategorien.add(this.value);
           else              filterState.kategorien.delete(this.value);
-          zeichneGantt(gefilterteDaten());
+          wendeFilterAn();
         });
       });
 
+      // Status
       panel.querySelectorAll("input[data-gruppe='status']").forEach(cb => {
         cb.addEventListener("change", function() {
           if (this.checked) filterState.statusWerte.add(this.value);
           else              filterState.statusWerte.delete(this.value);
-          zeichneGantt(gefilterteDaten());
+          wendeFilterAn();
         });
       });
 
+      // Reset
       document.getElementById("btn-filter-reset").addEventListener("click", function() {
-        filterState.zeitraum    = 18;
-        filterState.kategorien  = new Set(["regulatorisch","marktlich","technologisch","wettbewerblich"]);
-        filterState.statusWerte = new Set(["offen","in Bearbeitung","abgeschlossen","verzögert"]);
-        document.getElementById("filter-zeitraum").value = "18";
+        filterState.zeitraumModus = "60";
+        filterState.zeitraumVon   = null;
+        filterState.zeitraumBis   = null;
+        filterState.cluster       = new Set(["Netzanschluss","Messstellenbetrieb","Netzwirtschaft","Technologie","Organisation"]);
+        filterState.deadlineTypen = new Set(["regulatorisch","marktlich","konzern","intern"]);
+        filterState.kategorien    = new Set(["regulatorisch","marktlich","technologisch","wettbewerblich"]);
+        filterState.statusWerte   = new Set(["offen","in Bearbeitung","abgeschlossen","verzögert"]);
+        document.getElementById("filter-zeitraum-modus").value = "60";
+        document.getElementById("filter-zeitraum-custom").style.display = "none";
+        document.getElementById("filter-von").value = "";
+        document.getElementById("filter-bis").value = "";
         panel.querySelectorAll("input[type='checkbox']").forEach(cb => cb.checked = true);
-        zeichneGantt(gefilterteDaten());
+        wendeFilterAn();
       });
+
+      aktualisiereFilterInfo();
+    }
+
+    function wendeFilterAn() {
+      const daten = gefilterteDaten();
+      zeichneGantt(daten);
+      aktualisiereFilterInfoMitDaten(daten);
+    }
+
+    function aktualisiereFilterInfo() {
+      aktualisiereFilterInfoMitDaten(gefilterteDaten());
+    }
+
+    function aktualisiereFilterInfoMitDaten(daten) {
+      const el = document.getElementById("ms-filter-info");
+      if (!el) return;
+      const aktiv     = daten.filter(ms => ms._aktiv).length;
+      const gesamt    = daten.length;
+      const deadlines = daten.filter(ms => ms._aktiv && ms.pflicht_deadline).length;
+      el.textContent = `${aktiv} von ${gesamt} Meilensteinen · ${deadlines} Pflicht-Deadlines`;
     }
 
     // -----------------------------------------------------------------------
@@ -4701,9 +4834,11 @@ window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisieru
         const y       = hdrHoch + i * rowHeight;
         const bgFarbe = i % 2 === 0 ? "#fafafa" : "#ffffff";
         const bgHover = i % 2 === 0 ? "#f0f4ff" : "#f5f8ff";
+        const dimmed  = ms._aktiv === false;
         const rowG    = svg.append("g")
           .attr("class", "ms-zeile")
-          .attr("transform", `translate(0,${y})`);
+          .attr("transform", `translate(0,${y})`)
+          .attr("opacity", dimmed ? 0.2 : 1);
 
         rowG.append("rect")
           .attr("x", 0).attr("y", 0)
@@ -4790,7 +4925,9 @@ window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisieru
             const abgelaufen = dlDate < heute && ms.status !== "abgeschlossen";
             const dlFarbe2   = abgelaufen ? "#E24B4A" : dlFarbe;
 
-            const dlG = rowG.append("g").attr("class", "ms-deadline");
+            const dlG = rowG.append("g")
+              .attr("class", "ms-deadline")
+              .attr("opacity", dimmed ? 0.5 : 1); // 0.5×0.2=0.1 effektiv bei gedimmter Zeile
 
             // Pulsierender Ring bei überschrittener Deadline
             if (abgelaufen) {
