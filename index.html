@@ -1090,6 +1090,47 @@
       position: relative;
     }
 
+    /* Mini-Radar */
+    #lp-radar-svg { flex: 1; }
+    .lp-radar-footer {
+      height: 32px;
+      border-top: 1px solid var(--swm-blau-hell);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 10px;
+      flex-shrink: 0;
+    }
+    .lp-radar-footer-info {
+      font-size: 11px;
+      color: var(--swm-grau-mittel);
+    }
+    .lp-radar-footer-link {
+      font-size: 11px;
+      color: var(--swm-blau);
+      cursor: pointer;
+      background: none;
+      border: none;
+      font-family: inherit;
+      padding: 0;
+      text-decoration: none;
+    }
+    .lp-radar-footer-link:hover { color: var(--swm-blau-dunkel); }
+    #lp-radar-tooltip {
+      position: absolute;
+      background: #2a2a2a;
+      color: #fff;
+      padding: 6px 10px;
+      border-radius: 4px;
+      font-size: 11px;
+      pointer-events: none;
+      z-index: 600;
+      opacity: 0;
+      max-width: 200px;
+      line-height: 1.5;
+      transition: opacity 0.1s;
+    }
+
     /* iframe-Kacheln */
     .lp-iframe-banner {
       background: var(--swm-blau-hell);
@@ -1880,8 +1921,11 @@ body {
           <button class="lp-vollbild-btn" title="Vollbild" onclick="LP.toggleVollbild(this.closest('.lp-kachel'))">⛶</button>
         </div>
         <div class="lp-kachel-body">
-          
-          <div class="lp-mini-wrap"><div id="lp-radar-mini" class="lp-mini-radar"></div><button class="lp-mini-link" data-jump="themenradar" title="Zum vollständigen Themenradar">Themenradar öffnen &rarr;</button></div>
+          <svg id="lp-radar-svg" width="100%" height="calc(100% - 32px)" viewBox="0 0 500 500" style="display:block"></svg>
+          <div class="lp-radar-footer">
+            <span id="lp-radar-footer-info" class="lp-radar-footer-info">– Themen</span>
+            <button class="lp-radar-footer-link" data-jump="themenradar">Vollansicht &rarr;</button>
+          </div>
         </div>
       </div>
 
@@ -3717,7 +3761,141 @@ body {
     }
   
 
-window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisierung,schliesseThemaFormular,aktualisiereScore,aktualisiereSlider,speichereThema,schliesseLoeschenModal,filterAktualisieren,zeigeDetail,redraw:zeichnePunkte};
+    // ── Mini-Zielscheibe für Lageplan-Kachel ────────────
+    const _lp_tt = d3.select("body").append("div").attr("id","lp-radar-tooltip");
+
+    function renderMini() {
+      const svgEl = document.getElementById("lp-radar-svg");
+      if (!svgEl) return;
+      const svg = d3.select("#lp-radar-svg");
+      const cx = 250, cy = 250;
+      const radiiMini = { kurzfristig: 80, mittelfristig: 160, langfristig: 230 };
+      const quadrantBreite = 80;
+      const zentrumsGrad = { regulatorisch: 270, marktlich: 0, technologisch: 90, wettbewerblich: 180 };
+
+      // Statische Elemente nur einmal zeichnen
+      if (!svgEl.dataset.miniInit) {
+        svgEl.dataset.miniInit = "1";
+
+        // Quadranten-Trennlinien
+        svg.append("line").attr("x1",20).attr("y1",cy).attr("x2",480).attr("y2",cy)
+          .attr("stroke","#dde8eb").attr("stroke-width",1);
+        svg.append("line").attr("x1",cx).attr("y1",20).attr("x2",cx).attr("y2",480)
+          .attr("stroke","#dde8eb").attr("stroke-width",1);
+
+        // Ringe
+        [80, 160, 230].forEach(function(r) {
+          svg.append("circle").attr("cx",cx).attr("cy",cy).attr("r",r)
+            .attr("fill","none").attr("stroke","#cce0e7").attr("stroke-width",1);
+        });
+
+        // Ring-Beschriftung (knapp außerhalb, oben rechts am Ring)
+        [{r:80,t:"0–1J"},{r:160,t:"1–3J"},{r:230,t:">3J"}].forEach(function(d) {
+          svg.append("text")
+            .attr("x", cx + 4).attr("y", cy - d.r + 10)
+            .attr("font-size","9px").attr("fill","#999").text(d.t);
+        });
+
+        // Quadranten-Beschriftung
+        [
+          {x:cx,  y:12,  a:"middle", t:"Regulatorisch" },
+          {x:488, y:cy+4,a:"end",    t:"Marktlich"     },
+          {x:cx,  y:493, a:"middle", t:"Technologisch" },
+          {x:12,  y:cy+4,a:"start",  t:"Wettbewerblich"}
+        ].forEach(function(d) {
+          svg.append("text")
+            .attr("x",d.x).attr("y",d.y).attr("text-anchor",d.a)
+            .attr("font-size","11px").attr("font-weight","600").attr("fill","#2d7a8e")
+            .text(d.t);
+        });
+      }
+
+      // Positionen berechnen (eigene Kopien, nicht radarData verändern)
+      var miniPunkte = radarData.map(function(d){ return Object.assign({},d); });
+      var gruppen = {};
+      miniPunkte.forEach(function(d) {
+        var k = d.kategorie+"|"+d.zeithorizont;
+        if (!gruppen[k]) gruppen[k] = [];
+        gruppen[k].push(d);
+      });
+      Object.entries(gruppen).forEach(function(entry) {
+        var punkte = entry[1];
+        punkte.sort(function(a,b){ return a.titel.localeCompare(b.titel,"de"); });
+        var kat = entry[0].split("|")[0];
+        var zentrum = zentrumsGrad[kat];
+        var n = punkte.length;
+        punkte.forEach(function(d,i) {
+          var offset = n===1 ? 0 : ((i/(n-1))-0.5)*quadrantBreite;
+          var winkel = (zentrum+offset)*Math.PI/180;
+          var r = radiiMini[d.zeithorizont];
+          d.mx = cx + r*Math.cos(winkel);
+          d.my = cy + r*Math.sin(winkel);
+          d.msize = d.auswirkung*2.5;
+          d.mopacity = 1-(d.unsicherheit-1)*0.15;
+        });
+      });
+
+      // Datenpunkte zeichnen
+      svg.selectAll("circle.mini-punkt").remove();
+      svg.selectAll("g.mini-label").remove();
+
+      svg.selectAll("circle.mini-punkt")
+        .data(miniPunkte, function(d){ return d.id; })
+        .enter().append("circle")
+          .attr("class","mini-punkt")
+          .attr("cx",function(d){ return d.mx; })
+          .attr("cy",function(d){ return d.my; })
+          .attr("r", function(d){ return d.msize; })
+          .attr("fill",function(d){ return farbMap[d.kategorie]; })
+          .attr("opacity",function(d){ return d.mopacity; })
+          .style("cursor","pointer")
+        .on("mouseover",function(event,d){
+          var score = (d.radar_score||0).toFixed(2);
+          _lp_tt.style("opacity",1)
+            .html("<strong>"+d.titel+"</strong><br>Score: "+score);
+          var ttw=200;
+          var tx = event.pageX+ttw>window.innerWidth ? event.pageX-ttw : event.pageX+10;
+          _lp_tt.style("left",tx+"px").style("top",(event.pageY-24)+"px");
+        })
+        .on("mousemove",function(event){
+          var ttw=200;
+          var tx = event.pageX+ttw>window.innerWidth ? event.pageX-ttw : event.pageX+10;
+          _lp_tt.style("left",tx+"px").style("top",(event.pageY-24)+"px");
+        })
+        .on("mouseout",function(){ _lp_tt.style("opacity",0); })
+        .on("click",function(event,d){
+          if (window.App) App.activate("themenradar");
+          setTimeout(function(){ if (window.TR) TR.zeigeDetail(d); },60);
+        });
+
+      // Labels (nur auswirkung >= 4)
+      svg.selectAll("g.mini-label")
+        .data(miniPunkte.filter(function(d){ return d.auswirkung>=4; }), function(d){ return d.id; })
+        .enter().append("g")
+          .attr("class","mini-label")
+          .attr("pointer-events","none")
+          .each(function(d){
+            var g = d3.select(this);
+            var t = d.titel.length>18 ? d.titel.slice(0,18)+"…" : d.titel;
+            var bw = t.length*4.5+4;
+            var lx = d.mx, ly = d.my-d.msize-4;
+            g.append("rect")
+              .attr("x",lx-bw/2).attr("y",ly-9).attr("width",bw).attr("height",11)
+              .attr("rx",2).attr("fill","white").attr("opacity",0.8);
+            g.append("text")
+              .attr("x",lx).attr("y",ly).attr("text-anchor","middle")
+              .attr("font-size","8px").attr("fill","#333").attr("font-weight","500")
+              .text(t);
+          });
+
+      // Footer aktualisieren
+      var total = radarData.length;
+      var kritisch = radarData.filter(function(d){ return (d.radar_score||0)>=0.7; }).length;
+      var fi = document.getElementById("lp-radar-footer-info");
+      if (fi) fi.textContent = total+" Themen · "+kritisch+" kritisch";
+    }
+
+window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisierung,schliesseThemaFormular,aktualisiereScore,aktualisiereSlider,speichereThema,schliesseLoeschenModal,filterAktualisieren,zeigeDetail,redraw:zeichnePunkte,renderMini:renderMini};
 })();
 </script>
 <script>/* ===== Meilensteine ===== */
