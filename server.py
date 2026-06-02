@@ -1,7 +1,11 @@
 import json
 import os
+import re
 import subprocess
 from http.server import BaseHTTPRequestHandler, HTTPServer
+
+import requests
+from bs4 import BeautifulSoup
 
 BASE_DIR      = os.path.dirname(os.path.abspath(__file__))
 LAST_RUN_PATH = os.path.join(BASE_DIR, "last_run.json")
@@ -158,6 +162,63 @@ class RadarHandler(BaseHTTPRequestHandler):
             print(f"  Konfiguration aktualisiert: {n_kw} Keywords, {n_fd} Feeds, {n_qu} Quellen")
             self._sende_json({"status": "gespeichert"})
 
+        # ------------------------------------------------------------------
+        # POST /fetch-url
+        # ------------------------------------------------------------------
+        elif self.path == "/fetch-url":
+            laenge = int(self.headers.get("Content-Length", 0))
+            try:
+                body = self.rfile.read(laenge)
+                daten = json.loads(body.decode("utf-8"))
+            except (json.JSONDecodeError, UnicodeDecodeError) as e:
+                self._sende_json({"error": f"Ungültiges JSON: {e}"}, status=400)
+                return
+
+            url = (daten.get("url") or "").strip()
+            if not re.match(r"^https?://", url, re.IGNORECASE):
+                self._sende_json({"error": "URL muss mit http:// oder https:// beginnen."}, status=400)
+                return
+
+            try:
+                resp = requests.get(
+                    url, timeout=20,
+                    headers={"User-Agent": "Mozilla/5.0"},
+                )
+                resp.raise_for_status()
+            except requests.exceptions.Timeout:
+                self._sende_json({"error": "Zeitüberschreitung beim Abrufen der URL."}, status=504)
+                return
+            except requests.exceptions.RequestException as e:
+                self._sende_json({"error": f"Abruf fehlgeschlagen: {e}"}, status=502)
+                return
+
+            soup = BeautifulSoup(resp.text, "html.parser")
+
+            for tag in soup.find_all(["script", "style", "nav", "footer", "header"]):
+                tag.decompose()
+
+            titel = soup.title.get_text(strip=True) if soup.title else ""
+
+            rohtext = soup.get_text(separator="\n")
+            zeilen  = [z.strip() for z in rohtext.splitlines()]
+            # Mehrfache Leerzeilen auf eine reduzieren
+            bereinigt_zeilen = []
+            leerzeile_davor  = False
+            for z in zeilen:
+                if z:
+                    bereinigt_zeilen.append(z)
+                    leerzeile_davor = False
+                elif not leerzeile_davor:
+                    bereinigt_zeilen.append("")
+                    leerzeile_davor = True
+
+            text   = "\n".join(bereinigt_zeilen).strip()
+            text   = text[:50_000]
+            zeichen = len(text)
+
+            print(f"  URL abgerufen: {url} – {zeichen} Zeichen")
+            self._sende_json({"text": text, "titel": titel, "zeichen": zeichen})
+
         else:
             self._sende_json({"fehler": "Route nicht gefunden"}, status=404)
 
@@ -173,6 +234,7 @@ def main():
     print("  GET  /starte-update  → startet update_radar.py")
     print("  GET  /config         → liefert config.json")
     print("  POST /config         → speichert config.json")
+    print("  POST /fetch-url      → ruft URL ab und liefert Volltext")
     print("  Beenden mit Strg+C")
     try:
         server.serve_forever()
