@@ -6,6 +6,7 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 BASE_DIR      = os.path.dirname(os.path.abspath(__file__))
 LAST_RUN_PATH = os.path.join(BASE_DIR, "last_run.json")
 SKRIPT_PATH   = os.path.join(BASE_DIR, "update_radar.py")
+CONFIG_PATH   = os.path.join(BASE_DIR, "config.json")
 
 # Laufender Update-Prozess (global, damit wir ihn prüfen können)
 _laufender_prozess = None
@@ -19,8 +20,17 @@ class RadarHandler(BaseHTTPRequestHandler):
         self.send_header("Content-Type",  "application/json; charset=utf-8")
         self.send_header("Content-Length", str(len(body)))
         self.send_header("Access-Control-Allow-Origin", "*")
+        self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+        self.send_header("Access-Control-Allow-Headers", "Content-Type")
         self.end_headers()
         self.wfile.write(body)
+
+    def do_OPTIONS(self):
+        self.send_response(204)
+        self.send_header("Access-Control-Allow-Origin", "*")
+        self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+        self.send_header("Access-Control-Allow-Headers", "Content-Type")
+        self.end_headers()
 
     def do_GET(self):
         global _laufender_prozess
@@ -86,8 +96,68 @@ class RadarHandler(BaseHTTPRequestHandler):
                 self._sende_json({"vorschlaege": [], "hinweis": f"Lesefehler: {e}"})
 
         # ------------------------------------------------------------------
+        # GET /config
+        # ------------------------------------------------------------------
+        elif self.path == "/config":
+            try:
+                with open(CONFIG_PATH, encoding="utf-8") as f:
+                    config = json.load(f)
+                self._sende_json(config)
+            except (json.JSONDecodeError, OSError) as e:
+                self._sende_json({"fehler": f"config.json nicht lesbar: {e}"}, status=500)
+
+        # ------------------------------------------------------------------
         # Alle anderen Routen → 404
         # ------------------------------------------------------------------
+        else:
+            self._sende_json({"fehler": "Route nicht gefunden"}, status=404)
+
+    def do_POST(self):
+        # ------------------------------------------------------------------
+        # POST /config
+        # ------------------------------------------------------------------
+        if self.path == "/config":
+            laenge = int(self.headers.get("Content-Length", 0))
+            try:
+                body = self.rfile.read(laenge)
+                daten = json.loads(body.decode("utf-8"))
+            except (json.JSONDecodeError, UnicodeDecodeError) as e:
+                self._sende_json({"fehler": f"Ungültiges JSON: {e}"}, status=400)
+                return
+
+            try:
+                with open(CONFIG_PATH, encoding="utf-8") as f:
+                    config = json.load(f)
+            except (json.JSONDecodeError, OSError):
+                config = {}
+
+            if "keywords" in daten:
+                config["keywords"] = daten["keywords"]
+            if "feeds" in daten:
+                config["rss_feeds"] = [
+                    {"name": fd.get("name", ""), "url": fd.get("url", ""), "aktiv": fd.get("aktiv", True)}
+                    for fd in daten["feeds"]
+                ]
+            if "quellen" in daten:
+                config["behoerden_seiten"] = [
+                    {"name": q.get("name", ""), "url": q.get("url", ""),
+                     "selektor": q.get("selektor", "body"), "aktiv": q.get("aktiv", True)}
+                    for q in daten["quellen"]
+                ]
+
+            try:
+                with open(CONFIG_PATH, "w", encoding="utf-8") as f:
+                    json.dump(config, f, ensure_ascii=False, indent=2)
+            except OSError as e:
+                self._sende_json({"fehler": f"Schreibfehler: {e}"}, status=500)
+                return
+
+            n_kw  = len(daten.get("keywords", []))
+            n_fd  = len(daten.get("feeds",    []))
+            n_qu  = len(daten.get("quellen",  []))
+            print(f"  Konfiguration aktualisiert: {n_kw} Keywords, {n_fd} Feeds, {n_qu} Quellen")
+            self._sende_json({"status": "gespeichert"})
+
         else:
             self._sende_json({"fehler": "Route nicht gefunden"}, status=404)
 
@@ -99,8 +169,10 @@ class RadarHandler(BaseHTTPRequestHandler):
 def main():
     server = HTTPServer(("localhost", 5050), RadarHandler)
     print("Radar-Server läuft auf http://localhost:5050")
-    print("  GET /status          → aktueller Status")
-    print("  GET /starte-update   → startet update_radar.py")
+    print("  GET  /status         → aktueller Status")
+    print("  GET  /starte-update  → startet update_radar.py")
+    print("  GET  /config         → liefert config.json")
+    print("  POST /config         → speichert config.json")
     print("  Beenden mit Strg+C")
     try:
         server.serve_forever()

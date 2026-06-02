@@ -1296,6 +1296,16 @@
       margin-top: 1px;
     }
 
+    #st-server-status {
+      font-size: 11px;
+      font-weight: 600;
+      color: rgba(255,255,255,0.7);
+      white-space: nowrap;
+      margin-left: auto;
+    }
+    #st-server-status.verbunden  { color: #7dcea0; }
+    #st-server-status.offline    { color: #f0a500; }
+
     /* ── Navigation ───────────────────────────────────── */
     #site-nav {
       background: var(--swm-blau-dunkel);
@@ -2263,6 +2273,7 @@ body {
       <div id="st-titel">Einstellungen &amp; Konfiguration</div>
       <div id="st-untertitel">Energie / Asset Management</div>
     </div>
+    <div id="st-server-status">&#9679; Verbindung wird geprüft&hellip;</div>
   </div>
 
   <!-- ── Navigation ─────────────────────────────────── -->
@@ -4654,11 +4665,41 @@ window.LP={toggleVollbild,beendeVollbild};
       inp.value = "";
     }
 
+    /* ── Aus Server- oder localStorage-Daten rendern ─── */
+    function rendereAlles(cfg) {
+      if (cfg.keywords) rendereKeywords(cfg.keywords);
+      if (cfg.rss_feeds) {
+        rendereFeeds(cfg.rss_feeds.map(function(f) {
+          return { name: f.name || "", url: f.url || "", aktiv: f.aktiv !== false };
+        }));
+      }
+      if (cfg.behoerden_seiten) {
+        rendereQuellen(cfg.behoerden_seiten.map(function(q) {
+          return { name: q.name || "", url: q.url || "", selektor: q.selektor || "", aktiv: q.aktiv !== false };
+        }));
+      }
+    }
+
+    function setzteServerStatus(verbunden) {
+      var el = document.getElementById("st-server-status");
+      if (!el) return;
+      if (verbunden) {
+        el.textContent = "● Server verbunden";
+        el.className = "verbunden";
+      } else {
+        el.textContent = "● Offline-Modus (server.py starten)";
+        el.className = "offline";
+      }
+    }
+
     /* ── Initialisierung ─── */
     document.addEventListener("DOMContentLoaded", function() {
-      /* Keywords */
+      /* Erst aus localStorage laden (sofortiges Rendering) */
       rendereKeywords(ladeKeywords());
+      rendereFeeds(ladeFeeds());
+      rendereQuellen(ladeQuellen());
 
+      /* Event-Listener Keywords */
       var btn = document.getElementById("kw-hinzufuegen");
       if (btn) btn.addEventListener("click", fuegeKeywordHinzu);
 
@@ -4675,9 +4716,7 @@ window.LP={toggleVollbild,beendeVollbild};
         rendereKeywords(STANDARD_KEYWORDS.slice());
       });
 
-      /* Feeds */
-      rendereFeeds(ladeFeeds());
-
+      /* Event-Listener Feeds */
       var btnFeed = document.getElementById("feed-hinzufuegen");
       if (btnFeed) btnFeed.addEventListener("click", function() {
         var container = document.getElementById("feed-liste");
@@ -4686,14 +4725,29 @@ window.LP={toggleVollbild,beendeVollbild};
 
       rendereAlertChips();
 
-      /* Quellen */
-      rendereQuellen(ladeQuellen());
-
+      /* Event-Listener Quellen */
       var btnQuelle = document.getElementById("quelle-hinzufuegen");
       if (btnQuelle) btnQuelle.addEventListener("click", function() {
         var container = document.getElementById("quelle-liste");
         if (container) container.appendChild(erstelleQuelleZeile({ name:"", url:"", selektor:"", aktiv:true }));
       });
+
+      /* Server abfragen – Server ist führend */
+      fetch("http://localhost:5050/config")
+        .then(function(res) {
+          if (!res.ok) throw new Error("HTTP " + res.status);
+          return res.json();
+        })
+        .then(function(cfg) {
+          localStorage.setItem(LS_KEY,        JSON.stringify(cfg.keywords        || []));
+          localStorage.setItem(LS_KEY_FEEDS,  JSON.stringify(cfg.rss_feeds       || []));
+          localStorage.setItem(LS_KEY_QUELLEN,JSON.stringify(cfg.behoerden_seiten|| []));
+          rendereAlles(cfg);
+          setzteServerStatus(true);
+        })
+        .catch(function() {
+          setzteServerStatus(false);
+        });
     });
 
     /* ── Feeds laden/speichern ─── */
@@ -4873,19 +4927,50 @@ window.LP={toggleVollbild,beendeVollbild};
       });
     }
 
-    /* ── Einstellungen speichern / zurücksetzen ─── */
-    function speichereEinstellungen() {
-      speichereKeywords(aktuelleKeywords());
-      speichereFeeds(aktuelleFeeds());
-      speichereQuellen(aktuelleQuellen());
+    /* ── Banner anzeigen ─── */
+    function zeigeBanner(text, farbe) {
       var banner = document.getElementById("save-banner");
-      banner.textContent = "✓ Einstellungen gespeichert";
+      banner.textContent = text;
+      banner.style.background = farbe || "var(--farbe-beobachten)";
       banner.style.display = "inline-block";
       banner.style.opacity = "1";
       setTimeout(function() {
         banner.style.opacity = "0";
-        setTimeout(function() { banner.style.display = "none"; banner.style.opacity = "1"; }, 350);
-      }, 2500);
+        setTimeout(function() {
+          banner.style.display = "none";
+          banner.style.opacity = "1";
+          banner.style.background = "var(--farbe-beobachten)";
+        }, 350);
+      }, 4000);
+    }
+
+    /* ── Einstellungen speichern / zurücksetzen ─── */
+    function speichereEinstellungen() {
+      var keywords = aktuelleKeywords();
+      var feeds    = aktuelleFeeds();
+      var quellen  = aktuelleQuellen();
+
+      speichereKeywords(keywords);
+      speichereFeeds(feeds);
+      speichereQuellen(quellen);
+      localStorage.setItem("config-gespeichert",
+        new Date().toLocaleString("de-DE"));
+
+      fetch("http://localhost:5050/config", {
+        method:  "POST",
+        headers: { "Content-Type": "application/json" },
+        body:    JSON.stringify({ keywords: keywords, feeds: feeds, quellen: quellen })
+      })
+      .then(function(res) {
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        zeigeBanner("Einstellungen gespeichert und an Update-Skript übertragen ✓");
+      })
+      .catch(function() {
+        zeigeBanner(
+          "Lokal gespeichert – Server nicht aktiv. Einstellungen werden beim nächsten Server-Start übernommen.",
+          "var(--farbe-relevant)"
+        );
+      });
     }
 
     function resetteEinstellungen() {
