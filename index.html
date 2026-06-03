@@ -2334,8 +2334,9 @@ body {
   border: 1px solid transparent;
 }
 .gh-sync-bereit { background: rgba(255,255,255,0.15); color: rgba(255,255,255,0.7); border-color: rgba(255,255,255,0.2); }
-.gh-sync-aktiv  { background: rgba(255,255,255,0.2);  color: #fff; animation: gh-spin 1.2s linear infinite; }
+.gh-sync-aktiv  { background: rgba(255,255,255,0.2);  color: #fff; }
 .gh-sync-ok     { background: rgba(100,220,120,0.25); color: #cfffcf; border-color: rgba(100,220,120,0.4); }
+.gh-sync-lesend { background: rgba(180,210,255,0.2);  color: rgba(200,225,255,0.9); border-color: rgba(180,210,255,0.3); }
 .gh-sync-fehler { background: rgba(255,100,100,0.25); color: #ffcfcf; border-color: rgba(255,100,100,0.4); }
 @keyframes gh-spin { to { transform: rotate(360deg); } }
 #btn-gh-einstellungen {
@@ -2988,9 +2989,13 @@ body {
         <button class="gh-modal-close" onclick="GH.schliesseEinstellungen()">✕</button>
       </div>
       <div class="gh-modal-body">
+        <div style="background:#e8f4f7;border-radius:6px;padding:10px 12px;font-size:12px;color:#2d7a8e;line-height:1.5">
+          <strong>Lesen</strong> funktioniert ohne Token – alle Geräte laden automatisch den aktuellen Stand.<br>
+          <strong>Schreiben</strong> (Meilensteine anlegen/ändern) erfordert einen Personal Access Token.
+        </div>
         <div class="gh-feld">
-          <label>Personal Access Token (PAT)</label>
-          <input type="password" id="gh-pat-input" placeholder="github_pat_…" autocomplete="off" />
+          <label>Personal Access Token (PAT) – nur für Schreibzugriff</label>
+          <input type="password" id="gh-pat-input" placeholder="github_pat_… (leer lassen für Nur-Lesen)" autocomplete="off" />
         </div>
         <div class="gh-feld">
           <label>Repository (owner/repo)</label>
@@ -2999,10 +3004,6 @@ body {
         <div class="gh-feld">
           <label>Branch</label>
           <input type="text" id="gh-branch-input" value="main" />
-        </div>
-        <div class="gh-toggle-row">
-          <input type="checkbox" id="gh-aktiv-toggle" />
-          <label for="gh-aktiv-toggle">GitHub Sync aktivieren (Daten automatisch synchronisieren)</label>
         </div>
         <div id="gh-test-ergebnis"></div>
       </div>
@@ -7149,7 +7150,7 @@ window.MS={exportiereJSON,zeigeDetail,renderMini,oeffneMsFormular,schliesseMsFor
   var _syncTimer = null;
   var _syncPending = false;
   var SETTINGS_KEY = "github_sync_settings";
-  var DEFAULT = { pat: "", repo: "martinseibring/lageplan", branch: "main", pfad: "data/meilensteine.json", aktiv: false };
+  var DEFAULT = { pat: "", repo: "martinseibring/lageplan", branch: "main", pfad: "data/meilensteine.json" };
 
   function ladeEinstellungen() {
     try {
@@ -7206,22 +7207,33 @@ window.MS={exportiereJSON,zeigeDetail,renderMini,oeffneMsFormular,schliesseMsFor
 
   async function speichereDatei(inhalt) {
     var s = ladeEinstellungen();
+    // SHA unbekannt (z.B. nach öffentlichem Lesen) → erst holen
+    if (!_sha) {
+      var meta = await githubRequest("GET", s.pfad + "?ref=" + s.branch);
+      _sha = meta.sha;
+    }
     var encoded = btoa(unescape(encodeURIComponent(JSON.stringify(inhalt, null, 2))));
-    var body = { message: "Meilensteine aktualisiert", content: encoded, branch: s.branch };
-    if (_sha) body.sha = _sha;
+    var body = { message: "Meilensteine aktualisiert", content: encoded, branch: s.branch, sha: _sha };
     var result = await githubRequest("PUT", s.pfad, body);
     _sha = result.content.sha;
     return result;
   }
 
+  // Lesen immer öffentlich – kein PAT nötig
   async function ladeMeilensteine() {
     var s = ladeEinstellungen();
-    if (!s.aktiv || !s.pat) return;
     setzeSyncStatus("aktiv", "Lade Daten von GitHub…");
     try {
-      var daten = await ladeDatei();
+      var url = "https://raw.githubusercontent.com/" + s.repo + "/" + s.branch + "/" + s.pfad + "?t=" + Date.now();
+      var resp = await fetch(url);
+      if (!resp.ok) throw new Error("HTTP " + resp.status);
+      var daten = await resp.json();
       if (window.MS && MS.ladeVonGithub) MS.ladeVonGithub(daten);
-      setzeSyncStatus("ok", "Letzte Synchronisation: " + new Date().toLocaleTimeString("de-DE"));
+      var hatPat = !!s.pat;
+      setzeSyncStatus(
+        hatPat ? "ok" : "lesend",
+        hatPat ? "Geladen – Änderungen werden automatisch gespeichert" : "Nur Lesen – kein PAT konfiguriert (⚙ Sync zum Einrichten)"
+      );
     } catch(e) {
       console.error("GitHub Laden fehlgeschlagen:", e);
       setzeSyncStatus("fehler", "Laden fehlgeschlagen: " + e.message);
@@ -7232,7 +7244,7 @@ window.MS={exportiereJSON,zeigeDetail,renderMini,oeffneMsFormular,schliesseMsFor
     if (!_syncPending) return;
     _syncPending = false;
     var s = ladeEinstellungen();
-    if (!s.aktiv || !s.pat) return;
+    if (!s.pat) return; // kein PAT → kein Schreibzugriff
     setzeSyncStatus("aktiv", "Synchronisiere…");
     try {
       var daten = window.MS ? MS.getDaten() : [];
@@ -7241,7 +7253,7 @@ window.MS={exportiereJSON,zeigeDetail,renderMini,oeffneMsFormular,schliesseMsFor
     } catch(e) {
       if (e.status === 409) {
         try {
-          await ladeDatei();
+          _sha = null; // SHA-Cache verwerfen
           var daten2 = window.MS ? MS.getDaten() : [];
           await speichereDatei(daten2);
           setzeSyncStatus("ok", "Zuletzt gespeichert: " + new Date().toLocaleTimeString("de-DE"));
@@ -7256,7 +7268,7 @@ window.MS={exportiereJSON,zeigeDetail,renderMini,oeffneMsFormular,schliesseMsFor
 
   function debouncedSync() {
     var s = ladeEinstellungen();
-    if (!s.aktiv || !s.pat) return;
+    if (!s.pat) return; // ohne PAT kein Schreiben
     _syncPending = true;
     clearTimeout(_syncTimer);
     _syncTimer = setTimeout(ausfuehrenSync, 2000);
@@ -7267,7 +7279,6 @@ window.MS={exportiereJSON,zeigeDetail,renderMini,oeffneMsFormular,schliesseMsFor
     document.getElementById("gh-pat-input").value = s.pat || "";
     document.getElementById("gh-repo-input").value = s.repo || DEFAULT.repo;
     document.getElementById("gh-branch-input").value = s.branch || DEFAULT.branch;
-    document.getElementById("gh-aktiv-toggle").checked = !!s.aktiv;
     document.getElementById("gh-test-ergebnis").textContent = "";
     document.getElementById("gh-einstellungen-modal").classList.add("offen");
   }
@@ -7281,14 +7292,12 @@ window.MS={exportiereJSON,zeigeDetail,renderMini,oeffneMsFormular,schliesseMsFor
       pat:    document.getElementById("gh-pat-input").value.trim(),
       repo:   document.getElementById("gh-repo-input").value.trim() || DEFAULT.repo,
       branch: document.getElementById("gh-branch-input").value.trim() || DEFAULT.branch,
-      pfad:   DEFAULT.pfad,
-      aktiv:  document.getElementById("gh-aktiv-toggle").checked
+      pfad:   DEFAULT.pfad
     };
     speichereEinstellungen(s);
-    setzeSyncStatus(s.aktiv && s.pat ? "bereit" : "bereit",
-                    s.aktiv && s.pat ? "GitHub Sync aktiv – klicken zum Konfigurieren" : "GitHub Sync nicht aktiv");
+    _sha = null; // SHA-Cache verwerfen bei neuen Einstellungen
     schliesseEinstellungen();
-    if (s.aktiv && s.pat) ladeMeilensteine();
+    ladeMeilensteine(); // immer neu laden nach Einstellungsänderung
   }
 
   async function testeVerbindung() {
@@ -7316,13 +7325,8 @@ window.MS={exportiereJSON,zeigeDetail,renderMini,oeffneMsFormular,schliesseMsFor
     }
   }
 
-  // Initiale Statusanzeige
-  (function() {
-    var s = ladeEinstellungen();
-    if (s.aktiv && s.pat) {
-      setzeSyncStatus("bereit", "GitHub Sync aktiv – klicken zum Konfigurieren");
-    }
-  })();
+  // Initiale Statusanzeige – immer "lesend" bis Laden abgeschlossen
+  setzeSyncStatus("lesend", "Lade Daten von GitHub…");
 
   window.GH = { ladeMeilensteine, debouncedSync, oeffneEinstellungen, schliesseEinstellungen, speichereEinstellungenUndSchliesse, testeVerbindung, ladeEinstellungen };
 })();
