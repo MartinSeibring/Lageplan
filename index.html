@@ -6919,6 +6919,8 @@ window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisieru
 
     function ladeVonGithub(daten) {
       if (!Array.isArray(daten)) return;
+      // Leere GitHub-Datei niemals lokale Daten überschreiben lassen
+      if (daten.length === 0 && meilensteinData.length > 0) return;
       meilensteinData.length = 0;
       daten.forEach(function(m) { meilensteinData.push(m); });
       try { localStorage.setItem("meilensteine", JSON.stringify(meilensteinData)); } catch(e) {}
@@ -7228,6 +7230,15 @@ window.MS={exportiereJSON,zeigeDetail,renderMini,oeffneMsFormular,schliesseMsFor
       var resp = await fetch(url);
       if (!resp.ok) throw new Error("HTTP " + resp.status);
       var daten = await resp.json();
+      var lokalDaten = (window.MS && MS.getDaten) ? MS.getDaten() : [];
+      // Sicherheitsnetz: leere GitHub-Datei niemals lokale Daten löschen
+      if (daten.length === 0 && lokalDaten.length > 0) {
+        // Lokale Daten sind autoritativ → sofort zu GitHub hochladen wenn PAT vorhanden
+        if (s.pat) { _syncPending = true; ausfuehrenSync(); }
+        setzeSyncStatus(s.pat ? "ok" : "lesend",
+          s.pat ? "Lokale Daten werden zu GitHub hochgeladen…" : "Nur Lesen – kein PAT konfiguriert");
+        return;
+      }
       if (window.MS && MS.ladeVonGithub) MS.ladeVonGithub(daten);
       var hatPat = !!s.pat;
       setzeSyncStatus(
