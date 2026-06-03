@@ -1,1 +1,281 @@
-[]
+[
+  {
+    "id": "M001",
+    "titel": "§14a EnWG Prozesse umgestellt",
+    "thema_id": 3,
+    "thema_titel": "§14a EnWG Flexibilität",
+    "kategorie": "regulatorisch",
+    "start": "2025-01-01",
+    "ende": "2025-09-30",
+    "verantwortlicher": "Maier",
+    "status": "abgeschlossen",
+    "fortschritt": 100,
+    "abhaengig_von": [
+      "M002"
+    ],
+    "pflicht_deadline": "2025-04-01",
+    "deadline_quelle": "§14a EnWG",
+    "deadline_typ": "regulatorisch",
+    "strategische_cluster": [
+      "Netzanschluss",
+      "Technologie"
+    ],
+    "radar_score": 0.84,
+    "notiz": "Rollout in allen Netzgebieten abgeschlossen, Dokumentation liegt vor."
+  },
+  {
+    "id": "M002",
+    "titel": "IT-Schnittstelle Flexibilitätsmanagement live",
+    "thema_id": 3,
+    "thema_titel": "§14a EnWG Flexibilität",
+    "kategorie": "technologisch",
+    "start": "2024-10-01",
+    "ende": "2025-06-30",
+    "verantwortlicher": "Schneider",
+    "status": "abgeschlossen",
+    "fortschritt": 100,
+    "abhaengig_von": [],
+    "pflicht_deadline": null,
+    "deadline_quelle": "",
+    "deadline_typ": "intern",
+    "strategische_cluster": [
+      "Technologie"
+    ],
+    "radar_score": 0.76,
+    "notiz": "API-Anbindung an Aggregatoren erfolgreich getestet."
+  },
+  {
+    "id": "M003",
+    "titel": "Smart Meter Rollout Pflichtquote erreicht",
+    "thema_id": 8,
+    "thema_titel": "Smart Meter Gateway Rollout",
+    "kategorie": "regulatorisch",
+    "start": "2025-03-01",
+    "ende": "2025-12-31",
+    "verantwortlicher": "Bauer",
+    "status": "verzögert",
+    "fortschritt": 82,
+    "abhaengig_von": [
+      "M004"
+    ],
+    "pflicht_deadline": "2025-12-31",
+    "deadline_quelle": "§45 MsbG Rolloutpflicht",
+    "deadline_typ": "regulatorisch",
+    "strategische_cluster": [
+      "Messstellenbetrieb"
+    ],
+    "radar_score": 0.76,
+    "notiz": "Lieferengpässe bei SMGW-Hardware verzögern Erreichung der Pflichtquote."
+  },
+  {
+    "id": "M004",
+    "titel": "SMGW Backend-Integration abgeschlossen",
+    "thema_id": 8,
+    "thema_titel": "Smart Meter Gateway Rollout",
+    "kategorie": "technologisch",
+    "start": "2024-11-01",
+    "ende": "2025-09-30",
+    "verantwortlicher": "Schneider",
+    "status": "abgeschlossen",
+    "fortschritt": 100,
+    "abhaengig_von": [],
+    "pflicht_deadline": null,
+    "deadline_quelle": "",
+    "deadline_typ": "intern",
+    "strategische_cluster": [
+      "Messstellenbetrieb",
+      "Technologie"
+    ],
+    "radar_score": 0.76,
+    "notiz": "WAN-Anbindung und Zertifikatsmanagement vollständig implementiert."
+  },
+  {
+    "id": "M005",
+    "titel": "Netzentgelt-Kalkulation neue Systematik",
+    "thema_id": 2,
+    "thema_titel": "Netzentgeltreform BNetzA",
+    "kategorie": "regulatorisch",
+    "start": "2025-10-01",
+    "ende": "2026-03-31",
+    "verantwortlicher": "Fischer",
+    "status": "abgeschlossen",
+    "fortschritt": 100,
+    "abhaengig_von": [],
+    "pflicht_deadline": "2026-01-01",
+    "deadline_quelle": "ARegV §21 Anpassungspflicht",
+    "deadline_typ": "regulatorisch",
+    "strategische_cluster": [
+      "Netzwirtschaft"
+    ],
+    "radar_score": 0.88,
+    "notiz": "Neue Kalkulationsmethodik BNetzA fristgerecht implementiert und geprüft."
+  },
+  {
+    "id": "M006",
+    "titel": "Digitaler Zwilling Pilotbereich",
+    "thema_id": 9,
+    "thema_titel": "Digitaler Zwilling Netz",
+    "kategorie": "technologisch",
+    "start": "2026-01-01",
+    "ende": "2026-06-30",
+    "verantwortlicher": "Wagner",
+    "status": "in Bearbeitung",
+    "fortschritt": 50,
+    "abhaengig_von": [
+      "M004"
+    ],
+    "pflicht_deadline": null,
+    "deadline_quelle": "",
+    "deadline_typ": "intern",
+    "strategische_cluster": [
+      "Technologie",
+      "Organisation"
+    ],
+    "radar_score": 0.6,
+    "notiz": "Pilotgebiet Nord im Aufbau, GIS-Datenabgleich läuft."
+  },
+  {
+    "id": "M007",
+    "titel": "Wärmepumpen Netzanschluss Prozess optimiert",
+    "thema_id": 6,
+    "thema_titel": "Wärmepumpen-Hochlauf",
+    "kategorie": "marktlich",
+    "start": "2025-01-01",
+    "ende": "2025-06-30",
+    "verantwortlicher": "Müller",
+    "status": "abgeschlossen",
+    "fortschritt": 100,
+    "abhaengig_von": [],
+    "pflicht_deadline": "2025-06-30",
+    "deadline_quelle": "BMWK Wärmepumpen-Initiative",
+    "deadline_typ": "marktlich",
+    "strategische_cluster": [
+      "Netzanschluss"
+    ],
+    "radar_score": 0.8,
+    "notiz": "Standardprozess für WP-Netzanschluss inklusive §14a-Steuerung eingeführt."
+  },
+  {
+    "id": "M008",
+    "titel": "MSB-Wettbewerber Monitoring eingeführt",
+    "thema_id": 11,
+    "thema_titel": "Neue Messstellenbetreiber",
+    "kategorie": "wettbewerblich",
+    "start": "2025-04-01",
+    "ende": "2025-09-30",
+    "verantwortlicher": "Weber",
+    "status": "verzögert",
+    "fortschritt": 65,
+    "abhaengig_von": [],
+    "pflicht_deadline": null,
+    "deadline_quelle": "",
+    "deadline_typ": "intern",
+    "strategische_cluster": [
+      "Messstellenbetrieb",
+      "Organisation"
+    ],
+    "radar_score": 0.68,
+    "notiz": "Datenerfassung läuft, Dashboard-Fertigstellung steht noch aus."
+  },
+  {
+    "id": "M009",
+    "titel": "MsbG Vollrollout iMSys 80%",
+    "thema_id": 8,
+    "thema_titel": "Smart Meter Gateway Rollout",
+    "kategorie": "regulatorisch",
+    "zeithorizont": "langfristig",
+    "start": "2026-01-01",
+    "ende": "2028-12-31",
+    "verantwortlicher": "Bauer",
+    "status": "offen",
+    "fortschritt": 0,
+    "abhaengig_von": [
+      "M003",
+      "M004"
+    ],
+    "pflicht_deadline": "2028-12-31",
+    "deadline_quelle": "§45 MsbG Abs. 3 Vollrollout",
+    "deadline_typ": "regulatorisch",
+    "auswirkung": 5,
+    "unsicherheit": 2,
+    "strategische_cluster": [
+      "Messstellenbetrieb"
+    ],
+    "radar_score": 0.8,
+    "notiz": "Vollständiger Rollout intelligenter Messsysteme gemäß gesetzlicher Rolloutpflicht."
+  },
+  {
+    "id": "M010",
+    "titel": "Netzdigitalisierungsstrategie 2030",
+    "thema_id": 9,
+    "thema_titel": "Digitaler Zwilling Netz",
+    "kategorie": "technologisch",
+    "start": "2025-07-01",
+    "ende": "2030-06-30",
+    "verantwortlicher": "Wagner",
+    "status": "offen",
+    "fortschritt": 0,
+    "abhaengig_von": [
+      "M006"
+    ],
+    "pflicht_deadline": "2030-01-01",
+    "deadline_quelle": "Konzernstrategie 2030",
+    "deadline_typ": "konzern",
+    "auswirkung": 4,
+    "unsicherheit": 3,
+    "strategische_cluster": [
+      "Technologie",
+      "Organisation"
+    ],
+    "radar_score": 0.65,
+    "notiz": "Umsetzung der konzernweiten Digitalisierungsstrategie für den Netzbetrieb bis 2030."
+  },
+  {
+    "id": "M011",
+    "titel": "§14c EnWG Netzplanung digital",
+    "thema_id": 2,
+    "thema_titel": "Netzentgeltreform BNetzA",
+    "kategorie": "regulatorisch",
+    "start": "2026-01-01",
+    "ende": "2027-06-30",
+    "verantwortlicher": "Fischer",
+    "status": "offen",
+    "fortschritt": 0,
+    "abhaengig_von": [],
+    "pflicht_deadline": "2027-01-01",
+    "deadline_quelle": "§14c EnWG (geplant)",
+    "deadline_typ": "regulatorisch",
+    "auswirkung": 4,
+    "unsicherheit": 4,
+    "strategische_cluster": [
+      "Netzwirtschaft",
+      "Technologie"
+    ],
+    "radar_score": 0.7,
+    "notiz": "Gesetzliche Anforderung zur digitalen Netzplanung gem. geplantem §14c EnWG."
+  },
+  {
+    "id": "M012",
+    "titel": "ISO 55000 Zertifizierung Asset Mgmt",
+    "thema_id": 9,
+    "thema_titel": "Digitaler Zwilling Netz",
+    "kategorie": "technologisch",
+    "start": "2025-10-01",
+    "ende": "2027-03-31",
+    "verantwortlicher": "Wagner",
+    "status": "offen",
+    "fortschritt": 0,
+    "abhaengig_von": [],
+    "pflicht_deadline": null,
+    "deadline_quelle": "Interne Qualitätsvorgabe",
+    "deadline_typ": "intern",
+    "auswirkung": 3,
+    "unsicherheit": 2,
+    "strategische_cluster": [
+      "Organisation",
+      "Technologie"
+    ],
+    "radar_score": 0.5,
+    "notiz": "Zertifizierung des Asset-Management-Systems nach ISO 55000 / 55001."
+  }
+]
