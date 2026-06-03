@@ -7224,26 +7224,37 @@ window.MS={exportiereJSON,zeigeDetail,renderMini,oeffneMsFormular,schliesseMsFor
   // Lesen immer öffentlich – kein PAT nötig
   async function ladeMeilensteine() {
     var s = ladeEinstellungen();
+    var lokalDaten = (window.MS && MS.getDaten) ? MS.getDaten() : [];
+
+    // PAT-Gerät mit lokalen Daten → lokale Daten sind autoritativ, zu GitHub hochladen
+    // (verhindert, dass der alte GitHub-Stand die neuen lokalen Einträge überschreibt)
+    if (s.pat && lokalDaten.length > 0) {
+      setzeSyncStatus("ok", "Lokale Daten vorhanden – werden zu GitHub synchronisiert");
+      _syncPending = true;
+      ausfuehrenSync();
+      return;
+    }
+
+    // Kein PAT ODER localStorage leer → von GitHub laden (read-only Gerät oder Erststart)
     setzeSyncStatus("aktiv", "Lade Daten von GitHub…");
     try {
       var url = "https://raw.githubusercontent.com/" + s.repo + "/" + s.branch + "/" + s.pfad + "?t=" + Date.now();
       var resp = await fetch(url);
       if (!resp.ok) throw new Error("HTTP " + resp.status);
       var daten = await resp.json();
-      var lokalDaten = (window.MS && MS.getDaten) ? MS.getDaten() : [];
+
       // Sicherheitsnetz: leere GitHub-Datei niemals lokale Daten löschen
       if (daten.length === 0 && lokalDaten.length > 0) {
-        // Lokale Daten sind autoritativ → sofort zu GitHub hochladen wenn PAT vorhanden
         if (s.pat) { _syncPending = true; ausfuehrenSync(); }
         setzeSyncStatus(s.pat ? "ok" : "lesend",
           s.pat ? "Lokale Daten werden zu GitHub hochgeladen…" : "Nur Lesen – kein PAT konfiguriert");
         return;
       }
+
       if (window.MS && MS.ladeVonGithub) MS.ladeVonGithub(daten);
-      var hatPat = !!s.pat;
       setzeSyncStatus(
-        hatPat ? "ok" : "lesend",
-        hatPat ? "Geladen – Änderungen werden automatisch gespeichert" : "Nur Lesen – kein PAT konfiguriert (⚙ Sync zum Einrichten)"
+        s.pat ? "ok" : "lesend",
+        s.pat ? "Geladen – Änderungen werden automatisch gespeichert" : "Nur Lesen – kein PAT konfiguriert (⚙ Sync zum Einrichten)"
       );
     } catch(e) {
       console.error("GitHub Laden fehlgeschlagen:", e);
