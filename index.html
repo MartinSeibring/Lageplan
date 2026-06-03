@@ -2325,6 +2325,61 @@ body {
 #panel-themenradar #header,
 #panel-meilensteine #ms-header { border-radius: 0; }
 
+
+/* ── GitHub Sync ── */
+.gh-sync-pill {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: 600;
+  cursor: default; user-select: none; transition: background 0.2s, color 0.2s;
+  border: 1px solid transparent;
+}
+.gh-sync-bereit { background: rgba(255,255,255,0.15); color: rgba(255,255,255,0.7); border-color: rgba(255,255,255,0.2); }
+.gh-sync-aktiv  { background: rgba(255,255,255,0.2);  color: #fff; animation: gh-spin 1.2s linear infinite; }
+.gh-sync-ok     { background: rgba(100,220,120,0.25); color: #cfffcf; border-color: rgba(100,220,120,0.4); }
+.gh-sync-fehler { background: rgba(255,100,100,0.25); color: #ffcfcf; border-color: rgba(255,100,100,0.4); }
+@keyframes gh-spin { to { transform: rotate(360deg); } }
+#btn-gh-einstellungen {
+  background: transparent; border: 1px solid rgba(255,255,255,0.35); color: rgba(255,255,255,0.8);
+  padding: 3px 10px; border-radius: 6px; font-size: 11px; cursor: pointer;
+}
+#btn-gh-einstellungen:hover { background: rgba(255,255,255,0.15); color: #fff; }
+
+/* GitHub Settings Modal */
+#gh-einstellungen-modal {
+  display: none; position: fixed; inset: 0; z-index: 3000;
+  background: rgba(0,0,0,0.55); align-items: center; justify-content: center;
+}
+#gh-einstellungen-modal.offen { display: flex; }
+.gh-modal-box {
+  background: #fff; border-radius: 10px; width: 480px; max-width: 96vw;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.28); overflow: hidden;
+}
+.gh-modal-header {
+  background: var(--swm-blau-dunkel); color: #fff; padding: 14px 20px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.gh-modal-header h3 { margin: 0; font-size: 15px; font-weight: 700; }
+.gh-modal-close { background: none; border: none; color: rgba(255,255,255,0.7); font-size: 20px; cursor: pointer; padding: 0 4px; }
+.gh-modal-close:hover { color: #fff; }
+.gh-modal-body { padding: 20px; display: flex; flex-direction: column; gap: 14px; }
+.gh-feld label { display: block; font-size: 12px; font-weight: 600; color: #444; margin-bottom: 4px; }
+.gh-feld input[type=text], .gh-feld input[type=password] {
+  width: 100%; padding: 8px 10px; border: 1px solid #ccc; border-radius: 6px;
+  font-size: 13px; box-sizing: border-box;
+}
+.gh-feld input:focus { outline: none; border-color: var(--swm-blau); box-shadow: 0 0 0 2px rgba(99,162,180,0.25); }
+.gh-toggle-row { display: flex; align-items: center; gap: 10px; font-size: 13px; color: #333; }
+.gh-toggle-row input[type=checkbox] { width: 16px; height: 16px; cursor: pointer; accent-color: var(--swm-blau-dunkel); }
+#gh-test-ergebnis { font-size: 12px; min-height: 16px; }
+.gh-modal-footer {
+  padding: 14px 20px; border-top: 1px solid #eee;
+  display: flex; align-items: center; justify-content: flex-end; gap: 10px;
+}
+#btn-gh-testen { background: #f0f0f0; border: 1px solid #ccc; border-radius: 6px; padding: 7px 14px; font-size: 13px; cursor: pointer; }
+#btn-gh-testen:hover { background: #e4e4e4; }
+#btn-gh-speichern { background: var(--swm-blau-dunkel); color: #fff; border: none; border-radius: 6px; padding: 7px 16px; font-size: 13px; cursor: pointer; font-weight: 600; }
+#btn-gh-speichern:hover { background: var(--swm-blau); }
+
   </style>
 </head>
 <body>
@@ -2906,6 +2961,8 @@ body {
   <div id="ms-header">
     <strong>Meilenstein-Zielrahmen</strong>
     <span id="ms-stand-datum"></span>
+    <span id="gh-sync-pill" class="gh-sync-pill gh-sync-bereit" title="GitHub Sync nicht konfiguriert" onclick="GH.oeffneEinstellungen()">☁ GitHub</span>
+    <button id="btn-gh-einstellungen" onclick="GH.oeffneEinstellungen()">⚙ Sync</button>
     <button id="btn-ms-export" onclick="MS.exportiereJSON()">↓ Meilensteine exportieren (JSON)</button>
     <button id="btn-ms-neu" onclick="MS.oeffneMsFormular()">+ Meilenstein anlegen</button>
   </div>
@@ -2922,6 +2979,39 @@ body {
   </div>
 
   <div id="ms-detail-panel"></div>
+
+  <!-- ── GitHub Sync Einstellungen ──────────────────────────── -->
+  <div id="gh-einstellungen-modal" onclick="if(event.target===this)GH.schliesseEinstellungen()">
+    <div class="gh-modal-box">
+      <div class="gh-modal-header">
+        <h3>☁ GitHub Sync Einstellungen</h3>
+        <button class="gh-modal-close" onclick="GH.schliesseEinstellungen()">✕</button>
+      </div>
+      <div class="gh-modal-body">
+        <div class="gh-feld">
+          <label>Personal Access Token (PAT)</label>
+          <input type="password" id="gh-pat-input" placeholder="github_pat_…" autocomplete="off" />
+        </div>
+        <div class="gh-feld">
+          <label>Repository (owner/repo)</label>
+          <input type="text" id="gh-repo-input" value="martinseibring/lageplan" />
+        </div>
+        <div class="gh-feld">
+          <label>Branch</label>
+          <input type="text" id="gh-branch-input" value="main" />
+        </div>
+        <div class="gh-toggle-row">
+          <input type="checkbox" id="gh-aktiv-toggle" />
+          <label for="gh-aktiv-toggle">GitHub Sync aktivieren (Daten automatisch synchronisieren)</label>
+        </div>
+        <div id="gh-test-ergebnis"></div>
+      </div>
+      <div class="gh-modal-footer">
+        <button id="btn-gh-testen" onclick="GH.testeVerbindung()">Verbindung testen</button>
+        <button id="btn-gh-speichern" onclick="GH.speichereEinstellungenUndSchliesse()">Speichern</button>
+      </div>
+    </div>
+  </div>
 
   <!-- ── Meilenstein-Formular (Anlegen / Bearbeiten) ──────── -->
   <div id="ms-neu-formular" onclick="MS.schliesseMsFormular()">
@@ -6823,6 +6913,16 @@ window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisieru
     function speichereMeilensteineLocal() {
       try { localStorage.setItem("meilensteine", JSON.stringify(meilensteinData)); } catch (e) {}
       localStorage.setItem("last_update", new Date().toLocaleString("de-DE"));
+      if (window.GH && GH.debouncedSync) { try { GH.debouncedSync(); } catch(e) {} }
+    }
+
+    function ladeVonGithub(daten) {
+      if (!Array.isArray(daten)) return;
+      meilensteinData.length = 0;
+      daten.forEach(function(m) { meilensteinData.push(m); });
+      try { localStorage.setItem("meilensteine", JSON.stringify(meilensteinData)); } catch(e) {}
+      localStorage.setItem("last_update", new Date().toLocaleString("de-DE"));
+      refreshGanttUndMini();
     }
 
     function zeigeMsBanner(text) {
@@ -7039,7 +7139,192 @@ window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisieru
       schliesseLoeschen();
     }
 
-window.MS={exportiereJSON,zeigeDetail,renderMini,oeffneMsFormular,schliesseMsFormular,speichereMs,toggleDeadlineFelder,themaGewaehlt,fragenLoeschen,schliesseLoeschen,bestaetigeLoeschen,getDaten:function(){ return meilensteinData; },redraw:function(){zeichneGantt(gefilterteDaten());},refresh:refreshGanttUndMini};
+window.MS={exportiereJSON,zeigeDetail,renderMini,oeffneMsFormular,schliesseMsFormular,speichereMs,toggleDeadlineFelder,themaGewaehlt,fragenLoeschen,schliesseLoeschen,bestaetigeLoeschen,ladeVonGithub,getDaten:function(){ return meilensteinData; },redraw:function(){zeichneGantt(gefilterteDaten());},refresh:refreshGanttUndMini};
+})();
+</script>
+<script>/* ===== GitHub Sync ===== */
+(function(){
+
+  var _sha = null;
+  var _syncTimer = null;
+  var _syncPending = false;
+  var SETTINGS_KEY = "github_sync_settings";
+  var DEFAULT = { pat: "", repo: "martinseibring/lageplan", branch: "main", pfad: "data/meilensteine.json", aktiv: false };
+
+  function ladeEinstellungen() {
+    try {
+      var s = localStorage.getItem(SETTINGS_KEY);
+      return s ? Object.assign({}, DEFAULT, JSON.parse(s)) : Object.assign({}, DEFAULT);
+    } catch(e) { return Object.assign({}, DEFAULT); }
+  }
+
+  function speichereEinstellungen(s) {
+    try { localStorage.setItem(SETTINGS_KEY, JSON.stringify(s)); } catch(e) {}
+  }
+
+  function setzeSyncStatus(status, text) {
+    var pill = document.getElementById("gh-sync-pill");
+    if (!pill) return;
+    pill.className = "gh-sync-pill gh-sync-" + status;
+    pill.title = text || "";
+    var icons  = { bereit: "☁", aktiv: "⟳", ok: "✓", fehler: "✕" };
+    var labels = { bereit: "GitHub", aktiv: "Syncing…", ok: "Synced", fehler: "Sync-Fehler" };
+    pill.textContent = (icons[status] || "☁") + " " + (labels[status] || "GitHub");
+  }
+
+  async function githubRequest(methode, pfadSuffix, body) {
+    var s = ladeEinstellungen();
+    if (!s.pat) throw new Error("Kein PAT konfiguriert");
+    var url = "https://api.github.com/repos/" + s.repo + "/contents/" + pfadSuffix;
+    var opts = {
+      method: methode,
+      headers: {
+        "Authorization": "Bearer " + s.pat,
+        "Accept": "application/vnd.github+json",
+        "X-GitHub-Api-Version": "2022-11-28",
+        "Content-Type": "application/json"
+      }
+    };
+    if (body) opts.body = JSON.stringify(body);
+    var resp = await fetch(url, opts);
+    if (!resp.ok) {
+      var txt = await resp.text();
+      var err = new Error("GitHub API " + resp.status + ": " + txt.substring(0, 200));
+      err.status = resp.status;
+      throw err;
+    }
+    return resp.json();
+  }
+
+  async function ladeDatei() {
+    var s = ladeEinstellungen();
+    var daten = await githubRequest("GET", s.pfad + "?ref=" + s.branch);
+    _sha = daten.sha;
+    var json = decodeURIComponent(escape(atob(daten.content.replace(/\s/g, ""))));
+    return JSON.parse(json);
+  }
+
+  async function speichereDatei(inhalt) {
+    var s = ladeEinstellungen();
+    var encoded = btoa(unescape(encodeURIComponent(JSON.stringify(inhalt, null, 2))));
+    var body = { message: "Meilensteine aktualisiert", content: encoded, branch: s.branch };
+    if (_sha) body.sha = _sha;
+    var result = await githubRequest("PUT", s.pfad, body);
+    _sha = result.content.sha;
+    return result;
+  }
+
+  async function ladeMeilensteine() {
+    var s = ladeEinstellungen();
+    if (!s.aktiv || !s.pat) return;
+    setzeSyncStatus("aktiv", "Lade Daten von GitHub…");
+    try {
+      var daten = await ladeDatei();
+      if (window.MS && MS.ladeVonGithub) MS.ladeVonGithub(daten);
+      setzeSyncStatus("ok", "Letzte Synchronisation: " + new Date().toLocaleTimeString("de-DE"));
+    } catch(e) {
+      console.error("GitHub Laden fehlgeschlagen:", e);
+      setzeSyncStatus("fehler", "Laden fehlgeschlagen: " + e.message);
+    }
+  }
+
+  async function ausfuehrenSync() {
+    if (!_syncPending) return;
+    _syncPending = false;
+    var s = ladeEinstellungen();
+    if (!s.aktiv || !s.pat) return;
+    setzeSyncStatus("aktiv", "Synchronisiere…");
+    try {
+      var daten = window.MS ? MS.getDaten() : [];
+      await speichereDatei(daten);
+      setzeSyncStatus("ok", "Zuletzt gespeichert: " + new Date().toLocaleTimeString("de-DE"));
+    } catch(e) {
+      if (e.status === 409) {
+        try {
+          await ladeDatei();
+          var daten2 = window.MS ? MS.getDaten() : [];
+          await speichereDatei(daten2);
+          setzeSyncStatus("ok", "Zuletzt gespeichert: " + new Date().toLocaleTimeString("de-DE"));
+        } catch(e2) {
+          setzeSyncStatus("fehler", "Konflikt: " + e2.message);
+        }
+      } else {
+        setzeSyncStatus("fehler", "Fehler: " + e.message);
+      }
+    }
+  }
+
+  function debouncedSync() {
+    var s = ladeEinstellungen();
+    if (!s.aktiv || !s.pat) return;
+    _syncPending = true;
+    clearTimeout(_syncTimer);
+    _syncTimer = setTimeout(ausfuehrenSync, 2000);
+  }
+
+  function oeffneEinstellungen() {
+    var s = ladeEinstellungen();
+    document.getElementById("gh-pat-input").value = s.pat || "";
+    document.getElementById("gh-repo-input").value = s.repo || DEFAULT.repo;
+    document.getElementById("gh-branch-input").value = s.branch || DEFAULT.branch;
+    document.getElementById("gh-aktiv-toggle").checked = !!s.aktiv;
+    document.getElementById("gh-test-ergebnis").textContent = "";
+    document.getElementById("gh-einstellungen-modal").classList.add("offen");
+  }
+
+  function schliesseEinstellungen() {
+    document.getElementById("gh-einstellungen-modal").classList.remove("offen");
+  }
+
+  function speichereEinstellungenUndSchliesse() {
+    var s = {
+      pat:    document.getElementById("gh-pat-input").value.trim(),
+      repo:   document.getElementById("gh-repo-input").value.trim() || DEFAULT.repo,
+      branch: document.getElementById("gh-branch-input").value.trim() || DEFAULT.branch,
+      pfad:   DEFAULT.pfad,
+      aktiv:  document.getElementById("gh-aktiv-toggle").checked
+    };
+    speichereEinstellungen(s);
+    setzeSyncStatus(s.aktiv && s.pat ? "bereit" : "bereit",
+                    s.aktiv && s.pat ? "GitHub Sync aktiv – klicken zum Konfigurieren" : "GitHub Sync nicht aktiv");
+    schliesseEinstellungen();
+    if (s.aktiv && s.pat) ladeMeilensteine();
+  }
+
+  async function testeVerbindung() {
+    var el = document.getElementById("gh-test-ergebnis");
+    el.textContent = "Verbindung wird geprüft…";
+    el.style.color = "#888";
+    var pat  = document.getElementById("gh-pat-input").value.trim();
+    var repo = document.getElementById("gh-repo-input").value.trim() || DEFAULT.repo;
+    if (!pat) { el.textContent = "✕ Bitte PAT eingeben"; el.style.color = "red"; return; }
+    try {
+      var resp = await fetch("https://api.github.com/repos/" + repo, {
+        headers: { "Authorization": "Bearer " + pat, "Accept": "application/vnd.github+json" }
+      });
+      if (resp.ok) {
+        var data = await resp.json();
+        el.textContent = "✓ Verbindung erfolgreich! Repo: " + data.full_name;
+        el.style.color = "green";
+      } else {
+        el.textContent = "✕ Fehler " + resp.status + " – PAT oder Repo prüfen";
+        el.style.color = "red";
+      }
+    } catch(e) {
+      el.textContent = "✕ " + e.message;
+      el.style.color = "red";
+    }
+  }
+
+  // Initiale Statusanzeige
+  (function() {
+    var s = ladeEinstellungen();
+    if (s.aktiv && s.pat) {
+      setzeSyncStatus("bereit", "GitHub Sync aktiv – klicken zum Konfigurieren");
+    }
+  })();
+
+  window.GH = { ladeMeilensteine, debouncedSync, oeffneEinstellungen, schliesseEinstellungen, speichereEinstellungenUndSchliesse, testeVerbindung, ladeEinstellungen };
 })();
 </script>
 <script>/* ===== Lageplan ===== */
@@ -7723,6 +8008,8 @@ window.ST={speichereEinstellungen,resetteEinstellungen};
   });
   window.App = { activate: activate, wechsleZuTab: wechsleZuTab };
   activate("lageplan");
+  // GitHub Sync: Nach kurzem Delay laden, damit alle IIFEs initialisiert sind
+  setTimeout(function() { if (window.GH) GH.ladeMeilensteine(); }, 500);
 })();
 </script>
 
