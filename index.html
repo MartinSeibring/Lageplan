@@ -7209,7 +7209,6 @@ window.MS={exportiereJSON,zeigeDetail,renderMini,oeffneMsFormular,schliesseMsFor
 
   async function speichereDatei(inhalt) {
     var s = ladeEinstellungen();
-    // SHA unbekannt (z.B. nach öffentlichem Lesen) → erst holen
     if (!_sha) {
       var meta = await githubRequest("GET", s.pfad + "?ref=" + s.branch);
       _sha = meta.sha;
@@ -7221,67 +7220,101 @@ window.MS={exportiereJSON,zeigeDetail,renderMini,oeffneMsFormular,schliesseMsFor
     return result;
   }
 
-  // Lesen immer öffentlich – kein PAT nötig
+  // Merge: GitHub-Basis + lokale neue Einträge (nicht in GitHub) → merged + Duplikat-Liste
+  function _mergeMeilensteine(githubDaten, lokalDaten) {
+    var githubIds = new Set(githubDaten.map(function(m) { return m.id; }));
+    var neueLokal = lokalDaten.filter(function(m) { return !githubIds.has(m.id); });
+    var merged = githubDaten.concat(neueLokal);
+
+    // Duplikat-Check: gleicher Titel-Anfang (30 Zeichen) + gleiche Deadline
+    var duplikate = [];
+    for (var i = 0; i < merged.length; i++) {
+      for (var j = i + 1; j < merged.length; j++) {
+        var a = merged[i], b = merged[j];
+        if (!a.titel || !b.titel) continue;
+        var titelA = a.titel.toLowerCase().replace(/\s+/g, " ").substring(0, 30);
+        var titelB = b.titel.toLowerCase().replace(/\s+/g, " ").substring(0, 30);
+        if (titelA === titelB && a.pflicht_deadline === b.pflicht_deadline) {
+          duplikate.push({ a: a, b: b });
+        }
+      }
+    }
+    return { merged: merged, duplikate: duplikate, neueLokal: neueLokal };
+  }
+
+  function _zeigeDuplikatBanner(duplikate) {
+    var banner = document.getElementById("ms-import-banner");
+    if (!banner) return;
+    var html = "<strong>⚠ " + duplikate.length + " mögliche Duplikate nach Sync</strong>";
+    duplikate.forEach(function(d) {
+      html += "<br>• <em>\"" + d.a.titel + "\"</em> ↔ <em>\"" + d.b.titel + "\"</em>";
+    });
+    html += "<button onclick=\"this.parentElement.style.display='none'\" style=\"float:right;background:none;border:none;cursor:pointer;font-size:16px\">✕</button>";
+    banner.innerHTML = html;
+    banner.style.cssText = "display:block;background:#fff3cd;color:#856404;border:1px solid #ffc107;border-radius:6px;padding:10px 14px;margin:8px 16px;font-size:13px;line-height:1.6";
+  }
+
+  // Immer von GitHub laden; PAT-Geräte mergen und laden ihre neuen Einträge hoch
   async function ladeMeilensteine() {
     var s = ladeEinstellungen();
-    var lokalDaten = (window.MS && MS.getDaten) ? MS.getDaten() : [];
-
-    // PAT-Gerät mit lokalen Daten → lokale Daten sind autoritativ, zu GitHub hochladen
-    // (verhindert, dass der alte GitHub-Stand die neuen lokalen Einträge überschreibt)
-    if (s.pat && lokalDaten.length > 0) {
-      setzeSyncStatus("ok", "Lokale Daten vorhanden – werden zu GitHub synchronisiert");
-      _syncPending = true;
-      ausfuehrenSync();
-      return;
-    }
-
-    // Kein PAT ODER localStorage leer → von GitHub laden (read-only Gerät oder Erststart)
     setzeSyncStatus("aktiv", "Lade Daten von GitHub…");
     try {
       var url = "https://raw.githubusercontent.com/" + s.repo + "/" + s.branch + "/" + s.pfad + "?t=" + Date.now();
       var resp = await fetch(url);
       if (!resp.ok) throw new Error("HTTP " + resp.status);
-      var daten = await resp.json();
+      var githubDaten = await resp.json();
+      var lokalDaten = (window.MS && MS.getDaten) ? MS.getDaten() : [];
 
-      // Sicherheitsnetz: leere GitHub-Datei niemals lokale Daten löschen
-      if (daten.length === 0 && lokalDaten.length > 0) {
-        if (s.pat) { _syncPending = true; ausfuehrenSync(); }
-        setzeSyncStatus(s.pat ? "ok" : "lesend",
-          s.pat ? "Lokale Daten werden zu GitHub hochgeladen…" : "Nur Lesen – kein PAT konfiguriert");
-        return;
+      if (s.pat) {
+        // PAT-Gerät: mergen – lokale Einträge die noch nicht in GitHub sind hinzufügen
+        var result = _mergeMeilensteine(githubDaten, lokalDaten);
+        if (window.MS && MS.ladeVonGithub) MS.ladeVonGithub(result.merged);
+        if (result.duplikate.length > 0) _zeigeDuplikatBanner(result.duplikate);
+        // Hochladen wenn neue lokale Einträge vorhanden
+        if (result.neueLokal.length > 0) { _syncPending = true; ausfuehrenSync(); }
+        setzeSyncStatus("ok", "Synchronisiert – " + result.merged.length + " Meilensteine" +
+          (result.neueLokal.length > 0 ? " (" + result.neueLokal.length + " neu hochgeladen)" : ""));
+      } else {
+        // Nur-Lesen: einfach laden
+        if (window.MS && MS.ladeVonGithub) MS.ladeVonGithub(githubDaten);
+        setzeSyncStatus("lesend", "Nur Lesen – kein PAT konfiguriert (⚙ Sync zum Einrichten)");
       }
-
-      if (window.MS && MS.ladeVonGithub) MS.ladeVonGithub(daten);
-      setzeSyncStatus(
-        s.pat ? "ok" : "lesend",
-        s.pat ? "Geladen – Änderungen werden automatisch gespeichert" : "Nur Lesen – kein PAT konfiguriert (⚙ Sync zum Einrichten)"
-      );
     } catch(e) {
       console.error("GitHub Laden fehlgeschlagen:", e);
       setzeSyncStatus("fehler", "Laden fehlgeschlagen: " + e.message);
     }
   }
 
+  // Vor dem Hochladen: aktuellsten Stand von GitHub holen → mergen → hochladen
   async function ausfuehrenSync() {
     if (!_syncPending) return;
     _syncPending = false;
     var s = ladeEinstellungen();
-    if (!s.pat) return; // kein PAT → kein Schreibzugriff
+    if (!s.pat) return;
     setzeSyncStatus("aktiv", "Synchronisiere…");
     try {
-      var daten = window.MS ? MS.getDaten() : [];
-      await speichereDatei(daten);
-      setzeSyncStatus("ok", "Zuletzt gespeichert: " + new Date().toLocaleTimeString("de-DE"));
+      // Aktuellsten GitHub-Stand holen (holt auch SHA)
+      var githubMeta = await githubRequest("GET", s.pfad + "?ref=" + s.branch);
+      _sha = githubMeta.sha;
+      var githubDaten = JSON.parse(decodeURIComponent(escape(atob(githubMeta.content.replace(/\s/g, "")))));
+      var lokalDaten = window.MS ? MS.getDaten() : [];
+
+      // Merge: GitHub-Basis + lokale Einträge die noch nicht in GitHub sind
+      var result = _mergeMeilensteine(githubDaten, lokalDaten);
+
+      if (result.duplikate.length > 0) _zeigeDuplikatBanner(result.duplikate);
+
+      // Merged-Stand hochladen und lokal aktualisieren
+      await speichereDatei(result.merged);
+      if (window.MS && MS.ladeVonGithub) MS.ladeVonGithub(result.merged);
+
+      setzeSyncStatus("ok", "Gespeichert: " + new Date().toLocaleTimeString("de-DE") +
+        " – " + result.merged.length + " Meilensteine");
     } catch(e) {
       if (e.status === 409) {
-        try {
-          _sha = null; // SHA-Cache verwerfen
-          var daten2 = window.MS ? MS.getDaten() : [];
-          await speichereDatei(daten2);
-          setzeSyncStatus("ok", "Zuletzt gespeichert: " + new Date().toLocaleTimeString("de-DE"));
-        } catch(e2) {
-          setzeSyncStatus("fehler", "Konflikt: " + e2.message);
-        }
+        _sha = null;
+        _syncPending = true;
+        setTimeout(ausfuehrenSync, 1000); // erneut versuchen
       } else {
         setzeSyncStatus("fehler", "Fehler: " + e.message);
       }
@@ -7290,7 +7323,7 @@ window.MS={exportiereJSON,zeigeDetail,renderMini,oeffneMsFormular,schliesseMsFor
 
   function debouncedSync() {
     var s = ladeEinstellungen();
-    if (!s.pat) return; // ohne PAT kein Schreiben
+    if (!s.pat) return;
     _syncPending = true;
     clearTimeout(_syncTimer);
     _syncTimer = setTimeout(ausfuehrenSync, 2000);
