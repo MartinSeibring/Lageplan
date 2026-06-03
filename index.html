@@ -6030,7 +6030,7 @@ window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisieru
         </div>
         <div class="msf-detail-buttons">
           <button id="btn-detail-bearbeiten">✎ Bearbeiten</button>
-          ${ms.manuell_erfasst === true
+          ${(ms.manuell_erfasst === true || (window.GH && GH.ladeEinstellungen && GH.ladeEinstellungen().pat))
             ? `<button id="btn-detail-loeschen">🗑 Löschen</button>`
             : ""}
         </div>
