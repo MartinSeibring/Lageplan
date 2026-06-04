@@ -2386,6 +2386,37 @@ body {
 #btn-jz-exportieren { background: #27ae60; color: #fff; border: none; border-radius: 6px; padding: 8px 16px; font-size: 13px; font-weight: 600; cursor: pointer; }
 #btn-jz-exportieren:hover { background: #229954; }
 
+/* ── Ziele-Panel ── */
+#ziele-panel { margin: 0 16px 16px 16px; border: 1px solid #e0e0e0; border-radius: 8px; background: #fff; overflow: hidden; }
+#ziele-panel-header { display: flex; align-items: center; gap: 10px; padding: 10px 16px; background: linear-gradient(135deg, #27ae60 0%, #1e8449 100%); color: #fff; cursor: pointer; }
+#ziele-panel-header strong { font-size: 14px; }
+#zp-count { font-size: 12px; opacity: 0.8; }
+#btn-ziele-einklappen { background: none; border: 1px solid rgba(255,255,255,0.4); color: #fff; border-radius: 4px; padding: 2px 8px; cursor: pointer; font-size: 13px; }
+.zp-cards-wrap { display: flex; flex-wrap: wrap; gap: 12px; padding: 14px 16px; }
+.zp-ziel-card { background: #fafafa; border: 1px solid #e8e8e8; border-radius: 8px; padding: 12px 14px; width: 250px; flex-shrink: 0; }
+.zp-card-header { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; margin-bottom: 8px; }
+.zp-badge-kat { color: #fff; font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 3px; }
+.zp-badge-pri { font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 3px; border: 1.5px solid; }
+.zp-badge-ki-z { background: #2d7a8e; color: #fff; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 3px; }
+.zp-badge-pbi { background: #f2c811; color: #222; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 3px; }
+.zp-btn-loeschen { background: none; border: none; color: #ccc; cursor: pointer; margin-left: auto; font-size: 15px; padding: 0 2px; line-height: 1; }
+.zp-btn-loeschen:hover { color: #e74c3c; }
+.zp-ziel-titel { font-weight: 600; font-size: 13px; color: #222; margin-bottom: 6px; line-height: 1.35; }
+.zp-ziel-meta { font-size: 11.5px; color: #666; margin-bottom: 2px; }
+.zp-ms-chips { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px; }
+.zp-ms-chip { background: #e8f4f7; color: #2d7a8e; font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 10px; }
+
+/* Z-Badge in GANTT */
+.gantt-z-badge-rect { fill: #27ae60; }
+
+/* Milestone detail: Ziele section */
+.ms-detail-ziele { margin-top: 10px; padding-top: 10px; border-top: 1px solid #f0f0f0; font-size: 12px; }
+.ms-detail-ziel-chip { display: inline-block; background: #e8f7f0; color: #1e8449; border-radius: 4px; padding: 3px 8px; margin: 2px; font-size: 11px; font-weight: 600; }
+
+/* Ziele speichern button */
+#btn-jz-speichern-ziele { background: #27ae60; color: #fff; border: none; border-radius: 6px; padding: 8px 16px; font-size: 13px; font-weight: 600; cursor: pointer; display: none; }
+#btn-jz-speichern-ziele:hover { background: #1e8449; }
+
 /* ── GitHub Sync ── */
 .gh-sync-pill {
   display: inline-flex; align-items: center; gap: 4px;
@@ -3039,6 +3070,17 @@ body {
     </div>
   </div>
 
+  <!-- ── Ziele-Panel (entfernbar wenn PowerBI übernimmt) ────── -->
+  <div id="ziele-panel" style="display:none">
+    <div id="ziele-panel-header" onclick="MS.toggleZielePanel()">
+      <strong>🎯 Jahresziele</strong>
+      <span id="zp-count"></span>
+      <div style="flex:1"></div>
+      <button id="btn-ziele-einklappen" onclick="event.stopPropagation();MS.toggleZielePanel()">▲</button>
+    </div>
+    <div id="ziele-panel-body"></div>
+  </div>
+
   <div id="ms-detail-panel"></div>
 
   <!-- ── GitHub Sync Einstellungen ──────────────────────────── -->
@@ -3239,6 +3281,7 @@ body {
         <button onclick="MS.schliesseJahreszieleModal()" style="background:#f0f0f0;border:1px solid #ccc;border-radius:6px;padding:8px 14px;font-size:13px;cursor:pointer">Abbrechen</button>
         <button id="btn-jz-verarbeiten" onclick="MS._jahreszieleVerarbeite()">✓ Ziele anzeigen</button>
         <button id="btn-jz-exportieren" style="display:none" onclick="MS.exportiereJahreszieleText()">↓ Als Text exportieren</button>
+        <button id="btn-jz-speichern-ziele" onclick="MS._jahreszieleAllesSpeichern()">💾 Ziele speichern</button>
       </div>
     </div>
   </div>
@@ -6108,6 +6151,15 @@ window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisieru
           <span class="ms-detail-value">${ms.radar_score.toFixed(2)}</span>
 
         </div>
+        ${(function(){
+          var ziele = (window.MS && MS.getZiele) ? MS.getZiele() : zielenData;
+          var linked = ziele.filter(function(z){ return (z.abgeleitete_meilensteine||[]).indexOf(ms.id) >= 0; });
+          if (!linked.length) return '';
+          var chips = linked.map(function(z){
+            return '<span class="ms-detail-ziel-chip">🎯 ' + (z.ziel_nr||"") + ' ' + (z.titel||"").substring(0,40) + '</span>';
+          }).join('');
+          return '<div class="ms-detail-ziele"><strong style="font-size:12px;color:#1e8449">Adressiert durch:</strong><br>' + chips + '</div>';
+        })()}
         <div class="ms-detail-notiz-label">Notiz</div>
         <textarea id="detail-notiz" class="ms-detail-notiz">${ms.notiz}</textarea>
         <div style="margin-top:10px;display:flex;align-items:center;gap:10px">
@@ -6459,6 +6511,26 @@ window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisieru
             .attr("font-weight", "700")
             .text("KI");
         }
+
+        // Z-Badge (Meilenstein durch mindestens ein Ziel adressiert)
+        (function() {
+          var ziele = (window.MS && MS.getZiele) ? MS.getZiele() : [];
+          var hatZiel = ziele.some(function(z) {
+            return (z.abgeleitete_meilensteine||[]).indexOf(ms.id) >= 0;
+          });
+          if (!hatZiel) return;
+          var xOff = ms.ki_extrahiert ? titleWidth - 56 : titleWidth - 30;
+          rowG.append("rect")
+            .attr("x", xOff).attr("y", 7)
+            .attr("width", 22).attr("height", 13)
+            .attr("rx", 3).attr("fill", "#27ae60");
+          rowG.append("text")
+            .attr("x", xOff + 11).attr("y", 17)
+            .attr("text-anchor", "middle")
+            .attr("font-size", "8px").attr("fill", "#fff")
+            .attr("font-weight", "700")
+            .text("Z");
+        })();
 
         // Balken (geclippt auf sichtbaren Bereich)
         const msStart = new Date(ms.start);
@@ -6822,6 +6894,13 @@ window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisieru
     d3.select("body").append("div").attr("id", "gantt-dl-tooltip");
 
     ladeAusLocalStorage();
+    // Ziele aus localStorage laden
+    (function() {
+      try {
+        var rz = localStorage.getItem("ziele");
+        if (rz) { var gz = JSON.parse(rz); if (Array.isArray(gz)) gz.forEach(function(z){ zielenData.push(z); }); }
+      } catch(e) {}
+    })();
     baueFilterPanel();
     erzeugeZoomLeiste();
     zeichneDeadlineUebersicht();
@@ -7229,6 +7308,84 @@ window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisieru
       schliesseLoeschen();
     }
 
+    // ── Ziele-Datenspeicher ────────────────────────────────────────────────
+    var zielenData = [];
+    var _zielePanelOffen = true;
+
+    function ladeZieleVonGithub(daten) {
+      if (!Array.isArray(daten)) return;
+      zielenData.length = 0;
+      daten.forEach(function(z) { zielenData.push(z); });
+      try { localStorage.setItem("ziele", JSON.stringify(zielenData)); } catch(e) {}
+      _aktualisiereZielePanel();
+      zeichneGantt(gefilterteDaten()); // Z-Badges aktualisieren
+    }
+
+    function speichereZielEintrag(ziel) {
+      if (!ziel.id) ziel.id = "ZI-" + Date.now();
+      var idx = zielenData.findIndex(function(z) { return z.id === ziel.id; });
+      if (idx >= 0) zielenData[idx] = ziel; else zielenData.push(ziel);
+      try { localStorage.setItem("ziele", JSON.stringify(zielenData)); } catch(e) {}
+      if (window.GH && GH.debouncedSync) GH.debouncedSync();
+      _aktualisiereZielePanel();
+      zeichneGantt(gefilterteDaten());
+    }
+
+    function loescheZielEintrag(id) {
+      var idx = zielenData.findIndex(function(z) { return z.id === id; });
+      if (idx < 0) return;
+      zielenData.splice(idx, 1);
+      try { localStorage.setItem("ziele", JSON.stringify(zielenData)); } catch(e) {}
+      if (window.GH && GH.debouncedSync) GH.debouncedSync();
+      _aktualisiereZielePanel();
+      zeichneGantt(gefilterteDaten());
+    }
+
+    function toggleZielePanel() {
+      _zielePanelOffen = !_zielePanelOffen;
+      document.getElementById("ziele-panel-body").style.display = _zielePanelOffen ? "block" : "none";
+      document.getElementById("btn-ziele-einklappen").textContent = _zielePanelOffen ? "▲" : "▼";
+    }
+
+    function _aktualisiereZielePanel() {
+      var panel = document.getElementById("ziele-panel");
+      if (!panel) return;
+      panel.style.display = zielenData.length ? "block" : "none";
+      var countEl = document.getElementById("zp-count");
+      if (countEl) countEl.textContent = zielenData.length + " Ziel" + (zielenData.length !== 1 ? "e" : "");
+      var body = document.getElementById("ziele-panel-body");
+      if (!body) return;
+      var katColors = { regulatorisch:"#E24B4A", marktlich:"#378ADD", technologisch:"#1D9E75", wettbewerblich:"#534AB7" };
+      var priColors = { hoch:"#c0392b", mittel:"#e67e22", niedrig:"#27ae60" };
+      var html = '<div class="zp-cards-wrap">';
+      zielenData.forEach(function(z) {
+        var katCol = katColors[z.kategorie] || "#888";
+        var priCol = priColors[z.prioritaet] || "#888";
+        html += '<div class="zp-ziel-card">';
+        html += '<div class="zp-card-header">';
+        html += '<span class="zp-badge-kat" style="background:' + katCol + '">' + _escHtml(z.kategorie||"") + '</span>';
+        if (z.prioritaet) html += '<span class="zp-badge-pri" style="color:' + priCol + ';border-color:' + priCol + '">' + _escHtml(z.prioritaet) + '</span>';
+        if (z.ki_generiert) html += '<span class="zp-badge-ki-z">KI</span>';
+        if (z.quelle === "powerbi") html += '<span class="zp-badge-pbi">PBI</span>';
+        html += '<button class="zp-btn-loeschen" onclick="MS.loescheZielEintrag(\'' + (z.id||"").replace(/'/g,"") + '\')" title="Ziel löschen">✕</button>';
+        html += '</div>';
+        html += '<div class="zp-ziel-titel">' + _escHtml(z.titel||"") + '</div>';
+        if (z.t_beschreibung||z.t_terminiert) html += '<div class="zp-ziel-meta">⏱ ' + _escHtml(z.t_beschreibung||z.t_terminiert) + '</div>';
+        if (z.verantwortlicher) html += '<div class="zp-ziel-meta">👤 ' + _escHtml(z.verantwortlicher) + '</div>';
+        if (z.abgeleitete_meilensteine && z.abgeleitete_meilensteine.length) {
+          html += '<div class="zp-ms-chips">';
+          z.abgeleitete_meilensteine.forEach(function(msId) {
+            var ms = meilensteinData.find(function(m){ return m.id === msId; });
+            html += '<span class="zp-ms-chip" title="' + (ms ? _escHtml(ms.titel) : msId) + '">' + _escHtml(msId) + '</span>';
+          });
+          html += '</div>';
+        }
+        html += '</div>';
+      });
+      html += '</div>';
+      body.innerHTML = html;
+    }
+
     // ── Jahresziele ────────────────────────────────────────────────────────
     var _jahreszieleZiele = null;
     var _jahreszielePromptText = "";
@@ -7248,6 +7405,7 @@ window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisieru
       ergebnisse.style.display = "none";
       ergebnisse.innerHTML = "";
       document.getElementById("btn-jz-exportieren").style.display = "none";
+      document.getElementById("btn-jz-speichern-ziele").style.display = "none";
       _jahreszieleZiele = null;
       document.getElementById("jahresziele-modal").classList.add("offen");
     }
@@ -7345,6 +7503,7 @@ window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisieru
       var el = document.getElementById("jz-ergebnisse");
       el.innerHTML = html; el.style.display = "block";
       document.getElementById("btn-jz-exportieren").style.display = "inline-block";
+      document.getElementById("btn-jz-speichern-ziele").style.display = "inline-block";
       el.scrollIntoView({ behavior: "smooth", block: "start" });
     }
 
@@ -7383,7 +7542,21 @@ window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisieru
       }
     }
 
-window.MS={exportiereJSON,zeigeDetail,renderMini,oeffneMsFormular,schliesseMsFormular,speichereMs,toggleDeadlineFelder,themaGewaehlt,fragenLoeschen,schliesseLoeschen,bestaetigeLoeschen,ladeVonGithub,oeffneJahreszieleModal,schliesseJahreszieleModal,_jahreszieleKopierePrompt,_jahreszieleVerarbeite,exportiereJahreszieleText,getDaten:function(){ return meilensteinData; },redraw:function(){zeichneGantt(gefilterteDaten());},refresh:refreshGanttUndMini};
+    function _jahreszieleAllesSpeichern() {
+      if (!_jahreszieleZiele || !_jahreszieleZiele.length) return;
+      var heute = new Date().toISOString().slice(0, 10);
+      var folgejahr = new Date().getFullYear() + 1;
+      _jahreszieleZiele.forEach(function(z, i) {
+        if (!z.id) z.id = "ZI-" + folgejahr + "-" + String(i+1).padStart(3,"0");
+        z.ki_generiert = true;
+        z.erstellt_am = heute;
+        speichereZielEintrag(z);
+      });
+      zeigeMsBanner(_jahreszieleZiele.length + " Ziele gespeichert");
+      schliesseJahreszieleModal();
+    }
+
+window.MS={exportiereJSON,zeigeDetail,renderMini,oeffneMsFormular,schliesseMsFormular,speichereMs,toggleDeadlineFelder,themaGewaehlt,fragenLoeschen,schliesseLoeschen,bestaetigeLoeschen,ladeVonGithub,ladeZieleVonGithub,speichereZielEintrag,loescheZielEintrag,toggleZielePanel,oeffneJahreszieleModal,schliesseJahreszieleModal,_jahreszieleKopierePrompt,_jahreszieleVerarbeite,_jahreszieleAllesSpeichern,exportiereJahreszieleText,getDaten:function(){ return meilensteinData; },getZiele:function(){ return zielenData; },redraw:function(){zeichneGantt(gefilterteDaten());},refresh:refreshGanttUndMini};
 })();
 </script>
 <script>/* ===== GitHub Sync ===== */
@@ -7495,6 +7668,22 @@ window.MS={exportiereJSON,zeigeDetail,renderMini,oeffneMsFormular,schliesseMsFor
     banner.style.cssText = "display:block;background:#fff3cd;color:#856404;border:1px solid #ffc107;border-radius:6px;padding:10px 14px;margin:8px 16px;font-size:13px;line-height:1.6";
   }
 
+  // Hilfsfunktion: altes Array-Format und neues Objekt-Format unterstützen
+  function _parseGithubDatei(data) {
+    if (Array.isArray(data)) return { meilensteine: data, ziele: [] };
+    return {
+      meilensteine: Array.isArray(data.meilensteine) ? data.meilensteine : [],
+      ziele: Array.isArray(data.ziele) ? data.ziele : []
+    };
+  }
+
+  // Ziele mergen: GitHub-Basis + lokale neue (nicht in GitHub)
+  function _mergeZiele(githubZiele, lokalZiele) {
+    var ghIds = new Set(githubZiele.map(function(z) { return z.id; }));
+    var neueLokal = lokalZiele.filter(function(z) { return !ghIds.has(z.id); });
+    return githubZiele.concat(neueLokal);
+  }
+
   // Immer von GitHub laden; PAT-Geräte mergen und laden ihre neuen Einträge hoch
   async function ladeMeilensteine() {
     var s = ladeEinstellungen();
@@ -7503,21 +7692,22 @@ window.MS={exportiereJSON,zeigeDetail,renderMini,oeffneMsFormular,schliesseMsFor
       var url = "https://raw.githubusercontent.com/" + s.repo + "/" + s.branch + "/" + s.pfad + "?t=" + Date.now();
       var resp = await fetch(url);
       if (!resp.ok) throw new Error("HTTP " + resp.status);
-      var githubDaten = await resp.json();
+      var parsed = _parseGithubDatei(await resp.json());
+      var githubMs = parsed.meilensteine;
+      var githubZiele = parsed.ziele;
       var lokalDaten = (window.MS && MS.getDaten) ? MS.getDaten() : [];
 
+      if (window.MS && MS.ladeZieleVonGithub) MS.ladeZieleVonGithub(githubZiele);
+
       if (s.pat) {
-        // PAT-Gerät: mergen – lokale Einträge die noch nicht in GitHub sind hinzufügen
-        var result = _mergeMeilensteine(githubDaten, lokalDaten);
+        var result = _mergeMeilensteine(githubMs, lokalDaten);
         if (window.MS && MS.ladeVonGithub) MS.ladeVonGithub(result.merged);
         if (result.duplikate.length > 0) _zeigeDuplikatBanner(result.duplikate);
-        // Hochladen wenn neue lokale Einträge vorhanden
         if (result.neueLokal.length > 0) { _syncPending = true; ausfuehrenSync(); }
         setzeSyncStatus("ok", "Synchronisiert – " + result.merged.length + " Meilensteine" +
-          (result.neueLokal.length > 0 ? " (" + result.neueLokal.length + " neu hochgeladen)" : ""));
+          (result.neueLokal.length > 0 ? " (" + result.neueLokal.length + " neu)" : ""));
       } else {
-        // Nur-Lesen: einfach laden
-        if (window.MS && MS.ladeVonGithub) MS.ladeVonGithub(githubDaten);
+        if (window.MS && MS.ladeVonGithub) MS.ladeVonGithub(githubMs);
         setzeSyncStatus("lesend", "Nur Lesen – kein PAT konfiguriert (⚙ Sync zum Einrichten)");
       }
     } catch(e) {
@@ -7534,23 +7724,25 @@ window.MS={exportiereJSON,zeigeDetail,renderMini,oeffneMsFormular,schliesseMsFor
     if (!s.pat) return;
     setzeSyncStatus("aktiv", "Synchronisiere…");
     try {
-      // Aktuellsten GitHub-Stand holen (holt auch SHA)
       var githubMeta = await githubRequest("GET", s.pfad + "?ref=" + s.branch);
       _sha = githubMeta.sha;
-      var githubDaten = JSON.parse(decodeURIComponent(escape(atob(githubMeta.content.replace(/\s/g, "")))));
+      var parsed = _parseGithubDatei(JSON.parse(decodeURIComponent(escape(atob(githubMeta.content.replace(/\s/g, ""))))));
+      var githubMs = parsed.meilensteine;
+      var githubZiele = parsed.ziele;
       var lokalDaten = window.MS ? MS.getDaten() : [];
+      var lokalZiele = (window.MS && MS.getZiele) ? MS.getZiele() : [];
 
-      // Merge: GitHub-Basis + lokale Einträge die noch nicht in GitHub sind
-      var result = _mergeMeilensteine(githubDaten, lokalDaten);
+      var result = _mergeMeilensteine(githubMs, lokalDaten);
+      var mergedZiele = _mergeZiele(githubZiele, lokalZiele);
 
       if (result.duplikate.length > 0) _zeigeDuplikatBanner(result.duplikate);
 
-      // Merged-Stand hochladen und lokal aktualisieren
-      await speichereDatei(result.merged);
+      await speichereDatei({ meilensteine: result.merged, ziele: mergedZiele });
       if (window.MS && MS.ladeVonGithub) MS.ladeVonGithub(result.merged);
+      if (window.MS && MS.ladeZieleVonGithub) MS.ladeZieleVonGithub(mergedZiele);
 
       setzeSyncStatus("ok", "Gespeichert: " + new Date().toLocaleTimeString("de-DE") +
-        " – " + result.merged.length + " Meilensteine");
+        " – " + result.merged.length + " MS / " + mergedZiele.length + " Ziele");
     } catch(e) {
       if (e.status === 409) {
         _sha = null;
