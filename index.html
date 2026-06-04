@@ -5115,6 +5115,20 @@ body {
     // ── KI-Analyse Logik ──
     var kiVorschlaege = null;
 
+    // JSON-Array aus beliebigem Text extrahieren (auch mit Preamble-Text von Claude)
+    function _extrahiereJsonArray(text) {
+      var s = text.trim();
+      // Markdown-Fences entfernen
+      s = s.replace(/^```(?:json)?\s*/im, "").replace(/\s*```\s*$/m, "").trim();
+      // Falls das Ergebnis mit '[' beginnt, direkt zurückgeben
+      if (s.startsWith("[")) return s;
+      // Sonst: erstes '[' bis letztes ']' herausschneiden
+      var start = s.indexOf("[");
+      var end   = s.lastIndexOf("]");
+      if (start !== -1 && end > start) return s.slice(start, end + 1);
+      return s;
+    }
+
     async function starteKiAnalyse() {
       var btn          = document.getElementById("btn-ki-starten");
       var abbrechenBtn = document.getElementById("btn-ki-abbrechen");
@@ -5128,7 +5142,7 @@ body {
         var jsonText  = (document.getElementById("ki-json-eingabe") || {}).value || "";
         var fehlerEl  = document.getElementById("ki-json-fehler");
         if (fehlerEl) fehlerEl.style.display = "none";
-        var cleaned   = jsonText.trim().replace(/^```(?:json)?\s*/i, "").replace(/\s*```\s*$/i, "").trim();
+        var cleaned   = _extrahiereJsonArray(jsonText);
         var vorschlaege;
         try {
           vorschlaege = JSON.parse(cleaned);
@@ -7452,11 +7466,11 @@ window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisieru
       var fehlerEl = document.getElementById("jz-json-fehler");
       fehlerEl.style.display = "none";
       if (!raw) { fehlerEl.textContent = "Bitte JSON aus Claude einfügen."; fehlerEl.style.display = "block"; return; }
-      var cleaned = raw.replace(/^```(?:json)?\s*/i, "").replace(/\s*```\s*$/, "");
+      var cleaned = _extrahiereJsonArray(raw);
       var ziele;
       try {
         ziele = JSON.parse(cleaned);
-        if (!Array.isArray(ziele)) throw new Error("Kein Array");
+        if (!Array.isArray(ziele)) throw new Error("Kein Array – stelle sicher, dass Claude ein JSON-Array zurückgibt");
       } catch(e) { fehlerEl.textContent = "JSON-Fehler: " + e.message; fehlerEl.style.display = "block"; return; }
 
       // Duplikat-Check innerhalb der Liste
