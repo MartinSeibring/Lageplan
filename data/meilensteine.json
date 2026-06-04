@@ -2783,5 +2783,161 @@
       "ki_extrahiert": true
     }
   ],
-  "ziele": []
+  "ziele": [
+    {
+      "ziel_nr": "Z01",
+      "titel": "§14c EnWG & ISO 55000: Digitale Grundlagen 2027",
+      "s_spezifisch": "Erfüllung der gesetzlichen Anforderung zur digitalen Netzplanung gemäß §14c EnWG sowie Erlangung der ISO 55000/55001-Zertifizierung im Asset Management",
+      "m_messbar": "Zertifikat ISO 55001 erteilt bis 31.03.2027; digitale Netzplanung gemäß §14c EnWG produktiv bis 01.01.2027",
+      "a_erreichbar": "Wagner und Fischer als Verantwortliche bereits benannt; Pilotprojekte laufen (M006 zu 50% fertig); GIS-Infrastruktur vorhanden",
+      "r_relevant": "Gesetzliche Pflicht (§14c EnWG) und Konzernqualitätsvorgabe; Basis für Netzdigitalisierungsstrategie 2030",
+      "t_terminiert": "2027-03-31",
+      "t_beschreibung": "bis 31.03.2027 (ISO 55000); §14c-Compliance ab 01.01.2027",
+      "verantwortlicher": "Wagner / Fischer",
+      "kategorie": "technologisch",
+      "prioritaet": "hoch",
+      "abgeleitete_meilensteine": [
+        "M011",
+        "M012",
+        "M006"
+      ],
+      "ki_generiert": true,
+      "id": "ZI-2027-001",
+      "erstellt_am": "2026-06-04"
+    },
+    {
+      "ziel_nr": "Z02",
+      "titel": "MsbG-Betriebspflichten 2027 vollständig umgesetzt",
+      "s_spezifisch": "Alle operativen Dauerpflichten aus dem MsbG (Informationspflichten, Wechselprozesse, Fristen, Grundzuständigkeit, Datenlöschung) sind in Prozesse und Systeme überführt und nachweislich erfüllt",
+      "m_messbar": "100% der fälligen MsbG-Pflichten mit Deadline ≤ 2027-06-03 in Prozessdokumentation abgebildet; Audit ohne wesentliche Findings",
+      "a_erreichbar": "Meilensteine sind klar paragrafenscharf definiert; Verantwortliche können aus bestehender Programmorganisation zugewiesen werden",
+      "r_relevant": "Gesetzliche Compliance-Pflicht; Vermeidung von BNetzA-Sanktionen; Grundlage für wettbewerbsfähigen Messstellenbetrieb",
+      "t_terminiert": "2027-06-03",
+      "t_beschreibung": "bis 03.06.2027 (gesetzliche Frist MsbG-Pflichten)",
+      "verantwortlicher": "Bauer",
+      "kategorie": "regulatorisch",
+      "prioritaet": "hoch",
+      "abgeleitete_meilensteine": [
+        "M17804887357398951",
+        "M17804887358231039",
+        "M17804887358254579",
+        "M17804887358271943",
+        "M17804887358292938",
+        "M17804887358318019",
+        "M17804887358326386",
+        "M17804887358344101",
+        "M17804887358384379",
+        "M17804887358402979",
+        "M17804887358429431",
+        "M17804887358792621",
+        "M17804887358825094",
+        "M17804887358848411",
+        "M17804887358873495",
+        "M17804887358919342",
+        "M17804887358932987",
+        "M17804887358964300",
+        "M17804887358996517",
+        "M17804887359036033",
+        "M17804887359088080",
+        "M17804887359127396",
+        "M17804887359186471",
+        "M17804887359219818"
+      ],
+      "ki_generiert": true,
+      "id": "ZI-2027-002",
+      "erstellt_am": "2026-06-04"
+    },
+    {
+      "ziel_nr": "Z03",
+      "titel": "Datenschutz-Compliance MsbG §§60–69 umgesetzt",
+      "s_spezifisch": "Alle Lösch- und Speicherfristen für Messwerte und Stammdaten gemäß MsbG §§60–69 sind in den Systemen von MSB, Netzbetreiber, ÜNB, Lieferant und Bilanzkreisverantwortlichen technisch implementiert",
+      "m_messbar": "Löschroutinen für alle 10 betroffenen Datenkategorien technisch implementiert und dokumentiert; Nachweis im Datenschutz-Audit bis 30.06.2027",
+      "a_erreichbar": "Paragrafenscharfe Meilensteine vorhanden; enge Abstimmung mit Datenschutzbeauftragtem und IT erforderlich; Umsetzung im Rahmen bestehender Datenhaltungssysteme",
+      "r_relevant": "Gesetzliche Pflicht MsbG + DSGVO; Vermeidung von Bußgeldern; Vertrauensbasis für Marktpartner",
+      "t_terminiert": "2027-06-03",
+      "t_beschreibung": "bis 03.06.2027",
+      "verantwortlicher": "Bauer",
+      "kategorie": "regulatorisch",
+      "prioritaet": "hoch",
+      "abgeleitete_meilensteine": [
+        "M17804887358445404",
+        "M17804887358465675",
+        "M17804887358488555",
+        "M17804887358546655",
+        "M17804887358573700",
+        "M17804887358596799",
+        "M17804887358624260",
+        "M17804887358654336",
+        "M17804887358674614",
+        "M17804887358726838",
+        "M17804887358741881",
+        "M17804887358779638",
+        "M17804887359157266"
+      ],
+      "ki_generiert": true,
+      "id": "ZI-2027-003",
+      "erstellt_am": "2026-06-04"
+    },
+    {
+      "ziel_nr": "Z04",
+      "titel": "Gas-SMGw-Anbindung & iMSys-Gas-Zusatzleistung live",
+      "s_spezifisch": "Anbindung aller übrigen Gasmesseinrichtungen an SMGw gemäß §40 MsbG abgeschlossen; vorzeitiger iMSys-Einbau Gas als Zusatzleistung operativ verfügbar",
+      "m_messbar": "100% der betroffenen Gasmessstellen (übrige) an SMGw angebunden bis 03.06.2027; Zusatzleistung Gas-iMSys ab 01.07.2026 buchbar und ab Q1/2027 in Rollout",
+      "a_erreichbar": "Gesetzliche Frist §40 MsbG bekannt; Zusatzleistung durch §34 Abs. 2 MsbG ermöglicht; Koordination mit Gasnetzbetrieb erforderlich",
+      "r_relevant": "Regulatorische Pflicht §40 MsbG; strategische Positionierung im Gas-Messstellenmarkt; Vorbereitung H2-Readiness",
+      "t_terminiert": "2027-06-03",
+      "t_beschreibung": "bis 03.06.2027 (§40 MsbG); Zusatzleistung ab 01.07.2026",
+      "verantwortlicher": "Bauer",
+      "kategorie": "regulatorisch",
+      "prioritaet": "mittel",
+      "abgeleitete_meilensteine": [
+        "M17804887358228098",
+        "M17804887358149528"
+      ],
+      "ki_generiert": true,
+      "id": "ZI-2027-004",
+      "erstellt_am": "2026-06-04"
+    },
+    {
+      "ziel_nr": "Z05",
+      "titel": "iMSys-Rollout Anlagenbetreiber & Letztverbraucher: 2026-Quoten erfüllt",
+      "s_spezifisch": "Rollout-Quoten für Neuinbetriebnahmen bei Anlagenbetreibern (übrige, §45 Abs.1 Nr.2 lit.a) und Letztverbrauchern Nr.2–5 (§45 Abs.1 Nr.4 lit.b) bis 31.12.2026 erreicht; Jahresplanung 2027 auf Basis Ist-Stand aufgesetzt",
+      "m_messbar": "90% der neu in Betrieb genommenen Anlagen und Letztverbraucher der Gruppen Nr.2–5 bis 31.12.2026 mit iMSys ausgestattet; Statusbericht Q1/2027 dokumentiert Zielerreichung",
+      "a_erreichbar": "Rollout läuft; Fristen bekannt; Nachsteuerung über Programmreporting möglich",
+      "r_relevant": "Gesetzliche Rolloutpflicht MsbG §45; Basis für Folgequoten 2028–2032; Vermeidung regulatorischer Sanktionen",
+      "t_terminiert": "2027-03-31",
+      "t_beschreibung": "Nachweis 2026-Quoten bis 31.03.2027 (Statusbericht Q1/2027)",
+      "verantwortlicher": "Bauer",
+      "kategorie": "regulatorisch",
+      "prioritaet": "hoch",
+      "abgeleitete_meilensteine": [
+        "M17804887357878854",
+        "M17804887358058269",
+        "M17804887358071945"
+      ],
+      "ki_generiert": true,
+      "id": "ZI-2027-005",
+      "erstellt_am": "2026-06-04"
+    },
+    {
+      "ziel_nr": "Z06",
+      "titel": "Digitaler Zwilling Pilotbereich: Produktivbetrieb erreicht",
+      "s_spezifisch": "Digitaler Zwilling für Pilotgebiet Nord in Produktivbetrieb überführt; GIS-Datenabgleich abgeschlossen; Ergebnisse für Skalierung auf weitere Netzgebiete dokumentiert",
+      "m_messbar": "Pilotbetrieb live bis 31.12.2027; GIS-Abgleich 100% abgeschlossen; Skalierungskonzept für ≥2 weitere Gebiete vorliegend",
+      "a_erreichbar": "Fortschritt bereits bei 50%; Pilotgebiet Nord im Aufbau; GIS-Infrastruktur vorhanden; Wagner als Verantwortlicher benannt",
+      "r_relevant": "Kernbaustein der Netzdigitalisierungsstrategie 2030; Voraussetzung für §14c-konforme digitale Netzplanung",
+      "t_terminiert": "2027-12-31",
+      "t_beschreibung": "bis 31.12.2027",
+      "verantwortlicher": "Wagner",
+      "kategorie": "technologisch",
+      "prioritaet": "hoch",
+      "abgeleitete_meilensteine": [
+        "M006",
+        "M010"
+      ],
+      "ki_generiert": true,
+      "id": "ZI-2027-006",
+      "erstellt_am": "2026-06-04"
+    }
+  ]
 }
