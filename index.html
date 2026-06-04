@@ -2326,6 +2326,66 @@ body {
 #panel-meilensteine #ms-header { border-radius: 0; }
 
 
+/* ── Jahresziele ── */
+#btn-jz-generieren {
+  width: 100%; margin-top: 12px; padding: 8px 12px;
+  background: var(--swm-blau-dunkel); color: #fff; border: none; border-radius: 6px;
+  font-size: 12px; font-weight: 600; cursor: pointer;
+}
+#btn-jz-generieren:hover { background: var(--swm-blau); }
+
+#jahresziele-modal {
+  display: none; position: fixed; inset: 0; z-index: 3000;
+  background: rgba(0,0,0,0.55); align-items: flex-start; justify-content: center;
+  padding: 40px 20px; overflow-y: auto;
+}
+#jahresziele-modal.offen { display: flex; }
+.jz-modal-box {
+  background: #fff; border-radius: 10px; width: 800px; max-width: 96vw;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.28);
+}
+.jz-modal-header {
+  background: var(--swm-blau-dunkel); color: #fff; padding: 14px 20px;
+  display: flex; align-items: center; gap: 12px; border-radius: 10px 10px 0 0;
+}
+.jz-modal-header h3 { margin: 0; font-size: 15px; font-weight: 700; flex: 1; }
+.jz-gefiltert-info { font-size: 12px; opacity: 0.8; }
+.jz-modal-close { background: none; border: none; color: rgba(255,255,255,0.7); font-size: 20px; cursor: pointer; padding: 0 4px; }
+.jz-modal-close:hover { color: #fff; }
+.jz-modal-body { padding: 20px; display: flex; flex-direction: column; gap: 14px; max-height: 72vh; overflow-y: auto; }
+.jz-modal-footer { padding: 14px 20px; border-top: 1px solid #eee; display: flex; align-items: center; justify-content: flex-end; gap: 10px; flex-wrap: wrap; }
+
+.jz-anleitung { background: #e8f4f7; border-radius: 6px; padding: 10px 12px; font-size: 12px; color: #2d7a8e; line-height: 1.5; }
+#jz-prompt-box {
+  background: #f7f7f7; border: 1px solid #ddd; border-radius: 6px;
+  padding: 12px; font-size: 11px; line-height: 1.6; white-space: pre-wrap;
+  max-height: 180px; overflow-y: auto; color: #333; font-family: monospace;
+}
+#jz-kopieren-btn { background: var(--swm-blau); color: #fff; border: none; border-radius: 6px; padding: 7px 14px; font-size: 13px; cursor: pointer; }
+#jz-kopieren-btn:hover { background: var(--swm-blau-dunkel); }
+#jz-json-eingabe { width: 100%; min-height: 90px; padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 12px; font-family: monospace; resize: vertical; box-sizing: border-box; }
+#jz-json-fehler { color: #c0392b; font-size: 12px; padding: 6px 10px; background: #fdecea; border-radius: 4px; }
+.jz-ziel-card { border: 1px solid #e0e0e0; border-radius: 8px; padding: 14px 16px; margin-bottom: 12px; background: #fafafa; }
+.jz-ziel-card.jz-duplikat { border-color: #f0a500; background: #fffbf0; }
+.jz-ziel-header { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+.jz-ziel-nr { font-size: 12px; font-weight: 700; color: #2d7a8e; background: #e8f4f7; padding: 2px 8px; border-radius: 4px; }
+.jz-ziel-titel { font-weight: 600; font-size: 14px; flex: 1; color: #222; }
+.jz-badge-ki-ziel { background: #2d7a8e; color: #fff; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 3px; }
+.jz-badge-dup { background: #f0a500; color: #fff; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 3px; }
+.jz-badge-kat { color: #fff; font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 3px; }
+.jz-badge-pri { font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 3px; border: 1.5px solid; }
+.jz-smart-grid { display: flex; flex-direction: column; gap: 5px; margin-bottom: 10px; }
+.jz-smart-zeile { display: flex; align-items: baseline; gap: 8px; font-size: 12.5px; }
+.jz-smart-buchstabe { font-weight: 800; font-size: 14px; color: var(--swm-blau-dunkel); min-width: 16px; }
+.jz-smart-label { color: #888; min-width: 80px; font-size: 11px; }
+.jz-smart-text { color: #333; flex: 1; line-height: 1.4; }
+.jz-ziel-footer { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px; }
+.jz-info-chip { background: #f0f0f0; border-radius: 12px; padding: 2px 10px; font-size: 11px; color: #555; }
+#btn-jz-verarbeiten { background: var(--swm-blau-dunkel); color: #fff; border: none; border-radius: 6px; padding: 8px 16px; font-size: 13px; font-weight: 600; cursor: pointer; }
+#btn-jz-verarbeiten:hover { background: var(--swm-blau); }
+#btn-jz-exportieren { background: #27ae60; color: #fff; border: none; border-radius: 6px; padding: 8px 16px; font-size: 13px; font-weight: 600; cursor: pointer; }
+#btn-jz-exportieren:hover { background: #229954; }
+
 /* ── GitHub Sync ── */
 .gh-sync-pill {
   display: inline-flex; align-items: center; gap: 4px;
@@ -3154,6 +3214,32 @@ body {
         <button class="tf-btn-sekundaer" onclick="MS.schliesseMsFormular()">Abbrechen</button>
       </div>
 
+    </div>
+  </div>
+
+  <!-- ── Jahresziele Modal ──────────────────────────────────── -->
+  <div id="jahresziele-modal" onclick="if(event.target===this)MS.schliesseJahreszieleModal()">
+    <div class="jz-modal-box">
+      <div class="jz-modal-header">
+        <h3>🎯 SMART-Jahresziele generieren</h3>
+        <span id="jz-gefiltert-info" class="jz-gefiltert-info"></span>
+        <button class="jz-modal-close" onclick="MS.schliesseJahreszieleModal()">✕</button>
+      </div>
+      <div class="jz-modal-body">
+        <div class="jz-anleitung">
+          <strong>Anleitung:</strong> 1. Prompt kopieren → 2. Bei <a href="https://claude.ai" target="_blank" style="color:#2d7a8e">claude.ai</a> einfügen → 3. JSON-Antwort hierher kopieren → 4. „Ziele anzeigen" klicken
+        </div>
+        <div id="jz-prompt-box"></div>
+        <button id="jz-kopieren-btn" onclick="MS._jahreszieleKopierePrompt()">📋 Prompt kopieren</button>
+        <textarea id="jz-json-eingabe" placeholder="JSON-Antwort von Claude hier einfügen…"></textarea>
+        <div id="jz-json-fehler" style="display:none"></div>
+        <div id="jz-ergebnisse" style="display:none"></div>
+      </div>
+      <div class="jz-modal-footer">
+        <button onclick="MS.schliesseJahreszieleModal()" style="background:#f0f0f0;border:1px solid #ccc;border-radius:6px;padding:8px 14px;font-size:13px;cursor:pointer">Abbrechen</button>
+        <button id="btn-jz-verarbeiten" onclick="MS._jahreszieleVerarbeite()">✓ Ziele anzeigen</button>
+        <button id="btn-jz-exportieren" style="display:none" onclick="MS.exportiereJahreszieleText()">↓ Als Text exportieren</button>
+      </div>
     </div>
   </div>
 
@@ -5847,6 +5933,7 @@ window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisieru
         `).join("")}
 
         <button id="btn-filter-reset">Filter zurücksetzen</button>
+        <button id="btn-jz-generieren" onclick="MS.oeffneJahreszieleModal()">🎯 Jahresziele generieren</button>
         <div id="ms-filter-info"></div>
       `;
 
@@ -7142,7 +7229,161 @@ window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisieru
       schliesseLoeschen();
     }
 
-window.MS={exportiereJSON,zeigeDetail,renderMini,oeffneMsFormular,schliesseMsFormular,speichereMs,toggleDeadlineFelder,themaGewaehlt,fragenLoeschen,schliesseLoeschen,bestaetigeLoeschen,ladeVonGithub,getDaten:function(){ return meilensteinData; },redraw:function(){zeichneGantt(gefilterteDaten());},refresh:refreshGanttUndMini};
+    // ── Jahresziele ────────────────────────────────────────────────────────
+    var _jahreszieleZiele = null;
+    var _jahreszielePromptText = "";
+
+    var _jzKatColors = { regulatorisch:"#E24B4A", marktlich:"#378ADD", technologisch:"#1D9E75", wettbewerblich:"#534AB7" };
+    var _jzPriColors = { hoch:"#c0392b", mittel:"#e67e22", niedrig:"#27ae60" };
+
+    function oeffneJahreszieleModal() {
+      var gefiltert = gefilterteDaten();
+      if (!gefiltert.length) { alert("Keine Meilensteine im aktuellen Filter."); return; }
+      document.getElementById("jz-gefiltert-info").textContent = gefiltert.length + " Meilensteine";
+      _jahreszielePromptText = _generiereJahreszielePrompt(gefiltert);
+      document.getElementById("jz-prompt-box").textContent = _jahreszielePromptText;
+      document.getElementById("jz-json-eingabe").value = "";
+      document.getElementById("jz-json-fehler").style.display = "none";
+      var ergebnisse = document.getElementById("jz-ergebnisse");
+      ergebnisse.style.display = "none";
+      ergebnisse.innerHTML = "";
+      document.getElementById("btn-jz-exportieren").style.display = "none";
+      _jahreszieleZiele = null;
+      document.getElementById("jahresziele-modal").classList.add("offen");
+    }
+
+    function schliesseJahreszieleModal() {
+      document.getElementById("jahresziele-modal").classList.remove("offen");
+    }
+
+    function _generiereJahreszielePrompt(meilensteine) {
+      var folgejahr = new Date().getFullYear() + 1;
+      var msJson = JSON.stringify(meilensteine.map(function(m) {
+        return {
+          id: m.id, titel: m.titel, kategorie: m.kategorie,
+          deadline: m.pflicht_deadline || m.ende,
+          deadline_quelle: m.deadline_quelle || "",
+          verantwortlicher: m.verantwortlicher || "",
+          cluster: m.strategische_cluster || [],
+          status: m.status, fortschritt: m.fortschritt || 0,
+          notiz: m.notiz || ""
+        };
+      }), null, 2);
+      return "Du bist Experte für strategische Jahresplanung in der deutschen Energiewirtschaft.\n\nAnalysiere die folgenden Meilensteine und leite daraus SMART-Jahresziele für " + folgejahr + " ab. Fasse thematisch verwandte Meilensteine zu einem Ziel zusammen wo sinnvoll.\n\nJedes Ziel muss exakt dieses JSON-Format haben:\n{\n  \"ziel_nr\": \"Z01\",\n  \"titel\": \"Prägnanter Zielname (max. 60 Zeichen)\",\n  \"s_spezifisch\": \"Was genau wird erreicht\",\n  \"m_messbar\": \"Konkrete Kennzahl / messbares Kriterium\",\n  \"a_erreichbar\": \"Warum realistisch / Voraussetzungen\",\n  \"r_relevant\": \"Strategischer oder regulatorischer Bezug\",\n  \"t_terminiert\": \"YYYY-MM-DD\",\n  \"t_beschreibung\": \"z.B. bis 31.12." + folgejahr + "\",\n  \"verantwortlicher\": \"Name\",\n  \"kategorie\": \"regulatorisch|marktlich|technologisch|wettbewerblich\",\n  \"prioritaet\": \"hoch|mittel|niedrig\",\n  \"abgeleitete_meilensteine\": [\"M001\",\"M002\"],\n  \"ki_generiert\": true\n}\n\nAntworte NUR mit einem JSON-Array ohne Markdown-Formatierung.\n\nMeilensteine:\n" + msJson;
+    }
+
+    function _jahreszieleKopierePrompt() {
+      var btn = document.getElementById("jz-kopieren-btn");
+      var success = function() {
+        btn.textContent = "✓ Kopiert!";
+        setTimeout(function() { btn.textContent = "📋 Prompt kopieren"; }, 2000);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(_jahreszielePromptText).then(success);
+      } else {
+        var ta = document.createElement("textarea");
+        ta.value = _jahreszielePromptText;
+        ta.style.cssText = "position:fixed;opacity:0";
+        document.body.appendChild(ta); ta.select(); document.execCommand("copy");
+        document.body.removeChild(ta); success();
+      }
+    }
+
+    function _jahreszieleVerarbeite() {
+      var raw = document.getElementById("jz-json-eingabe").value.trim();
+      var fehlerEl = document.getElementById("jz-json-fehler");
+      fehlerEl.style.display = "none";
+      if (!raw) { fehlerEl.textContent = "Bitte JSON aus Claude einfügen."; fehlerEl.style.display = "block"; return; }
+      var cleaned = raw.replace(/^```(?:json)?\s*/i, "").replace(/\s*```\s*$/, "");
+      var ziele;
+      try {
+        ziele = JSON.parse(cleaned);
+        if (!Array.isArray(ziele)) throw new Error("Kein Array");
+      } catch(e) { fehlerEl.textContent = "JSON-Fehler: " + e.message; fehlerEl.style.display = "block"; return; }
+
+      // Duplikat-Check innerhalb der Liste
+      var duplikate = new Set();
+      for (var i = 0; i < ziele.length; i++) {
+        for (var j = i + 1; j < ziele.length; j++) {
+          var ta = (ziele[i].titel||"").toLowerCase().substring(0, 30);
+          var tb = (ziele[j].titel||"").toLowerCase().substring(0, 30);
+          if (ta === tb) { duplikate.add(i); duplikate.add(j); }
+        }
+      }
+      _jahreszieleZiele = ziele;
+      _zeigeJahreszieleErgebnisse(ziele, duplikate);
+    }
+
+    function _zeigeJahreszieleErgebnisse(ziele, duplikate) {
+      var html = '<div style="font-weight:600;font-size:13px;color:#2d7a8e;margin-bottom:12px">' +
+        ziele.length + ' SMART-Ziele generiert' +
+        (duplikate.size > 0 ? ' &nbsp;<span style="color:#e67e22;font-size:12px">⚠ ' + Math.floor(duplikate.size/2) + ' mögliche Duplikate</span>' : '') + '</div>';
+      ziele.forEach(function(z, idx) {
+        var isDup = duplikate.has(idx);
+        var katCol = _jzKatColors[z.kategorie] || "#888";
+        var priCol = _jzPriColors[z.prioritaet] || "#888";
+        html += '<div class="jz-ziel-card' + (isDup ? ' jz-duplikat' : '') + '">';
+        html += '<div class="jz-ziel-header">';
+        html += '<span class="jz-ziel-nr">' + (z.ziel_nr || "Z?") + '</span>';
+        html += '<span class="jz-ziel-titel">' + _escHtml(z.titel || "") + '</span>';
+        html += '<span class="jz-badge-ki-ziel">KI</span>';
+        if (isDup) html += '<span class="jz-badge-dup">⚠ Duplikat</span>';
+        html += '<span class="jz-badge-kat" style="background:' + katCol + '">' + (z.kategorie||"") + '</span>';
+        html += '<span class="jz-badge-pri" style="border-color:' + priCol + ';color:' + priCol + '">' + (z.prioritaet||"") + '</span>';
+        html += '</div>';
+        html += '<div class="jz-smart-grid">';
+        [["S","Spezifisch","s_spezifisch"],["M","Messbar","m_messbar"],["A","Erreichbar","a_erreichbar"],["R","Relevant","r_relevant"]].forEach(function(r) {
+          html += '<div class="jz-smart-zeile"><span class="jz-smart-buchstabe">' + r[0] + '</span><span class="jz-smart-label">' + r[1] + '</span><span class="jz-smart-text">' + _escHtml(z[r[2]]||"–") + '</span></div>';
+        });
+        html += '<div class="jz-smart-zeile"><span class="jz-smart-buchstabe">T</span><span class="jz-smart-label">Terminiert</span><span class="jz-smart-text"><strong>' + _escHtml(z.t_beschreibung||z.t_terminiert||"–") + '</strong></span></div>';
+        html += '</div>';
+        html += '<div class="jz-ziel-footer">';
+        if (z.verantwortlicher) html += '<span class="jz-info-chip">👤 ' + _escHtml(z.verantwortlicher) + '</span>';
+        if (z.abgeleitete_meilensteine && z.abgeleitete_meilensteine.length) html += '<span class="jz-info-chip">🔗 ' + z.abgeleitete_meilensteine.join(", ") + '</span>';
+        html += '</div></div>';
+      });
+      var el = document.getElementById("jz-ergebnisse");
+      el.innerHTML = html; el.style.display = "block";
+      document.getElementById("btn-jz-exportieren").style.display = "inline-block";
+      el.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    function _escHtml(t) {
+      return String(t).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+    }
+
+    function exportiereJahreszieleText() {
+      if (!_jahreszieleZiele || !_jahreszieleZiele.length) return;
+      var heute = new Date().toLocaleDateString("de-DE");
+      var zeile = function(n) { return Array(n+1).join("─"); };
+      var lines = ["SMART-JAHRESZIELE – Energie & Asset Management", "Stand: " + heute, "", Array(62).join("═")];
+      _jahreszieleZiele.forEach(function(z, i) {
+        lines.push("", (z.ziel_nr || ("Z"+(i+1))) + ": " + (z.titel||""), zeile(50),
+          "S – Spezifisch:   " + (z.s_spezifisch||"–"),
+          "M – Messbar:      " + (z.m_messbar||"–"),
+          "A – Erreichbar:   " + (z.a_erreichbar||"–"),
+          "R – Relevant:     " + (z.r_relevant||"–"),
+          "T – Terminiert:   " + (z.t_beschreibung||z.t_terminiert||"–"),
+          "Verantwortlich:   " + (z.verantwortlicher||"–"),
+          "Kategorie:        " + (z.kategorie||"–") + "  |  Priorität: " + (z.prioritaet||"–"));
+        if (z.abgeleitete_meilensteine && z.abgeleitete_meilensteine.length)
+          lines.push("Meilensteine:     " + z.abgeleitete_meilensteine.join(", "));
+        lines.push("[KI-generiert]");
+      });
+      lines.push("", Array(62).join("═"), "Generiert mit SWM Lageplan | Energie & Asset Management");
+      var text = lines.join("\n");
+      var btn = document.getElementById("btn-jz-exportieren");
+      var success = function() { btn.textContent = "✓ In Zwischenablage kopiert!"; setTimeout(function() { btn.textContent = "↓ Als Text exportieren"; }, 3000); };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(success);
+      } else {
+        var ta = document.createElement("textarea"); ta.value = text;
+        ta.style.cssText = "position:fixed;opacity:0"; document.body.appendChild(ta);
+        ta.select(); document.execCommand("copy"); document.body.removeChild(ta); success();
+      }
+    }
+
+window.MS={exportiereJSON,zeigeDetail,renderMini,oeffneMsFormular,schliesseMsFormular,speichereMs,toggleDeadlineFelder,themaGewaehlt,fragenLoeschen,schliesseLoeschen,bestaetigeLoeschen,ladeVonGithub,oeffneJahreszieleModal,schliesseJahreszieleModal,_jahreszieleKopierePrompt,_jahreszieleVerarbeite,exportiereJahreszieleText,getDaten:function(){ return meilensteinData; },redraw:function(){zeichneGantt(gefilterteDaten());},refresh:refreshGanttUndMini};
 })();
 </script>
 <script>/* ===== GitHub Sync ===== */
