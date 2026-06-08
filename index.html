@@ -5887,6 +5887,7 @@ window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisieru
       { label: "6M", monate:  6, einheit: "monat"   }
     ];
     let aktuellerZoom = 0;
+    let _ganttAufgeklappt = false;
 
     // -----------------------------------------------------------------------
     // Filter-Zustand
@@ -6087,6 +6088,7 @@ window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisieru
     }
 
     function wendeFilterAn() {
+      _ganttAufgeklappt = false;
       const daten = gefilterteDaten();
       zeichneGantt(daten);
       aktualisiereFilterInfoMitDaten(daten);
@@ -6260,6 +6262,8 @@ window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisieru
     function zeichneGantt(daten) {
       d3.select("#gantt-svg").remove();
       d3.select("#gantt-leer").remove();
+      var altBtn = document.getElementById("gantt-mehr-btn");
+      if (altBtn) altBtn.remove();
 
       if (!daten || daten.length === 0) {
         d3.select("#ms-gantt-bereich")
@@ -6270,6 +6274,12 @@ window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisieru
           .style("font-size", "14px")
           .text("Keine Meilensteine entsprechen dem aktuellen Filter.");
         return;
+      }
+
+      const GANTT_LIMIT  = 15;
+      const gesamtAnzahl = daten.length;
+      if (!_ganttAufgeklappt && gesamtAnzahl > GANTT_LIMIT) {
+        daten = daten.slice(0, GANTT_LIMIT);
       }
 
       const zoom       = zoomStufen[aktuellerZoom];
@@ -6722,6 +6732,21 @@ window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisieru
             .attr("marker-end", `url(#${markerId})`);
         });
       });
+
+      if (gesamtAnzahl > GANTT_LIMIT) {
+        const btn = document.createElement("div");
+        btn.id = "gantt-mehr-btn";
+        const rest = gesamtAnzahl - GANTT_LIMIT;
+        btn.innerHTML = _ganttAufgeklappt
+          ? `<span>▲ Weniger anzeigen</span>`
+          : `<span>▼ ${rest} weitere Meilenstein${rest === 1 ? "" : "e"} anzeigen <span style="color:#aaa;font-size:11px">(${gesamtAnzahl} gesamt)</span></span>`;
+        btn.style.cssText = "text-align:center;padding:10px 0 6px;cursor:pointer;color:#2d7a8e;font-size:13px;border-top:1px solid #e8f0f3;user-select:none";
+        btn.addEventListener("click", function() {
+          _ganttAufgeklappt = !_ganttAufgeklappt;
+          zeichneGantt(gefilterteDaten());
+        });
+        document.getElementById("ms-gantt-bereich").appendChild(btn);
+      }
     }
 
     // -----------------------------------------------------------------------
