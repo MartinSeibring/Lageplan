@@ -2861,6 +2861,42 @@ body {
       </div>
     </div>
   </div>
+  <!-- ── Themenradar: Dokument-Analyse Modal ──────────────── -->
+  <div id="tr-dok-modal" onclick="TR.schliesseDokModal()">
+    <div class="tr-dok-box" onclick="event.stopPropagation()">
+      <div class="tr-dok-header">
+        <h3>📄 Themen aus Dokument extrahieren</h3>
+        <button onclick="TR.schliesseDokModal()" style="background:none;border:none;font-size:18px;cursor:pointer;color:#888;line-height:1;padding:0">✕</button>
+      </div>
+      <div class="tr-dok-body">
+        <div class="tr-dok-dropzone" id="tr-dok-dropzone"
+          onclick="document.getElementById('tr-dok-datei').click()"
+          ondragover="event.preventDefault();this.classList.add('drag-over')"
+          ondragleave="this.classList.remove('drag-over')"
+          ondrop="event.preventDefault();this.classList.remove('drag-over');TR._trDokDropped(event)">
+          <div style="font-size:28px;margin-bottom:6px">📄</div>
+          <div>PDF hier ablegen oder <strong>klicken</strong> zum Auswählen</div>
+          <div class="tr-dok-datei-name" id="tr-dok-datei-name"></div>
+          <input type="file" id="tr-dok-datei" accept=".pdf" style="display:none"
+            onchange="TR._trDokDateiGewaehlt(this)">
+        </div>
+        <div style="margin-top:14px">
+          <label style="font-size:12px;font-weight:600;color:#555;display:block;margin-bottom:4px">Kontext (optional)</label>
+          <textarea id="tr-dok-kontext" style="width:100%;box-sizing:border-box;font-size:12px;padding:8px;border:1px solid #ddd;border-radius:5px;resize:vertical;font-family:inherit;color:#333;min-height:64px" placeholder="z. B. Fokus auf regulatorische Risiken für Netzbetreiber…"></textarea>
+        </div>
+        <div id="tr-dok-fortschritt" style="display:none;margin-top:14px;text-align:center;color:#2d7a8e;font-size:13px">
+          <div style="font-size:24px;margin-bottom:4px">⟳</div>
+          <div id="tr-dok-ft-text">Dokument wird analysiert…</div>
+        </div>
+        <div id="tr-dok-fehler" style="display:none;margin-top:12px;padding:8px 12px;background:#fdecea;border:1px solid #f5c6cb;border-radius:5px;font-size:12px;color:#c0392b"></div>
+      </div>
+      <div class="tr-dok-footer">
+        <button id="btn-tr-dok-abbrechen" onclick="TR.schliesseDokModal()" style="padding:7px 18px;font-size:13px;background:#f0f0f0;border:none;border-radius:5px;cursor:pointer;font-family:inherit">Abbrechen</button>
+        <button id="btn-tr-dok-starten" onclick="TR.starteDokAnalyse()" disabled style="padding:7px 18px;font-size:13px;background:#2d7a8e;color:#fff;border:none;border-radius:5px;cursor:pointer;font-family:inherit;opacity:0.5">Analysieren</button>
+      </div>
+    </div>
+  </div>
+
   <div id="hinweis" style="position:absolute;top:70px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:8px 16px;border-radius:4px;font-size:13px;opacity:1;transition:opacity 1s;pointer-events:none;z-index:100">
     Hover über einen Punkt für Details – Klick für Vollansicht
   </div>
@@ -3501,6 +3537,16 @@ body {
 
     radarData.forEach(d => d.radar_score = berechneScore(d));
 
+    (function() {
+      try {
+        var _gel = JSON.parse(localStorage.getItem("radarData-geloescht") || "[]");
+        var _gelSet = new Set(_gel);
+        for (var _i = radarData.length - 1; _i >= 0; _i--) {
+          if (_gelSet.has(radarData[_i].id)) radarData.splice(_i, 1);
+        }
+      } catch(e) {}
+    })();
+
     const winkelMap = {
       regulatorisch:  270 * Math.PI / 180,
       marktlich:        0 * Math.PI / 180,
@@ -3829,15 +3875,10 @@ body {
             style="padding:4px 10px;font-size:11px;background:#f5f5f5;border:1px solid #ddd;border-radius:4px;cursor:pointer">
             ✎ Bearbeiten
           </button>
-          ${d.manuell_erfasst
-            ? `<button id="btn-thema-loeschen"
-                style="margin-left:auto;background:none;border:none;font-size:11px;color:#c0392b;cursor:pointer;padding:4px 0">
-                Löschen
-               </button>`
-            : `<span style="margin-left:auto;font-size:10px;color:#ccc;text-align:right;line-height:1.3">
-                Nur via JSON löschbar
-               </span>`
-          }
+          <button id="btn-thema-loeschen"
+            style="margin-left:auto;background:none;border:none;font-size:11px;color:#c0392b;cursor:pointer;padding:4px 0">
+            Löschen
+          </button>
         </div>
       `;
 
@@ -3915,12 +3956,9 @@ body {
       document.getElementById("btn-thema-bearbeiten").addEventListener("click", function() {
         oeffneThemaFormularBearbeiten(d);
       });
-      // Löschen-Button (nur bei manuell erfassten Themen)
-      if (d.manuell_erfasst) {
-        document.getElementById("btn-thema-loeschen").addEventListener("click", function() {
-          zeigeLoeschenModal(d);
-        });
-      }
+      document.getElementById("btn-thema-loeschen").addEventListener("click", function() {
+        zeigeLoeschenModal(d);
+      });
     }
 
     function aktualisiereRangliste(gefilterteDaten) {
@@ -4716,7 +4754,17 @@ body {
 
     function loescheThema(id) {
       const idx = radarData.findIndex(d => d.id === id);
-      if (idx !== -1) radarData.splice(idx, 1);
+      if (idx !== -1) {
+        const eintrag = radarData[idx];
+        radarData.splice(idx, 1);
+        if (!eintrag.manuell_erfasst) {
+          try {
+            var _gel = JSON.parse(localStorage.getItem("radarData-geloescht") || "[]");
+            if (!_gel.includes(id)) _gel.push(id);
+            localStorage.setItem("radarData-geloescht", JSON.stringify(_gel));
+          } catch(e) {}
+        }
+      }
       schliesseLoeschenModal();
       zeichnePunkte();
       document.getElementById("detail-panel").style.display = "none";
@@ -5618,7 +5666,260 @@ body {
       document.body.appendChild(panel);
     }
 
-window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisierung,schliesseThemaFormular,aktualisiereScore,aktualisiereSlider,speichereThema,schliesseLoeschenModal,filterAktualisieren,zeigeDetail,oeffneKiModal,schliesseKiModal,_kiWechsleTab,_kiSetzeUrl,_kiKopierePrompt,starteKiAnalyse,ladeVonGithub,redraw:zeichnePunkte,renderMini:renderMini,getDaten:function(){ return radarData; },getManuell:function(){ return radarData.filter(d=>d.manuell_erfasst); }};
+    // ── Dokument-Analyse ─────────────────────────────────
+    var _trDokDatei = null;
+
+    function oeffneDokModal() {
+      _trDokDatei = null;
+      document.getElementById("tr-dok-datei-name").textContent = "";
+      document.getElementById("tr-dok-kontext").value = "";
+      document.getElementById("tr-dok-fortschritt").style.display = "none";
+      document.getElementById("tr-dok-fehler").style.display = "none";
+      var btn = document.getElementById("btn-tr-dok-starten");
+      if (btn) { btn.disabled = true; btn.style.opacity = "0.5"; btn.textContent = "Analysieren"; }
+      var abbr = document.getElementById("btn-tr-dok-abbrechen");
+      if (abbr) abbr.disabled = false;
+      document.getElementById("tr-dok-modal").classList.add("offen");
+    }
+
+    function schliesseDokModal() {
+      document.getElementById("tr-dok-modal").classList.remove("offen");
+    }
+
+    function _trDokDateiGewaehlt(input) {
+      var file = input && input.files && input.files[0];
+      if (!file) return;
+      _trDokDatei = file;
+      document.getElementById("tr-dok-datei-name").textContent = file.name;
+      var btn = document.getElementById("btn-tr-dok-starten");
+      if (btn) { btn.disabled = false; btn.style.opacity = ""; }
+    }
+
+    function _trDokDropped(e) {
+      var file = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+      if (!file || file.type !== "application/pdf") return;
+      _trDokDatei = file;
+      document.getElementById("tr-dok-datei-name").textContent = file.name;
+      var btn = document.getElementById("btn-tr-dok-starten");
+      if (btn) { btn.disabled = false; btn.style.opacity = ""; }
+      try { var dt = new DataTransfer(); dt.items.add(file); document.getElementById("tr-dok-datei").files = dt.files; } catch(e2) {}
+    }
+
+    async function starteDokAnalyse() {
+      if (!_trDokDatei) return;
+      var btn    = document.getElementById("btn-tr-dok-starten");
+      var abbr   = document.getElementById("btn-tr-dok-abbrechen");
+      var fort   = document.getElementById("tr-dok-fortschritt");
+      var ftText = document.getElementById("tr-dok-ft-text");
+      var fehler = document.getElementById("tr-dok-fehler");
+      fehler.style.display = "none";
+      if (btn) { btn.disabled = true; btn.style.opacity = "0.7"; btn.textContent = "⏳ Analysiert…"; }
+      if (abbr) abbr.disabled = true;
+      if (fort) fort.style.display = "block";
+      if (ftText) ftText.textContent = "PDF wird eingelesen…";
+      try {
+        var base64 = await _kiLesePdfAlsBase64(_trDokDatei);
+        if (ftText) ftText.textContent = "Themen werden extrahiert – dies kann 15–30 Sekunden dauern…";
+        var kontext = (document.getElementById("tr-dok-kontext") || {}).value || "";
+        var res = await fetch("http://localhost:5050/ki-analyse", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ inhalt: base64, kontext: kontext, modus: "themenradar" })
+        });
+        var data = {};
+        try { data = await res.json(); } catch(e2) {}
+        if (!res.ok || data.error) throw new Error(data.error || "Analyse-Server-Fehler (HTTP " + res.status + ").");
+        var vorschlaege = Array.isArray(data.vorschlaege) ? data.vorschlaege : [];
+        if (!vorschlaege.length) throw new Error("Keine Themen im Dokument gefunden.");
+        schliesseDokModal();
+        _zeigeThemenVorschlaege(vorschlaege);
+      } catch(err) {
+        if (fort) fort.style.display = "none";
+        fehler.textContent = "⚠ " + (err.message || "Unbekannter Fehler");
+        fehler.style.display = "block";
+        if (btn) { btn.disabled = false; btn.style.opacity = ""; btn.textContent = "Analysieren"; }
+        if (abbr) abbr.disabled = false;
+      }
+    }
+
+    function _zeigeThemenVorschlaege(vorschlaege) {
+      var alt = document.getElementById("tr-vorschlaege-panel");
+      if (alt) alt.remove();
+      if (!vorschlaege.length) return;
+
+      var katFarben = { regulatorisch:"#E24B4A", marktlich:"#378ADD", technologisch:"#1D9E75", wettbewerblich:"#534AB7" };
+      var katLabels = { regulatorisch:"Regulatorisch", marktlich:"Marktlich", technologisch:"Technologisch", wettbewerblich:"Wettbewerblich" };
+      var zeithorizonte = { kurzfristig:"Kurzfristig", mittelfristig:"Mittelfristig", langfristig:"Langfristig" };
+
+      var zustand = vorschlaege.map(function() { return { uebernommen: false, ignoriert: false }; });
+
+      function _trVorschlagZuEintrag(v) {
+        return {
+          id: Date.now() + Math.floor(Math.random() * 9000 + 1000),
+          titel: v.titel || "Neues Thema",
+          kategorie: v.kategorie || "regulatorisch",
+          zeithorizont: v.zeithorizont || "mittelfristig",
+          auswirkung: Math.min(5, Math.max(1, parseInt(v.auswirkung) || 3)),
+          unsicherheit: Math.min(5, Math.max(1, parseInt(v.unsicherheit) || 3)),
+          beschreibung: v.beschreibung || "",
+          strategische_cluster: Array.isArray(v.vorgeschlagene_cluster) ? v.vorgeschlagene_cluster : (Array.isArray(v.strategische_cluster) ? v.strategische_cluster : []),
+          tags: Array.isArray(v.tags) ? v.tags : [],
+          quelle: v.quelle || "",
+          manuell_erfasst: true,
+          ki_extrahiert: true
+        };
+      }
+
+      function uebernehmeEintrag(idx) {
+        if (zustand[idx].uebernommen || zustand[idx].ignoriert) return;
+        zustand[idx].uebernommen = true;
+        var eintrag = _trVorschlagZuEintrag(vorschlaege[idx]);
+        eintrag.radar_score = berechneScore(eintrag);
+        var dupId = new Set(radarData.map(function(d) { return String(d.id); }));
+        if (!dupId.has(String(eintrag.id))) radarData.push(eintrag);
+        speichereManuelleThemen();
+        zeichnePunkte();
+        var karte = document.getElementById("tr-vp-karte-" + idx);
+        var btn   = document.getElementById("tr-vp-btn-" + idx);
+        if (karte) karte.classList.add("uebernommen");
+        if (btn)   { btn.disabled = true; btn.textContent = "✓ Übernommen"; btn.style.background = "#1D9E75"; }
+      }
+
+      function bearbeiteEintrag(idx) {
+        var v = vorschlaege[idx];
+        var eintrag = _trVorschlagZuEintrag(v);
+        // Formular öffnen und befüllen
+        oeffneThemaFormular();
+        setTimeout(function() {
+          var t = document.getElementById("f-titel");         if (t) t.value = eintrag.titel;
+          var k = document.getElementById("f-kategorie");     if (k) k.value = eintrag.kategorie;
+          var z = document.getElementById("f-zeithorizont");  if (z) z.value = eintrag.zeithorizont;
+          var a = document.getElementById("f-auswirkung");    if (a) { a.value = eintrag.auswirkung; TR.aktualisiereSlider("f-auswirkung","f-auswirkung-anzeige"); }
+          var u = document.getElementById("f-unsicherheit");  if (u) { u.value = eintrag.unsicherheit; TR.aktualisiereSlider("f-unsicherheit","f-unsicherheit-anzeige"); }
+          var b = document.getElementById("f-beschreibung");  if (b) b.value = eintrag.beschreibung;
+          var tg = document.getElementById("f-tags");         if (tg) tg.value = eintrag.tags.join(", ");
+          var q  = document.getElementById("f-quelle");       if (q) q.value = eintrag.quelle || "";
+          document.querySelectorAll(".f-cluster").forEach(function(cb) {
+            cb.checked = eintrag.strategische_cluster.includes(cb.value);
+          });
+          TR.aktualisiereScore();
+          document.getElementById("tf-header-titel").textContent = "Thema bearbeiten";
+        }, 60);
+        zustand[idx].ignoriert = true;
+        var karte = document.getElementById("tr-vp-karte-" + idx);
+        if (karte) karte.classList.add("ignoriert");
+      }
+
+      // Panel aufbauen
+      var panel = document.createElement("div");
+      panel.id = "tr-vorschlaege-panel";
+
+      var header = document.createElement("div");
+      header.style.cssText = "position:sticky;top:0;background:#fff;z-index:1;padding:14px 16px 10px;border-bottom:1px solid #eee";
+      var tZ = document.createElement("div");
+      tZ.style.cssText = "display:flex;align-items:center;justify-content:space-between;margin-bottom:8px";
+      var tH = document.createElement("div");
+      tH.style.cssText = "font-size:14px;font-weight:600;color:#333";
+      tH.textContent = "Gefundene Themen";
+      var badge = document.createElement("span");
+      badge.textContent = vorschlaege.length + " Vorschläge";
+      badge.style.cssText = "background:#e8f4f7;color:#2d7a8e;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:600;margin-left:8px";
+      tH.appendChild(badge);
+      var closeBtn = document.createElement("button");
+      closeBtn.textContent = "✕";
+      closeBtn.style.cssText = "background:none;border:none;font-size:16px;cursor:pointer;color:#888;padding:0 4px;line-height:1";
+      closeBtn.onclick = function() { panel.remove(); };
+      tZ.appendChild(tH); tZ.appendChild(closeBtn);
+      var alleBtn = document.createElement("button");
+      alleBtn.textContent = "Alle übernehmen";
+      alleBtn.style.cssText = "padding:4px 12px;font-size:11px;background:#2d7a8e;color:#fff;border:none;border-radius:4px;cursor:pointer;font-weight:600;font-family:inherit;width:100%";
+      alleBtn.onclick = function() {
+        vorschlaege.forEach(function(_, i) { uebernehmeEintrag(i); });
+        alleBtn.disabled = true; alleBtn.textContent = "✓ Alle übernommen"; alleBtn.style.background = "#1D9E75";
+      };
+      header.appendChild(tZ);
+      header.appendChild(alleBtn);
+      panel.appendChild(header);
+
+      var body = document.createElement("div");
+      body.style.cssText = "padding:12px 14px";
+
+      vorschlaege.forEach(function(v, idx) {
+        var karte = document.createElement("div");
+        karte.id = "tr-vp-karte-" + idx;
+        karte.className = "tr-vp-karte";
+        var kf = katFarben[v.kategorie] || "#888";
+        karte.style.borderLeftColor = kf;
+
+        // Titel
+        var tEl = document.createElement("div");
+        tEl.style.cssText = "font-size:13px;font-weight:600;color:#333;margin-bottom:4px;line-height:1.35";
+        tEl.textContent = v.titel || "—";
+        karte.appendChild(tEl);
+
+        // Badges: Kategorie + Zeithorizont
+        var badgeRow = document.createElement("div");
+        badgeRow.style.cssText = "display:flex;gap:5px;flex-wrap:wrap;margin-bottom:5px";
+        var kb = document.createElement("span");
+        kb.style.cssText = "font-size:9px;font-weight:700;color:" + kf + ";background:" + kf + "18;border-radius:3px;padding:1px 6px";
+        kb.textContent = katLabels[v.kategorie] || v.kategorie || "—";
+        var zb = document.createElement("span");
+        zb.style.cssText = "font-size:9px;color:#555;background:#f0f0f0;border-radius:3px;padding:1px 6px";
+        zb.textContent = zeithorizonte[v.zeithorizont] || v.zeithorizont || "—";
+        var ab = document.createElement("span");
+        ab.style.cssText = "font-size:9px;color:#555;background:#f0f0f0;border-radius:3px;padding:1px 6px";
+        ab.textContent = "Auswirkung " + (v.auswirkung || 3) + "/5 · Unsicherheit " + (v.unsicherheit || 3) + "/5";
+        badgeRow.appendChild(kb); badgeRow.appendChild(zb); badgeRow.appendChild(ab);
+        karte.appendChild(badgeRow);
+
+        // Beschreibung
+        if (v.beschreibung) {
+          var bEl = document.createElement("div");
+          bEl.style.cssText = "font-size:11px;color:#555;line-height:1.5;margin-bottom:6px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden";
+          bEl.textContent = v.beschreibung;
+          karte.appendChild(bEl);
+        }
+
+        // Tags
+        var tags = Array.isArray(v.tags) ? v.tags : [];
+        if (tags.length) {
+          var tagRow = document.createElement("div");
+          tagRow.style.cssText = "display:flex;gap:3px;flex-wrap:wrap;margin-bottom:7px";
+          tags.slice(0,5).forEach(function(t) {
+            var ts = document.createElement("span");
+            ts.style.cssText = "font-size:9px;background:#e8f0f3;color:#2d7a8e;border-radius:3px;padding:1px 5px";
+            ts.textContent = t; tagRow.appendChild(ts);
+          });
+          karte.appendChild(tagRow);
+        }
+
+        // Buttons
+        var btnRow = document.createElement("div");
+        btnRow.style.cssText = "display:flex;gap:6px";
+        var btnUe = document.createElement("button");
+        btnUe.id = "tr-vp-btn-" + idx;
+        btnUe.textContent = "✓ Übernehmen";
+        btnUe.style.cssText = "flex:1;padding:4px 0;font-size:11px;background:#2d7a8e;color:#fff;border:none;border-radius:4px;cursor:pointer;font-family:inherit;font-weight:600";
+        btnUe.onclick = (function(i) { return function() { uebernehmeEintrag(i); }; })(idx);
+        var btnBe = document.createElement("button");
+        btnBe.textContent = "✎ Bearbeiten";
+        btnBe.style.cssText = "flex:1;padding:4px 0;font-size:11px;background:#f5f5f5;color:#333;border:1px solid #ddd;border-radius:4px;cursor:pointer;font-family:inherit";
+        btnBe.onclick = (function(i) { return function() { bearbeiteEintrag(i); }; })(idx);
+        var btnIg = document.createElement("button");
+        btnIg.textContent = "✕";
+        btnIg.title = "Ignorieren";
+        btnIg.style.cssText = "padding:4px 8px;font-size:11px;background:none;color:#bbb;border:1px solid #e8e8e8;border-radius:4px;cursor:pointer;font-family:inherit";
+        btnIg.onclick = (function(i) { return function() { zustand[i].ignoriert=true; var k=document.getElementById("tr-vp-karte-"+i); if(k) k.classList.add("ignoriert"); }; })(idx);
+        btnRow.appendChild(btnUe); btnRow.appendChild(btnBe); btnRow.appendChild(btnIg);
+        karte.appendChild(btnRow);
+        body.appendChild(karte);
+      });
+
+      panel.appendChild(body);
+      document.body.appendChild(panel);
+    }
+
+window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisierung,schliesseThemaFormular,aktualisiereScore,aktualisiereSlider,speichereThema,schliesseLoeschenModal,filterAktualisieren,zeigeDetail,oeffneKiModal,schliesseKiModal,_kiWechsleTab,_kiSetzeUrl,_kiKopierePrompt,starteKiAnalyse,ladeVonGithub,redraw:zeichnePunkte,renderMini:renderMini,getDaten:function(){ return radarData; },getManuell:function(){ return radarData.filter(d=>d.manuell_erfasst); },oeffneDokModal,schliesseDokModal,starteDokAnalyse,_trDokDateiGewaehlt,_trDokDropped};
 })();
 </script>
 <script>/* ===== Meilensteine ===== */
