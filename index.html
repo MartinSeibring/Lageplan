@@ -2472,6 +2472,23 @@ body {
 #btn-gh-speichern { background: var(--swm-blau-dunkel); color: #fff; border: none; border-radius: 6px; padding: 7px 16px; font-size: 13px; cursor: pointer; font-weight: 600; }
 #btn-gh-speichern:hover { background: var(--swm-blau); }
 
+    /* ── Dokument-Analyse Modal ── */
+    #tr-dok-modal { position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:1200;display:none;align-items:center;justify-content:center; }
+    #tr-dok-modal.offen { display:flex; }
+    .tr-dok-box { background:#fff;border-radius:10px;width:520px;max-width:95vw;max-height:90vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,0.22); }
+    .tr-dok-header { display:flex;align-items:center;justify-content:space-between;padding:16px 20px 12px;border-bottom:1px solid #eee;background:#f8fafb; }
+    .tr-dok-header h3 { margin:0;font-size:15px;font-weight:700;color:#2d7a8e; }
+    .tr-dok-body { flex:1;overflow-y:auto;padding:18px 20px; }
+    .tr-dok-dropzone { border:2px dashed #b0d0da;border-radius:8px;padding:24px 16px;text-align:center;cursor:pointer;transition:background .2s;color:#555;font-size:13px; }
+    .tr-dok-dropzone:hover,.tr-dok-dropzone.drag-over { background:#e8f4f7;border-color:#2d7a8e; }
+    .tr-dok-datei-name { margin-top:8px;font-size:12px;color:#2d7a8e;font-weight:600;min-height:16px; }
+    .tr-dok-footer { display:flex;gap:8px;justify-content:flex-end;padding:12px 20px;border-top:1px solid #eee;background:#f8fafb; }
+    /* ── Themenradar Vorschläge Panel ── */
+    #tr-vorschlaege-panel { position:fixed;right:16px;top:80px;width:400px;max-height:calc(100vh - 100px);overflow-y:auto;z-index:900;background:#fff;border-radius:8px;border-top:3px solid #2d7a8e;box-shadow:0 4px 24px rgba(0,0,0,0.15);font-family:inherit; }
+    .tr-vp-karte { border:0.5px solid #dde8eb;border-left:3px solid #888;border-radius:4px;padding:10px 12px;margin-bottom:8px;transition:opacity .3s,background .3s; }
+    .tr-vp-karte.uebernommen { border-left-color:#1D9E75!important;background:#f0faf5; }
+    .tr-vp-karte.ignoriert { opacity:0.3;pointer-events:none; }
+
   </style>
 </head>
 <body>
@@ -2703,8 +2720,16 @@ body {
     <div class="tf-box" onclick="event.stopPropagation()">
 
       <div class="tf-header">
-        <h2>Neues Thema erfassen</h2>
+        <h2 id="tf-header-titel">Neues Thema erfassen</h2>
         <button class="tf-schliessen" onclick="TR.schliesseThemaFormular()" title="Schließen">✕</button>
+      </div>
+      <div style="margin:0 0 12px;padding:10px 12px;background:#f0f7fa;border-radius:6px;border:1px dashed #b0d0da;display:flex;align-items:center;gap:10px">
+        <span style="font-size:20px">📄</span>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:12px;font-weight:600;color:#2d7a8e;margin-bottom:2px">Themen aus Dokument extrahieren</div>
+          <div style="font-size:11px;color:#888;line-height:1.4">PDF hochladen → KI schlägt passende Radareinträge vor</div>
+        </div>
+        <button onclick="TR.oeffneDokModal()" style="padding:6px 14px;font-size:12px;background:#2d7a8e;color:#fff;border:none;border-radius:5px;cursor:pointer;white-space:nowrap;font-family:inherit">📄 Dokument</button>
       </div>
 
       <!-- 1. Titel -->
