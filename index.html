@@ -4720,6 +4720,25 @@ body {
         : `${y} Themen gesamt (keine manuell erfasst)`;
     }
 
+    // ── GitHub-Daten laden (ersetzt lokale manuell_erfasst-Einträge) ──
+    function ladeVonGithub(daten) {
+      if (!Array.isArray(daten)) return;
+      for (var i = radarData.length - 1; i >= 0; i--) {
+        if (radarData[i].manuell_erfasst) radarData.splice(i, 1);
+      }
+      var vorhandeneIds = new Set(radarData.map(d => d.id));
+      daten.forEach(function(d) {
+        if (d.id && !vorhandeneIds.has(d.id)) {
+          d.radar_score = berechneScore(d);
+          radarData.push(d);
+          vorhandeneIds.add(d.id);
+        }
+      });
+      try { localStorage.setItem("radarData-manuell", JSON.stringify(daten)); } catch(e) {}
+      aktualisiereManuellCounter();
+      zeichnePunkte();
+    }
+
     // ── Manuell erfasste Themen in localStorage sichern ──
     function speichereManuelleThemen() {
       const manuell = radarData.filter(d => d.manuell_erfasst);
@@ -4727,6 +4746,7 @@ body {
         localStorage.setItem("radarData-manuell", JSON.stringify(manuell));
       } catch (e) { /* Storage voll – ignorieren */ }
       aktualisiereManuellCounter();
+      if (window.GH && GH.debouncedThemenSync) GH.debouncedThemenSync();
     }
 
     // ── Beim Seitenstart: manuell erfasste Themen laden ──
@@ -5573,7 +5593,7 @@ body {
       document.body.appendChild(panel);
     }
 
-window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisierung,schliesseThemaFormular,aktualisiereScore,aktualisiereSlider,speichereThema,schliesseLoeschenModal,filterAktualisieren,zeigeDetail,oeffneKiModal,schliesseKiModal,_kiWechsleTab,_kiSetzeUrl,_kiKopierePrompt,starteKiAnalyse,redraw:zeichnePunkte,renderMini:renderMini,getDaten:function(){ return radarData; }};
+window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisierung,schliesseThemaFormular,aktualisiereScore,aktualisiereSlider,speichereThema,schliesseLoeschenModal,filterAktualisieren,zeigeDetail,oeffneKiModal,schliesseKiModal,_kiWechsleTab,_kiSetzeUrl,_kiKopierePrompt,starteKiAnalyse,ladeVonGithub,redraw:zeichnePunkte,renderMini:renderMini,getDaten:function(){ return radarData; },getManuell:function(){ return radarData.filter(d=>d.manuell_erfasst); }};
 })();
 </script>
 <script>/* ===== Meilensteine ===== */
@@ -5867,6 +5887,7 @@ window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisieru
       { label: "6M", monate:  6, einheit: "monat"   }
     ];
     let aktuellerZoom = 0;
+    let _ganttAufgeklappt = false;
 
     // -----------------------------------------------------------------------
     // Filter-Zustand
@@ -6067,6 +6088,7 @@ window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisieru
     }
 
     function wendeFilterAn() {
+      _ganttAufgeklappt = false;
       const daten = gefilterteDaten();
       zeichneGantt(daten);
       aktualisiereFilterInfoMitDaten(daten);
@@ -6240,6 +6262,8 @@ window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisieru
     function zeichneGantt(daten) {
       d3.select("#gantt-svg").remove();
       d3.select("#gantt-leer").remove();
+      var altBtn = document.getElementById("gantt-mehr-btn");
+      if (altBtn) altBtn.remove();
 
       if (!daten || daten.length === 0) {
         d3.select("#ms-gantt-bereich")
@@ -6250,6 +6274,12 @@ window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisieru
           .style("font-size", "14px")
           .text("Keine Meilensteine entsprechen dem aktuellen Filter.");
         return;
+      }
+
+      const GANTT_LIMIT  = 15;
+      const gesamtAnzahl = daten.length;
+      if (!_ganttAufgeklappt && gesamtAnzahl > GANTT_LIMIT) {
+        daten = daten.slice(0, GANTT_LIMIT);
       }
 
       const zoom       = zoomStufen[aktuellerZoom];
@@ -6702,6 +6732,21 @@ window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisieru
             .attr("marker-end", `url(#${markerId})`);
         });
       });
+
+      if (gesamtAnzahl > GANTT_LIMIT) {
+        const btn = document.createElement("div");
+        btn.id = "gantt-mehr-btn";
+        const rest = gesamtAnzahl - GANTT_LIMIT;
+        btn.innerHTML = _ganttAufgeklappt
+          ? `<span>▲ Weniger anzeigen</span>`
+          : `<span>▼ ${rest} weitere Meilenstein${rest === 1 ? "" : "e"} anzeigen <span style="color:#aaa;font-size:11px">(${gesamtAnzahl} gesamt)</span></span>`;
+        btn.style.cssText = "text-align:center;padding:10px 0 6px;cursor:pointer;color:#2d7a8e;font-size:13px;border-top:1px solid #e8f0f3;user-select:none";
+        btn.addEventListener("click", function() {
+          _ganttAufgeklappt = !_ganttAufgeklappt;
+          zeichneGantt(gefilterteDaten());
+        });
+        document.getElementById("ms-gantt-bereich").appendChild(btn);
+      }
     }
 
     // -----------------------------------------------------------------------
@@ -7579,6 +7624,10 @@ window.MS={exportiereJSON,zeigeDetail,renderMini,oeffneMsFormular,schliesseMsFor
   var _sha = null;
   var _syncTimer = null;
   var _syncPending = false;
+  var _themenSha = null;
+  var _themenSyncTimer = null;
+  var _themenSyncPending = false;
+  var THEMEN_PFAD = "data/themen.json";
   var SETTINGS_KEY = "github_sync_settings";
   var DEFAULT = { pat: "", repo: "martinseibring/lageplan", branch: "main", pfad: "data/meilensteine.json" };
 
@@ -7698,6 +7747,82 @@ window.MS={exportiereJSON,zeigeDetail,renderMini,oeffneMsFormular,schliesseMsFor
     return githubZiele.concat(neueLokal);
   }
 
+  // Themen mergen: GitHub-Basis + lokale neue (nicht in GitHub)
+  function _mergeThemen(githubThemen, lokalThemen) {
+    var ghIds = new Set(githubThemen.map(function(t) { return String(t.id); }));
+    var neueLokal = lokalThemen.filter(function(t) { return !ghIds.has(String(t.id)); });
+    return githubThemen.concat(neueLokal);
+  }
+
+  async function speichereThemenDatei(inhalt) {
+    var s = ladeEinstellungen();
+    if (!_themenSha) {
+      var meta = await githubRequest("GET", THEMEN_PFAD + "?ref=" + s.branch);
+      _themenSha = meta.sha;
+    }
+    var encoded = btoa(unescape(encodeURIComponent(JSON.stringify(inhalt, null, 2))));
+    var body = { message: "Themenradar aktualisiert", content: encoded, branch: s.branch, sha: _themenSha };
+    var result = await githubRequest("PUT", THEMEN_PFAD, body);
+    _themenSha = result.content.sha;
+    return result;
+  }
+
+  async function ladeThemen() {
+    var s = ladeEinstellungen();
+    try {
+      var url = "https://raw.githubusercontent.com/" + s.repo + "/" + s.branch + "/" + THEMEN_PFAD + "?t=" + Date.now();
+      var resp = await fetch(url);
+      if (!resp.ok) throw new Error("HTTP " + resp.status);
+      var githubThemen = await resp.json();
+      if (!Array.isArray(githubThemen)) githubThemen = [];
+      var lokalThemen = (window.TR && TR.getManuell) ? TR.getManuell() : [];
+      if (s.pat) {
+        var merged = _mergeThemen(githubThemen, lokalThemen);
+        if (window.TR && TR.ladeVonGithub) TR.ladeVonGithub(merged);
+        var ghIds = new Set(githubThemen.map(function(t) { return String(t.id); }));
+        var neueLokal = lokalThemen.filter(function(t) { return !ghIds.has(String(t.id)); });
+        if (neueLokal.length > 0) { _themenSyncPending = true; ausfuehrenThemenSync(); }
+      } else {
+        if (window.TR && TR.ladeVonGithub) TR.ladeVonGithub(githubThemen);
+      }
+    } catch(e) {
+      console.warn("Themenradar: GitHub laden fehlgeschlagen –", e.message);
+    }
+  }
+
+  async function ausfuehrenThemenSync() {
+    if (!_themenSyncPending) return;
+    _themenSyncPending = false;
+    var s = ladeEinstellungen();
+    if (!s.pat) return;
+    try {
+      var githubMeta = await githubRequest("GET", THEMEN_PFAD + "?ref=" + s.branch);
+      _themenSha = githubMeta.sha;
+      var githubThemen = JSON.parse(decodeURIComponent(escape(atob(githubMeta.content.replace(/\s/g, "")))));
+      if (!Array.isArray(githubThemen)) githubThemen = [];
+      var lokalThemen = (window.TR && TR.getManuell) ? TR.getManuell() : [];
+      var merged = _mergeThemen(githubThemen, lokalThemen);
+      await speichereThemenDatei(merged);
+      if (window.TR && TR.ladeVonGithub) TR.ladeVonGithub(merged);
+    } catch(e) {
+      if (e.status === 409) {
+        _themenSha = null;
+        _themenSyncPending = true;
+        setTimeout(ausfuehrenThemenSync, 1000);
+      } else {
+        console.warn("Themenradar-Sync fehlgeschlagen:", e.message);
+      }
+    }
+  }
+
+  function debouncedThemenSync() {
+    var s = ladeEinstellungen();
+    if (!s.pat) return;
+    _themenSyncPending = true;
+    clearTimeout(_themenSyncTimer);
+    _themenSyncTimer = setTimeout(ausfuehrenThemenSync, 2000);
+  }
+
   // Immer von GitHub laden; PAT-Geräte mergen und laden ihre neuen Einträge hoch
   async function ladeMeilensteine() {
     var s = ladeEinstellungen();
@@ -7797,9 +7922,11 @@ window.MS={exportiereJSON,zeigeDetail,renderMini,oeffneMsFormular,schliesseMsFor
       pfad:   DEFAULT.pfad
     };
     speichereEinstellungen(s);
-    _sha = null; // SHA-Cache verwerfen bei neuen Einstellungen
+    _sha = null;
+    _themenSha = null;
     schliesseEinstellungen();
-    ladeMeilensteine(); // immer neu laden nach Einstellungsänderung
+    ladeMeilensteine();
+    ladeThemen();
   }
 
   async function testeVerbindung() {
@@ -7830,7 +7957,7 @@ window.MS={exportiereJSON,zeigeDetail,renderMini,oeffneMsFormular,schliesseMsFor
   // Initiale Statusanzeige – immer "lesend" bis Laden abgeschlossen
   setzeSyncStatus("lesend", "Lade Daten von GitHub…");
 
-  window.GH = { ladeMeilensteine, debouncedSync, oeffneEinstellungen, schliesseEinstellungen, speichereEinstellungenUndSchliesse, testeVerbindung, ladeEinstellungen };
+  window.GH = { ladeMeilensteine, debouncedSync, oeffneEinstellungen, schliesseEinstellungen, speichereEinstellungenUndSchliesse, testeVerbindung, ladeEinstellungen, ladeThemen, debouncedThemenSync };
 })();
 </script>
 <script>/* ===== Lageplan ===== */
@@ -8515,7 +8642,7 @@ window.ST={speichereEinstellungen,resetteEinstellungen};
   window.App = { activate: activate, wechsleZuTab: wechsleZuTab };
   activate("lageplan");
   // GitHub Sync: Nach kurzem Delay laden, damit alle IIFEs initialisiert sind
-  setTimeout(function() { if (window.GH) GH.ladeMeilensteine(); }, 500);
+  setTimeout(function() { if (window.GH) { GH.ladeMeilensteine(); GH.ladeThemen(); } }, 500);
 })();
 </script>
 
