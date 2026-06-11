@@ -2489,6 +2489,56 @@ body {
     .tr-vp-karte.uebernommen { border-left-color:#1D9E75!important;background:#f0faf5; }
     .tr-vp-karte.ignoriert { opacity:0.3;pointer-events:none; }
 
+    /* ── Forschungsprojekte ── */
+    #fp-kachel-inhalt { display:flex;flex-direction:column;height:100%;overflow:hidden; }
+    .fp-list-item { display:flex;align-items:flex-start;gap:7px;padding:7px 10px;cursor:pointer;border-bottom:1px solid #f0f4f6;transition:background .15s; }
+    .fp-list-item:hover { background:#f5f9fb; }
+    .fp-list-item:last-child { border-bottom:none; }
+    .fp-list-info { flex:1;min-width:0; }
+    .fp-list-titel { font-size:12px;font-weight:600;color:#2d3748;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+    .fp-list-meta { font-size:10px;color:#888;margin-top:2px; }
+    .fp-status-badge { display:inline-block;font-size:9px;font-weight:700;padding:1px 6px;border-radius:8px;white-space:nowrap;flex-shrink:0;margin-top:2px; }
+    .fp-status-aktiv { background:#d4f0e0;color:#1a7a45; }
+    .fp-status-geplant { background:#dbeafe;color:#1d4ed8; }
+    .fp-status-abgeschlossen { background:#e5e7eb;color:#6b7280; }
+    .fp-status-pausiert { background:#fef3c7;color:#92400e; }
+    .fp-kachel-leer { flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:16px;text-align:center;color:#aaa;font-size:12px; }
+    .fp-kachel-actions { display:flex;align-items:center;justify-content:space-between;padding:6px 10px;border-bottom:1px solid #e8f0f3;flex-shrink:0; }
+    .fp-kachel-count { font-size:11px;color:#888; }
+    .fp-neu-btn { padding:3px 10px;font-size:11px;background:#7a6ea0;color:#fff;border:none;border-radius:4px;cursor:pointer;font-family:inherit;font-weight:600; }
+    .fp-neu-btn:hover { background:#6a5e90; }
+    .fp-list-wrap { flex:1;overflow-y:auto; }
+    /* Detail Panel */
+    #fp-detail-panel { position:fixed;right:0;top:0;bottom:0;width:380px;max-width:95vw;background:#fff;box-shadow:-4px 0 24px rgba(0,0,0,0.13);z-index:700;display:none;flex-direction:column;overflow:hidden; }
+    #fp-detail-panel.offen { display:flex; }
+    #fp-detail-kopf { padding:16px 16px 12px;background:linear-gradient(135deg,#7a6ea0 0%,#5d5285 100%);color:#fff;flex-shrink:0; }
+    #fp-detail-kopf h2 { margin:0 0 6px;font-size:15px;font-weight:700;line-height:1.3; }
+    #fp-detail-schliessen { position:absolute;top:12px;right:12px;background:rgba(255,255,255,0.2);border:none;color:#fff;font-size:16px;width:28px;height:28px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;font-family:inherit; }
+    #fp-detail-body { flex:1;overflow-y:auto;padding:16px; }
+    .fp-detail-section { margin-bottom:14px; }
+    .fp-detail-label { font-size:10px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px; }
+    .fp-detail-value { font-size:13px;color:#333;line-height:1.5; }
+    .fp-detail-chips { display:flex;flex-wrap:wrap;gap:4px; }
+    .fp-detail-chip { font-size:10px;background:#f0edf8;color:#5d5285;border-radius:10px;padding:2px 8px; }
+    #fp-detail-buttons { padding:12px 16px;border-top:1px solid #eee;display:flex;gap:8px;flex-shrink:0; }
+    /* Form Modal */
+    #fp-formular-modal { position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1100;display:none;align-items:flex-start;justify-content:center;overflow-y:auto;padding:40px 16px; }
+    #fp-formular-modal.offen { display:flex; }
+    .fp-form-box { background:#fff;border-radius:10px;width:520px;max-width:100%;padding:24px;box-shadow:0 8px 40px rgba(0,0,0,0.2); }
+    .fp-form-header { display:flex;align-items:center;justify-content:space-between;margin-bottom:20px; }
+    .fp-form-header h3 { margin:0;font-size:16px;font-weight:700;color:#5d5285; }
+    .fp-form-gruppe { margin-bottom:14px; }
+    .fp-form-label { display:block;font-size:12px;font-weight:600;color:#555;margin-bottom:4px; }
+    .fp-form-pflicht { color:#c0392b; }
+    .fp-form-input,.fp-form-select,.fp-form-textarea { width:100%;box-sizing:border-box;padding:8px 10px;font-size:13px;border:1px solid #ddd;border-radius:5px;font-family:inherit;color:#333; }
+    .fp-form-textarea { resize:vertical;min-height:72px; }
+    .fp-form-row { display:grid;grid-template-columns:1fr 1fr;gap:12px; }
+    .fp-form-footer { display:flex;justify-content:flex-end;gap:8px;margin-top:20px;padding-top:14px;border-top:1px solid #eee; }
+    .fp-form-fehler { font-size:11px;color:#c0392b;margin-top:3px;display:none; }
+    /* Lösch Modal */
+    #fp-loeschen-modal { position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1200;display:none;align-items:center;justify-content:center; }
+    #fp-loeschen-modal.offen { display:flex; }
+
   </style>
 </head>
 <body>
@@ -2634,22 +2684,16 @@ body {
         </div>
       </div>
 
-      <!-- ── Kachel 4: Projekte & Umsetzung ────────────── -->
+      <!-- ── Kachel 4: Forschungsprojekte ─────────────── -->
       <div class="lp-kachel" data-bereich="projekte">
         <button class="lp-vollbild-exit" onclick="LP.beendeVollbild(this)">✕ Vollbild beenden</button>
         <div class="lp-kachel-header">
-          <span class="lp-kachel-titel">Projekte &amp; Umsetzung</span>
-          <span class="lp-quelle-badge">SAP AC</span>
+          <span class="lp-kachel-titel">Forschungsprojekte</span>
+          <span class="lp-quelle-badge">GitHub</span>
           <button class="lp-vollbild-btn" title="Vollbild" onclick="LP.toggleVollbild(this.closest('.lp-kachel'))">⛶</button>
         </div>
         <div class="lp-kachel-body">
-          <div class="lp-platzhalter">
-            <div class="lp-platzhalter-icon">🏗️</div>
-            <div class="lp-platzhalter-name">SAP Analytic Cloud</div>
-            <div class="lp-platzhalter-beschr">Projektportfolio und Meilensteine aus SAP AC</div>
-            <a class="lp-platzhalter-btn" href="#" target="_blank" rel="noopener">SAP AC öffnen →</a>
-            <div class="lp-platzhalter-hinweis">Bitte SAP AC Link in href eintragen</div>
-          </div>
+          <div id="fp-kachel-inhalt"></div>
         </div>
       </div>
 
@@ -3143,6 +3187,107 @@ body {
   </div>
 
   <div id="ms-detail-panel"></div>
+
+  <!-- ── Forschungsprojekte Detail-Panel ─────────────────── -->
+  <div id="fp-detail-panel">
+    <div id="fp-detail-kopf">
+      <button id="fp-detail-schliessen" onclick="FP.schliesseDetail()">✕</button>
+      <h2 id="fp-detail-titel"></h2>
+      <div style="display:flex;align-items:center;gap:8px;margin-top:4px">
+        <span id="fp-detail-status-badge" class="fp-status-badge"></span>
+        <span id="fp-detail-laufzeit" style="font-size:11px;opacity:.85"></span>
+      </div>
+    </div>
+    <div id="fp-detail-body"></div>
+    <div id="fp-detail-buttons">
+      <button id="btn-fp-bearbeiten" style="flex:1;padding:7px 0;font-size:12px;background:#f5f5f5;border:1px solid #ddd;border-radius:5px;cursor:pointer;font-family:inherit">✎ Bearbeiten</button>
+      <button id="btn-fp-loeschen" style="flex:1;padding:7px 0;font-size:12px;background:none;border:1px solid #c0392b;color:#c0392b;border-radius:5px;cursor:pointer;font-family:inherit">🗑 Löschen</button>
+    </div>
+  </div>
+
+  <!-- ── Forschungsprojekt Formular ──────────────────────── -->
+  <div id="fp-formular-modal" onclick="if(event.target===this)FP.schliesseFormular()">
+    <div class="fp-form-box" onclick="event.stopPropagation()">
+      <div class="fp-form-header">
+        <h3 id="fp-form-titel">Forschungsprojekt anlegen</h3>
+        <button onclick="FP.schliesseFormular()" style="background:none;border:none;font-size:18px;cursor:pointer;color:#888;padding:0;line-height:1">✕</button>
+      </div>
+      <div class="fp-form-gruppe">
+        <label class="fp-form-label" for="fp-f-titel">Titel <span class="fp-form-pflicht">*</span></label>
+        <input id="fp-f-titel" class="fp-form-input" type="text" placeholder="Projekttitel">
+        <div id="fp-f-titel-fehler" class="fp-form-fehler">Bitte einen Titel eingeben.</div>
+      </div>
+      <div class="fp-form-row">
+        <div class="fp-form-gruppe">
+          <label class="fp-form-label" for="fp-f-status">Status <span class="fp-form-pflicht">*</span></label>
+          <select id="fp-f-status" class="fp-form-select">
+            <option value="aktiv">Aktiv</option>
+            <option value="geplant">Geplant</option>
+            <option value="abgeschlossen">Abgeschlossen</option>
+            <option value="pausiert">Pausiert</option>
+          </select>
+        </div>
+        <div class="fp-form-gruppe">
+          <label class="fp-form-label" for="fp-f-ansprechpartner">Ansprechpartner intern</label>
+          <input id="fp-f-ansprechpartner" class="fp-form-input" type="text" placeholder="Name / Rolle">
+        </div>
+      </div>
+      <div class="fp-form-row">
+        <div class="fp-form-gruppe">
+          <label class="fp-form-label" for="fp-f-start">Laufzeit Start <span class="fp-form-pflicht">*</span></label>
+          <input id="fp-f-start" class="fp-form-input" type="date">
+          <div id="fp-f-start-fehler" class="fp-form-fehler">Bitte ein Startdatum eingeben.</div>
+        </div>
+        <div class="fp-form-gruppe">
+          <label class="fp-form-label" for="fp-f-ende">Laufzeit Ende <span class="fp-form-pflicht">*</span></label>
+          <input id="fp-f-ende" class="fp-form-input" type="date">
+          <div id="fp-f-ende-fehler" class="fp-form-fehler">Bitte ein Enddatum eingeben.</div>
+        </div>
+      </div>
+      <div class="fp-form-gruppe">
+        <label class="fp-form-label" for="fp-f-kurzbeschreibung">Kurzbeschreibung</label>
+        <textarea id="fp-f-kurzbeschreibung" class="fp-form-textarea" placeholder="1–2 Sätze zum Forschungsprojekt…"></textarea>
+      </div>
+      <div class="fp-form-gruppe">
+        <label class="fp-form-label" for="fp-f-ziele">Projektziele</label>
+        <textarea id="fp-f-ziele" class="fp-form-textarea" placeholder="Was soll mit dem Projekt erreicht werden?"></textarea>
+      </div>
+      <div class="fp-form-gruppe">
+        <label class="fp-form-label" for="fp-f-beitrag-gb">Beitrag des Geschäftsbereichs</label>
+        <textarea id="fp-f-beitrag-gb" class="fp-form-textarea" placeholder="Welchen Beitrag leistet unser Geschäftsbereich?"></textarea>
+      </div>
+      <div class="fp-form-gruppe">
+        <label class="fp-form-label" for="fp-f-partner">Forschungspartner <span style="font-weight:400;color:#aaa">(kommagetrennt)</span></label>
+        <input id="fp-f-partner" class="fp-form-input" type="text" placeholder="z. B. TU München, RWTH Aachen">
+      </div>
+      <div class="fp-form-row">
+        <div class="fp-form-gruppe">
+          <label class="fp-form-label" for="fp-f-foerdergeber">Fördergeber</label>
+          <input id="fp-f-foerdergeber" class="fp-form-input" type="text" placeholder="z. B. BMBF, Horizon EU">
+        </div>
+        <div class="fp-form-gruppe">
+          <label class="fp-form-label" for="fp-f-budget">Fördersumme / Budget</label>
+          <input id="fp-f-budget" class="fp-form-input" type="text" placeholder="z. B. 500.000 €">
+        </div>
+      </div>
+      <div class="fp-form-footer">
+        <button onclick="FP.schliesseFormular()" style="padding:8px 18px;font-size:13px;background:#f0f0f0;border:none;border-radius:5px;cursor:pointer;font-family:inherit">Abbrechen</button>
+        <button onclick="FP.speichereProjekt()" style="padding:8px 18px;font-size:13px;background:#7a6ea0;color:#fff;border:none;border-radius:5px;cursor:pointer;font-family:inherit;font-weight:600">Speichern</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Forschungsprojekt Löschen-Bestätigung ───────────── -->
+  <div id="fp-loeschen-modal">
+    <div class="lm-box" onclick="event.stopPropagation()">
+      <p class="lm-frage">Forschungsprojekt wirklich löschen?</p>
+      <p id="fp-lm-titel" style="font-size:13px;color:#555;text-align:center;margin:0 0 16px"></p>
+      <div class="lm-buttons">
+        <button class="lm-btn-loeschen" id="btn-fp-lm-bestaetigen">Ja, löschen</button>
+        <button class="lm-btn-abbrechen" onclick="FP.schliesseLoeschen()">Abbrechen</button>
+      </div>
+    </div>
+  </div>
 
   <!-- ── GitHub Sync Einstellungen ──────────────────────────── -->
   <div id="gh-einstellungen-modal" onclick="if(event.target===this)GH.schliesseEinstellungen()">
@@ -7954,6 +8099,10 @@ window.MS={exportiereJSON,zeigeDetail,renderMini,oeffneMsFormular,schliesseMsFor
   var _themenSyncTimer = null;
   var _themenSyncPending = false;
   var THEMEN_PFAD = "data/themen.json";
+  var _forschungSha = null;
+  var _forschungSyncTimer = null;
+  var _forschungSyncPending = false;
+  var FORSCHUNG_PFAD = "data/forschung.json";
   var SETTINGS_KEY = "github_sync_settings";
   var DEFAULT = { pat: "", repo: "martinseibring/lageplan", branch: "main", pfad: "data/meilensteine.json" };
 
@@ -8149,6 +8298,81 @@ window.MS={exportiereJSON,zeigeDetail,renderMini,oeffneMsFormular,schliesseMsFor
     _themenSyncTimer = setTimeout(ausfuehrenThemenSync, 2000);
   }
 
+  function _mergeForschung(githubDaten, lokalDaten) {
+    var ghIds = new Set(githubDaten.map(function(p) { return String(p.id); }));
+    var neueLokal = lokalDaten.filter(function(p) { return !ghIds.has(String(p.id)); });
+    return githubDaten.concat(neueLokal);
+  }
+
+  async function speichereForschungDatei(inhalt) {
+    var s = ladeEinstellungen();
+    if (!_forschungSha) {
+      var meta = await githubRequest("GET", FORSCHUNG_PFAD + "?ref=" + s.branch);
+      _forschungSha = meta.sha;
+    }
+    var encoded = btoa(unescape(encodeURIComponent(JSON.stringify(inhalt, null, 2))));
+    var body = { message: "Forschungsprojekte aktualisiert", content: encoded, branch: s.branch, sha: _forschungSha };
+    var result = await githubRequest("PUT", FORSCHUNG_PFAD, body);
+    _forschungSha = result.content.sha;
+    return result;
+  }
+
+  async function ladeForschung() {
+    var s = ladeEinstellungen();
+    try {
+      var url = "https://raw.githubusercontent.com/" + s.repo + "/" + s.branch + "/" + FORSCHUNG_PFAD + "?t=" + Date.now();
+      var resp = await fetch(url);
+      if (!resp.ok) throw new Error("HTTP " + resp.status);
+      var githubDaten = await resp.json();
+      if (!Array.isArray(githubDaten)) githubDaten = [];
+      var lokalDaten = (window.FP && FP.getManuell) ? FP.getManuell() : [];
+      if (s.pat) {
+        var merged = _mergeForschung(githubDaten, lokalDaten);
+        if (window.FP && FP.ladeVonGithub) FP.ladeVonGithub(merged);
+        var ghIds = new Set(githubDaten.map(function(p){ return String(p.id); }));
+        var neueLokal = lokalDaten.filter(function(p){ return !ghIds.has(String(p.id)); });
+        if (neueLokal.length > 0) { _forschungSyncPending = true; ausfuehrenForschungSync(); }
+      } else {
+        if (window.FP && FP.ladeVonGithub) FP.ladeVonGithub(githubDaten);
+      }
+    } catch(e) {
+      console.warn("Forschungsprojekte: GitHub laden fehlgeschlagen –", e.message);
+    }
+  }
+
+  async function ausfuehrenForschungSync() {
+    if (!_forschungSyncPending) return;
+    _forschungSyncPending = false;
+    var s = ladeEinstellungen();
+    if (!s.pat) return;
+    try {
+      var githubMeta = await githubRequest("GET", FORSCHUNG_PFAD + "?ref=" + s.branch);
+      _forschungSha = githubMeta.sha;
+      var githubDaten = JSON.parse(decodeURIComponent(escape(atob(githubMeta.content.replace(/\s/g, "")))));
+      if (!Array.isArray(githubDaten)) githubDaten = [];
+      var lokalDaten = (window.FP && FP.getManuell) ? FP.getManuell() : [];
+      var merged = _mergeForschung(githubDaten, lokalDaten);
+      await speichereForschungDatei(merged);
+      if (window.FP && FP.ladeVonGithub) FP.ladeVonGithub(merged);
+    } catch(e) {
+      if (e.status === 409) {
+        _forschungSha = null;
+        _forschungSyncPending = true;
+        setTimeout(ausfuehrenForschungSync, 1000);
+      } else {
+        console.warn("Forschungsprojekte-Sync fehlgeschlagen:", e.message);
+      }
+    }
+  }
+
+  function debouncedForschungSync() {
+    var s = ladeEinstellungen();
+    if (!s.pat) return;
+    _forschungSyncPending = true;
+    clearTimeout(_forschungSyncTimer);
+    _forschungSyncTimer = setTimeout(ausfuehrenForschungSync, 2000);
+  }
+
   // Immer von GitHub laden; PAT-Geräte mergen und laden ihre neuen Einträge hoch
   async function ladeMeilensteine() {
     var s = ladeEinstellungen();
@@ -8250,9 +8474,11 @@ window.MS={exportiereJSON,zeigeDetail,renderMini,oeffneMsFormular,schliesseMsFor
     speichereEinstellungen(s);
     _sha = null;
     _themenSha = null;
+    _forschungSha = null;
     schliesseEinstellungen();
     ladeMeilensteine();
     ladeThemen();
+    ladeForschung();
   }
 
   async function testeVerbindung() {
@@ -8283,7 +8509,265 @@ window.MS={exportiereJSON,zeigeDetail,renderMini,oeffneMsFormular,schliesseMsFor
   // Initiale Statusanzeige – immer "lesend" bis Laden abgeschlossen
   setzeSyncStatus("lesend", "Lade Daten von GitHub…");
 
-  window.GH = { ladeMeilensteine, debouncedSync, oeffneEinstellungen, schliesseEinstellungen, speichereEinstellungenUndSchliesse, testeVerbindung, ladeEinstellungen, ladeThemen, debouncedThemenSync };
+  window.GH = { ladeMeilensteine, debouncedSync, oeffneEinstellungen, schliesseEinstellungen, speichereEinstellungenUndSchliesse, testeVerbindung, ladeEinstellungen, ladeThemen, debouncedThemenSync, ladeForschung, debouncedForschungSync };
+})();
+</script>
+<script>/* ===== Forschungsprojekte ===== */
+(function(){
+
+  var forschungData = [];
+  var _bearbeitenId = null;
+
+  // localStorage init
+  (function() {
+    try {
+      var r = localStorage.getItem("forschung");
+      if (r) { var d = JSON.parse(r); if (Array.isArray(d)) d.forEach(function(p){ forschungData.push(p); }); }
+    } catch(e) {}
+  })();
+
+  function ladeVonGithub(daten) {
+    if (!Array.isArray(daten)) return;
+    forschungData.length = 0;
+    daten.forEach(function(p){ forschungData.push(p); });
+    try { localStorage.setItem("forschung", JSON.stringify(forschungData)); } catch(e) {}
+    renderKachel();
+  }
+
+  function speichereLokal() {
+    try { localStorage.setItem("forschung", JSON.stringify(forschungData)); } catch(e) {}
+    if (window.GH && GH.debouncedForschungSync) GH.debouncedForschungSync();
+  }
+
+  var _STATUS_LABELS = { aktiv:"Aktiv", geplant:"Geplant", abgeschlossen:"Abgeschlossen", pausiert:"Pausiert" };
+
+  function renderKachel() {
+    var el = document.getElementById("fp-kachel-inhalt");
+    if (!el) return;
+    el.innerHTML = "";
+
+    // Actions bar
+    var bar = document.createElement("div");
+    bar.className = "fp-kachel-actions";
+    var count = document.createElement("span");
+    count.className = "fp-kachel-count";
+    var aktiv = forschungData.filter(function(p){ return p.status === "aktiv"; }).length;
+    count.textContent = forschungData.length > 0
+      ? forschungData.length + " Projekt" + (forschungData.length !== 1 ? "e" : "") + (aktiv > 0 ? " · " + aktiv + " aktiv" : "")
+      : "Keine Projekte";
+    var neuBtn = document.createElement("button");
+    neuBtn.className = "fp-neu-btn";
+    neuBtn.textContent = "+ Neu";
+    neuBtn.onclick = function() { oeffneFormular(null); };
+    bar.appendChild(count);
+    bar.appendChild(neuBtn);
+    el.appendChild(bar);
+
+    if (forschungData.length === 0) {
+      var leer = document.createElement("div");
+      leer.className = "fp-kachel-leer";
+      leer.innerHTML = "<div style='font-size:28px;opacity:.4'>🔬</div><div>Noch keine Forschungsprojekte erfasst</div>";
+      el.appendChild(leer);
+      return;
+    }
+
+    var wrap = document.createElement("div");
+    wrap.className = "fp-list-wrap";
+
+    forschungData.forEach(function(fp) {
+      var item = document.createElement("div");
+      item.className = "fp-list-item";
+      item.onclick = (function(p){ return function(){ zeigeDetail(p); }; })(fp);
+
+      var badge = document.createElement("span");
+      badge.className = "fp-status-badge fp-status-" + (fp.status || "geplant");
+      badge.textContent = _STATUS_LABELS[fp.status] || fp.status || "—";
+
+      var info = document.createElement("div");
+      info.className = "fp-list-info";
+      var titel = document.createElement("div");
+      titel.className = "fp-list-titel";
+      titel.textContent = fp.titel || "—";
+      var meta = document.createElement("div");
+      meta.className = "fp-list-meta";
+      var parts = [];
+      if (fp.start && fp.ende) {
+        parts.push(fp.start.slice(0,4) + "–" + fp.ende.slice(0,4));
+      }
+      if (fp.partner && fp.partner.length > 0) parts.push(fp.partner[0]);
+      if (fp.foerdergeber) parts.push(fp.foerdergeber);
+      meta.textContent = parts.join(" · ");
+
+      info.appendChild(titel);
+      info.appendChild(meta);
+      item.appendChild(badge);
+      item.appendChild(info);
+      wrap.appendChild(item);
+    });
+
+    el.appendChild(wrap);
+  }
+
+  function zeigeDetail(fp) {
+    var panel = document.getElementById("fp-detail-panel");
+    if (!panel) return;
+
+    document.getElementById("fp-detail-titel").textContent = fp.titel || "—";
+
+    var badge = document.getElementById("fp-detail-status-badge");
+    badge.className = "fp-status-badge fp-status-" + (fp.status || "geplant");
+    badge.textContent = _STATUS_LABELS[fp.status] || fp.status || "—";
+
+    var laufzeit = "";
+    if (fp.start && fp.ende) {
+      laufzeit = new Date(fp.start).toLocaleDateString("de-DE", {day:"2-digit",month:"2-digit",year:"numeric"})
+        + " – " + new Date(fp.ende).toLocaleDateString("de-DE", {day:"2-digit",month:"2-digit",year:"numeric"});
+    }
+    document.getElementById("fp-detail-laufzeit").textContent = laufzeit;
+
+    var body = document.getElementById("fp-detail-body");
+    body.innerHTML = "";
+
+    function sektion(label, value) {
+      if (!value) return;
+      var s = document.createElement("div"); s.className = "fp-detail-section";
+      var l = document.createElement("div"); l.className = "fp-detail-label"; l.textContent = label;
+      var v = document.createElement("div"); v.className = "fp-detail-value"; v.textContent = value;
+      s.appendChild(l); s.appendChild(v); body.appendChild(s);
+    }
+
+    sektion("Kurzbeschreibung", fp.kurzbeschreibung);
+    sektion("Projektziele", fp.ziele);
+    sektion("Beitrag des Geschäftsbereichs", fp.beitrag_gb);
+
+    if (fp.partner && fp.partner.length > 0) {
+      var s = document.createElement("div"); s.className = "fp-detail-section";
+      var l = document.createElement("div"); l.className = "fp-detail-label"; l.textContent = "Forschungspartner";
+      var chips = document.createElement("div"); chips.className = "fp-detail-chips";
+      fp.partner.forEach(function(p) {
+        var c = document.createElement("span"); c.className = "fp-detail-chip"; c.textContent = p; chips.appendChild(c);
+      });
+      s.appendChild(l); s.appendChild(chips); body.appendChild(s);
+    }
+
+    sektion("Fördergeber", fp.foerdergeber);
+    sektion("Budget / Fördersumme", fp.budget);
+    sektion("Ansprechpartner intern", fp.ansprechpartner);
+
+    document.getElementById("btn-fp-bearbeiten").onclick = function() { oeffneFormular(fp); };
+    document.getElementById("btn-fp-loeschen").onclick = function() { fragenLoeschen(fp.id); };
+
+    panel.classList.add("offen");
+  }
+
+  function schliesseDetail() {
+    var panel = document.getElementById("fp-detail-panel");
+    if (panel) panel.classList.remove("offen");
+    _bearbeitenId = null;
+  }
+
+  function oeffneFormular(fp) {
+    _bearbeitenId = fp ? fp.id : null;
+    document.getElementById("fp-form-titel").textContent = fp ? "Forschungsprojekt bearbeiten" : "Forschungsprojekt anlegen";
+
+    document.getElementById("fp-f-titel").value = fp ? (fp.titel || "") : "";
+    document.getElementById("fp-f-status").value = fp ? (fp.status || "aktiv") : "aktiv";
+    document.getElementById("fp-f-start").value = fp ? (fp.start || "") : "";
+    document.getElementById("fp-f-ende").value = fp ? (fp.ende || "") : "";
+    document.getElementById("fp-f-kurzbeschreibung").value = fp ? (fp.kurzbeschreibung || "") : "";
+    document.getElementById("fp-f-ziele").value = fp ? (fp.ziele || "") : "";
+    document.getElementById("fp-f-beitrag-gb").value = fp ? (fp.beitrag_gb || "") : "";
+    document.getElementById("fp-f-partner").value = fp ? ((fp.partner || []).join(", ")) : "";
+    document.getElementById("fp-f-foerdergeber").value = fp ? (fp.foerdergeber || "") : "";
+    document.getElementById("fp-f-budget").value = fp ? (fp.budget || "") : "";
+    document.getElementById("fp-f-ansprechpartner").value = fp ? (fp.ansprechpartner || "") : "";
+
+    // Clear errors
+    ["fp-f-titel-fehler","fp-f-start-fehler","fp-f-ende-fehler"].forEach(function(id){
+      var el = document.getElementById(id); if (el) el.style.display = "none";
+    });
+
+    document.getElementById("fp-formular-modal").classList.add("offen");
+    setTimeout(function(){ document.getElementById("fp-f-titel").focus(); }, 50);
+  }
+
+  function schliesseFormular() {
+    document.getElementById("fp-formular-modal").classList.remove("offen");
+    _bearbeitenId = null;
+  }
+
+  function speichereProjekt() {
+    var titel = document.getElementById("fp-f-titel").value.trim();
+    var start = document.getElementById("fp-f-start").value;
+    var ende  = document.getElementById("fp-f-ende").value;
+    var hatFehler = false;
+
+    var tFehler = document.getElementById("fp-f-titel-fehler");
+    if (!titel) { tFehler.style.display = "block"; hatFehler = true; } else { tFehler.style.display = "none"; }
+    var sFehler = document.getElementById("fp-f-start-fehler");
+    if (!start) { sFehler.style.display = "block"; hatFehler = true; } else { sFehler.style.display = "none"; }
+    var eFehler = document.getElementById("fp-f-ende-fehler");
+    if (!ende) { eFehler.style.display = "block"; hatFehler = true; } else { eFehler.style.display = "none"; }
+    if (hatFehler) return;
+
+    var partnerRaw = document.getElementById("fp-f-partner").value.trim();
+    var partner = partnerRaw ? partnerRaw.split(",").map(function(s){ return s.trim(); }).filter(Boolean) : [];
+
+    var fp = {
+      id: _bearbeitenId || ("FP-" + Date.now()),
+      titel: titel,
+      status: document.getElementById("fp-f-status").value,
+      start: start,
+      ende: ende,
+      kurzbeschreibung: document.getElementById("fp-f-kurzbeschreibung").value.trim(),
+      ziele: document.getElementById("fp-f-ziele").value.trim(),
+      beitrag_gb: document.getElementById("fp-f-beitrag-gb").value.trim(),
+      partner: partner,
+      foerdergeber: document.getElementById("fp-f-foerdergeber").value.trim(),
+      budget: document.getElementById("fp-f-budget").value.trim(),
+      ansprechpartner: document.getElementById("fp-f-ansprechpartner").value.trim(),
+      manuell_erfasst: true
+    };
+
+    var idx = _bearbeitenId !== null ? forschungData.findIndex(function(p){ return p.id === _bearbeitenId; }) : -1;
+    if (idx >= 0) { forschungData[idx] = fp; } else { forschungData.push(fp); }
+
+    speichereLokal();
+    renderKachel();
+    schliesseFormular();
+    if (_bearbeitenId !== null) { zeigeDetail(fp); } else { schliesseDetail(); }
+  }
+
+  function fragenLoeschen(id) {
+    var fp = forschungData.find(function(p){ return p.id === id; });
+    document.getElementById("fp-lm-titel").textContent = fp ? fp.titel : "";
+    document.getElementById("btn-fp-lm-bestaetigen").onclick = function() { loescheProjekt(id); };
+    document.getElementById("fp-loeschen-modal").classList.add("offen");
+  }
+
+  function schliesseLoeschen() {
+    document.getElementById("fp-loeschen-modal").classList.remove("offen");
+  }
+
+  function loescheProjekt(id) {
+    var idx = forschungData.findIndex(function(p){ return p.id === id; });
+    if (idx !== -1) forschungData.splice(idx, 1);
+    speichereLokal();
+    renderKachel();
+    schliesseLoeschen();
+    schliesseDetail();
+  }
+
+  // ESC closes panels
+  document.addEventListener("keydown", function(e) {
+    if (e.key === "Escape") { schliesseDetail(); schliesseFormular(); schliesseLoeschen(); }
+  });
+
+  window.FP = { ladeVonGithub, renderKachel, zeigeDetail, schliesseDetail,
+                oeffneFormular, schliesseFormular, speichereProjekt,
+                fragenLoeschen, schliesseLoeschen, loescheProjekt,
+                getDaten: function(){ return forschungData; },
+                getManuell: function(){ return forschungData.filter(function(p){ return p.manuell_erfasst; }); }};
 })();
 </script>
 <script>/* ===== Lageplan ===== */
@@ -8390,6 +8874,7 @@ window.MS={exportiereJSON,zeigeDetail,renderMini,oeffneMsFormular,schliesseMsFor
       } catch(e) {}
       const wk = document.getElementById("wert-keywords");
       if (wk) wk.textContent = kwAnzahl || 12;
+      if (window.FP && FP.renderKachel) { try { FP.renderKachel(); } catch(e) {} }
     }
 
     aktualisiereStatusleiste();
@@ -8939,6 +9424,7 @@ window.ST={speichereEinstellungen,resetteEinstellungen};
       if (window.LP && LP.aktualisiereStatusleiste) { try { LP.aktualisiereStatusleiste(); } catch(e){} }
       if (window.LP && LP.zeichneLpRadar) { try { LP.zeichneLpRadar(false); } catch(e){} }
       if (window.LP && LP.zeichneLpGantt) { try { LP.zeichneLpGantt(false); } catch(e){} }
+      if (window.FP && FP.renderKachel) { try { FP.renderKachel(); } catch(e){} }
     }
   }
 
@@ -8968,7 +9454,7 @@ window.ST={speichereEinstellungen,resetteEinstellungen};
   window.App = { activate: activate, wechsleZuTab: wechsleZuTab };
   activate("lageplan");
   // GitHub Sync: Nach kurzem Delay laden, damit alle IIFEs initialisiert sind
-  setTimeout(function() { if (window.GH) { GH.ladeMeilensteine(); GH.ladeThemen(); } }, 500);
+  setTimeout(function() { if (window.GH) { GH.ladeMeilensteine(); GH.ladeThemen(); GH.ladeForschung(); } }, 500);
 })();
 </script>
 
