@@ -2740,6 +2740,106 @@ body {
 
   
 
+
+  <!-- ── Forschungsprojekte Detail-Panel ─────────────────── -->
+  <div id="fp-detail-panel">
+    <div id="fp-detail-kopf">
+      <button id="fp-detail-schliessen" onclick="FP.schliesseDetail()">✕</button>
+      <h2 id="fp-detail-titel"></h2>
+      <div style="display:flex;align-items:center;gap:8px;margin-top:4px">
+        <span id="fp-detail-status-badge" class="fp-status-badge"></span>
+        <span id="fp-detail-laufzeit" style="font-size:11px;opacity:.85"></span>
+      </div>
+    </div>
+    <div id="fp-detail-body"></div>
+    <div id="fp-detail-buttons">
+      <button id="btn-fp-bearbeiten" style="flex:1;padding:7px 0;font-size:12px;background:#f5f5f5;border:1px solid #ddd;border-radius:5px;cursor:pointer;font-family:inherit">✎ Bearbeiten</button>
+      <button id="btn-fp-loeschen" style="flex:1;padding:7px 0;font-size:12px;background:none;border:1px solid #c0392b;color:#c0392b;border-radius:5px;cursor:pointer;font-family:inherit">🗑 Löschen</button>
+    </div>
+  </div>
+
+  <!-- ── Forschungsprojekt Formular ──────────────────────── -->
+  <div id="fp-formular-modal" onclick="if(event.target===this)FP.schliesseFormular()">
+    <div class="fp-form-box" onclick="event.stopPropagation()">
+      <div class="fp-form-header">
+        <h3 id="fp-form-titel">Forschungsprojekt anlegen</h3>
+        <button onclick="FP.schliesseFormular()" style="background:none;border:none;font-size:18px;cursor:pointer;color:#888;padding:0;line-height:1">✕</button>
+      </div>
+      <div class="fp-form-gruppe">
+        <label class="fp-form-label">Titel <span class="fp-form-pflicht">*</span></label>
+        <input id="fp-f-titel" type="text" class="fp-form-input" placeholder="Projekttitel">
+        <div id="fp-f-titel-fehler" class="fp-form-fehler">Pflichtfeld</div>
+      </div>
+      <div class="fp-form-gruppe">
+        <label class="fp-form-label">Status <span class="fp-form-pflicht">*</span></label>
+        <select id="fp-f-status" class="fp-form-select">
+          <option value="aktiv">Aktiv</option>
+          <option value="geplant">Geplant</option>
+          <option value="abgeschlossen">Abgeschlossen</option>
+          <option value="pausiert">Pausiert</option>
+        </select>
+      </div>
+      <div class="fp-form-row">
+        <div class="fp-form-gruppe">
+          <label class="fp-form-label">Start <span class="fp-form-pflicht">*</span></label>
+          <input id="fp-f-start" type="date" class="fp-form-input">
+          <div id="fp-f-start-fehler" class="fp-form-fehler">Pflichtfeld</div>
+        </div>
+        <div class="fp-form-gruppe">
+          <label class="fp-form-label">Ende <span class="fp-form-pflicht">*</span></label>
+          <input id="fp-f-ende" type="date" class="fp-form-input">
+          <div id="fp-f-ende-fehler" class="fp-form-fehler">Pflichtfeld</div>
+        </div>
+      </div>
+      <div class="fp-form-gruppe">
+        <label class="fp-form-label">Kurzbeschreibung</label>
+        <textarea id="fp-f-kurzbeschreibung" class="fp-form-textarea" rows="2" placeholder="Kurze Beschreibung des Projekts"></textarea>
+      </div>
+      <div class="fp-form-gruppe">
+        <label class="fp-form-label">Projektziele</label>
+        <textarea id="fp-f-ziele" class="fp-form-textarea" rows="2" placeholder="Was soll mit dem Projekt erreicht werden?"></textarea>
+      </div>
+      <div class="fp-form-gruppe">
+        <label class="fp-form-label">Beitrag des Geschäftsbereichs</label>
+        <textarea id="fp-f-beitrag-gb" class="fp-form-textarea" rows="2" placeholder="Welchen Beitrag leistet unser GB?"></textarea>
+      </div>
+      <div class="fp-form-gruppe">
+        <label class="fp-form-label">Forschungspartner <span style="font-size:10px;color:#888">(kommasepariert)</span></label>
+        <input id="fp-f-partner" type="text" class="fp-form-input" placeholder="z.B. TU München, RWTH Aachen">
+      </div>
+      <div class="fp-form-row">
+        <div class="fp-form-gruppe">
+          <label class="fp-form-label">Fördergeber</label>
+          <input id="fp-f-foerdergeber" type="text" class="fp-form-input" placeholder="z.B. BMBF">
+        </div>
+        <div class="fp-form-gruppe">
+          <label class="fp-form-label">Budget / Fördersumme</label>
+          <input id="fp-f-budget" type="text" class="fp-form-input" placeholder="z.B. 500.000 €">
+        </div>
+      </div>
+      <div class="fp-form-gruppe">
+        <label class="fp-form-label">Ansprechpartner intern</label>
+        <input id="fp-f-ansprechpartner" type="text" class="fp-form-input" placeholder="Name der Ansprechperson">
+      </div>
+      <div class="fp-form-footer">
+        <button onclick="FP.schliesseFormular()" style="padding:8px 18px;background:#f5f5f5;color:#555;border:1px solid #ddd;border-radius:5px;font-size:13px;cursor:pointer;font-family:inherit">Abbrechen</button>
+        <button onclick="FP.speichereProjekt()" style="padding:8px 20px;background:#7a6ea0;color:#fff;border:none;border-radius:5px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">Speichern</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Forschungsprojekt Löschen-Bestätigung ───────────── -->
+  <div id="fp-loeschen-modal" onclick="if(event.target===this)FP.schliesseLoeschen()">
+    <div class="lm-box" onclick="event.stopPropagation()">
+      <p class="lm-frage">Forschungsprojekt wirklich löschen?</p>
+      <p id="fp-lm-titel" style="font-weight:600;margin:0 0 16px;font-size:14px;color:#333;text-align:center"></p>
+      <div class="lm-buttons">
+        <button class="lm-btn-loeschen" id="btn-fp-lm-bestaetigen">Ja, löschen</button>
+        <button class="lm-btn-abbrechen" onclick="FP.schliesseLoeschen()">Abbrechen</button>
+      </div>
+    </div>
+  </div>
+
 </div>
   <div class="tab-panel" id="panel-themenradar">
   <div id="header" style="background:#63a2b4;border-left:4px solid #2d7a8e;border-bottom:none;padding:6px 16px;margin-bottom:0;overflow:hidden;box-sizing:border-box">
@@ -3187,107 +3287,6 @@ body {
   </div>
 
   <div id="ms-detail-panel"></div>
-
-  <!-- ── Forschungsprojekte Detail-Panel ─────────────────── -->
-  <div id="fp-detail-panel">
-    <div id="fp-detail-kopf">
-      <button id="fp-detail-schliessen" onclick="FP.schliesseDetail()">✕</button>
-      <h2 id="fp-detail-titel"></h2>
-      <div style="display:flex;align-items:center;gap:8px;margin-top:4px">
-        <span id="fp-detail-status-badge" class="fp-status-badge"></span>
-        <span id="fp-detail-laufzeit" style="font-size:11px;opacity:.85"></span>
-      </div>
-    </div>
-    <div id="fp-detail-body"></div>
-    <div id="fp-detail-buttons">
-      <button id="btn-fp-bearbeiten" style="flex:1;padding:7px 0;font-size:12px;background:#f5f5f5;border:1px solid #ddd;border-radius:5px;cursor:pointer;font-family:inherit">✎ Bearbeiten</button>
-      <button id="btn-fp-loeschen" style="flex:1;padding:7px 0;font-size:12px;background:none;border:1px solid #c0392b;color:#c0392b;border-radius:5px;cursor:pointer;font-family:inherit">🗑 Löschen</button>
-    </div>
-  </div>
-
-  <!-- ── Forschungsprojekt Formular ──────────────────────── -->
-  <div id="fp-formular-modal" onclick="if(event.target===this)FP.schliesseFormular()">
-    <div class="fp-form-box" onclick="event.stopPropagation()">
-      <div class="fp-form-header">
-        <h3 id="fp-form-titel">Forschungsprojekt anlegen</h3>
-        <button onclick="FP.schliesseFormular()" style="background:none;border:none;font-size:18px;cursor:pointer;color:#888;padding:0;line-height:1">✕</button>
-      </div>
-      <div class="fp-form-gruppe">
-        <label class="fp-form-label" for="fp-f-titel">Titel <span class="fp-form-pflicht">*</span></label>
-        <input id="fp-f-titel" class="fp-form-input" type="text" placeholder="Projekttitel">
-        <div id="fp-f-titel-fehler" class="fp-form-fehler">Bitte einen Titel eingeben.</div>
-      </div>
-      <div class="fp-form-row">
-        <div class="fp-form-gruppe">
-          <label class="fp-form-label" for="fp-f-status">Status <span class="fp-form-pflicht">*</span></label>
-          <select id="fp-f-status" class="fp-form-select">
-            <option value="aktiv">Aktiv</option>
-            <option value="geplant">Geplant</option>
-            <option value="abgeschlossen">Abgeschlossen</option>
-            <option value="pausiert">Pausiert</option>
-          </select>
-        </div>
-        <div class="fp-form-gruppe">
-          <label class="fp-form-label" for="fp-f-ansprechpartner">Ansprechpartner intern</label>
-          <input id="fp-f-ansprechpartner" class="fp-form-input" type="text" placeholder="Name / Rolle">
-        </div>
-      </div>
-      <div class="fp-form-row">
-        <div class="fp-form-gruppe">
-          <label class="fp-form-label" for="fp-f-start">Laufzeit Start <span class="fp-form-pflicht">*</span></label>
-          <input id="fp-f-start" class="fp-form-input" type="date">
-          <div id="fp-f-start-fehler" class="fp-form-fehler">Bitte ein Startdatum eingeben.</div>
-        </div>
-        <div class="fp-form-gruppe">
-          <label class="fp-form-label" for="fp-f-ende">Laufzeit Ende <span class="fp-form-pflicht">*</span></label>
-          <input id="fp-f-ende" class="fp-form-input" type="date">
-          <div id="fp-f-ende-fehler" class="fp-form-fehler">Bitte ein Enddatum eingeben.</div>
-        </div>
-      </div>
-      <div class="fp-form-gruppe">
-        <label class="fp-form-label" for="fp-f-kurzbeschreibung">Kurzbeschreibung</label>
-        <textarea id="fp-f-kurzbeschreibung" class="fp-form-textarea" placeholder="1–2 Sätze zum Forschungsprojekt…"></textarea>
-      </div>
-      <div class="fp-form-gruppe">
-        <label class="fp-form-label" for="fp-f-ziele">Projektziele</label>
-        <textarea id="fp-f-ziele" class="fp-form-textarea" placeholder="Was soll mit dem Projekt erreicht werden?"></textarea>
-      </div>
-      <div class="fp-form-gruppe">
-        <label class="fp-form-label" for="fp-f-beitrag-gb">Beitrag des Geschäftsbereichs</label>
-        <textarea id="fp-f-beitrag-gb" class="fp-form-textarea" placeholder="Welchen Beitrag leistet unser Geschäftsbereich?"></textarea>
-      </div>
-      <div class="fp-form-gruppe">
-        <label class="fp-form-label" for="fp-f-partner">Forschungspartner <span style="font-weight:400;color:#aaa">(kommagetrennt)</span></label>
-        <input id="fp-f-partner" class="fp-form-input" type="text" placeholder="z. B. TU München, RWTH Aachen">
-      </div>
-      <div class="fp-form-row">
-        <div class="fp-form-gruppe">
-          <label class="fp-form-label" for="fp-f-foerdergeber">Fördergeber</label>
-          <input id="fp-f-foerdergeber" class="fp-form-input" type="text" placeholder="z. B. BMBF, Horizon EU">
-        </div>
-        <div class="fp-form-gruppe">
-          <label class="fp-form-label" for="fp-f-budget">Fördersumme / Budget</label>
-          <input id="fp-f-budget" class="fp-form-input" type="text" placeholder="z. B. 500.000 €">
-        </div>
-      </div>
-      <div class="fp-form-footer">
-        <button onclick="FP.schliesseFormular()" style="padding:8px 18px;font-size:13px;background:#f0f0f0;border:none;border-radius:5px;cursor:pointer;font-family:inherit">Abbrechen</button>
-        <button onclick="FP.speichereProjekt()" style="padding:8px 18px;font-size:13px;background:#7a6ea0;color:#fff;border:none;border-radius:5px;cursor:pointer;font-family:inherit;font-weight:600">Speichern</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- ── Forschungsprojekt Löschen-Bestätigung ───────────── -->
-  <div id="fp-loeschen-modal">
-    <div class="lm-box" onclick="event.stopPropagation()">
-      <p class="lm-frage">Forschungsprojekt wirklich löschen?</p>
-      <p id="fp-lm-titel" style="font-size:13px;color:#555;text-align:center;margin:0 0 16px"></p>
-      <div class="lm-buttons">
-        <button class="lm-btn-loeschen" id="btn-fp-lm-bestaetigen">Ja, löschen</button>
-        <button class="lm-btn-abbrechen" onclick="FP.schliesseLoeschen()">Abbrechen</button>
-      </div>
-    </div>
-  </div>
 
   <!-- ── GitHub Sync Einstellungen ──────────────────────────── -->
   <div id="gh-einstellungen-modal" onclick="if(event.target===this)GH.schliesseEinstellungen()">
