@@ -9084,7 +9084,7 @@ window.MS={exportiereJSON,zeigeDetail,renderMini,renderUebersicht,oeffneMsFormul
       html += '<div class="rm-list-meta">';
       html += '<span>' + (r.cluster||"–") + '</span>';
       if (r.eintrittswahrscheinlichkeit) html += '<span>EW: ' + Math.round(r.eintrittswahrscheinlichkeit*100) + '%</span>';
-      if (r.schadensausmass) html += '<span>Schaden: ' + r.schadensausmass + '/5</span>';
+      if (r.schadensausmass) html += '<span>Schaden: ' + Number(r.schadensausmass).toLocaleString("de-DE") + ' €</span>';
       if (r.abgeleitet_von_titel) html += '<span style="color:#bbb;font-style:italic">↗ ' + _esc(r.abgeleitet_von_titel.substring(0,30)) + (r.abgeleitet_von_titel.length>30?"…":"") + '</span>';
       html += '</div>';
       item.innerHTML = html;
@@ -9176,7 +9176,7 @@ window.MS={exportiereJSON,zeigeDetail,renderMini,renderUebersicht,oeffneMsFormul
 
     sektion("Cluster", r.cluster);
     sektion("Eintrittswahrscheinlichkeit", r.eintrittswahrscheinlichkeit ? Math.round(r.eintrittswahrscheinlichkeit*100)+"%" : null);
-    sektion("Schadensausmass", r.schadensausmass ? r.schadensausmass+" / 5" : null);
+    sektion("Schadensausmass", r.schadensausmass ? Number(r.schadensausmass).toLocaleString("de-DE")+" €" : null);
     sektion("Risikoscore (EW × Schaden)", score > 0 ? score.toFixed(2) : null);
     sektion("Beschreibung", r.beschreibung);
     sektion("Maßnahmen", r.massnahmen);
@@ -9208,7 +9208,7 @@ window.MS={exportiereJSON,zeigeDetail,renderMini,renderUebersicht,oeffneMsFormul
          ? msVorlage.strategische_cluster[0] : "Netzanschluss");
     document.getElementById("rm-f-beschreibung").value  = r ? (r.beschreibung||"") : "";
     document.getElementById("rm-f-ew").value            = r ? String(r.eintrittswahrscheinlichkeit||0.3) : "0.3";
-    document.getElementById("rm-f-schaden").value       = r ? String(r.schadensausmass||3) : "3";
+    document.getElementById("rm-f-schaden").value       = r ? String(r.schadensausmass||"") : "";
     document.getElementById("rm-f-massnahmen").value    = r ? (r.massnahmen||"") : "";
     document.getElementById("rm-f-verantwortlicher").value = r ? (r.verantwortlicher||"") : "";
     document.getElementById("rm-f-status").value        = r ? (r.status||"offen") : "offen";
@@ -9240,7 +9240,7 @@ window.MS={exportiereJSON,zeigeDetail,renderMini,renderUebersicht,oeffneMsFormul
     tFehler.style.display = "none";
 
     var ew      = parseFloat(document.getElementById("rm-f-ew").value) || 0.3;
-    var schaden = parseInt(document.getElementById("rm-f-schaden").value) || 3;
+    var schaden = parseFloat(document.getElementById("rm-f-schaden").value) || 0;
 
     var r = {
       id: _bearbeitenId || ("R-" + Date.now()),
@@ -10079,14 +10079,8 @@ window.ST={speichereEinstellungen,resetteEinstellungen};
           </select>
         </div>
         <div class="fp-form-gruppe">
-          <label class="fp-form-label">Schadensausmass <span class="fp-form-pflicht">*</span></label>
-          <select id="rm-f-schaden" class="fp-form-select">
-            <option value="1">1 – sehr gering</option>
-            <option value="2">2 – gering</option>
-            <option value="3" selected>3 – mittel</option>
-            <option value="4">4 – hoch</option>
-            <option value="5">5 – sehr hoch</option>
-          </select>
+          <label class="fp-form-label">Schadensausmass (€) <span class="fp-form-pflicht">*</span></label>
+          <input id="rm-f-schaden" type="number" class="fp-form-input" placeholder="z. B. 50000" min="0" step="1000">
         </div>
       </div>
       <div class="fp-form-gruppe">
