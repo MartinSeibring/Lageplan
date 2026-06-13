@@ -2538,6 +2538,19 @@ body {
     /* Lösch Modal */
     #fp-loeschen-modal { position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1200;display:none;align-items:center;justify-content:center; }
     #fp-loeschen-modal.offen { display:flex; }
+    /* Meilensteine-Übersicht-Kachel */
+    .ms-ue-summary    { display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px; }
+    .ms-ue-stat       { background:#f7f8fa;border-radius:6px;padding:8px 10px;text-align:center; }
+    .ms-ue-stat-val   { font-size:22px;font-weight:700;color:#2d7a8e;line-height:1; }
+    .ms-ue-stat-lbl   { font-size:10px;color:#888;margin-top:2px; }
+    .ms-ue-sec        { font-size:10px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:.05em;margin:10px 0 5px; }
+    .ms-ue-status-row { display:flex;align-items:center;gap:6px;font-size:12px;margin-bottom:4px; }
+    .ms-ue-dot        { width:10px;height:10px;border-radius:50%;flex-shrink:0; }
+    .ms-ue-cluster-row{ display:flex;align-items:center;gap:6px;font-size:11px;margin-bottom:5px; }
+    .ms-ue-cluster-name{ width:130px;flex-shrink:0;color:#555; }
+    .ms-ue-bar-wrap   { flex:1;background:#f0f0f0;border-radius:3px;height:8px;overflow:hidden; }
+    .ms-ue-bar-fill   { height:100%;border-radius:3px;background:#63a2b4; }
+    .ms-ue-cluster-cnt{ width:24px;text-align:right;color:#888;flex-shrink:0; }
 
   </style>
 </head>
@@ -2666,19 +2679,19 @@ body {
         </div>
       </div>
 
-      <!-- ── Kachel 3: Meilensteine & GANTT ────────────── -->
+      <!-- ── Kachel 3: Meilensteine – Übersicht ──────────── -->
       <div class="lp-kachel" data-bereich="meilensteine">
         <button class="lp-vollbild-exit" onclick="LP.beendeVollbild(this)">✕ Vollbild beenden</button>
         <div class="lp-kachel-header">
-          <span class="lp-kachel-titel">Meilensteine &amp; GANTT</span>
+          <span class="lp-kachel-titel">Meilensteine – Übersicht</span>
           <span id="kz-meilensteine" class="lp-kz-badge" style="display:none"></span>
           <span class="lp-quelle-badge">HTML lokal</span>
           <button class="lp-vollbild-btn" title="Vollbild" onclick="LP.toggleVollbild(this.closest('.lp-kachel'))">⛶</button>
         </div>
-        <div class="lp-kachel-body">
-          <svg id="lp-gantt-svg" width="100%" style="display:block;flex:1"></svg>
+        <div class="lp-kachel-body" style="flex-direction:column;padding:0">
+          <div id="ms-uebersicht-inhalt" style="flex:1;overflow-y:auto"></div>
           <div class="lp-radar-footer">
-            <span id="lp-gantt-footer-info" class="lp-radar-footer-info">– Meilensteine</span>
+            <span class="lp-radar-footer-info"></span>
             <button class="lp-radar-footer-link" data-jump="meilensteine">Vollansicht &rarr;</button>
           </div>
         </div>
@@ -7599,6 +7612,61 @@ window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisieru
       }
     }
 
+    function renderUebersicht() {
+      var el = document.getElementById("ms-uebersicht-inhalt");
+      if (!el) return;
+
+      var alle = meilensteinData;
+      var gesamt = alle.length;
+      var aktJahr = new Date().getFullYear();
+
+      var diesemJahr = alle.filter(function(m) {
+        var s = m.start ? parseInt(m.start) : 0;
+        var e = m.ende  ? parseInt(m.ende)  : 9999;
+        return s <= aktJahr && e >= aktJahr;
+      }).length;
+
+      var sCol = {"offen":"#bbb","in Bearbeitung":"#378ADD","abgeschlossen":"#1D9E75","verzögert":"#E24B4A"};
+      var sCnt = {}; Object.keys(sCol).forEach(function(k){ sCnt[k]=0; });
+      alle.forEach(function(m){ if (sCnt[m.status] !== undefined) sCnt[m.status]++; });
+
+      var clusters = ["Netzanschluss","Messstellenbetrieb","Netzwirtschaft","Technologie","Organisation"];
+      var cCnt = {}; clusters.forEach(function(c){ cCnt[c]=0; });
+      alle.forEach(function(m){
+        (m.strategische_cluster||[]).forEach(function(c){ if (cCnt[c] !== undefined) cCnt[c]++; });
+      });
+      var maxC = Math.max.apply(null, clusters.map(function(c){ return cCnt[c]; })) || 1;
+
+      var h = '<div style="padding:12px 14px">';
+
+      h += '<div class="ms-ue-summary">';
+      h += '<div class="ms-ue-stat"><div class="ms-ue-stat-val">' + gesamt + '</div><div class="ms-ue-stat-lbl">Gesamt</div></div>';
+      h += '<div class="ms-ue-stat"><div class="ms-ue-stat-val">' + diesemJahr + '</div><div class="ms-ue-stat-lbl">Im Jahr ' + aktJahr + '</div></div>';
+      h += '</div>';
+
+      h += '<div class="ms-ue-sec">Status</div>';
+      Object.keys(sCol).forEach(function(s) {
+        h += '<div class="ms-ue-status-row">'
+           + '<span class="ms-ue-dot" style="background:' + sCol[s] + '"></span>'
+           + '<span style="flex:1">' + s + '</span>'
+           + '<span style="font-weight:600;color:#333">' + sCnt[s] + '</span>'
+           + '</div>';
+      });
+
+      h += '<div class="ms-ue-sec">Nach Cluster</div>';
+      clusters.forEach(function(c) {
+        var pct = Math.round(cCnt[c] / maxC * 100);
+        h += '<div class="ms-ue-cluster-row">'
+           + '<span class="ms-ue-cluster-name">' + c + '</span>'
+           + '<span class="ms-ue-bar-wrap"><span class="ms-ue-bar-fill" style="width:' + pct + '%"></span></span>'
+           + '<span class="ms-ue-cluster-cnt">' + cCnt[c] + '</span>'
+           + '</div>';
+      });
+
+      h += '</div>';
+      el.innerHTML = h;
+    }
+
     // -----------------------------------------------------------------------
     // Meilenstein anlegen / bearbeiten / löschen
     // -----------------------------------------------------------------------
@@ -7639,7 +7707,7 @@ window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisieru
       zeichneDeadlineUebersicht();
       zeichneGantt(gefilterteDaten());
       aktualisiereFilterInfo();
-      try { renderMini(false); } catch (e) {}
+      try { renderUebersicht(); } catch (e) {}
       if (window.LP && LP.aktualisiereStatusleiste) { try { LP.aktualisiereStatusleiste(); } catch (e) {} }
     }
 
@@ -8085,7 +8153,7 @@ window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisieru
       schliesseJahreszieleModal();
     }
 
-window.MS={exportiereJSON,zeigeDetail,renderMini,oeffneMsFormular,schliesseMsFormular,speichereMs,toggleDeadlineFelder,themaGewaehlt,fragenLoeschen,schliesseLoeschen,bestaetigeLoeschen,ladeVonGithub,ladeZieleVonGithub,speichereZielEintrag,loescheZielEintrag,toggleZielePanel,oeffneJahreszieleModal,schliesseJahreszieleModal,_jahreszieleKopierePrompt,_jahreszieleVerarbeite,_jahreszieleAllesSpeichern,exportiereJahreszieleText,getDaten:function(){ return meilensteinData; },getZiele:function(){ return zielenData; },redraw:function(){zeichneGantt(gefilterteDaten());},refresh:refreshGanttUndMini};
+window.MS={exportiereJSON,zeigeDetail,renderMini,renderUebersicht,oeffneMsFormular,schliesseMsFormular,speichereMs,toggleDeadlineFelder,themaGewaehlt,fragenLoeschen,schliesseLoeschen,bestaetigeLoeschen,ladeVonGithub,ladeZieleVonGithub,speichereZielEintrag,loescheZielEintrag,toggleZielePanel,oeffneJahreszieleModal,schliesseJahreszieleModal,_jahreszieleKopierePrompt,_jahreszieleVerarbeite,_jahreszieleAllesSpeichern,exportiereJahreszieleText,getDaten:function(){ return meilensteinData; },getZiele:function(){ return zielenData; },redraw:function(){zeichneGantt(gefilterteDaten());},refresh:refreshGanttUndMini};
 })();
 </script>
 <script>/* ===== GitHub Sync ===== */
@@ -8874,6 +8942,7 @@ window.MS={exportiereJSON,zeigeDetail,renderMini,oeffneMsFormular,schliesseMsFor
       const wk = document.getElementById("wert-keywords");
       if (wk) wk.textContent = kwAnzahl || 12;
       if (window.FP && FP.renderKachel) { try { FP.renderKachel(); } catch(e) {} }
+      if (window.MS && MS.renderUebersicht) { try { MS.renderUebersicht(); } catch(e) {} }
     }
 
     aktualisiereStatusleiste();
@@ -8884,9 +8953,9 @@ window.MS={exportiereJSON,zeigeDetail,renderMini,oeffneMsFormular,schliesseMsFor
         if (window.TR && TR.renderMini) { try { TR.renderMini(vollbild); } catch(e){} }
       });
     }
-    function zeichneLpGantt(vollbild) {
+    function zeichneLpGantt() {
       requestAnimationFrame(function() {
-        if (window.MS && MS.renderMini) { try { MS.renderMini(vollbild); } catch(e){} }
+        if (window.MS && MS.renderUebersicht) { try { MS.renderUebersicht(); } catch(e){} }
       });
     }
 
