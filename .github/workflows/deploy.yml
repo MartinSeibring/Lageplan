@@ -16,20 +16,34 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        env:
+          FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
-      - name: Set deploy path
-        id: vars
-        run: |
-          if   [ "${{ github.ref_name }}" = "main"        ]; then echo "path=."       >> $GITHUB_OUTPUT
-          elif [ "${{ github.ref_name }}" = "staging"     ]; then echo "path=staging" >> $GITHUB_OUTPUT
-          else                                                   echo "path=dev"       >> $GITHUB_OUTPUT
-          fi
-
-      - name: Deploy to GitHub Pages
+      - name: Deploy production (main → /)
+        if: github.ref_name == 'main'
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: .
-          destination_dir: ${{ steps.vars.outputs.path }}
+          keep_files: true
+          exclude_assets: '.github,.git,server.py,README.md'
+
+      - name: Deploy staging (staging → /staging/)
+        if: github.ref_name == 'staging'
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: .
+          destination_dir: staging
+          keep_files: true
+          exclude_assets: '.github,.git,server.py,README.md'
+
+      - name: Deploy development (development → /dev/)
+        if: github.ref_name == 'development'
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: .
+          destination_dir: dev
           keep_files: true
           exclude_assets: '.github,.git,server.py,README.md'
