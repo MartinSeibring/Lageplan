@@ -2596,6 +2596,8 @@ body {
 </head>
 <body>
 
+  <div id="env-banner" style="display:none"></div>
+
   <div id="app-header">
     <div id="app-logo">SWM</div>
     <div>
@@ -8252,7 +8254,13 @@ window.MS={exportiereJSON,zeigeDetail,renderMini,renderUebersicht,oeffneMsFormul
   var _risikenSyncPending = false;
   var RISIKEN_PFAD = "data/risiken.json";
   var SETTINGS_KEY = "github_sync_settings";
-  var DEFAULT = { pat: "", repo: "martinseibring/lageplan", branch: "main", pfad: "data/meilensteine.json" };
+  function _defaultBranch() {
+    var p = window.location.pathname;
+    if (p.includes("/dev/"))     return "development";
+    if (p.includes("/staging/")) return "staging";
+    return "main";
+  }
+  var DEFAULT = { pat: "", repo: "martinseibring/lageplan", branch: _defaultBranch(), pfad: "data/meilensteine.json" };
 
   function ladeEinstellungen() {
     try {
@@ -10006,6 +10014,21 @@ window.ST={speichereEinstellungen,resetteEinstellungen};
   setTimeout(function() { if (window.GH) { GH.ladeMeilensteine(); GH.ladeThemen(); GH.ladeForschung(); GH.ladeRisiken(); } }, 500);
 })();
 </script>
+
+  <script>/* ===== Umgebungs-Banner ===== */
+  (function() {
+    var path = window.location.pathname;
+    var env  = path.includes("/dev/")     ? "dev"
+             : path.includes("/staging/") ? "staging"
+             : null;
+    if (!env) return;
+    var banner = document.getElementById("env-banner");
+    if (!banner) return;
+    banner.textContent = env === "dev" ? "🔧 ENTWICKLUNGSUMGEBUNG" : "🧪 TESTUMGEBUNG";
+    banner.style.cssText = "display:block;text-align:center;padding:5px 16px;font-size:11px;font-weight:700;"
+      + "color:#fff;letter-spacing:.08em;background:" + (env === "dev" ? "#1d6fa8" : "#d46b08");
+  })();
+  </script>
 
   <!-- ── Risikomanagement Detail-Panel (body-level) ──────── -->
   <div id="rm-detail-panel">

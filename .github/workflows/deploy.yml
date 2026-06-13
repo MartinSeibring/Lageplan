@@ -1,0 +1,35 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+      - staging
+      - development
+
+permissions:
+  contents: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set deploy path
+        id: vars
+        run: |
+          if   [ "${{ github.ref_name }}" = "main"        ]; then echo "path=."       >> $GITHUB_OUTPUT
+          elif [ "${{ github.ref_name }}" = "staging"     ]; then echo "path=staging" >> $GITHUB_OUTPUT
+          else                                                   echo "path=dev"       >> $GITHUB_OUTPUT
+          fi
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: .
+          destination_dir: ${{ steps.vars.outputs.path }}
+          keep_files: true
+          exclude_assets: '.github,.git,server.py,README.md'
