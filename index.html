@@ -1350,6 +1350,8 @@
       color: var(--farbe-kritisch);
     }
     #btn-detail-loeschen:hover { background: #fdecea; }
+    #btn-detail-risiko { border-color:#d46b08;color:#d46b08; }
+    #btn-detail-risiko:hover { background:#fff7e6; }
 
     #ms-loeschen-modal {
       position: fixed;
@@ -2551,6 +2553,44 @@ body {
     .ms-ue-bar-wrap   { flex:1;background:#f0f0f0;border-radius:3px;height:8px;overflow:hidden; }
     .ms-ue-bar-fill   { height:100%;border-radius:3px;background:#63a2b4; }
     .ms-ue-cluster-cnt{ width:24px;text-align:right;color:#888;flex-shrink:0; }
+    /* Risikomanagement Tab + Kachel */
+    #panel-risiko { display:flex;flex-direction:column;overflow:hidden;height:calc(100vh - 60px);box-sizing:border-box; }
+    #rm-header { background:linear-gradient(135deg,#c0392b 0%,#922b21 100%);border-left:4px solid #a93226;padding:8px 16px;display:flex;flex-wrap:wrap;align-items:center;gap:8px;flex-shrink:0; }
+    #rm-header-titel { font-size:18px;font-weight:600;color:#fff;margin-right:4px; }
+    .rm-filter-select { padding:4px 8px;font-size:12px;border:1px solid rgba(255,255,255,.35);background:rgba(255,255,255,.15);color:#fff;border-radius:4px;font-family:inherit;cursor:pointer; }
+    .rm-filter-select option { background:#922b21;color:#fff; }
+    .rm-neu-btn { padding:5px 14px;background:#fff;color:#c0392b;border:none;border-radius:4px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;margin-left:auto; }
+    .rm-list-item { border-bottom:1px solid #f0f0f0;padding:10px 16px;cursor:pointer;transition:background .15s; }
+    .rm-list-item:hover { background:#fafafa; }
+    .rm-list-head { display:flex;align-items:center;gap:8px;margin-bottom:4px;flex-wrap:wrap; }
+    .rm-list-titel { flex:1;font-size:13px;font-weight:600;color:#333;min-width:0; }
+    .rm-list-meta { display:flex;gap:12px;font-size:11px;color:#888;flex-wrap:wrap; }
+    .rm-typ-badge { font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;flex-shrink:0; }
+    .rm-typ-regulatorisch { background:#e6f4f8;color:#2d7a8e; }
+    .rm-typ-technisch     { background:#f0edf8;color:#7a6ea0; }
+    .rm-typ-operativ      { background:#fff7e6;color:#d46b08; }
+    .rm-typ-strategisch   { background:#f6ffed;color:#389e0d; }
+    .rm-status-badge { font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;flex-shrink:0; }
+    .rm-status-offen        { background:#fff0f0;color:#c0392b; }
+    .rm-status-in-Bearbeitung { background:#e8f3ff;color:#1d6fa8; }
+    .rm-status-geschlossen  { background:#e6f7f1;color:#1a7a45; }
+    .rm-score-chip { font-size:11px;font-weight:700;padding:2px 7px;border-radius:10px;flex-shrink:0; }
+    .rm-score-niedrig { color:#27ae60;background:#e6f7f1; }
+    .rm-score-mittel  { color:#d46b08;background:#fff7e6; }
+    .rm-score-hoch    { color:#c0392b;background:#fff0f0; }
+    #rm-detail-panel { position:fixed;right:0;top:0;bottom:0;width:380px;max-width:95vw;background:#fff;box-shadow:-4px 0 24px rgba(0,0,0,.13);z-index:700;display:none;flex-direction:column;overflow:hidden; }
+    #rm-detail-panel.offen { display:flex; }
+    #rm-detail-kopf { padding:16px 16px 12px;background:linear-gradient(135deg,#c0392b 0%,#922b21 100%);color:#fff;flex-shrink:0;position:relative; }
+    #rm-detail-kopf h2 { margin:0 0 8px;font-size:15px;font-weight:700;line-height:1.3;padding-right:32px; }
+    #rm-detail-schliessen { position:absolute;top:12px;right:12px;background:rgba(255,255,255,.2);border:none;color:#fff;font-size:16px;width:28px;height:28px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;font-family:inherit; }
+    #rm-detail-body { flex:1;overflow-y:auto;padding:16px; }
+    #rm-detail-buttons { padding:12px 16px;border-top:1px solid #eee;display:flex;gap:8px;flex-shrink:0; }
+    #rm-formular-modal { position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1100;display:none;align-items:flex-start;justify-content:center;overflow-y:auto;padding:40px 16px; }
+    #rm-formular-modal.offen { display:flex; }
+    .rm-form-box { background:#fff;border-radius:10px;width:580px;max-width:100%;padding:24px;box-shadow:0 8px 40px rgba(0,0,0,.2); }
+    #rm-loeschen-modal { position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1200;display:none;align-items:center;justify-content:center; }
+    #rm-loeschen-modal.offen { display:flex; }
+    .rm-ableit-btn { padding:6px 12px;font-size:12px;background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.4);border-radius:4px;cursor:pointer;font-family:inherit;white-space:nowrap; }
 
   </style>
 </head>
@@ -2568,6 +2608,7 @@ body {
     <button class="app-tab" id="tab-lageplan"     data-tab="lageplan">Lageplan</button>
     <button class="app-tab" id="tab-themenradar"  data-tab="themenradar">Themenradar</button>
     <button class="app-tab" id="tab-meilensteine" data-tab="meilensteine">Meilensteine &amp; GANTT</button>
+    <button class="app-tab" id="tab-risiko"       data-tab="risiko">Risikomanagement</button>
     <button class="app-tab" id="tab-settings"     data-tab="settings">Einstellungen</button>
   </div>
 
@@ -2734,15 +2775,14 @@ body {
         <button class="lp-vollbild-exit" onclick="LP.beendeVollbild(this)">✕ Vollbild beenden</button>
         <div class="lp-kachel-header">
           <span class="lp-kachel-titel">Risikomanagement</span>
-          <span class="lp-quelle-badge">Geplant</span>
+          <span class="lp-quelle-badge">GitHub</span>
           <button class="lp-vollbild-btn" title="Vollbild" onclick="LP.toggleVollbild(this.closest('.lp-kachel'))">⛶</button>
         </div>
-        <div class="lp-kachel-body">
-          <div class="lp-platzhalter">
-            <div class="lp-platzhalter-icon">🛡️</div>
-            <div class="lp-platzhalter-name">Risikomanagement</div>
-            <div class="lp-platzhalter-beschr">Regulatorische, technische und operative Risiken im Überblick</div>
-            <div class="lp-platzhalter-hinweis">Datenquelle und Tool noch festzulegen</div>
+        <div class="lp-kachel-body" style="flex-direction:column;padding:0">
+          <div id="rm-kachel-inhalt" style="flex:1;overflow-y:auto"></div>
+          <div class="lp-radar-footer">
+            <span class="lp-radar-footer-info"></span>
+            <button class="lp-radar-footer-link" data-jump="risiko">Vollansicht &rarr;</button>
           </div>
         </div>
       </div>
@@ -3517,6 +3557,35 @@ body {
   </div>
 
 </div>
+  <div class="tab-panel" id="panel-risiko">
+    <div id="rm-header">
+      <span id="rm-header-titel">Risikomanagement</span>
+      <select id="rm-filter-cluster" class="rm-filter-select" onchange="RM._filterChanged()">
+        <option value="alle">Alle Cluster</option>
+        <option>Netzanschluss</option>
+        <option>Messstellenbetrieb</option>
+        <option>Netzwirtschaft</option>
+        <option>Technologie</option>
+        <option>Organisation</option>
+      </select>
+      <select id="rm-filter-typ" class="rm-filter-select" onchange="RM._filterChanged()">
+        <option value="alle">Alle Typen</option>
+        <option>regulatorisch</option>
+        <option>technisch</option>
+        <option>operativ</option>
+        <option>strategisch</option>
+      </select>
+      <select id="rm-filter-status" class="rm-filter-select" onchange="RM._filterChanged()">
+        <option value="alle">Alle Status</option>
+        <option>offen</option>
+        <option>in Bearbeitung</option>
+        <option>geschlossen</option>
+      </select>
+      <button class="rm-neu-btn" onclick="RM.oeffneFormular(null)">+ Neues Risiko</button>
+    </div>
+    <div id="rm-tab-inhalt" style="flex:1;overflow-y:auto"></div>
+  </div>
+
   <div class="tab-panel" id="panel-settings">
 
   <!-- ── Header ─────────────────────────────────────── -->
@@ -6691,6 +6760,7 @@ window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisieru
           ${(ms.manuell_erfasst === true || (window.GH && GH.ladeEinstellungen && GH.ladeEinstellungen().pat))
             ? `<button id="btn-detail-loeschen">🗑 Löschen</button>`
             : ""}
+          <button id="btn-detail-risiko" class="rm-ableit-btn" title="Risiko aus diesem Meilenstein ableiten">⚠ Risiko ableiten</button>
         </div>
       `;
 
@@ -6701,6 +6771,13 @@ window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisieru
       const btnLoeschen = document.getElementById("btn-detail-loeschen");
       if (btnLoeschen) {
         btnLoeschen.addEventListener("click", function() { fragenLoeschen(ms.id); });
+      }
+
+      const btnRisiko = document.getElementById("btn-detail-risiko");
+      if (btnRisiko) {
+        btnRisiko.addEventListener("click", function() {
+          if (window.RM && RM.ableitenVonMeilenstein) RM.ableitenVonMeilenstein(ms);
+        });
       }
 
       // Fortschritts-Balken live mitführen
@@ -8170,6 +8247,10 @@ window.MS={exportiereJSON,zeigeDetail,renderMini,renderUebersicht,oeffneMsFormul
   var _forschungSyncTimer = null;
   var _forschungSyncPending = false;
   var FORSCHUNG_PFAD = "data/forschung.json";
+  var _risikenSha = null;
+  var _risikenSyncTimer = null;
+  var _risikenSyncPending = false;
+  var RISIKEN_PFAD = "data/risiken.json";
   var SETTINGS_KEY = "github_sync_settings";
   var DEFAULT = { pat: "", repo: "martinseibring/lageplan", branch: "main", pfad: "data/meilensteine.json" };
 
@@ -8440,6 +8521,81 @@ window.MS={exportiereJSON,zeigeDetail,renderMini,renderUebersicht,oeffneMsFormul
     _forschungSyncTimer = setTimeout(ausfuehrenForschungSync, 2000);
   }
 
+  function _mergeRisiken(githubDaten, lokalDaten) {
+    var ghIds = new Set(githubDaten.map(function(r) { return String(r.id); }));
+    var neueLokal = lokalDaten.filter(function(r) { return !ghIds.has(String(r.id)); });
+    return githubDaten.concat(neueLokal);
+  }
+
+  async function speichereRisikenDatei(inhalt) {
+    var s = ladeEinstellungen();
+    if (!_risikenSha) {
+      var meta = await githubRequest("GET", RISIKEN_PFAD + "?ref=" + s.branch);
+      _risikenSha = meta.sha;
+    }
+    var encoded = btoa(unescape(encodeURIComponent(JSON.stringify(inhalt, null, 2))));
+    var body = { message: "Risiken aktualisiert", content: encoded, branch: s.branch, sha: _risikenSha };
+    var result = await githubRequest("PUT", RISIKEN_PFAD, body);
+    _risikenSha = result.content.sha;
+    return result;
+  }
+
+  async function ladeRisiken() {
+    var s = ladeEinstellungen();
+    try {
+      var url = "https://raw.githubusercontent.com/" + s.repo + "/" + s.branch + "/" + RISIKEN_PFAD + "?t=" + Date.now();
+      var resp = await fetch(url);
+      if (!resp.ok) throw new Error("HTTP " + resp.status);
+      var githubDaten = await resp.json();
+      if (!Array.isArray(githubDaten)) githubDaten = [];
+      var lokalDaten = (window.RM && RM.getManuell) ? RM.getManuell() : [];
+      if (s.pat) {
+        var merged = _mergeRisiken(githubDaten, lokalDaten);
+        if (window.RM && RM.ladeVonGithub) RM.ladeVonGithub(merged);
+        var ghIds = new Set(githubDaten.map(function(r){ return String(r.id); }));
+        var neueLokal = lokalDaten.filter(function(r){ return !ghIds.has(String(r.id)); });
+        if (neueLokal.length > 0) { _risikenSyncPending = true; ausfuehrenRisikenSync(); }
+      } else {
+        if (window.RM && RM.ladeVonGithub) RM.ladeVonGithub(githubDaten);
+      }
+    } catch(e) {
+      console.warn("Risiken: GitHub laden fehlgeschlagen –", e.message);
+    }
+  }
+
+  async function ausfuehrenRisikenSync() {
+    if (!_risikenSyncPending) return;
+    _risikenSyncPending = false;
+    var s = ladeEinstellungen();
+    if (!s.pat) return;
+    try {
+      var githubMeta = await githubRequest("GET", RISIKEN_PFAD + "?ref=" + s.branch);
+      _risikenSha = githubMeta.sha;
+      var githubDaten = JSON.parse(decodeURIComponent(escape(atob(githubMeta.content.replace(/\s/g, "")))));
+      if (!Array.isArray(githubDaten)) githubDaten = [];
+      var lokalDaten = (window.RM && RM.getManuell) ? RM.getManuell() : [];
+      var merged = _mergeRisiken(githubDaten, lokalDaten);
+      await speichereRisikenDatei(merged);
+      if (window.RM && RM.ladeVonGithub) RM.ladeVonGithub(merged);
+    } catch(e) {
+      if (e.status === 409) {
+        _risikenSha = null;
+        _risikenSyncPending = true;
+        setTimeout(ausfuehrenRisikenSync, 1000);
+      } else {
+        console.warn("Risiken-Sync fehlgeschlagen:", e.message);
+      }
+    }
+  }
+
+  function debouncedRisikenSync() {
+    var s = ladeEinstellungen();
+    if (!s.pat) return;
+    _risikenSyncPending = true;
+    clearTimeout(_risikenSyncTimer);
+    _risikenSyncTimer = setTimeout(ausfuehrenRisikenSync, 2000);
+  }
+
   // Immer von GitHub laden; PAT-Geräte mergen und laden ihre neuen Einträge hoch
   async function ladeMeilensteine() {
     var s = ladeEinstellungen();
@@ -8542,10 +8698,12 @@ window.MS={exportiereJSON,zeigeDetail,renderMini,renderUebersicht,oeffneMsFormul
     _sha = null;
     _themenSha = null;
     _forschungSha = null;
+    _risikenSha = null;
     schliesseEinstellungen();
     ladeMeilensteine();
     ladeThemen();
     ladeForschung();
+    ladeRisiken();
   }
 
   async function testeVerbindung() {
@@ -8576,7 +8734,7 @@ window.MS={exportiereJSON,zeigeDetail,renderMini,renderUebersicht,oeffneMsFormul
   // Initiale Statusanzeige – immer "lesend" bis Laden abgeschlossen
   setzeSyncStatus("lesend", "Lade Daten von GitHub…");
 
-  window.GH = { ladeMeilensteine, debouncedSync, oeffneEinstellungen, schliesseEinstellungen, speichereEinstellungenUndSchliesse, testeVerbindung, ladeEinstellungen, ladeThemen, debouncedThemenSync, ladeForschung, debouncedForschungSync };
+  window.GH = { ladeMeilensteine, debouncedSync, oeffneEinstellungen, schliesseEinstellungen, speichereEinstellungenUndSchliesse, testeVerbindung, ladeEinstellungen, ladeThemen, debouncedThemenSync, ladeForschung, debouncedForschungSync, ladeRisiken, debouncedRisikenSync };
 })();
 </script>
 <script>/* ===== Forschungsprojekte ===== */
@@ -8837,6 +8995,325 @@ window.MS={exportiereJSON,zeigeDetail,renderMini,renderUebersicht,oeffneMsFormul
                 getManuell: function(){ return forschungData.filter(function(p){ return p.manuell_erfasst; }); }};
 })();
 </script>
+<script>/* ===== Risikomanagement ===== */
+(function() {
+  var risikenDaten = [];
+
+  (function() {
+    try {
+      var r = localStorage.getItem("risiken");
+      if (r) { var d = JSON.parse(r); if (Array.isArray(d)) d.forEach(function(e){ risikenDaten.push(e); }); }
+    } catch(e) {}
+  })();
+
+  var CLUSTERS = ["Netzanschluss","Messstellenbetrieb","Netzwirtschaft","Technologie","Organisation"];
+  var _aktiveFilter = { cluster:"alle", typ:"alle", status:"alle" };
+  var _bearbeitenId = null;
+
+  function _scoreKlasse(score) {
+    if (score < 1.5) return "rm-score-niedrig";
+    if (score < 3.0) return "rm-score-mittel";
+    return "rm-score-hoch";
+  }
+
+  function ladeVonGithub(daten) {
+    risikenDaten.length = 0;
+    daten.forEach(function(r){ risikenDaten.push(r); });
+    _speichereLokalOhneSync();
+    renderTab();
+    renderKachel();
+  }
+
+  function _speichereLokalOhneSync() {
+    try { localStorage.setItem("risiken", JSON.stringify(risikenDaten)); } catch(e) {}
+  }
+
+  function speichereLokal() {
+    _speichereLokalOhneSync();
+    if (window.GH && GH.debouncedRisikenSync) GH.debouncedRisikenSync();
+  }
+
+  function _gefilterteDaten() {
+    return risikenDaten.filter(function(r) {
+      if (_aktiveFilter.cluster !== "alle" && r.cluster !== _aktiveFilter.cluster) return false;
+      if (_aktiveFilter.typ    !== "alle" && r.risikotyp !== _aktiveFilter.typ)    return false;
+      if (_aktiveFilter.status !== "alle" && r.status    !== _aktiveFilter.status) return false;
+      return true;
+    });
+  }
+
+  function _filterChanged() {
+    var c = document.getElementById("rm-filter-cluster");
+    var t = document.getElementById("rm-filter-typ");
+    var s = document.getElementById("rm-filter-status");
+    if (c) _aktiveFilter.cluster = c.value;
+    if (t) _aktiveFilter.typ     = t.value;
+    if (s) _aktiveFilter.status  = s.value;
+    renderTab();
+  }
+
+  function renderTab() {
+    var el = document.getElementById("rm-tab-inhalt");
+    if (!el) return;
+    el.innerHTML = "";
+
+    if (risikenDaten.length === 0) {
+      el.innerHTML = '<div style="padding:60px 40px;text-align:center;color:#aaa"><div style="font-size:40px;margin-bottom:12px">🛡</div><div style="font-size:15px;font-weight:600;margin-bottom:6px">Noch keine Risiken erfasst</div><div style="font-size:12px">Klicke auf "+ Neues Risiko" um zu beginnen</div></div>';
+      return;
+    }
+
+    var gefiltert = _gefilterteDaten();
+    if (gefiltert.length === 0) {
+      el.innerHTML = '<div style="padding:40px;text-align:center;color:#aaa;font-size:13px">Keine Risiken entsprechen dem Filter</div>';
+      return;
+    }
+
+    var sorted = gefiltert.slice().sort(function(a,b){ return (b.risikoscore||0) - (a.risikoscore||0); });
+    sorted.forEach(function(r) {
+      var item = document.createElement("div");
+      item.className = "rm-list-item";
+      item.onclick = (function(rr){ return function(){ zeigeDetail(rr); }; })(r);
+
+      var score = r.risikoscore || 0;
+      var html = '<div class="rm-list-head">';
+      html += '<span class="rm-typ-badge rm-typ-' + (r.risikotyp||"operativ") + '">' + (r.risikotyp||"–") + '</span>';
+      html += '<span class="rm-list-titel">' + _esc(r.titel||"–") + '</span>';
+      html += '<span class="rm-score-chip ' + _scoreKlasse(score) + '">' + score.toFixed(1) + '</span>';
+      html += '<span class="rm-status-badge rm-status-' + (r.status||"offen").replace(/ /g,"-") + '">' + (r.status||"offen") + '</span>';
+      html += '</div>';
+      html += '<div class="rm-list-meta">';
+      html += '<span>' + (r.cluster||"–") + '</span>';
+      if (r.eintrittswahrscheinlichkeit) html += '<span>EW: ' + Math.round(r.eintrittswahrscheinlichkeit*100) + '%</span>';
+      if (r.schadensausmass) html += '<span>Schaden: ' + r.schadensausmass + '/5</span>';
+      if (r.abgeleitet_von_titel) html += '<span style="color:#bbb;font-style:italic">↗ ' + _esc(r.abgeleitet_von_titel.substring(0,30)) + (r.abgeleitet_von_titel.length>30?"…":"") + '</span>';
+      html += '</div>';
+      item.innerHTML = html;
+      el.appendChild(item);
+    });
+  }
+
+  function renderKachel() {
+    var el = document.getElementById("rm-kachel-inhalt");
+    if (!el) return;
+
+    var gesamt = risikenDaten.length;
+    var offen  = risikenDaten.filter(function(r){ return r.status==="offen"||r.status==="in Bearbeitung"; }).length;
+
+    var h = '<div style="padding:12px 14px">';
+    h += '<div class="ms-ue-summary">';
+    h += '<div class="ms-ue-stat"><div class="ms-ue-stat-val">' + gesamt + '</div><div class="ms-ue-stat-lbl">Gesamt</div></div>';
+    h += '<div class="ms-ue-stat"><div class="ms-ue-stat-val" style="color:' + (offen>0?"#c0392b":"#27ae60") + '">' + offen + '</div><div class="ms-ue-stat-lbl">Offen/Aktiv</div></div>';
+    h += '</div>';
+
+    if (gesamt > 0) {
+      h += '<div class="ms-ue-sec">Nach Cluster</div>';
+      h += '<div style="display:grid;grid-template-columns:1fr auto auto auto;gap:2px 6px;font-size:9px;font-weight:700;color:#aaa;text-transform:uppercase;margin-bottom:5px">';
+      h += '<span>Cluster</span><span style="text-align:right">Anz.</span><span style="text-align:right">Ø EW</span><span style="text-align:right">Summe</span></div>';
+
+      var maxRs = 0;
+      var clusterDaten = CLUSTERS.map(function(c) {
+        var cr = risikenDaten.filter(function(r){ return r.cluster===c; });
+        if (cr.length===0) return { name:c, anzahl:0, ewD:0, rs:0 };
+        var ewS = cr.reduce(function(s,r){ return s+(r.eintrittswahrscheinlichkeit||0); }, 0);
+        var rs  = cr.reduce(function(s,r){ return s+(r.risikoscore||0); }, 0);
+        if (rs > maxRs) maxRs = rs;
+        return { name:c, anzahl:cr.length, ewD:ewS/cr.length, rs:rs };
+      });
+      if (maxRs===0) maxRs=1;
+
+      clusterDaten.forEach(function(cd) {
+        var pct = Math.round(cd.rs / maxRs * 100);
+        var avgScore = cd.anzahl > 0 ? cd.rs/cd.anzahl : 0;
+        var barColor = avgScore>=3 ? "#c0392b" : avgScore>=1.5 ? "#e67e22" : "#27ae60";
+        h += '<div style="margin-bottom:5px">';
+        h += '<div style="display:grid;grid-template-columns:1fr auto auto auto;gap:2px 6px;align-items:center;font-size:11px;margin-bottom:2px">';
+        h += '<span style="color:#555;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + cd.name + '</span>';
+        h += '<span style="text-align:right;color:#888">' + cd.anzahl + '</span>';
+        h += '<span style="text-align:right;color:#555;min-width:28px">' + (cd.anzahl>0 ? Math.round(cd.ewD*100)+'%' : '–') + '</span>';
+        h += '<span style="text-align:right;font-weight:600;min-width:30px;color:' + (cd.anzahl>0?barColor:"#ccc") + '">' + (cd.anzahl>0 ? cd.rs.toFixed(1) : '–') + '</span>';
+        h += '</div>';
+        if (cd.anzahl > 0) {
+          h += '<div class="ms-ue-bar-wrap"><div class="ms-ue-bar-fill" style="width:'+pct+'%;background:'+barColor+'"></div></div>';
+        }
+        h += '</div>';
+      });
+    } else {
+      h += '<div style="font-size:12px;color:#aaa;margin-top:8px;text-align:center">Noch keine Risiken erfasst</div>';
+    }
+
+    h += '</div>';
+    el.innerHTML = h;
+  }
+
+  function zeigeDetail(r) {
+    var panel = document.getElementById("rm-detail-panel");
+    if (!panel) return;
+    document.getElementById("rm-detail-titel").textContent = r.titel||"–";
+
+    var tb = document.getElementById("rm-detail-typ-badge");
+    tb.className = "rm-typ-badge rm-typ-" + (r.risikotyp||"operativ");
+    tb.textContent = r.risikotyp||"–";
+
+    var sb = document.getElementById("rm-detail-status-badge");
+    sb.className = "rm-status-badge rm-status-" + (r.status||"offen").replace(/ /g,"-");
+    sb.textContent = r.status||"–";
+
+    var se = document.getElementById("rm-detail-score");
+    var score = r.risikoscore||0;
+    se.textContent = score.toFixed(1);
+    se.className = "rm-score-chip " + _scoreKlasse(score);
+
+    var body = document.getElementById("rm-detail-body");
+    body.innerHTML = "";
+
+    function sektion(label, value) {
+      if (!value && value!==0) return;
+      var s = document.createElement("div"); s.className = "fp-detail-section";
+      var l = document.createElement("div"); l.className = "fp-detail-label"; l.textContent = label;
+      var v = document.createElement("div"); v.className = "fp-detail-value"; v.textContent = String(value);
+      s.appendChild(l); s.appendChild(v); body.appendChild(s);
+    }
+
+    sektion("Cluster", r.cluster);
+    sektion("Eintrittswahrscheinlichkeit", r.eintrittswahrscheinlichkeit ? Math.round(r.eintrittswahrscheinlichkeit*100)+"%" : null);
+    sektion("Schadensausmass", r.schadensausmass ? r.schadensausmass+" / 5" : null);
+    sektion("Risikoscore (EW × Schaden)", score > 0 ? score.toFixed(2) : null);
+    sektion("Beschreibung", r.beschreibung);
+    sektion("Maßnahmen", r.massnahmen);
+    sektion("Verantwortlicher", r.verantwortlicher);
+    sektion("Deadline", r.deadline ? new Date(r.deadline+"T00:00").toLocaleDateString("de-DE") : null);
+    sektion("ISO-Kategorie", r.iso_kategorie);
+    if (r.abgeleitet_von_titel) sektion("Abgeleitet von Meilenstein", r.abgeleitet_von_titel);
+
+    document.getElementById("btn-rm-bearbeiten").onclick = function(){ oeffneFormular(r); };
+    document.getElementById("btn-rm-loeschen").onclick   = function(){ fragenLoeschen(r.id); };
+
+    panel.classList.add("offen");
+  }
+
+  function schliesseDetail() {
+    var panel = document.getElementById("rm-detail-panel");
+    if (panel) panel.classList.remove("offen");
+    _bearbeitenId = null;
+  }
+
+  function oeffneFormular(r, msVorlage) {
+    _bearbeitenId = r ? r.id : null;
+    document.getElementById("rm-form-titel").textContent = r ? "Risiko bearbeiten" : "Neues Risiko";
+
+    document.getElementById("rm-f-titel").value         = r ? (r.titel||"") : "";
+    document.getElementById("rm-f-risikotyp").value     = r ? (r.risikotyp||"operativ") : "operativ";
+    document.getElementById("rm-f-cluster").value       = r ? (r.cluster||"Netzanschluss")
+      : (msVorlage && msVorlage.strategische_cluster && msVorlage.strategische_cluster[0]
+         ? msVorlage.strategische_cluster[0] : "Netzanschluss");
+    document.getElementById("rm-f-beschreibung").value  = r ? (r.beschreibung||"") : "";
+    document.getElementById("rm-f-ew").value            = r ? String(r.eintrittswahrscheinlichkeit||0.3) : "0.3";
+    document.getElementById("rm-f-schaden").value       = r ? String(r.schadensausmass||3) : "3";
+    document.getElementById("rm-f-massnahmen").value    = r ? (r.massnahmen||"") : "";
+    document.getElementById("rm-f-verantwortlicher").value = r ? (r.verantwortlicher||"") : "";
+    document.getElementById("rm-f-status").value        = r ? (r.status||"offen") : "offen";
+    document.getElementById("rm-f-deadline").value      = r ? (r.deadline||"") : "";
+    document.getElementById("rm-f-iso").value           = r ? (r.iso_kategorie||"") : "";
+
+    var msRef = r ? (r.abgeleitet_von_titel||"") : (msVorlage ? (msVorlage.titel||"") : "");
+    var msId  = r ? (r.abgeleitet_von_ms||"")    : (msVorlage ? (msVorlage.id||"")    : "");
+    document.getElementById("rm-f-ms-ref").value = msRef;
+    document.getElementById("rm-f-ms-id").value  = msId;
+    document.getElementById("rm-f-ms-ref-wrap").style.display = msRef ? "block" : "none";
+
+    var tFehler = document.getElementById("rm-f-titel-fehler");
+    if (tFehler) tFehler.style.display = "none";
+
+    document.getElementById("rm-formular-modal").classList.add("offen");
+    setTimeout(function(){ document.getElementById("rm-f-titel").focus(); }, 50);
+  }
+
+  function schliesseFormular() {
+    document.getElementById("rm-formular-modal").classList.remove("offen");
+    _bearbeitenId = null;
+  }
+
+  function speichereRisiko() {
+    var titel = document.getElementById("rm-f-titel").value.trim();
+    var tFehler = document.getElementById("rm-f-titel-fehler");
+    if (!titel) { tFehler.style.display = "block"; return; }
+    tFehler.style.display = "none";
+
+    var ew      = parseFloat(document.getElementById("rm-f-ew").value) || 0.3;
+    var schaden = parseInt(document.getElementById("rm-f-schaden").value) || 3;
+
+    var r = {
+      id: _bearbeitenId || ("R-" + Date.now()),
+      titel: titel,
+      risikotyp: document.getElementById("rm-f-risikotyp").value,
+      cluster:   document.getElementById("rm-f-cluster").value,
+      beschreibung:  document.getElementById("rm-f-beschreibung").value.trim(),
+      eintrittswahrscheinlichkeit: ew,
+      schadensausmass: schaden,
+      risikoscore: parseFloat((ew * schaden).toFixed(2)),
+      massnahmen:  document.getElementById("rm-f-massnahmen").value.trim(),
+      verantwortlicher: document.getElementById("rm-f-verantwortlicher").value.trim(),
+      status:      document.getElementById("rm-f-status").value,
+      deadline:    document.getElementById("rm-f-deadline").value || "",
+      iso_kategorie: document.getElementById("rm-f-iso").value.trim(),
+      abgeleitet_von_ms:    document.getElementById("rm-f-ms-id").value || "",
+      abgeleitet_von_titel: document.getElementById("rm-f-ms-ref").value || "",
+      manuell_erfasst: true
+    };
+
+    var idx = _bearbeitenId !== null ? risikenDaten.findIndex(function(x){ return x.id===_bearbeitenId; }) : -1;
+    if (idx >= 0) { risikenDaten[idx] = r; } else { risikenDaten.push(r); }
+
+    speichereLokal();
+    renderTab();
+    renderKachel();
+    schliesseFormular();
+    if (_bearbeitenId !== null) { zeigeDetail(r); } else { schliesseDetail(); }
+  }
+
+  function fragenLoeschen(id) {
+    var r = risikenDaten.find(function(x){ return x.id===id; });
+    document.getElementById("rm-lm-titel").textContent = r ? r.titel : "";
+    document.getElementById("btn-rm-lm-bestaetigen").onclick = function(){ loescheRisiko(id); };
+    document.getElementById("rm-loeschen-modal").classList.add("offen");
+  }
+
+  function schliesseLoeschen() {
+    document.getElementById("rm-loeschen-modal").classList.remove("offen");
+  }
+
+  function loescheRisiko(id) {
+    var idx = risikenDaten.findIndex(function(x){ return x.id===id; });
+    if (idx !== -1) risikenDaten.splice(idx, 1);
+    speichereLokal();
+    renderTab();
+    renderKachel();
+    schliesseLoeschen();
+    schliesseDetail();
+  }
+
+  function ableitenVonMeilenstein(ms) {
+    oeffneFormular(null, ms);
+  }
+
+  function _esc(s) {
+    return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+  }
+
+  document.addEventListener("keydown", function(e) {
+    if (e.key==="Escape") { schliesseDetail(); schliesseFormular(); schliesseLoeschen(); }
+  });
+
+  window.RM = {
+    ladeVonGithub, renderTab, renderKachel, zeigeDetail, schliesseDetail,
+    oeffneFormular, schliesseFormular, speichereRisiko,
+    fragenLoeschen, schliesseLoeschen, loescheRisiko,
+    ableitenVonMeilenstein, _filterChanged,
+    getDaten:   function(){ return risikenDaten; },
+    getManuell: function(){ return risikenDaten.filter(function(r){ return r.manuell_erfasst; }); }
+  };
+})();
+</script>
 <script>/* ===== Lageplan ===== */
 (function(){
 
@@ -8941,8 +9418,9 @@ window.MS={exportiereJSON,zeigeDetail,renderMini,renderUebersicht,oeffneMsFormul
       } catch(e) {}
       const wk = document.getElementById("wert-keywords");
       if (wk) wk.textContent = kwAnzahl || 12;
-      if (window.FP && FP.renderKachel) { try { FP.renderKachel(); } catch(e) {} }
-      if (window.MS && MS.renderUebersicht) { try { MS.renderUebersicht(); } catch(e) {} }
+      if (window.FP && FP.renderKachel)       { try { FP.renderKachel();       } catch(e) {} }
+      if (window.MS && MS.renderUebersicht)   { try { MS.renderUebersicht();   } catch(e) {} }
+      if (window.RM && RM.renderKachel)       { try { RM.renderKachel();       } catch(e) {} }
     }
 
     aktualisiereStatusleiste();
@@ -9470,24 +9948,27 @@ window.ST={speichereEinstellungen,resetteEinstellungen};
 </script>
 <script>/* ===== App-Controller / Tab-Navigation ===== */
 (function(){
-  var PANELS = ["lageplan","themenradar","meilensteine","settings"];
+  var PANELS = ["lageplan","themenradar","meilensteine","risiko","settings"];
   var TITLES = {
     lageplan:     "Lageplan | Energie & Asset Management",
     themenradar:  "Themenradar | Energie & Asset Management",
     meilensteine: "Meilensteine | Energie & Asset Management",
+    risiko:       "Risikomanagement | Energie & Asset Management",
     settings:     "Einstellungen | Energie & Asset Management"
   };
 
+  var FLEX_PANELS = { risiko: true };
   function activate(name){
     PANELS.forEach(function(p){
       var panel = document.getElementById("panel-"+p);
       var tab   = document.getElementById("tab-"+p);
-      if (panel) panel.style.display = (p===name) ? "block" : "none";
+      if (panel) panel.style.display = (p===name) ? (FLEX_PANELS[p] ? "flex" : "block") : "none";
       if (tab)   tab.classList.toggle("aktiv", p===name);
     });
     if (TITLES[name]) document.title = TITLES[name];
-    if (name==="themenradar"  && window.TR && TR.redraw)  { try { TR.redraw();  } catch(e){} }
-    if (name==="meilensteine" && window.MS && MS.redraw)  { try { MS.redraw();  } catch(e){} }
+    if (name==="themenradar"  && window.TR && TR.redraw)       { try { TR.redraw();       } catch(e){} }
+    if (name==="meilensteine" && window.MS && MS.redraw)       { try { MS.redraw();       } catch(e){} }
+    if (name==="risiko"       && window.RM && RM.renderTab)    { try { RM.renderTab();    } catch(e){} }
     if (name==="lageplan") {
       if (window.LP && LP.aktualisiereStatusleiste) { try { LP.aktualisiereStatusleiste(); } catch(e){} }
       if (window.LP && LP.zeichneLpRadar) { try { LP.zeichneLpRadar(false); } catch(e){} }
@@ -9522,9 +10003,143 @@ window.ST={speichereEinstellungen,resetteEinstellungen};
   window.App = { activate: activate, wechsleZuTab: wechsleZuTab };
   activate("lageplan");
   // GitHub Sync: Nach kurzem Delay laden, damit alle IIFEs initialisiert sind
-  setTimeout(function() { if (window.GH) { GH.ladeMeilensteine(); GH.ladeThemen(); GH.ladeForschung(); } }, 500);
+  setTimeout(function() { if (window.GH) { GH.ladeMeilensteine(); GH.ladeThemen(); GH.ladeForschung(); GH.ladeRisiken(); } }, 500);
 })();
 </script>
+
+  <!-- ── Risikomanagement Detail-Panel (body-level) ──────── -->
+  <div id="rm-detail-panel">
+    <div id="rm-detail-kopf">
+      <button id="rm-detail-schliessen" onclick="RM.schliesseDetail()">✕</button>
+      <h2 id="rm-detail-titel"></h2>
+      <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+        <span id="rm-detail-typ-badge" class="rm-typ-badge"></span>
+        <span id="rm-detail-status-badge" class="rm-status-badge"></span>
+        <span style="font-size:11px;opacity:.8">Score:</span>
+        <span id="rm-detail-score" class="rm-score-chip"></span>
+      </div>
+    </div>
+    <div id="rm-detail-body"></div>
+    <div id="rm-detail-buttons">
+      <button id="btn-rm-bearbeiten" style="flex:1;padding:7px 0;font-size:12px;background:#f5f5f5;border:1px solid #ddd;border-radius:5px;cursor:pointer;font-family:inherit">✎ Bearbeiten</button>
+      <button id="btn-rm-loeschen" style="flex:1;padding:7px 0;font-size:12px;background:none;border:1px solid #c0392b;color:#c0392b;border-radius:5px;cursor:pointer;font-family:inherit">🗑 Löschen</button>
+    </div>
+  </div>
+
+  <!-- ── Risiko Formular-Modal (body-level) ───────────────── -->
+  <div id="rm-formular-modal" onclick="if(event.target===this)RM.schliesseFormular()">
+    <div class="rm-form-box" onclick="event.stopPropagation()">
+      <div class="fp-form-header">
+        <h3 id="rm-form-titel" style="color:#c0392b">Neues Risiko</h3>
+        <button onclick="RM.schliesseFormular()" style="background:none;border:none;font-size:18px;cursor:pointer;color:#888;padding:0;line-height:1">✕</button>
+      </div>
+      <div class="fp-form-gruppe">
+        <label class="fp-form-label">Titel <span class="fp-form-pflicht">*</span></label>
+        <input id="rm-f-titel" type="text" class="fp-form-input" placeholder="Kurzer, prägnanter Risikotitel">
+        <div id="rm-f-titel-fehler" class="fp-form-fehler">Pflichtfeld</div>
+      </div>
+      <div class="fp-form-row">
+        <div class="fp-form-gruppe">
+          <label class="fp-form-label">Risikotyp <span class="fp-form-pflicht">*</span></label>
+          <select id="rm-f-risikotyp" class="fp-form-select">
+            <option value="regulatorisch">Regulatorisch</option>
+            <option value="technisch">Technisch</option>
+            <option value="operativ">Operativ</option>
+            <option value="strategisch">Strategisch</option>
+          </select>
+        </div>
+        <div class="fp-form-gruppe">
+          <label class="fp-form-label">Cluster <span class="fp-form-pflicht">*</span></label>
+          <select id="rm-f-cluster" class="fp-form-select">
+            <option>Netzanschluss</option>
+            <option>Messstellenbetrieb</option>
+            <option>Netzwirtschaft</option>
+            <option>Technologie</option>
+            <option>Organisation</option>
+          </select>
+        </div>
+      </div>
+      <div class="fp-form-gruppe">
+        <label class="fp-form-label">Beschreibung</label>
+        <textarea id="rm-f-beschreibung" class="fp-form-textarea" rows="2" placeholder="Detaillierte Beschreibung des Risikos"></textarea>
+      </div>
+      <div class="fp-form-row">
+        <div class="fp-form-gruppe">
+          <label class="fp-form-label">Eintrittswahrscheinlichkeit <span class="fp-form-pflicht">*</span></label>
+          <select id="rm-f-ew" class="fp-form-select">
+            <option value="0.1">10 % – sehr gering</option>
+            <option value="0.2">20 %</option>
+            <option value="0.3" selected>30 %</option>
+            <option value="0.4">40 %</option>
+            <option value="0.5">50 % – mittel</option>
+            <option value="0.6">60 %</option>
+            <option value="0.7">70 %</option>
+            <option value="0.8">80 %</option>
+            <option value="0.9">90 % – sehr hoch</option>
+          </select>
+        </div>
+        <div class="fp-form-gruppe">
+          <label class="fp-form-label">Schadensausmass <span class="fp-form-pflicht">*</span></label>
+          <select id="rm-f-schaden" class="fp-form-select">
+            <option value="1">1 – sehr gering</option>
+            <option value="2">2 – gering</option>
+            <option value="3" selected>3 – mittel</option>
+            <option value="4">4 – hoch</option>
+            <option value="5">5 – sehr hoch</option>
+          </select>
+        </div>
+      </div>
+      <div class="fp-form-gruppe">
+        <label class="fp-form-label">Maßnahmen</label>
+        <textarea id="rm-f-massnahmen" class="fp-form-textarea" rows="2" placeholder="Geplante oder ergriffene Gegenmaßnahmen"></textarea>
+      </div>
+      <div class="fp-form-row">
+        <div class="fp-form-gruppe">
+          <label class="fp-form-label">Verantwortlicher</label>
+          <input id="rm-f-verantwortlicher" type="text" class="fp-form-input" placeholder="Name / Funktion">
+        </div>
+        <div class="fp-form-gruppe">
+          <label class="fp-form-label">Status</label>
+          <select id="rm-f-status" class="fp-form-select">
+            <option value="offen">Offen</option>
+            <option value="in Bearbeitung">In Bearbeitung</option>
+            <option value="geschlossen">Geschlossen</option>
+          </select>
+        </div>
+      </div>
+      <div class="fp-form-row">
+        <div class="fp-form-gruppe">
+          <label class="fp-form-label">Deadline</label>
+          <input id="rm-f-deadline" type="date" class="fp-form-input">
+        </div>
+        <div class="fp-form-gruppe">
+          <label class="fp-form-label">ISO-Kategorie</label>
+          <input id="rm-f-iso" type="text" class="fp-form-input" placeholder="z. B. C.2.1 nach ISO 31000">
+        </div>
+      </div>
+      <div id="rm-f-ms-ref-wrap" class="fp-form-gruppe" style="display:none">
+        <label class="fp-form-label">Abgeleitet von Meilenstein</label>
+        <input id="rm-f-ms-ref" type="text" class="fp-form-input" readonly style="background:#f7f8fa;color:#888">
+        <input id="rm-f-ms-id" type="hidden">
+      </div>
+      <div class="fp-form-footer">
+        <button onclick="RM.schliesseFormular()" style="padding:8px 18px;background:#f5f5f5;color:#555;border:1px solid #ddd;border-radius:5px;font-size:13px;cursor:pointer;font-family:inherit">Abbrechen</button>
+        <button onclick="RM.speichereRisiko()" style="padding:8px 20px;background:#c0392b;color:#fff;border:none;border-radius:5px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">Speichern</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Risiko Lösch-Bestätigung (body-level) ────────────── -->
+  <div id="rm-loeschen-modal" onclick="if(event.target===this)RM.schliesseLoeschen()">
+    <div class="lm-box" onclick="event.stopPropagation()">
+      <p class="lm-frage">Risiko wirklich löschen?</p>
+      <p id="rm-lm-titel" style="font-weight:600;margin:0 0 16px;font-size:14px;color:#333;text-align:center"></p>
+      <div class="lm-buttons">
+        <button class="lm-btn-loeschen" id="btn-rm-lm-bestaetigen">Ja, löschen</button>
+        <button class="lm-btn-abbrechen" onclick="RM.schliesseLoeschen()">Abbrechen</button>
+      </div>
+    </div>
+  </div>
 
 </body>
 </html>
