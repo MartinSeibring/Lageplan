@@ -1,0 +1,37 @@
+{
+  "keywords": [
+    "Netzentgelt", "Messstellenbetrieb", "14a", "Flexibilität",
+    "Smart Meter", "Netzanschluss", "Regulierung", "Eigenkapital",
+    "Anreizregulierung", "Redispatch", "Wärmepumpe", "Rollout"
+  ],
+  "rss_feeds": [
+    {
+      "name": "BNetzA Pressemitteilungen",
+      "url": "https://www.bundesnetzagentur.de/SiteGlobals/Functions/RSSFeed/DE/RSSNewsfeed/RSSNewsfeed_Pressemitteilungen.xml?nn=693926"
+    },
+    {
+      "name": "BNetzA Aktuelles",
+      "url": "https://www.bundesnetzagentur.de/SiteGlobals/Functions/RSSFeed/DE/RSSNewsfeed/RSSNewsfeed_Aktuelles_neu.xml?nn=693926"
+    },
+    {
+      "name": "BNetzA EEG",
+      "url": "https://www.bundesnetzagentur.de/SiteGlobals/Functions/RSSFeed/DE/RSSNewsfeed/RSSNewsfeed_EEG.xml?nn=693926"
+    },
+    {
+      "name": "BMWK Energie",
+      "url": "https://www.bundeswirtschaftsministerium.de/SiteGlobals/BMWI/Functions/RSSFeed/DE/RSSFeed-Energie.xml"
+    },
+    {
+      "name": "BMWK Pressemitteilungen",
+      "url": "https://www.bundeswirtschaftsministerium.de/SiteGlobals/BMWI/Functions/RSSFeed/DE/RSSFeed-Pressemitteilung.xml"
+    }
+  ],
+  "behoerden_seiten": [
+    {
+      "name": "BNetzA Amtsblatt",
+      "url": "https://www.bundesnetzagentur.de/DE/Allgemeines/Presse/Amtsblatt/start.html",
+      "selektor": "a[href*='pdf']"
+    }
+  ],
+  "min_keyword_treffer": 1
+}

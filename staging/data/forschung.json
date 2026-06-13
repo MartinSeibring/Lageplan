@@ -1,0 +1,19 @@
+[
+  {
+    "id": "FP-1781257165024",
+    "titel": "Bidi Laden kabellos",
+    "status": "geplant",
+    "start": "2026-08-01",
+    "ende": "2028-12-12",
+    "kurzbeschreibung": "Es soll getestet werden, ob es möglich ist, bidirektionale kabellos, öffentlich zu laden und zu entladen. Die Verprobung ist als Feldtest geplant, um öffentliches Laden in den Energiemarkt flexibel einzubinden, ohne ein Kabel zu nutzen.",
+    "ziele": "Das primäre Projekt Cil ist die technische Realisierung von bidirektionale Laden im öffentlichen Raum",
+    "beitrag_gb": "Der Beitrag des Anschluss und Messsystemmanagements ist vor allen Dingen die Abrechnung relevante Messung in beiden Energien Richtungen an öffentlichen Lade punkten",
+    "partner": [
+      "Fraunhofer Institut"
+    ],
+    "foerdergeber": "BMBF",
+    "budget": "600.000 €",
+    "ansprechpartner": "Markus Freiberg, AM-MS-TR",
+    "manuell_erfasst": true
+  }
+]
