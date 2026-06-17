@@ -3,7 +3,7 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches:
-      - main
+      - Produktiv
       - staging
       - development
   workflow_dispatch:
@@ -20,8 +20,8 @@ jobs:
         env:
           FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
-      - name: Deploy production (main → /)
-        if: github.ref_name == 'main'
+      - name: Deploy production (Produktiv → /)
+        if: github.ref_name == 'Produktiv'
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
