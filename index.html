@@ -1920,6 +1920,32 @@
       /* wird in S-1b bis S-1d befüllt */
     }
 
+    /* ── Handbuch-Modal ───────────────────────────────── */
+    #handbuch-modal {
+      display: none; position: fixed; inset: 0; z-index: 2000;
+      background: rgba(0,0,0,0.6); flex-direction: column;
+    }
+    #handbuch-modal.offen { display: flex; }
+    #handbuch-modal-header {
+      background: #2d7a8e; color: #fff; padding: 10px 16px;
+      display: flex; align-items: center; gap: 12px; flex-shrink: 0;
+    }
+    #handbuch-iframe { flex: 1; border: none; width: 100%; background: #fff; }
+    .handbuch-header-titel { font-size: 14px; font-weight: 700; flex: 1; }
+    .handbuch-close-btn {
+      background: rgba(255,255,255,0.2); border: none; color: #fff;
+      padding: 5px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: 600;
+    }
+    .handbuch-close-btn:hover { background: rgba(255,255,255,0.35); }
+
+    /* ── Hilfe-Button im App-Header ───────────────────── */
+    #app-hilfe-btn {
+      margin-left: auto; background: rgba(255,255,255,0.15); border: none;
+      color: #fff; padding: 5px 12px; border-radius: 4px; cursor: pointer;
+      font-size: 12px; font-weight: 700; letter-spacing: 0.04em;
+    }
+    #app-hilfe-btn:hover { background: rgba(255,255,255,0.28); }
+
     /* ── Aktions-Footer ───────────────────────────────── */
     #st-footer {
       max-width: 900px;
@@ -2549,6 +2575,7 @@ body {
       <div id="app-titel">Energie &amp; Asset Management</div>
       <div id="app-untertitel">Strategisches Cockpit</div>
     </div>
+    <button id="app-hilfe-btn" onclick="oeffneHandbuch()" title="Handbuch öffnen">? Hilfe</button>
   </div>
 
   <div id="app-tabbar">
@@ -3623,6 +3650,25 @@ body {
           </div>
         </div>
 
+      </div>
+    </div>
+
+    <div class="settings-karte" id="sektion-handbuch">
+      <div class="settings-karte-kopf">
+        <h3>📖 Handbuch &amp; Dokumentation</h3>
+        <div class="settings-karte-beschr">
+          Vollständige Funktionsbeschreibung der Lageplan-Anwendung — alle Module,
+          Datenmodelle, Formeln und Integrationen im Überblick.
+        </div>
+      </div>
+      <div class="settings-karte-inhalt">
+        <button class="st-btn-primaer" onclick="oeffneHandbuch()" style="margin-right:10px">
+          📖 Handbuch öffnen
+        </button>
+        <a href="docs/lageplan-handbuch.html" target="_blank"
+           style="font-size:12px;color:#2d7a8e;text-decoration:none;vertical-align:middle">
+          ↗ In neuem Tab öffnen
+        </a>
       </div>
     </div>
 
@@ -9456,6 +9502,27 @@ window.ST={speichereEinstellungen,resetteEinstellungen};
   // GitHub Sync: Nach kurzem Delay laden, damit alle IIFEs initialisiert sind
   setTimeout(function() { if (window.GH) { GH.ladeMeilensteine(); GH.ladeThemen(); GH.ladeForschung(); } }, 500);
 })();
+</script>
+
+<!-- ── Handbuch-Modal ──────────────────────────────────── -->
+<div id="handbuch-modal" onclick="if(event.target===this)schliesseHandbuch()">
+  <div id="handbuch-modal-header">
+    <span class="handbuch-header-titel">📖 Lageplan — Handbuch &amp; Dokumentation</span>
+    <button class="handbuch-close-btn" onclick="schliesseHandbuch()">✕ Schließen</button>
+  </div>
+  <iframe id="handbuch-iframe" src="docs/lageplan-handbuch.html" title="Lageplan Handbuch"></iframe>
+</div>
+
+<script>
+function oeffneHandbuch() {
+  document.getElementById("handbuch-modal").classList.add("offen");
+}
+function schliesseHandbuch() {
+  document.getElementById("handbuch-modal").classList.remove("offen");
+}
+document.addEventListener("keydown", function(e) {
+  if (e.key === "Escape") schliesseHandbuch();
+});
 </script>
 
 </body>
