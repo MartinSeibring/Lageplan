@@ -1,0 +1,46 @@
+[
+  {
+    "id": 1780298987606,
+    "titel": "Bernds zu hause",
+    "kategorie": "marktlich",
+    "zeithorizont": "kurzfristig",
+    "auswirkung": 5,
+    "unsicherheit": 5,
+    "beschreibung": "Der Bernd macht die Energiewende alleine",
+    "strategische_cluster": [
+      "Organisation"
+    ],
+    "tags": [
+      "Netzausbau"
+    ],
+    "quelle": "",
+    "manuell_erfasst": true,
+    "radar_score": 1,
+    "x": 376.6044443118978,
+    "y": 235.72123903134607,
+    "size": 15,
+    "farbe": "#63a2b4",
+    "opacity": 0.4
+  },
+  {
+    "id": 1780908007140,
+    "titel": "Umsetzung EU data Act",
+    "kategorie": "regulatorisch",
+    "zeithorizont": "kurzfristig",
+    "auswirkung": 5,
+    "unsicherheit": 3,
+    "beschreibung": "",
+    "strategische_cluster": [
+      "Technologie"
+    ],
+    "tags": [],
+    "quelle": "",
+    "manuell_erfasst": true,
+    "radar_score": 1,
+    "x": 364.27876096865396,
+    "y": 223.3955556881022,
+    "size": 15,
+    "farbe": "#2d7a8e",
+    "opacity": 0.7
+  }
+]
