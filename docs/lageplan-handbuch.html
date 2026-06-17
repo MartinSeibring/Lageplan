@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lageplan – Funktionsbeschreibung & Anwenderhandbuch</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap');
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Open Sans', Arial, sans-serif;
+    font-size: 13px;
+    line-height: 1.7;
+    color: #1a2a35;
+    background: #f5f8fa;
+    padding: 40px 20px;
+  }
+
+  .page {
+    max-width: 900px;
+    margin: 0 auto;
+    background: #fff;
+    padding: 60px 70px;
+    box-shadow: 0 2px 20px rgba(0,0,0,0.08);
+  }
+
+  /* Cover */
+  .cover {
+    text-align: center;
+    padding: 60px 0 50px;
+    border-bottom: 3px solid #2d7a8e;
+    margin-bottom: 50px;
+  }
+  .cover h1 {
+    font-size: 28px;
+    font-weight: 700;
+    color: #2d7a8e;
+    margin-bottom: 10px;
+    letter-spacing: 0.02em;
+  }
+  .cover .subtitle {
+    font-size: 15px;
+    color: #557a8a;
+    font-weight: 300;
+    margin-bottom: 30px;
+  }
+  .cover .meta {
+    font-size: 11px;
+    color: #8aa5b0;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .cover-tags {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin: 20px 0;
+    flex-wrap: wrap;
+  }
+  .cover-tag {
+    background: #e8f4f7;
+    color: #2d7a8e;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+  }
+
+  /* TOC */
+  .toc {
+    background: #f5f8fa;
+    border-left: 4px solid #2d7a8e;
+    padding: 20px 24px;
+    margin-bottom: 40px;
+    border-radius: 0 6px 6px 0;
+  }
+  .toc h2 {
+    font-size: 13px;
+    font-weight: 700;
+    color: #2d7a8e;
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .toc ol {
+    margin-left: 18px;
+  }
+  .toc li {
+    margin-bottom: 4px;
+    font-size: 12px;
+  }
+  .toc a { color: #2d7a8e; text-decoration: none; }
+  .toc a:hover { text-decoration: underline; }
+
+  /* Sections */
+  h2 {
+    font-size: 18px;
+    font-weight: 700;
+    color: #fff;
+    background: #2d7a8e;
+    padding: 10px 18px;
+    border-radius: 4px;
+    margin: 50px 0 20px;
+    letter-spacing: 0.01em;
+  }
+  h3 {
+    font-size: 14px;
+    font-weight: 700;
+    color: #2d7a8e;
+    border-bottom: 2px solid #e8f4f7;
+    padding-bottom: 5px;
+    margin: 28px 0 12px;
+  }
+  h4 {
+    font-size: 13px;
+    font-weight: 700;
+    color: #1a2a35;
+    margin: 18px 0 8px;
+  }
+  p {
+    margin-bottom: 10px;
+    color: #2a3f4d;
+  }
+  ul, ol {
+    margin: 8px 0 12px 22px;
+  }
+  li { margin-bottom: 4px; color: #2a3f4d; }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 14px 0 20px;
+    font-size: 12px;
+  }
+  th {
+    background: #e8f4f7;
+    color: #2d7a8e;
+    font-weight: 700;
+    padding: 8px 10px;
+    text-align: left;
+    border-bottom: 2px solid #b8d8e0;
+    letter-spacing: 0.03em;
+    font-size: 11px;
+    text-transform: uppercase;
+  }
+  td {
+    padding: 7px 10px;
+    border-bottom: 1px solid #e8f0f3;
+    vertical-align: top;
+  }
+  tr:nth-child(even) td { background: #f8fbfc; }
+  tr:hover td { background: #f0f7f9; }
+
+  /* Code / pre */
+  code {
+    font-family: 'Courier New', monospace;
+    font-size: 11px;
+    background: #f0f7f9;
+    color: #2d7a8e;
+    padding: 1px 5px;
+    border-radius: 3px;
+    border: 1px solid #d0e8ef;
+  }
+  pre {
+    background: #1a2a35;
+    color: #c8dde5;
+    padding: 16px 18px;
+    border-radius: 6px;
+    font-size: 11px;
+    line-height: 1.6;
+    margin: 12px 0 18px;
+    overflow-x: auto;
+    font-family: 'Courier New', monospace;
+  }
+  pre code {
+    background: none;
+    border: none;
+    color: #c8dde5;
+    padding: 0;
+    font-size: 11px;
+  }
+
+  /* Callouts */
+  .callout {
+    border-left: 4px solid #63a2b4;
+    background: #eef7fa;
+    padding: 12px 16px;
+    margin: 14px 0;
+    border-radius: 0 6px 6px 0;
+    font-size: 12px;
+  }
+  .callout.warn {
+    border-left-color: #e67e22;
+    background: #fff7ee;
+  }
+  .callout.tip {
+    border-left-color: #27ae60;
+    background: #eefaf3;
+  }
+  .callout strong { color: #1a2a35; }
+
+  /* Badge demos */
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 10px;
+    font-weight: 700;
+    margin: 1px 2px;
+    letter-spacing: 0.04em;
+  }
+  .badge-reg  { background: #d6ecf0; color: #2d7a8e; }
+  .badge-markt { background: #ddeef4; color: #4a82a0; }
+  .badge-tech { background: #d8ede6; color: #4a8a6f; }
+  .badge-wett { background: #e6e3f0; color: #7a6ea0; }
+  .badge-krit { background: #fde8e8; color: #c0392b; }
+  .badge-rel  { background: #fef3e0; color: #d46b08; }
+  .badge-beob { background: #e8f8ee; color: #27ae60; }
+  .badge-offen { background: #eee; color: #555; }
+  .badge-bear { background: #ddeef4; color: #2d7a8e; }
+  .badge-abge { background: #e8f8ee; color: #27ae60; }
+  .badge-verz { background: #fde8e8; color: #c0392b; }
+
+  /* Flow diagram */
+  .flow {
+    background: #f0f7f9;
+    border: 1px solid #c8dde5;
+    border-radius: 6px;
+    padding: 16px 20px;
+    margin: 14px 0;
+    font-family: 'Courier New', monospace;
+    font-size: 11px;
+    line-height: 1.8;
+    color: #1a2a35;
+    overflow-x: auto;
+  }
+
+  /* Section separator */
+  .sep {
+    border: none;
+    border-top: 1px solid #e0eaef;
+    margin: 30px 0;
+  }
+
+  /* Print */
+  @media print {
+    body { background: #fff; padding: 0; }
+    .page { box-shadow: none; padding: 30px 40px; }
+    h2 { color: #fff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    th { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    pre { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .cover { page-break-after: always; }
+    h2 { page-break-before: always; }
+    .no-break { page-break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+<!-- COVER -->
+<div class="cover">
+  <h1>Lageplan</h1>
+  <div class="subtitle">Funktionsbeschreibung &amp; Anwenderhandbuch<br>Energie &amp; Asset Management · Strategisches Steuerungstool</div>
+  <div class="cover-tags">
+    <span class="cover-tag">Themenradar</span>
+    <span class="cover-tag">Meilensteine &amp; GANTT</span>
+    <span class="cover-tag">Risikomanagement</span>
+    <span class="cover-tag">Forschungsprojekte</span>
+    <span class="cover-tag">GitHub-Sync</span>
+  </div>
+  <div class="meta">Technischer Stand: Juni 2026 &nbsp;·&nbsp; Einzeldatei-Webanwendung (index.html)</div>
+</div>
+
+<!-- TOC -->
+<div class="toc">
+  <h2>Inhalt</h2>
+  <ol>
+    <li><a href="#ueberblick">Executive Summary</a></li>
+    <li><a href="#architektur">Gesamtarchitektur &amp; Umgebungserkennung</a></li>
+    <li><a href="#github">GitHub-Synchronisation</a></li>
+    <li><a href="#themenradar">Themenradar</a></li>
+    <li><a href="#meilensteine">Meilensteine &amp; GANTT</a></li>
+    <li><a href="#forschung">Forschungsprojekte</a></li>
+    <li><a href="#risiko">Risikomanagement</a></li>
+    <li><a href="#lageplan">Lageplan-Dashboard</a></li>
+    <li><a href="#einstellungen">Einstellungen</a></li>
+    <li><a href="#durchgaengigkeit">Themendurchgängigkeit</a></li>
+    <li><a href="#farben">Farbcodierung &amp; visuelle Konventionen</a></li>
+    <li><a href="#betrieb">Betrieb &amp; Deployment</a></li>
+  </ol>
+</div>
+
+<!-- 1 EXECUTIVE SUMMARY -->
+<h2 id="ueberblick">1. Executive Summary</h2>
+
+<p><strong>Lageplan</strong> ist ein integriertes strategisches Steuerungstool für die Energiewirtschaft, das vier Managementdisziplinen in einem einzigen Browser-Interface zusammenführt:</p>
+<ul>
+  <li><strong>Strategische Umfeldbeobachtung</strong> über einen interaktiven Themenradar</li>
+  <li><strong>Projekt- &amp; Meilensteinplanung</strong> mit GANTT-Darstellung und Deadline-Tracking</li>
+  <li><strong>Forschungs- &amp; Innovationscontrolling</strong> als strukturiertes Projektregister</li>
+  <li><strong>Risikomanagement</strong> mit quantitativem Risikoscoring und Cluster-Analyse</li>
+</ul>
+<p>Das Besondere: Die vier Bereiche sind <strong>inhaltlich verknüpft</strong> — ein Thema aus dem Radar kann direkt zum Meilenstein werden, ein Meilenstein kann ein Risiko ableiten. Alle Daten werden per <strong>GitHub-Synchronisation</strong> geräteübergreifend geteilt und versioniert. Die Anwendung benötigt keinen Server, keinen Login, keine Installation — sie läuft direkt im Browser.</p>
+
+<div class="callout tip">
+  <strong>Besonderes Merkmal:</strong> Die gesamte Anwendung besteht aus einer einzigen HTML-Datei (~425 KB). Kein Build-Schritt, kein Deployment-Server, keine Datenbank — nur ein Browser und optional ein GitHub-Account.
+</div>
+
+<!-- 2 ARCHITEKTUR -->
+<h2 id="architektur">2. Gesamtarchitektur &amp; Umgebungserkennung</h2>
+
+<h3>Technischer Aufbau</h3>
+<table>
+  <tr><th>Schicht</th><th>Technologie</th><th>Hinweis</th></tr>
+  <tr><td>Rendering</td><td>Vanilla HTML/CSS</td><td>kein Framework</td></tr>
+  <tr><td>Visualisierung</td><td>D3.js (SVG-basiert)</td><td>Radar + GANTT</td></tr>
+  <tr><td>Schriften</td><td>Open Sans (Google Fonts)</td><td>Fallback: Arial</td></tr>
+  <tr><td>Datenspeicherung</td><td>localStorage + GitHub Contents API</td><td>offline-first</td></tr>
+  <tr><td>Authentifizierung</td><td>GitHub Personal Access Token (PAT)</td><td>optional, nur für Schreiben</td></tr>
+  <tr><td>Deployment</td><td>GitHub Pages</td><td>3 Umgebungen: Prod/Staging/Dev</td></tr>
+</table>
+
+<h3>5 Haupt-Tabs</h3>
+<p>Die Navigation erfolgt über eine Tabbar am oberen Rand mit fünf Bereichen:</p>
+<table>
+  <tr><th>Tab</th><th>Inhalt</th></tr>
+  <tr><td><strong>Lageplan</strong></td><td>Dashboard mit allen Kacheln (Startseite)</td></tr>
+  <tr><td><strong>Themenradar</strong></td><td>Strategische Umfeldbeobachtung, D3-Radar</td></tr>
+  <tr><td><strong>Meilensteine</strong></td><td>GANTT-Projektplanung mit Deadlines</td></tr>
+  <tr><td><strong>Risikomanagement</strong></td><td>Risikoliste, -bewertung, Cluster-Analyse</td></tr>
+  <tr><td><strong>Einstellungen</strong></td><td>GitHub-Verbindung, Keywords, RSS-Feeds</td></tr>
+</table>
+
+<h3>Umgebungserkennung (Dev / Staging / Produktion)</h3>
+<p>Die Anwendung erkennt automatisch anhand des URL-Pfads, in welcher Umgebung sie läuft, und zeigt ein entsprechendes Banner am Seitenanfang:</p>
+<table>
+  <tr><th>URL-Pfad</th><th>Umgebung</th><th>Banner</th><th>GitHub-Branch (Default)</th></tr>
+  <tr><td><code>/lageplan/</code></td><td><strong>Produktion</strong></td><td>kein Banner</td><td>main</td></tr>
+  <tr><td><code>/lageplan/staging/</code></td><td><strong>Test</strong></td><td>oranges Banner „TESTUMGEBUNG"</td><td>staging</td></tr>
+  <tr><td><code>/lageplan/dev/</code></td><td><strong>Entwicklung</strong></td><td>blaues Banner „ENTWICKLUNGSUMGEBUNG"</td><td>development</td></tr>
+</table>
+<p>Der GitHub-Sync-Branch wird automatisch entsprechend vorgewählt, kann aber im Einstellungs-Panel überschrieben werden.</p>
+
+<h3>Deployment-Branching-Modell</h3>
+<div class="flow">
+development ──PR+Review──► staging ──PR+Review──► main
+     │                         │                    │
+  /lageplan/dev/         /lageplan/staging/     /lageplan/
+  (DEV-Banner, blau)     (TEST-Banner, orange)  (kein Banner)
+</div>
+<p>Branch Protection: Direkter Push auf <code>staging</code> und <code>main</code> ist gesperrt — ausschließlich per Pull Request mit Review möglich.</p>
+
+<!-- 3 GITHUB -->
+<h2 id="github">3. GitHub-Synchronisation</h2>
+
+<h3>Konzept</h3>
+<p>Jeder Nutzer hat seinen eigenen Browser-Cache (localStorage). Änderungen werden asynchron mit einer zentralen JSON-Datei auf GitHub abgeglichen. GitHub dient als versionierte Datenschicht — kein Datenbankserver notwendig.</p>
+
+<h3>Konfiguration (Einstellungs-Panel)</h3>
+<table>
+  <tr><th>Feld</th><th>Standard</th><th>Beschreibung</th></tr>
+  <tr><td>PAT</td><td>(leer)</td><td>GitHub Personal Access Token — nur für Schreibzugriff notwendig</td></tr>
+  <tr><td>Repository</td><td><code>martinseibring/lageplan</code></td><td>GitHub-Repo mit den Datendateien</td></tr>
+  <tr><td>Branch</td><td><code>main</code></td><td>Datenbranch (je nach Umgebung vorbelegt)</td></tr>
+  <tr><td>Dateipfad</td><td><code>data/meilensteine.json</code></td><td>Primärer Dateipfad (Meilensteine)</td></tr>
+</table>
+
+<h3>Datendateien auf GitHub</h3>
+<table>
+  <tr><th>Datei</th><th>Inhalt</th><th>Zuständiges Modul</th></tr>
+  <tr><td><code>data/meilensteine.json</code></td><td>Meilensteine + Jahresziele</td><td>MS / GH</td></tr>
+  <tr><td><code>data/themen.json</code></td><td>Themenradar-Einträge</td><td>TR / GH</td></tr>
+  <tr><td><code>data/forschung.json</code></td><td>Forschungsprojekte</td><td>FP / GH</td></tr>
+  <tr><td><code>data/risiken.json</code></td><td>Risiken</td><td>RM / GH</td></tr>
+</table>
+
+<h3>Sync-Logik</h3>
+<p><strong>Laden (kein PAT notwendig):</strong></p>
+<ol>
+  <li>JSON von GitHub laden (via raw.githubusercontent.com)</li>
+  <li>Mit lokalem Cache zusammenführen: GitHub-Daten als Basis, lokal neue Einträge werden ergänzt</li>
+  <li>Duplikat-Warnung bei identischem Titel + Deadline</li>
+</ol>
+<p><strong>Speichern (PAT notwendig):</strong></p>
+<ol>
+  <li>Aktuellen SHA der Datei von GitHub abrufen</li>
+  <li>Daten als Base64-encodiertes JSON per PUT-Request schreiben</li>
+  <li>Bei SHA-Konflikt (409 Conflict): Automatischer Retry nach 1 Sekunde</li>
+</ol>
+<div class="callout">
+  <strong>Debouncing:</strong> Jede Änderung wartet 2 Sekunden, bevor der Sync-Request ausgeht — verhindert unnötige API-Aufrufe bei schnellen Eingaben.
+</div>
+
+<h3>Sync-Status-Anzeige</h3>
+<p>Die Statusleiste zeigt einen farbcodierten Pill-Indikator:</p>
+<table>
+  <tr><th>Status</th><th>Farbe</th><th>Bedeutung</th></tr>
+  <tr><td>bereit</td><td>Grau</td><td>Keine ausstehende Synchronisation</td></tr>
+  <tr><td>aktiv</td><td>Blau (pulsierend)</td><td>Sync läuft</td></tr>
+  <tr><td>✓ ok</td><td>Grün</td><td>Erfolgreich synchronisiert</td></tr>
+  <tr><td>✕ fehler</td><td>Rot</td><td>Fehler (PAT abgelaufen, kein Netz)</td></tr>
+  <tr><td>lesend</td><td>Orange</td><td>Kein PAT, nur Lesezugriff</td></tr>
+</table>
+
+<h3>Geräteübergreifende Nutzung</h3>
+<table>
+  <tr><th>Szenario</th><th>Anforderungen</th><th>Funktionsumfang</th></tr>
+  <tr><td>Daten ansehen</td><td>Browser + Internet</td><td>Lesen von GitHub</td></tr>
+  <tr><td>Daten bearbeiten &amp; sync</td><td>+ GitHub-Account + PAT</td><td>Lesen &amp; Schreiben</td></tr>
+  <tr><td>Offline arbeiten</td><td>nur Browser</td><td>localStorage, Sync beim nächsten Online-Öffnen</td></tr>
+</table>
+
+<!-- 4 THEMENRADAR -->
+<h2 id="themenradar">4. Themenradar (Modul: TR)</h2>
+
+<h3>Zweck</h3>
+<p>Visualisierung des strategischen Umfelds: Welche externen Entwicklungen (regulatorisch, marktlich, technologisch, wettbewerblich) sind relevant und wie dringend?</p>
+
+<h3>Radar-Koordinatensystem</h3>
+<p>Die Visualisierung ist ein Polarkoordinaten-Diagramm (D3.js SVG) mit <strong>4 Quadranten</strong> (Kategorien) und <strong>3 Ringen</strong> (Zeithorizonte):</p>
+
+<table>
+  <tr><th>Kategorie</th><th>Position im Radar</th><th>Farbe</th><th>Badge-Beispiel</th></tr>
+  <tr><td>Regulatorisch</td><td>oben (270°)</td><td style="color:#2d7a8e">#2d7a8e Dunkelblau</td><td><span class="badge badge-reg">Regulatorisch</span></td></tr>
+  <tr><td>Marktlich</td><td>rechts (0°)</td><td style="color:#63a2b4">#63a2b4 Mittelblau</td><td><span class="badge badge-markt">Marktlich</span></td></tr>
+  <tr><td>Technologisch</td><td>unten (90°)</td><td style="color:#4a8a6f">#4a8a6f Grün</td><td><span class="badge badge-tech">Technologisch</span></td></tr>
+  <tr><td>Wettbewerblich</td><td>links (180°)</td><td style="color:#7a6ea0">#7a6ea0 Lila</td><td><span class="badge badge-wett">Wettbewerblich</span></td></tr>
+</table>
+
+<table>
+  <tr><th>Zeithorizont</th><th>Ring-Radius</th><th>Bedeutung</th></tr>
+  <tr><td>Kurzfristig</td><td>100 px (innen)</td><td>0–1 Jahr</td></tr>
+  <tr><td>Mittelfristig</td><td>200 px (mitte)</td><td>1–3 Jahre</td></tr>
+  <tr><td>Langfristig</td><td>280 px (außen)</td><td>&gt; 3 Jahre</td></tr>
+</table>
+
+<h3>Datenmodell (Themenradar-Eintrag)</h3>
+<table>
+  <tr><th>Feld</th><th>Typ</th><th>Beschreibung</th></tr>
+  <tr><td><code>id</code></td><td>Number</td><td>Eindeutige ID</td></tr>
+  <tr><td><code>titel</code></td><td>String</td><td>Themenbezeichnung</td></tr>
+  <tr><td><code>kategorie</code></td><td>Enum</td><td>regulatorisch / marktlich / technologisch / wettbewerblich</td></tr>
+  <tr><td><code>zeithorizont</code></td><td>Enum</td><td>kurzfristig / mittelfristig / langfristig</td></tr>
+  <tr><td><code>auswirkung</code></td><td>1–5</td><td>Strategische Auswirkung → Blasengröße im Radar</td></tr>
+  <tr><td><code>unsicherheit</code></td><td>1–5</td><td>Einschätzungssicherheit → Deckkraft des Blips (hoch = transparenter)</td></tr>
+  <tr><td><code>beschreibung</code></td><td>String</td><td>2–3 Sätze zur Begründung</td></tr>
+  <tr><td><code>strategische_cluster</code></td><td>Array</td><td>Netzanschluss / Messstellenbetrieb / Netzwirtschaft / Technologie / Organisation</td></tr>
+  <tr><td><code>tags</code></td><td>Array</td><td>Freie Schlagwörter</td></tr>
+  <tr><td><code>quelle</code></td><td>URL</td><td>Quellenlink (Gesetz, Studie, Pressemitteilung)</td></tr>
+  <tr><td><code>radar_score</code></td><td>0,0–1,0</td><td>Berechneter Prioritätswert (automatisch)</td></tr>
+</table>
+
+<h3>Radar-Score-Formel</h3>
+<div class="flow">Zeitgewicht × 0,6  +  (Auswirkung / 5) × 0,4
+
+Zeitgewicht:  kurzfristig = 1,0 · mittelfristig = 0,6 · langfristig = 0,3
+
+Beispiel:  kurzfristig, Auswirkung 5  →  1,0 × 0,6 + 1,0 × 0,4  =  <strong>1,0 (Maximum)</strong>
+           langfristig,  Auswirkung 2  →  0,3 × 0,6 + 0,4 × 0,4  =  <strong>0,34</strong></div>
+
+<table>
+  <tr><th>Score</th><th>Ampelfarbe</th><th>Bedeutung</th><th>Badge</th></tr>
+  <tr><td>≥ 0,7</td><td style="color:#c0392b">Rot</td><td>Kritisch — sofortiger Handlungsbedarf</td><td><span class="badge badge-krit">Kritisch</span></td></tr>
+  <tr><td>≥ 0,5</td><td style="color:#d46b08">Orange</td><td>Relevant — auf dem Radar behalten</td><td><span class="badge badge-rel">Relevant</span></td></tr>
+  <tr><td>&lt; 0,5</td><td style="color:#27ae60">Grün</td><td>Beobachten — kein unmittelbarer Handlungsbedarf</td><td><span class="badge badge-beob">Beobachten</span></td></tr>
+</table>
+
+<h3>Blip-Darstellung</h3>
+<ul>
+  <li><strong>Größe:</strong> Auswirkung × 3 → Radius 3–15 px</li>
+  <li><strong>Deckkraft:</strong> 1 − (Unsicherheit − 1) × 0,15 (hohe Unsicherheit = transparenter)</li>
+  <li><strong>Beschriftung:</strong> Nur bei Auswirkung ≥ 3, kollisionsgeprüft (überlappende Labels werden ausgeblendet)</li>
+  <li><strong>Verteilung:</strong> Mehrere Einträge der gleichen Kategorie+Zeithorizont-Gruppe werden gleichmäßig auf einem ±40°-Bogen verteilt (alphabetisch sortiert, keine Überlappung)</li>
+</ul>
+
+<h3>Interaktive Funktionen</h3>
+<h4>Tooltip (Hover über Blip)</h4>
+<ul>
+  <li>Kategorie-Badge, Radar-Score (farbcodiert), Titel, Zeithorizont</li>
+  <li>Auswirkung als Sterne (★★★★☆), Cluster-Badges, anklickbarer Quellenlink</li>
+  <li>Tooltip bleibt offen wenn Maus hinüber bewegt (Linkklick möglich)</li>
+</ul>
+
+<h4>Detail-Panel (Klick auf Blip)</h4>
+<ul>
+  <li>Vollständige Anzeige aller Felder</li>
+  <li>Beschreibung mit „mehr anzeigen ▾" bei &gt; 120 Zeichen</li>
+  <li>Verlinkter Meilenstein: Liste verknüpfter Meilensteine mit Status-Badge und Fortschrittsbalken</li>
+  <li><strong>„+ Meilenstein ableiten"</strong>: Öffnet Meilenstein-Formular mit vorausgefüllter Thema-Verknüpfung</li>
+  <li>Bearbeiten / Löschen-Buttons</li>
+</ul>
+
+<h4>Filterung</h4>
+<ul>
+  <li>Cluster-Filter: Mehrfachauswahl (kein Filter = alle sichtbar)</li>
+  <li>Freitextsuche: Titel, Beschreibung, Tags</li>
+  <li>Gefilterte Blips: Deckkraft 0,15 (ausgegraut), aktive: voll sichtbar</li>
+  <li>Kollisionsprüfung der Labels nach jedem Filterupdate</li>
+</ul>
+
+<h4>PESTEL-Analyse (unterer Bereich)</h4>
+<p>Themen werden automatisch PESTEL-Kategorien zugeordnet und nach Score sortiert angezeigt:</p>
+<table>
+  <tr><th>PESTEL</th><th>Kategorie(n)</th></tr>
+  <tr><td>P (Political)</td><td>regulatorisch</td></tr>
+  <tr><td>E (Economic)</td><td>marktlich</td></tr>
+  <tr><td>S (Social)</td><td>regulatorisch</td></tr>
+  <tr><td>T (Technological)</td><td>technologisch</td></tr>
+  <tr><td>L (Legal)</td><td>regulatorisch</td></tr>
+  <tr><td>E (Environmental)</td><td>wettbewerblich</td></tr>
+</table>
+
+<h4>Top-5-Ranking</h4>
+<p>Sortierbare Tabelle der fünf dringlichsten Themen nach Radar-Score.</p>
+
+<h4>Import / Export</h4>
+<ul>
+  <li>JSON-Export (Zeitstempel im Dateinamen)</li>
+  <li>JSON-Import via Dateiauswahl (Vorschlag-basiert, keine Zwangsübernahme)</li>
+</ul>
+
+<h3>Formular (Neues Thema / Bearbeiten)</h3>
+<p><strong>Pflichtfelder:</strong> Titel, Kategorie, Zeithorizont, Auswirkung (Slider 1–5)<br>
+<strong>Optional:</strong> Unsicherheit (Slider), Beschreibung, Cluster (Checkboxen), Tags, Quellenlink<br>
+Score-Vorschau in Echtzeit (Formel-Anzeige + Fortschrittsbalken)</p>
+
+<!-- 5 MEILENSTEINE -->
+<h2 id="meilensteine">5. Meilensteine &amp; GANTT (Modul: MS)</h2>
+
+<h3>Zweck</h3>
+<p>Projektplanung mit visueller GANTT-Darstellung, Deadline-Tracking, Abhängigkeitspfeilen und inhaltlicher Verknüpfung zu strategischen Themen aus dem Radar.</p>
+
+<h3>Datenmodell (Meilenstein)</h3>
+<table>
+  <tr><th>Feld</th><th>Typ</th><th>Beschreibung</th></tr>
+  <tr><td><code>id</code></td><td>String</td><td>Format „M001", „M002", …</td></tr>
+  <tr><td><code>titel</code></td><td>String</td><td>Meilensteinbezeichnung</td></tr>
+  <tr><td><code>thema_id</code></td><td>Number</td><td>Fremdschlüssel → Themenradar</td></tr>
+  <tr><td><code>kategorie</code></td><td>Enum</td><td>regulatorisch / marktlich / technologisch / wettbewerblich</td></tr>
+  <tr><td><code>start</code> / <code>ende</code></td><td>ISO Date</td><td>Laufzeit des Meilensteins</td></tr>
+  <tr><td><code>verantwortlicher</code></td><td>String</td><td>Name der verantwortlichen Person</td></tr>
+  <tr><td><code>status</code></td><td>Enum</td><td>offen / in Bearbeitung / abgeschlossen / verzögert</td></tr>
+  <tr><td><code>fortschritt</code></td><td>0–100</td><td>Fortschritt in Prozent</td></tr>
+  <tr><td><code>abhaengig_von</code></td><td>Array</td><td>IDs von Vorgänger-Meilensteinen</td></tr>
+  <tr><td><code>pflicht_deadline</code></td><td>ISO Date</td><td>Regulatorische / vertragliche Deadline (optional)</td></tr>
+  <tr><td><code>deadline_quelle</code></td><td>String</td><td>Referenz, z.B. „§14a EnWG"</td></tr>
+  <tr><td><code>deadline_typ</code></td><td>Enum</td><td>regulatorisch / marktlich / konzern / intern</td></tr>
+  <tr><td><code>strategische_cluster</code></td><td>Array</td><td>Zuordnung zu Clustern</td></tr>
+  <tr><td><code>notiz</code></td><td>String</td><td>Freitext-Notiz</td></tr>
+</table>
+
+<h3>GANTT-Visualisierung (D3.js SVG)</h3>
+<p><strong>Zoom-Stufen:</strong></p>
+<table>
+  <tr><th>Button</th><th>Zeitraum</th><th>Raster</th></tr>
+  <tr><td>5J</td><td>60 Monate</td><td>Quartale</td></tr>
+  <tr><td>3J</td><td>36 Monate</td><td>Quartale</td></tr>
+  <tr><td>1J</td><td>12 Monate</td><td>Monate</td></tr>
+  <tr><td>6M</td><td>6 Monate</td><td>Monate</td></tr>
+</table>
+
+<p><strong>Jede GANTT-Zeile zeigt:</strong></p>
+<ul>
+  <li>Linke Spalte: Kategorie-Farbstreifen, Status-Symbol, ID, Titel, Cluster-Badges, Verantwortlicher</li>
+  <li>Balken-Bereich: Hintergrundbalken (Gesamtdauer), Fortschrittsbalken (solid), Prozentzahl</li>
+  <li>Deadline-Raute (◆) mit vertikaler Linie, farbcodiert nach Deadline-Typ</li>
+  <li>Pulsierender Ring wenn Deadline überschritten und Status ≠ abgeschlossen</li>
+</ul>
+
+<p><strong>Status-Symbole:</strong> <span class="badge badge-offen">○ offen</span> <span class="badge badge-bear">◑ in Bearbeitung</span> <span class="badge badge-abge">● abgeschlossen</span> <span class="badge badge-verz">● verzögert</span></p>
+
+<h3>Abhängigkeitspfeile</h3>
+<p>Gestrichelte Pfeile zwischen abhängigen Meilensteinen. Farbe:</p>
+<ul>
+  <li><strong style="color:#c0392b">Rot:</strong> Vorgänger nicht abgeschlossen, Startdatum bereits überschritten (kritisch!)</li>
+  <li><strong>Grau:</strong> Vorgänger abgeschlossen oder noch Zeit vorhanden</li>
+</ul>
+
+<h3>Deadline-Übersicht (oberhalb GANTT)</h3>
+<p>Chips der 5 nächsten Deadlines mit Zeitangabe. Klick auf Chip scrollt zum Meilenstein und öffnet Detail-Panel.</p>
+<table>
+  <tr><th>Farbe</th><th>Zeitraum</th></tr>
+  <tr><td style="color:#c0392b"><strong>Rot</strong></td><td>Überfällig oder &lt; 30 Tage</td></tr>
+  <tr><td style="color:#d46b08"><strong>Orange</strong></td><td>30–90 Tage</td></tr>
+  <tr><td style="color:#27ae60"><strong>Grün</strong></td><td>&gt; 90 Tage</td></tr>
+</table>
+
+<h3>Detail-Panel (Klick auf GANTT-Zeile)</h3>
+<ul>
+  <li>Alle Felder, Live-Fortschritt-Editor (Slider), Notiz</li>
+  <li>Link zum verknüpften Thema im Radar (↗ Verknüpftes Thema)</li>
+  <li><strong>„⚠ Risiko ableiten"</strong>: Öffnet Risikomanagement-Formular mit Vorausfüllung aus dem Meilenstein (Cluster, Meilenstein-Referenz)</li>
+  <li>Speichern → sofortige lokale Aktualisierung + debounced GitHub-Sync</li>
+</ul>
+
+<h3>Filter</h3>
+<table>
+  <tr><th>Filter</th><th>Optionen</th></tr>
+  <tr><td>Zeitraum</td><td>6M / 12M / 36M / 60M / benutzerdefinierter Datumsbereich</td></tr>
+  <tr><td>Strategische Cluster</td><td>5 Cluster, Mehrfachauswahl</td></tr>
+  <tr><td>Deadline-Typ</td><td>regulatorisch / marktlich / konzern / intern</td></tr>
+  <tr><td>Kategorie</td><td>4 Kategorien</td></tr>
+  <tr><td>Status</td><td>offen / in Bearbeitung / abgeschlossen / verzögert</td></tr>
+</table>
+
+<h3>Jahresziele</h3>
+<p>Verknüpfung von Meilensteinen mit SMART-formulierten Jahreszielen. Ziele werden zusammen mit Meilensteinen in <code>data/meilensteine.json</code> gespeichert (<code>{ "meilensteine": [...], "ziele": [...] }</code>).</p>
+
+<!-- 6 FORSCHUNG -->
+<h2 id="forschung">6. Forschungsprojekte (Modul: FP)</h2>
+
+<h3>Zweck</h3>
+<p>Übersicht über laufende, geplante und abgeschlossene Forschungs- und Innovationsprojekte des Bereichs — als strukturiertes Projektregister mit GitHub-Sync.</p>
+
+<h3>Datenmodell (Forschungsprojekt)</h3>
+<table>
+  <tr><th>Feld</th><th>Typ</th><th>Beschreibung</th></tr>
+  <tr><td><code>id</code></td><td>String</td><td>„FP-" + Timestamp</td></tr>
+  <tr><td><code>titel</code></td><td>String</td><td>Projektbezeichnung</td></tr>
+  <tr><td><code>status</code></td><td>Enum</td><td>aktiv / geplant / abgeschlossen / pausiert</td></tr>
+  <tr><td><code>start</code> / <code>ende</code></td><td>ISO Date</td><td>Laufzeit</td></tr>
+  <tr><td><code>kurzbeschreibung</code></td><td>String</td><td>1–2 Sätze zum Projekt</td></tr>
+  <tr><td><code>ziele</code></td><td>String</td><td>Was wird durch das Projekt erreicht?</td></tr>
+  <tr><td><code>beitrag_gb</code></td><td>String</td><td>Beitrag des Geschäftsbereichs</td></tr>
+  <tr><td><code>partner</code></td><td>Array</td><td>Forschungspartner (kommagetrennte Eingabe)</td></tr>
+  <tr><td><code>foerdergeber</code></td><td>String</td><td>z.B. „BMBF", „EU Horizon"</td></tr>
+  <tr><td><code>budget</code></td><td>String</td><td>Freitext, z.B. „500.000 €"</td></tr>
+  <tr><td><code>ansprechpartner</code></td><td>String</td><td>Name / Rolle</td></tr>
+</table>
+
+<p><strong>Status-Badge-Farben:</strong> <span class="badge" style="background:#e8f8ee;color:#27ae60">aktiv</span> <span class="badge" style="background:#ddeef4;color:#2d7a8e">geplant</span> <span class="badge" style="background:#eee;color:#555">abgeschlossen</span> <span class="badge" style="background:#fff7ee;color:#d46b08">pausiert</span></p>
+
+<h3>Funktionen</h3>
+<ul>
+  <li>Aktionsleiste: Gesamtzahl + Anzahl aktiver Projekte, „+ Neu"-Button</li>
+  <li>Listansicht: Status-Badge, Titel, Laufzeit, erster Partner, Fördergeber</li>
+  <li>Detail-Panel (Slide-In rechts): Alle Felder, Partner als Chips, Bearbeiten/Löschen</li>
+  <li>Vollständiges CRUD mit Bestätigungs-Modal beim Löschen</li>
+  <li>GitHub-Sync auf <code>data/forschung.json</code></li>
+</ul>
+
+<!-- 7 RISIKO -->
+<h2 id="risiko">7. Risikomanagement (Modul: RM)</h2>
+
+<h3>Zweck</h3>
+<p>Erfassung, Bewertung und Nachverfolgung von Risiken — sowohl manuell als auch direkt aus Meilensteinen abgeleitet. Quantitative Risikobewertung über Eintrittswahrscheinlichkeit und monetäres Schadensausmaß.</p>
+
+<h3>Datenmodell (Risiko)</h3>
+<table>
+  <tr><th>Feld</th><th>Typ</th><th>Beschreibung</th></tr>
+  <tr><td><code>id</code></td><td>String</td><td>„R-" + Timestamp</td></tr>
+  <tr><td><code>titel</code></td><td>String</td><td>Risikobezeichnung</td></tr>
+  <tr><td><code>risikotyp</code></td><td>Enum</td><td>regulatorisch / technisch / operativ / strategisch</td></tr>
+  <tr><td><code>cluster</code></td><td>Enum</td><td>Netzanschluss / Messstellenbetrieb / Netzwirtschaft / Technologie / Organisation</td></tr>
+  <tr><td><code>beschreibung</code></td><td>String</td><td>Risikobeschreibung</td></tr>
+  <tr><td><code>eintrittswahrscheinlichkeit</code></td><td>0,1–0,9</td><td>10 % – 90 %, Auswahl-Dropdown</td></tr>
+  <tr><td><code>schadensausmass</code></td><td>Euro (€)</td><td>Monetäres Schadensausmaß (Zahleneingabe)</td></tr>
+  <tr><td><code>risikoscore</code></td><td>Zahl</td><td>Eintrittswahrscheinlichkeit × Schadensausmaß (automatisch berechnet)</td></tr>
+  <tr><td><code>massnahmen</code></td><td>String</td><td>Mitigationsmaßnahmen</td></tr>
+  <tr><td><code>verantwortlicher</code></td><td>String</td><td>Verantwortliche Person</td></tr>
+  <tr><td><code>status</code></td><td>Enum</td><td>offen / in Bearbeitung / geschlossen</td></tr>
+  <tr><td><code>deadline</code></td><td>ISO Date</td><td>Deadline für Maßnahmen (optional)</td></tr>
+  <tr><td><code>iso_kategorie</code></td><td>String</td><td>Freie ISO-Kategorisierung</td></tr>
+  <tr><td><code>abgeleitet_von_ms</code></td><td>String</td><td>ID des Quell-Meilensteins (wenn per „Ableiten" erstellt)</td></tr>
+  <tr><td><code>manuell_erfasst</code></td><td>Boolean</td><td>true = manuell erfasst</td></tr>
+</table>
+
+<h3>Risikoscore-Formel</h3>
+<div class="flow">Risikoscore  =  Eintrittswahrscheinlichkeit  ×  Schadensausmaß (€)
+
+Beispiel:  EW 30 %  ×  Schaden 250.000 €  =  75.000 € (Erwartungswert)</div>
+
+<table>
+  <tr><th>Score</th><th>Farbe</th><th>Bedeutung</th></tr>
+  <tr><td>Niedrig</td><td style="color:#27ae60">Grün</td><td>Unteres Drittel der vorhandenen Risiken</td></tr>
+  <tr><td>Mittel</td><td style="color:#d46b08">Orange</td><td>Mittleres Drittel</td></tr>
+  <tr><td>Hoch</td><td style="color:#c0392b">Rot</td><td>Oberes Drittel — Priorisierung erforderlich</td></tr>
+</table>
+
+<h3>Risikotyp-Badge-Farben</h3>
+<p>
+  <span class="badge" style="background:#d6ecf0;color:#2d7a8e">regulatorisch</span>
+  <span class="badge" style="background:#e6e3f0;color:#7a6ea0">technisch</span>
+  <span class="badge" style="background:#fff7ee;color:#d46b08">operativ</span>
+  <span class="badge" style="background:#e8f8ee;color:#27ae60">strategisch</span>
+</p>
+
+<h3>Funktionen</h3>
+<h4>Risiko-Tab (Vollansicht)</h4>
+<ul>
+  <li>Aktionsleiste: Gesamtzahl, „+ Neues Risiko"-Button</li>
+  <li>Filterzeile: Cluster · Risikotyp · Status (Mehrfachfilter, default „Alle")</li>
+  <li>Risikoliste: Typ-Badge, Titel, Cluster, Score-Chip (€, farbcodiert), Status-Badge</li>
+  <li>Klick → Detail-Panel (Slide-In rechts)</li>
+</ul>
+
+<h4>Detail-Panel</h4>
+<ul>
+  <li>Alle Felder, Schadensausmaß im deutschen Zahlenformat (z.B. „250.000 €")</li>
+  <li>Maßnahmen, Deadline, ISO-Kategorie, Meilenstein-Referenz (wenn abgeleitet)</li>
+  <li>Bearbeiten / Löschen-Buttons</li>
+</ul>
+
+<h4>Risiko ableiten (aus Meilenstein)</h4>
+<p>Der Button <strong>„⚠ Risiko ableiten"</strong> im Meilenstein-Detail-Panel öffnet das Risiko-Formular mit Vorausfüllung:</p>
+<ul>
+  <li>Cluster = erster strategischer Cluster des Meilensteins</li>
+  <li>Abgeleitet von MS = ID + Titel des Meilensteins (readonly)</li>
+  <li>Alle weiteren Felder frei befüllbar</li>
+  <li>Meilenstein-Detail-Panel bleibt dabei geöffnet (Kontext erhalten)</li>
+</ul>
+
+<h4>Lageplan-Kachel (Risikomanagement)</h4>
+<p>Kompakte Metadaten-Übersicht auf dem Dashboard:</p>
+<ul>
+  <li>Gesamtanzahl Risiken · Anzahl offene Risiken (2-Spalten-Summary)</li>
+  <li>Pro Cluster: Anzahl Risiken, Ø Eintrittswahrscheinlichkeit, Risikosumme als Balken + Zahl</li>
+</ul>
+
+<h4>GitHub-Sync</h4>
+<ul>
+  <li>Datei: <code>data/risiken.json</code></li>
+  <li>Merge-Logik: GitHub-Stand als Basis, lokal manuell erfasste Einträge bleiben erhalten</li>
+  <li>Debounced Sync (2 Sekunden nach Änderung)</li>
+</ul>
+
+<!-- 8 LAGEPLAN -->
+<h2 id="lageplan">8. Lageplan-Dashboard (Modul: LP)</h2>
+
+<h3>Zweck</h3>
+<p>Überblick auf einer einzigen Seite — aggregierte KPIs aus allen Modulen plus Mini-Visualisierungen der wichtigsten Inhalte. Startseite der Anwendung.</p>
+
+<h3>Statusleiste (oben)</h3>
+<p>Sechs farbcodierte KPI-Indikatoren, automatisch aus allen Modulen aktualisiert:</p>
+<table>
+  <tr><th>KPI</th><th>Inhalt</th><th>Ampellogik</th></tr>
+  <tr><td>Themen im Radar</td><td>Gesamtanzahl Themenradar-Einträge</td><td>Blau wenn &gt; 0</td></tr>
+  <tr><td>Kritische Themen</td><td>Anzahl mit Score ≥ 0,7</td><td>Rot wenn &gt; 3, Orange wenn &gt; 0</td></tr>
+  <tr><td>Offene Meilensteine</td><td>Anzahl Status „offen"</td><td>Blau wenn &gt; 0</td></tr>
+  <tr><td>Verzögerte MS</td><td>Anzahl Status „verzögert"</td><td>Orange wenn &gt; 0</td></tr>
+  <tr><td>Letzte Aktualisierung</td><td>Timestamp letzter Sync</td><td>—</td></tr>
+  <tr><td>Keywords aktiv</td><td>Anzahl konfigurierter Überwachungs-Keywords</td><td>—</td></tr>
+</table>
+
+<h3>Kacheln (6 Tiles im 4-Spalten-Grid)</h3>
+<table>
+  <tr><th>Kachel</th><th>Position</th><th>Inhalt</th><th>Datenquelle</th></tr>
+  <tr><td><strong>Horizont &amp; Themenradar</strong></td><td>Links, volle Höhe</td><td>Mini-Radar (Top-Themen nach Score)</td><td>TR (HTML lokal)</td></tr>
+  <tr><td><strong>Strategische Ziele</strong></td><td>Rechts oben</td><td>Platzhalter → Power BI Scorecard-Link</td><td>Power BI (extern)</td></tr>
+  <tr><td><strong>Meilensteine &amp; GANTT</strong></td><td>Rechts mitte</td><td>Mini-GANTT (Top-MS nach Score)</td><td>MS (GitHub)</td></tr>
+  <tr><td><strong>Forschungsprojekte</strong></td><td>Unten links</td><td>Kompaktliste aller Projekte</td><td>FP (GitHub)</td></tr>
+  <tr><td><strong>Betrieb &amp; Performance</strong></td><td>Unten rechts</td><td>Platzhalter → SAP S/4HANA / Power BI</td><td>Power BI (geplant)</td></tr>
+  <tr><td><strong>Risikomanagement</strong></td><td>Unten, volle Breite</td><td>Cluster-Übersicht mit EW und Risikosummen</td><td>RM (GitHub)</td></tr>
+</table>
+
+<h3>Vollbild-Modus (⛶-Button)</h3>
+<p>Jede Kachel hat einen Vollbild-Toggle. Bei Aktivierung:</p>
+<ul>
+  <li>Kachel belegt den gesamten Viewport (position: fixed, inset: 0)</li>
+  <li>Visualisierung wird in maximaler Auflösung neu gerendert</li>
+  <li>ESC oder „✕ Vollbild beenden" schließt den Vollbildmodus</li>
+</ul>
+
+<h3>Quellen-Badges</h3>
+<p>Jede Kachel zeigt rechts oben die Datenherkunft: <code>HTML lokal</code> · <code>GitHub</code> · <code>Power BI</code> · <code>Geplant</code></p>
+
+<!-- 9 EINSTELLUNGEN -->
+<h2 id="einstellungen">9. Einstellungen</h2>
+
+<h3>GitHub-Verbindung</h3>
+<p>PAT, Repository, Branch, Dateipfad. „Verbindung testen"-Button prüft PAT gegen GitHub API.</p>
+
+<h3>Keywords</h3>
+<p>12 voreingestellte Stichworte für die Nachrichtenüberwachung (MsbG, §14a, Netzentgelt, Flexibilität u.a.). Hinzufügen / Entfernen möglich. Werden in der Statusleiste als Zähler angezeigt.</p>
+
+<h3>RSS-Feeds</h3>
+<p>Vorkonfigurierte Quellen (BNetzA, BMWK). Aktivieren/Deaktivieren einzelner Feeds, eigene Feeds hinzufügen.</p>
+
+<h3>Behörden-Seiten</h3>
+<p>Webquellen mit CSS-Selektoren für regulatorische Updates (BNetzA, BDEW, dena, VKU). Erfordert lokal laufendes <code>server.py</code>.</p>
+
+<h3>Server-Status</h3>
+<table>
+  <tr><th>Anzeige</th><th>Bedeutung</th></tr>
+  <tr><td style="color:#27ae60">● Server verbunden</td><td><code>server.py</code> läuft auf localhost:5050 → automatische Nachrichtenaktualisierung aktiv</td></tr>
+  <tr><td style="color:#d46b08">Offline-Modus</td><td>Kein lokaler Server → manuelle Eingabe, kein automatischer Feed-Abruf</td></tr>
+</table>
+
+<!-- 10 DURCHGAENGIGKEIT -->
+<h2 id="durchgaengigkeit">10. Themendurchgängigkeit — Wie Inhalte die Module verbinden</h2>
+
+<p>Das zentrale Designprinzip: Jede Information entsteht einmal und fließt durch alle relevanten Module. Kein Wechsel zwischen verschiedenen Tools notwendig.</p>
+
+<div class="flow">
+Externes Ereignis (z.B. neue Regulierung veröffentlicht)
+      │
+      ▼
+┌─────────────────────────────────────────────────────────┐
+│  THEMENRADAR                                            │
+│  „§14a EnWG-Flexibilität"                               │
+│  → regulatorisch · kurzfristig · Auswirkung 4          │
+│  → Radar-Score: 0,84 (kritisch)                        │
+└────────┬────────────────────────────────────────────────┘
+         │  „+ Meilenstein ableiten"
+         │  übernimmt: Kategorie, Score, Cluster, thema_id
+         ▼
+┌─────────────────────────────────────────────────────────┐
+│  MEILENSTEINE                                           │
+│  „§14a EnWG Prozesse umgestellt" (M001)                 │
+│  → Deadline: 01.04.2025 · verantwortlich: Maier        │
+│  → Cluster: Netzanschluss, Technologie                 │
+│  → Status: in Bearbeitung · Fortschritt: 65 %          │
+└────────┬────────────────────────────────────────────────┘
+         │  „⚠ Risiko ableiten"
+         │  übernimmt: Cluster, Meilenstein-Referenz
+         ▼
+┌─────────────────────────────────────────────────────────┐
+│  RISIKOMANAGEMENT                                       │
+│  „Umsetzungsverzug §14a"                                │
+│  → EW: 30 % · Schadensausmaß: 250.000 €               │
+│  → Risikoscore: 75.000 €                               │
+│  → Maßnahmen: Eskalation an Bereichsleitung            │
+└────────┬────────────────────────────────────────────────┘
+         │
+         ▼
+┌─────────────────────────────────────────────────────────┐
+│  LAGEPLAN-DASHBOARD                                     │
+│  Statusleiste: 1 kritisches Thema (rot), 1 MS offen    │
+│  Kachel Risiken: Cluster Netzanschluss → Score 75 T€   │
+│  Mini-Radar: §14a-Blip prominent oben                  │
+│  Mini-GANTT: M001 mit rotem Deadline-Chip sichtbar     │
+└─────────────────────────────────────────────────────────┘
+</div>
+
+<h3>Konkrete Verknüpfungspunkte</h3>
+<table>
+  <tr><th>Von</th><th>Nach</th><th>Mechanismus</th></tr>
+  <tr><td>Themenradar</td><td>Meilensteine</td><td>„+ Meilenstein ableiten" im Detail-Panel; <code>thema_id</code>-Fremdschlüssel</td></tr>
+  <tr><td>Meilensteine</td><td>Themenradar</td><td>„↗ Verknüpftes Thema"-Link im Detail-Panel</td></tr>
+  <tr><td>Meilensteine</td><td>Risikomanagement</td><td>„⚠ Risiko ableiten"-Button; <code>abgeleitet_von_ms</code>-Fremdschlüssel</td></tr>
+  <tr><td>Themenradar-Blip</td><td>Meilensteine</td><td>Badge auf Blip zeigt verknüpfte MS-Anzahl + Statusfarbe</td></tr>
+  <tr><td>Alle Module</td><td>Lageplan</td><td>KPI-Statusleiste, Mini-Visualisierungen, Kacheln</td></tr>
+  <tr><td>Themenradar</td><td>Lageplan Mini-Radar</td><td>Top-Themen nach Score automatisch dargestellt</td></tr>
+  <tr><td>Meilensteine</td><td>Lageplan Mini-GANTT</td><td>Top-MS nach Score automatisch dargestellt</td></tr>
+  <tr><td>Risiken</td><td>Lageplan Kachel</td><td>Cluster-Übersicht mit Kennzahlen</td></tr>
+  <tr><td>Forschungsprojekte</td><td>Lageplan Kachel</td><td>Kompaktliste im Dashboard</td></tr>
+  <tr><td>Meilensteine</td><td>Meilensteine</td><td><code>abhaengig_von</code>-Array → Abhängigkeitspfeile im GANTT</td></tr>
+</table>
+
+<h3>Strategische Cluster als gemeinsames Rückgrat</h3>
+<p>Alle Module verwenden dieselben 5 strategischen Cluster als übergreifendes Ordnungssystem:</p>
+<p><strong>Netzanschluss &nbsp;·&nbsp; Messstellenbetrieb &nbsp;·&nbsp; Netzwirtschaft &nbsp;·&nbsp; Technologie &nbsp;·&nbsp; Organisation</strong></p>
+<p>Jeder Eintrag (Thema, Meilenstein, Risiko, Forschungsprojekt) ist einem oder mehreren Clustern zugeordnet. Das ermöglicht Filterung und Aggregation über alle Modulgrenzen hinweg — ein Stichwort wie „Netzanschluss" verbindet Themen, Meilensteine und Risiken desselben inhaltlichen Bereichs.</p>
+
+<!-- 11 FARBEN -->
+<h2 id="farben">11. Farbcodierung &amp; visuelle Konventionen</h2>
+
+<h3>Kategoriefarben (konsistent über alle Module)</h3>
+<table>
+  <tr><th>Kategorie</th><th>Farbe</th><th>Hex-Code</th><th>Anwendung</th></tr>
+  <tr><td>Regulatorisch</td><td style="color:#2d7a8e"><strong>Dunkelblau</strong></td><td><code>#2d7a8e</code></td><td>Balken, Badges, Farbstreifen</td></tr>
+  <tr><td>Marktlich</td><td style="color:#63a2b4"><strong>Mittelblau</strong></td><td><code>#63a2b4</code></td><td>Balken, Badges, Farbstreifen</td></tr>
+  <tr><td>Technologisch</td><td style="color:#4a8a6f"><strong>Grün</strong></td><td><code>#4a8a6f</code></td><td>Balken, Badges, Farbstreifen</td></tr>
+  <tr><td>Wettbewerblich</td><td style="color:#7a6ea0"><strong>Lila</strong></td><td><code>#7a6ea0</code></td><td>Balken, Badges, Farbstreifen</td></tr>
+</table>
+
+<h3>Status-Farben (Meilensteine)</h3>
+<table>
+  <tr><th>Status</th><th>Farbe</th><th>Symbol</th></tr>
+  <tr><td>offen</td><td>Grau</td><td>○</td></tr>
+  <tr><td>in Bearbeitung</td><td>Blau <code>#2d7a8e</code></td><td>◑</td></tr>
+  <tr><td>abgeschlossen</td><td>Grün <code>#27ae60</code></td><td>●</td></tr>
+  <tr><td>verzögert</td><td>Rot <code>#c0392b</code></td><td>●</td></tr>
+</table>
+
+<h3>Radar-Score-Ampel</h3>
+<table>
+  <tr><th>Schwelle</th><th>Farbe</th><th>Label</th></tr>
+  <tr><td>≥ 0,7</td><td style="color:#c0392b">Rot</td><td>Kritisch</td></tr>
+  <tr><td>≥ 0,5</td><td style="color:#d46b08">Orange</td><td>Relevant</td></tr>
+  <tr><td>&lt; 0,5</td><td style="color:#27ae60">Grün</td><td>Beobachten</td></tr>
+</table>
+
+<h3>Deadline-Typ-Farben</h3>
+<table>
+  <tr><th>Typ</th><th>Farbe</th></tr>
+  <tr><td>regulatorisch</td><td style="color:#2d7a8e">Dunkelblau</td></tr>
+  <tr><td>marktlich</td><td style="color:#d46b08">Orange</td></tr>
+  <tr><td>konzern</td><td style="color:#7a6ea0">Lila</td></tr>
+  <tr><td>intern</td><td>Grau</td></tr>
+</table>
+
+<!-- 12 BETRIEB -->
+<h2 id="betrieb">12. Betrieb &amp; Deployment</h2>
+
+<h3>Voraussetzungen für Benutzer</h3>
+<table>
+  <tr><th>Szenario</th><th>Anforderungen</th><th>Funktionsumfang</th></tr>
+  <tr><td>Daten nur ansehen</td><td>Browser + Internetzugang</td><td>Lesen von GitHub, alle Visualisierungen</td></tr>
+  <tr><td>Daten bearbeiten &amp; synchronisieren</td><td>+ GitHub-Account + PAT</td><td>Vollzugriff, geräteübergreifend</td></tr>
+  <tr><td>Offline arbeiten</td><td>nur Browser</td><td>localStorage, Sync beim nächsten Online-Öffnen</td></tr>
+  <tr><td>Nachrichtenüberwachung</td><td>+ <code>server.py</code> lokal</td><td>Automatischer RSS- und Behördenseiten-Abruf</td></tr>
+</table>
+
+<h3>Datensicherheit</h3>
+<div class="callout warn">
+  <strong>Hinweis:</strong> Das GitHub-PAT wird ausschließlich im Browser-localStorage gespeichert und nie an andere Server übertragen. Empfehlung: PAT mit minimalem Scope anlegen (nur <code>contents: write</code> für das spezifische Repository).
+</div>
+
+<h3>Aktueller technischer Stand</h3>
+<ul>
+  <li>Drei Deployment-Umgebungen aktiv (Prod/Staging/Dev auf GitHub Pages)</li>
+  <li>Branch Protection auf <code>main</code> und <code>staging</code>: PR + Review erforderlich</li>
+  <li>Automatisches Deployment via GitHub Actions bei Push auf alle drei Branches</li>
+  <li>Regressionstest-Suite unter <code>tests/themenradar-positionierung.test.js</code> (ausführbar mit <code>node --test</code>)</li>
+</ul>
+
+<hr class="sep">
+<p style="text-align:center;color:#8aa5b0;font-size:11px;margin-top:30px">
+  Lageplan · Energie &amp; Asset Management &nbsp;·&nbsp; Funktionsbeschreibung &amp; Anwenderhandbuch &nbsp;·&nbsp; Stand Juni 2026<br>
+  Datei: <code>docs/lageplan-handbuch.html</code> &nbsp;·&nbsp; Repository: martinseibring/lageplan
+</p>
+
+</div>
+</body>
+</html>
