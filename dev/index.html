@@ -6497,8 +6497,8 @@ window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisieru
       zeitraumModus: "60",
       zeitraumVon:   null,
       zeitraumBis:   null,
+      suchtext:      "",
       cluster:       new Set(["Netzanschluss","Messstellenbetrieb","Netzwirtschaft","Technologie","Organisation"]),
-      deadlineTypen: new Set(["regulatorisch","marktlich","konzern","intern"]),
       kategorien:    new Set(["regulatorisch","marktlich","technologisch","wettbewerblich"]),
       statusWerte:   new Set(["offen","in Bearbeitung","abgeschlossen","verzögert"])
     };
@@ -6528,17 +6528,16 @@ window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisieru
           const clusterOk = alleCluster ||
             (ms.strategische_cluster || []).some(c => filterState.cluster.has(c));
 
-          // Deadline-Typ-Abgleich
-          const alleDeadlines = filterState.deadlineTypen.size === 4;
-          const checkTyp = (!ms.pflicht_deadline) ? "intern" : (ms.deadline_typ || "intern");
-          const deadlineOk = alleDeadlines || filterState.deadlineTypen.has(checkTyp);
-
           // Kategorie- und Status-Abgleich
           const katOk  = filterState.kategorien.has(ms.kategorie);
           const statOk = filterState.statusWerte.has(ms.status);
 
+          // Freitext-Suche
+          const q = filterState.suchtext.toLowerCase();
+          const suchtextOk = !q || ms.titel.toLowerCase().includes(q);
+
           return Object.assign({}, ms, {
-            _aktiv: clusterOk && deadlineOk && katOk && statOk
+            _aktiv: clusterOk && katOk && statOk && suchtextOk
           });
         });
     }
@@ -6551,6 +6550,10 @@ window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisieru
       const panel = document.getElementById("ms-filter-panel");
 
       panel.innerHTML = `
+        <input type="text" id="ms-suche" placeholder="🔍 Meilenstein suchen…"
+          style="width:100%;padding:6px 8px;border:1px solid #ccc;border-radius:4px;
+                 font-size:12px;box-sizing:border-box;margin-bottom:12px">
+
         <h3>Zeitraum</h3>
         <select id="filter-zeitraum-modus">
           <option value="6">Nächste 6 Monate</option>
@@ -6573,22 +6576,6 @@ window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisieru
           <label class="ms-filter-zeile">
             <input type="checkbox" class="ms-cluster-filter" value="${c}" checked>
             ${c}
-          </label>
-        `).join("")}
-
-        <h3>Deadline-Typ</h3>
-        ${[
-          { val: "regulatorisch", label: "Regulatorisch"          },
-          { val: "marktlich",     label: "Marktlich"              },
-          { val: "konzern",       label: "Konzern"                },
-          { val: "intern",        label: "Intern / Kein Pflichttermin" }
-        ].map(d => `
-          <label class="ms-filter-zeile">
-            <input type="checkbox" class="ms-deadline-filter" value="${d.val}" checked>
-            <span class="ms-filter-punkt"
-              style="background:${deadlineTypFarben[d.val]||'#ccc'};border-radius:0;
-                     transform:rotate(45deg);width:8px;height:8px"></span>
-            ${d.label}
           </label>
         `).join("")}
 
@@ -6640,13 +6627,10 @@ window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisieru
         });
       });
 
-      // Deadline-Typ
-      panel.querySelectorAll(".ms-deadline-filter").forEach(cb => {
-        cb.addEventListener("change", function() {
-          if (this.checked) filterState.deadlineTypen.add(this.value);
-          else              filterState.deadlineTypen.delete(this.value);
-          wendeFilterAn();
-        });
+      // Freitext-Suche
+      panel.querySelector("#ms-suche").addEventListener("input", function() {
+        filterState.suchtext = this.value.trim();
+        wendeFilterAn();
       });
 
       // Kategorie
@@ -6672,10 +6656,11 @@ window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisieru
         filterState.zeitraumModus = "60";
         filterState.zeitraumVon   = null;
         filterState.zeitraumBis   = null;
+        filterState.suchtext      = "";
         filterState.cluster       = new Set(["Netzanschluss","Messstellenbetrieb","Netzwirtschaft","Technologie","Organisation"]);
-        filterState.deadlineTypen = new Set(["regulatorisch","marktlich","konzern","intern"]);
         filterState.kategorien    = new Set(["regulatorisch","marktlich","technologisch","wettbewerblich"]);
         filterState.statusWerte   = new Set(["offen","in Bearbeitung","abgeschlossen","verzögert"]);
+        document.getElementById("ms-suche").value = "";
         document.getElementById("filter-zeitraum-modus").value = "60";
         document.getElementById("filter-zeitraum-custom").style.display = "none";
         document.getElementById("filter-von").value = "";
