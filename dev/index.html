@@ -3749,8 +3749,12 @@ body {
           📖 Handbuch öffnen
         </button>
         <a href="docs/lageplan-handbuch.html" target="_blank"
-           style="font-size:12px;color:#2d7a8e;text-decoration:none;vertical-align:middle">
+           style="font-size:12px;color:#2d7a8e;text-decoration:none;vertical-align:middle;margin-right:14px">
           ↗ In neuem Tab öffnen
+        </a>
+        <a href="docs/lageplan-bpmn.html" target="_blank"
+           style="font-size:12px;color:#7a6ea0;text-decoration:none;vertical-align:middle">
+          ↗ BPMN-Prozessdokumentation
         </a>
       </div>
     </div>
@@ -10193,6 +10197,7 @@ window.ST={speichereEinstellungen,resetteEinstellungen};
 <div id="handbuch-modal" onclick="if(event.target===this)schliesseHandbuch()">
   <div id="handbuch-modal-header">
     <span class="handbuch-header-titel">📖 Lageplan — Handbuch &amp; Dokumentation</span>
+    <button class="handbuch-close-btn" onclick="druckeHandbuch()" title="Als PDF speichern" style="margin-right:6px">📥 Als PDF</button>
     <button class="handbuch-close-btn" onclick="schliesseHandbuch()">✕ Schließen</button>
   </div>
   <iframe id="handbuch-iframe" src="docs/lageplan-handbuch.html" title="Lageplan Handbuch"></iframe>
@@ -10204,6 +10209,10 @@ function oeffneHandbuch() {
 }
 function schliesseHandbuch() {
   document.getElementById("handbuch-modal").classList.remove("offen");
+}
+function druckeHandbuch() {
+  const w = window.open("docs/lageplan-handbuch.html", "_blank");
+  if (w) w.addEventListener("load", function() { w.print(); });
 }
 document.addEventListener("keydown", function(e) {
   if (e.key === "Escape") schliesseHandbuch();
