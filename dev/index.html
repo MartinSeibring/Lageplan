@@ -2353,6 +2353,37 @@ body {
 #panel-themenradar #header,
 #panel-meilensteine #ms-header { border-radius: 0; }
 
+/* ── Globaler Cluster-Filter ── */
+#gf-cluster-panel {
+  display: flex; align-items: center; flex-wrap: wrap; gap: 6px;
+  padding: 10px 20px; background: #f0f4f8;
+  border-bottom: 1px solid #d8e2ec;
+}
+.gf-label {
+  font-size: 12px; font-weight: 600; color: #556; margin-right: 4px;
+}
+.gf-btn {
+  padding: 4px 12px; border-radius: 20px; border: 1.5px solid #b0b8c8;
+  background: #fff; font-size: 12px; font-weight: 500; color: #445;
+  cursor: pointer; transition: all .15s;
+}
+.gf-btn:hover { border-color: #2d7a8e; color: #2d7a8e; }
+.gf-btn.aktiv {
+  background: #2d7a8e; border-color: #2d7a8e; color: #fff; font-weight: 700;
+}
+#gf-indikator {
+  display: none; align-items: center; gap: 8px;
+  padding: 5px 16px; background: #e8f4f8;
+  border-bottom: 2px solid #2d7a8e; font-size: 12px; color: #2d7a8e;
+}
+#gf-indikator strong { font-weight: 700; }
+#gf-reset-btn {
+  margin-left: 4px; padding: 2px 8px; border-radius: 12px;
+  border: 1px solid #2d7a8e; background: #fff; color: #2d7a8e;
+  font-size: 11px; cursor: pointer; font-weight: 600;
+}
+#gf-reset-btn:hover { background: #2d7a8e; color: #fff; }
+
 
 /* ── Jahresziele ── */
 #btn-jz-generieren {
@@ -2641,6 +2672,11 @@ body {
     <button class="app-tab" id="tab-settings"     data-tab="settings">Einstellungen</button>
   </div>
 
+  <div id="gf-indikator">
+    Cluster-Filter aktiv:&nbsp;<strong id="gf-indikator-name"></strong>
+    <button id="gf-reset-btn" onclick="GlobalFilter.set(null)">✕ zurücksetzen</button>
+  </div>
+
   <div class="tab-panel" id="panel-lageplan">
 
   <!-- ── Header ─────────────────────────────────────── -->
@@ -2653,7 +2689,18 @@ body {
   </div>
 
   <!-- ── Navigation ─────────────────────────────────── -->
-  
+
+
+  <!-- ── Globaler Cluster-Filter ──────────────────── -->
+  <div id="gf-cluster-panel">
+    <span class="gf-label">Cluster-Filter:</span>
+    <button class="gf-btn aktiv" data-cluster="" onclick="GlobalFilter.set(null)">Alle Cluster</button>
+    <button class="gf-btn" data-cluster="Netzanschluss"      onclick="GlobalFilter.set('Netzanschluss')">Netzanschluss</button>
+    <button class="gf-btn" data-cluster="Messstellenbetrieb" onclick="GlobalFilter.set('Messstellenbetrieb')">Messstellenbetrieb</button>
+    <button class="gf-btn" data-cluster="Netzwirtschaft"     onclick="GlobalFilter.set('Netzwirtschaft')">Netzwirtschaft</button>
+    <button class="gf-btn" data-cluster="Technologie"        onclick="GlobalFilter.set('Technologie')">Technologie</button>
+    <button class="gf-btn" data-cluster="Organisation"       onclick="GlobalFilter.set('Organisation')">Organisation</button>
+  </div>
 
   <!-- ── Statusleiste (LP2) ────────────────────────── -->
   <div id="status-leiste">
@@ -4398,6 +4445,8 @@ body {
       const suchtext = document.getElementById("suche").value.toLowerCase();
 
       function istAktiv(d) {
+        const gc = window.GlobalFilter && window.GlobalFilter.cluster;
+        if (gc && !(d.strategische_cluster || []).includes(gc)) return false;
         const clusterMatch = aktiveCluster.length === 0 ||
           aktiveCluster.some(c => d.strategische_cluster.includes(c));
         const suchMatch = suchtext === "" ||
@@ -6528,9 +6577,11 @@ window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisieru
         })
         .map(ms => {
           // Cluster-Abgleich: leer = alle aktiv
+          const gc = window.GlobalFilter && window.GlobalFilter.cluster;
+          const globalOk = !gc || (ms.strategische_cluster || []).includes(gc);
           const alleCluster = filterState.cluster.size === 5; // alle gewählt
-          const clusterOk = alleCluster ||
-            (ms.strategische_cluster || []).some(c => filterState.cluster.has(c));
+          const clusterOk = globalOk && (alleCluster ||
+            (ms.strategische_cluster || []).some(c => filterState.cluster.has(c)));
 
           // Kategorie- und Status-Abgleich
           const katOk  = filterState.kategorien.has(ms.kategorie);
@@ -9078,6 +9129,8 @@ window.MS={exportiereJSON,zeigeDetail,renderMini,renderUebersicht,oeffneMsFormul
 
   function _gefilterteDaten() {
     return risikenDaten.filter(function(r) {
+      var gc = window.GlobalFilter && window.GlobalFilter.cluster;
+      if (gc && r.cluster !== gc) return false;
       if (_aktiveFilter.cluster !== "alle" && r.cluster !== _aktiveFilter.cluster) return false;
       if (_aktiveFilter.typ    !== "alle" && r.risikotyp !== _aktiveFilter.typ)    return false;
       if (_aktiveFilter.status !== "alle" && r.status    !== _aktiveFilter.status) return false;
@@ -10043,8 +10096,44 @@ window.ST={speichereEinstellungen,resetteEinstellungen};
   document.querySelectorAll("[data-jump]").forEach(function(b){
     b.addEventListener("click", function(e){ e.preventDefault(); activate(b.dataset.jump); });
   });
+  window.GlobalFilter = {
+    cluster: null,
+    set: function(cluster) {
+      this.cluster = cluster || null;
+      localStorage.setItem('lp_globalCluster', cluster || '');
+      this._updateUI();
+      this._propagate();
+    },
+    restore: function() {
+      var v = localStorage.getItem('lp_globalCluster');
+      this.cluster = v || null;
+      this._updateUI();
+    },
+    _propagate: function() {
+      try { if (window.TR && TR.redraw)       TR.redraw();       } catch(e){}
+      try { if (window.MS && MS.redraw)       MS.redraw();       } catch(e){}
+      try { if (window.RM && RM.renderTab)    RM.renderTab();    } catch(e){}
+      try { if (window.LP) {
+        LP.aktualisiereStatusleiste();
+        LP.zeichneLpRadar(false);
+        LP.zeichneLpGantt(false);
+      }} catch(e){}
+    },
+    _updateUI: function() {
+      var ind  = document.getElementById('gf-indikator');
+      var nm   = document.getElementById('gf-indikator-name');
+      var self = this;
+      if (ind) ind.style.display = self.cluster ? 'flex' : 'none';
+      if (nm)  nm.textContent = self.cluster || '';
+      document.querySelectorAll('.gf-btn').forEach(function(btn) {
+        btn.classList.toggle('aktiv', (btn.dataset.cluster || '') === (self.cluster || ''));
+      });
+    }
+  };
+
   window.App = { activate: activate, wechsleZuTab: wechsleZuTab };
   activate("lageplan");
+  GlobalFilter.restore();
   // GitHub Sync: Nach kurzem Delay laden, damit alle IIFEs initialisiert sind
   setTimeout(function() { if (window.GH) { GH.ladeMeilensteine(); GH.ladeThemen(); GH.ladeForschung(); GH.ladeRisiken(); } }, 500);
 })();
