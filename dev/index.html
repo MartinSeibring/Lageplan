@@ -904,7 +904,32 @@
       padding: 2px 8px;
       border-radius: 3px;
       color: #555;
+      cursor: pointer;
     }
+    .ms-abhaengig-liste li:hover { background: #e0eef2; }
+    .ms-abhaengig-liste li .ms-abh-typ-tag {
+      display: inline-block; margin-left: 4px;
+      font-size: 10px; font-weight: 700; color: #2d7a8e;
+      background: #d8eef4; border-radius: 3px; padding: 0 4px;
+    }
+    .ms-abhaengig-liste .ms-abh-nachfolger {
+      background: #f0f0ff;
+    }
+
+    /* Dynamische Abhängigkeitsliste im Formular */
+    .msf-abh-zeile {
+      display: flex; align-items: center; gap: 6px;
+      padding: 5px 0; border-bottom: 1px solid #f0f0f0;
+    }
+    .msf-abh-zeile:last-child { border-bottom: none; }
+    .msf-abh-id  { flex: 1; min-width: 0; font-size: 12px; padding: 3px 6px;
+                   border: 1px solid #ccc; border-radius: 4px; }
+    .msf-abh-typ { width: 130px; font-size: 12px; padding: 3px 6px;
+                   border: 1px solid #ccc; border-radius: 4px; }
+    .msf-abh-lag { width: 54px; font-size: 12px; padding: 3px 5px;
+                   border: 1px solid #ccc; border-radius: 4px; text-align: right; }
+    .msf-abh-entf { background: none; border: none; cursor: pointer;
+                    color: #c00; font-size: 14px; padding: 0 4px; }
 
     /* ── KI-Analyse Modal ── */
     #ki-analyse-modal {
@@ -3563,9 +3588,11 @@ body {
 
       <!-- 12. Abhängig von -->
       <div class="tf-gruppe">
-        <label class="tf-label" for="msf-abhaengig">Abhängig von</label>
-        <select id="msf-abhaengig" class="tf-select" multiple size="4"></select>
-        <div class="tf-hinweis">Strg+Klick für Mehrfachauswahl</div>
+        <label class="tf-label">Abhängig von</label>
+        <div id="msf-abh-liste" style="margin-bottom:6px"></div>
+        <button type="button" class="tf-btn-sekundaer" style="font-size:11px;padding:4px 10px"
+                onclick="MS.abhHinzufuegen()">+ Abhängigkeit hinzufügen</button>
+        <div class="tf-hinweis">FS = Ende→Start &nbsp;|&nbsp; SS = Start→Start &nbsp;|&nbsp; FF = Ende→Ende</div>
       </div>
 
       <!-- 13. Fortschritt -->
@@ -6496,6 +6523,11 @@ window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisieru
       }
     ];
 
+    // Normalize legacy abhaengig_von string[] → object[] on startup
+    meilensteinData.forEach(function(m) {
+      m.abhaengig_von = normAbh(m.abhaengig_von);
+    });
+
     // -----------------------------------------------------------------------
     // Shared constants
     // -----------------------------------------------------------------------
@@ -6767,17 +6799,31 @@ window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisieru
       const panel = document.getElementById("ms-detail-panel");
       panel.style.display = "block";
 
-      const vorgaenger = (ms.abhaengig_von || [])
-        .map(id => meilensteinData.find(m => m.id === id))
+      const vorgaenger = normAbh(ms.abhaengig_von || [])
+        .map(abh => {
+          const m = meilensteinData.find(x => x.id === abh.id);
+          return m ? { ms: m, typ: abh.typ || 'FS', lag: abh.lag || 0 } : null;
+        })
+        .filter(Boolean);
+
+      const nachfolger = meilensteinData
+        .map(function(m) {
+          const rel = normAbh(m.abhaengig_von || []).find(function(a) { return a.id === ms.id; });
+          return rel ? { ms: m, typ: rel.typ || 'FS', lag: rel.lag || 0 } : null;
+        })
         .filter(Boolean);
 
       const clusterBadges = (ms.strategische_cluster || [])
         .map(c => `<span class="ms-badge ms-badge-cluster">${c}</span>`)
         .join(" ");
 
+      const lagLabel = lag => lag !== 0 ? ` ${lag > 0 ? '+' : ''}${lag}T` : '';
       const vorgaengerItems = vorgaenger.length > 0
-        ? vorgaenger.map(v => `<li>${v.id}: ${v.titel}</li>`).join("")
-        : `<li style="color:#bbb">Keine Vorgänger</li>`;
+        ? vorgaenger.map(e => `<li data-ms-id="${e.ms.id}">${e.ms.id}: ${e.ms.titel}<span class="ms-abh-typ-tag">${e.typ}${lagLabel(e.lag)}</span></li>`).join("")
+        : `<li style="color:#bbb;cursor:default">Keine Vorgänger</li>`;
+      const nachfolgerItems = nachfolger.length > 0
+        ? nachfolger.map(e => `<li class="ms-abh-nachfolger" data-ms-id="${e.ms.id}">${e.ms.id}: ${e.ms.titel}<span class="ms-abh-typ-tag">${e.typ}${lagLabel(e.lag)}</span></li>`).join("")
+        : `<li style="color:#bbb;cursor:default">Keine Nachfolger</li>`;
 
       panel.innerHTML = `
         <button id="ms-detail-schliessen" title="Schließen">×</button>
@@ -6818,9 +6864,14 @@ window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisieru
           <span class="ms-detail-label">Cluster</span>
           <span class="ms-detail-value">${clusterBadges}</span>
 
-          <span class="ms-detail-label">Abhängigkeiten</span>
+          <span class="ms-detail-label">Vorgänger</span>
           <span class="ms-detail-value">
-            <ul class="ms-abhaengig-liste">${vorgaengerItems}</ul>
+            <ul class="ms-abhaengig-liste" id="ms-detail-vorgaenger">${vorgaengerItems}</ul>
+          </span>
+
+          <span class="ms-detail-label">Nachfolger</span>
+          <span class="ms-detail-value">
+            <ul class="ms-abhaengig-liste" id="ms-detail-nachfolger">${nachfolgerItems}</ul>
           </span>
 
           <span class="ms-detail-label">Radar-Score</span>
@@ -6867,6 +6918,15 @@ window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisieru
           if (window.RM && RM.ableitenVonMeilenstein) RM.ableitenVonMeilenstein(ms);
         });
       }
+
+      // Klick auf Vorgänger/Nachfolger → Detail öffnen
+      document.querySelectorAll("#ms-detail-vorgaenger li[data-ms-id], #ms-detail-nachfolger li[data-ms-id]")
+        .forEach(function(li) {
+          li.addEventListener("click", function() {
+            const ziel = meilensteinData.find(function(m) { return m.id === li.dataset.msId; });
+            if (ziel) zeigeDetail(ziel);
+          });
+        });
 
       // Fortschritts-Balken live mitführen
       document.getElementById("detail-fortschritt-input").addEventListener("input", function() {
@@ -7358,18 +7418,30 @@ window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisieru
       const arrowG = svg.append("g").attr("class", "ms-pfeile");
       daten.forEach(ms => {
         if (!ms.abhaengig_von || ms.abhaengig_von.length === 0) return;
-        ms.abhaengig_von.forEach(vorId => {
-          const vor  = meilensteinData.find(m => m.id === vorId);
+        normAbh(ms.abhaengig_von).forEach(abh => {
+          const vor  = meilensteinData.find(m => m.id === abh.id);
           const ziel = msMap[ms.id];
-          const vorg = msMap[vorId];
+          const vorg = msMap[abh.id];
           if (!vor || !ziel || !vorg) return;
 
-          const warnung  = vor.status !== "abgeschlossen" && new Date(ms.start) <= heute;
+          const typ = abh.typ || 'FS';
+          const lagPx = (abh.lag || 0) * (xScale(new Date(heute.getTime() + 86400000)) - xScale(heute));
+
+          // Ansatzpunkte je Typ
+          const ax1 = typ === 'SS' ? vorg.xStart : vorg.xEnde;
+          const ax2 = (typ === 'FF' ? ziel.xEnde : ziel.xStart) + lagPx;
+          const ay1 = vorg.yMid;
+          const ay2 = ziel.yMid;
+
+          // Warnlogik je Typ
+          let warnung = false;
+          if (typ === 'FS') warnung = vor.status !== "abgeschlossen" && new Date(ms.start) <= heute;
+          if (typ === 'SS') warnung = vor.status === "offen" && ms.status !== "offen";
+          if (typ === 'FF') warnung = vor.status !== "abgeschlossen" && new Date(ms.ende) <= heute;
+
           const farbe    = warnung ? "#c0392b" : "#999";
           const markerId = warnung ? "pfeil-warnung" : "pfeil-normal";
-          const ax1 = vorg.xEnde, ay1 = vorg.yMid;
-          const ax2 = ziel.xStart, ay2 = ziel.yMid;
-          const kink = ax1 + 12;
+          const kink = ax1 + (typ === 'SS' ? -12 : 12);
 
           arrowG.append("path")
             .attr("d", `M ${ax1} ${ay1} L ${kink} ${ay1} L ${kink} ${ay2} L ${ax2} ${ay2}`)
@@ -7378,6 +7450,19 @@ window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisieru
             .attr("stroke-width", 1.5)
             .attr("stroke-dasharray", "4,3")
             .attr("marker-end", `url(#${markerId})`);
+
+          // Typ-Kürzel am Pfeil (Mitte der horizontalen Verbindung)
+          if (typ !== 'FS') {
+            const midX = (kink + ax2) / 2;
+            const midY = ay2 - 5;
+            arrowG.append("text")
+              .attr("x", midX).attr("y", midY)
+              .attr("text-anchor", "middle")
+              .attr("font-size", "9px")
+              .attr("fill", farbe)
+              .attr("font-weight", "700")
+              .text(typ);
+          }
         });
       });
 
@@ -7743,7 +7828,8 @@ window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisieru
         if (zi === undefined) return;
         const zy = hdrHeight + zi * rowHeight + rowHeight/2;
         const zx = titleWidth + Math.max(xSc(new Date(ms.start)), 0);
-        ms.abhaengig_von.forEach(srcId => {
+        normAbh(ms.abhaengig_von).forEach(abh => {
+          const srcId = abh.id;
           const si = idxMap[srcId];
           if (si === undefined) return;
           const srcMs = vis[si];
@@ -7839,6 +7925,67 @@ window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisieru
     let _bearbeitenId = null;
     let _loeschenId   = null;
 
+    // ── Abhängigkeits-Hilfsfunktionen ──────────────────────────────────────
+    function normAbh(abh) {
+      return (abh || []).map(function(a) {
+        return typeof a === 'string' ? { id: a, typ: 'FS', lag: 0 } : a;
+      });
+    }
+
+    function abhHinzufuegen(eintrag) {
+      const liste = document.getElementById("msf-abh-liste");
+      if (!liste) return;
+      const zeile = document.createElement("div");
+      zeile.className = "msf-abh-zeile";
+
+      const optionen = meilensteinData
+        .filter(function(m) {
+          return !_bearbeitenId || m.id !== _bearbeitenId;
+        })
+        .map(function(m) {
+          const sel = (eintrag && eintrag.id === m.id) ? ' selected' : '';
+          return `<option value="${m.id}"${sel}>${m.id}: ${m.titel}</option>`;
+        }).join("");
+
+      const typ = (eintrag && eintrag.typ) ? eintrag.typ : 'FS';
+      const lag = (eintrag && eintrag.lag != null) ? eintrag.lag : 0;
+
+      zeile.innerHTML = `
+        <select class="msf-abh-id">${optionen}</select>
+        <select class="msf-abh-typ">
+          <option value="FS"${typ==='FS'?' selected':''}>FS – Ende→Start</option>
+          <option value="SS"${typ==='SS'?' selected':''}>SS – Start→Start</option>
+          <option value="FF"${typ==='FF'?' selected':''}>FF – Ende→Ende</option>
+        </select>
+        <input type="number" class="msf-abh-lag" value="${lag}" min="-999" max="999" title="Lag/Lead in Tagen">
+        <span style="font-size:10px;color:#aaa">T</span>
+        <button type="button" class="msf-abh-entf" title="Entfernen">✕</button>`;
+
+      zeile.querySelector(".msf-abh-entf").addEventListener("click", function() {
+        zeile.remove();
+      });
+      liste.appendChild(zeile);
+    }
+
+    function _ladeAbhListe(abhaengigVon) {
+      const liste = document.getElementById("msf-abh-liste");
+      if (!liste) return;
+      liste.innerHTML = "";
+      normAbh(abhaengigVon).forEach(function(a) { abhHinzufuegen(a); });
+    }
+
+    function _leseAbhListe() {
+      return Array.from(document.querySelectorAll("#msf-abh-liste .msf-abh-zeile"))
+        .map(function(z) {
+          const id  = z.querySelector(".msf-abh-id")  ? z.querySelector(".msf-abh-id").value  : "";
+          const typ = z.querySelector(".msf-abh-typ")  ? z.querySelector(".msf-abh-typ").value  : "FS";
+          const lag = z.querySelector(".msf-abh-lag")  ? parseInt(z.querySelector(".msf-abh-lag").value) || 0 : 0;
+          return { id, typ, lag };
+        })
+        .filter(function(a) { return !!a.id; });
+    }
+    // ── Ende Abhängigkeits-Hilfsfunktionen ─────────────────────────────────
+
     function speichereMeilensteineLocal() {
       try { localStorage.setItem("meilensteine", JSON.stringify(meilensteinData)); } catch (e) {}
       localStorage.setItem("last_update", new Date().toLocaleString("de-DE"));
@@ -7850,7 +7997,10 @@ window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisieru
       // Leere GitHub-Datei niemals lokale Daten überschreiben lassen
       if (daten.length === 0 && meilensteinData.length > 0) return;
       meilensteinData.length = 0;
-      daten.forEach(function(m) { meilensteinData.push(m); });
+      daten.forEach(function(m) {
+        m.abhaengig_von = normAbh(m.abhaengig_von);
+        meilensteinData.push(m);
+      });
       try { localStorage.setItem("meilensteine", JSON.stringify(meilensteinData)); } catch(e) {}
       localStorage.setItem("last_update", new Date().toLocaleString("de-DE"));
       refreshGanttUndMini();
@@ -7899,11 +8049,8 @@ window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisieru
       themaSel.innerHTML = `<option value="">Kein Thema</option>` +
         themen.map(t => `<option value="${t.id}">${t.titel}</option>`).join("");
 
-      // Abhängig-von-Dropdown füllen (sich selbst ausschließen)
-      const abhSel = document.getElementById("msf-abhaengig");
-      abhSel.innerHTML = meilensteinData
-        .filter(m => m.id !== _bearbeitenId)
-        .map(m => `<option value="${m.id}">${m.id}: ${m.titel}</option>`).join("");
+      // Abhängigkeitsliste leeren (wird bei Bearbeiten unten befüllt)
+      _ladeAbhListe([]);
 
       const heute      = new Date().toISOString().slice(0, 10);
       const startInput = document.getElementById("msf-start");
@@ -7925,9 +8072,7 @@ window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisieru
         document.getElementById("msf-deadline-quelle").value    = m.deadline_quelle || "";
         document.getElementById("msf-deadline-typ").value       = m.deadline_typ || "regulatorisch";
         themaSel.value = (m.thema_id != null) ? String(m.thema_id) : "";
-        Array.from(abhSel.options).forEach(o => {
-          o.selected = (m.abhaengig_von || []).includes(o.value);
-        });
+        _ladeAbhListe(m.abhaengig_von || []);
         document.getElementById("msf-fortschritt").value        = m.fortschritt || 0;
         document.getElementById("msf-fortschritt-wert").textContent = (m.fortschritt || 0) + "%";
         document.getElementById("msf-notiz").value              = m.notiz || "";
@@ -8009,7 +8154,7 @@ window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisieru
         if (t) { themaId = t.id; themaTitel = t.titel; radarScore = t.radar_score || 0; }
       }
 
-      const abh = Array.from(document.getElementById("msf-abhaengig").selectedOptions).map(o => o.value);
+      const abh = _leseAbhListe();
       const fortschritt      = parseInt(document.getElementById("msf-fortschritt").value) || 0;
       const notiz            = document.getElementById("msf-notiz").value;
       const kategorie        = document.getElementById("msf-kategorie").value;
@@ -8318,7 +8463,7 @@ window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisieru
       schliesseJahreszieleModal();
     }
 
-window.MS={exportiereJSON,zeigeDetail,renderMini,renderUebersicht,oeffneMsFormular,schliesseMsFormular,speichereMs,toggleDeadlineFelder,themaGewaehlt,fragenLoeschen,schliesseLoeschen,bestaetigeLoeschen,ladeVonGithub,ladeZieleVonGithub,speichereZielEintrag,loescheZielEintrag,toggleZielePanel,oeffneJahreszieleModal,schliesseJahreszieleModal,_jahreszieleKopierePrompt,_jahreszieleVerarbeite,_jahreszieleAllesSpeichern,exportiereJahreszieleText,getDaten:function(){ return meilensteinData; },getZiele:function(){ return zielenData; },redraw:function(){zeichneGantt(gefilterteDaten());},refresh:refreshGanttUndMini};
+window.MS={exportiereJSON,zeigeDetail,renderMini,renderUebersicht,oeffneMsFormular,schliesseMsFormular,speichereMs,toggleDeadlineFelder,themaGewaehlt,fragenLoeschen,schliesseLoeschen,bestaetigeLoeschen,ladeVonGithub,ladeZieleVonGithub,speichereZielEintrag,loescheZielEintrag,toggleZielePanel,oeffneJahreszieleModal,schliesseJahreszieleModal,_jahreszieleKopierePrompt,_jahreszieleVerarbeite,_jahreszieleAllesSpeichern,exportiereJahreszieleText,abhHinzufuegen,getDaten:function(){ return meilensteinData; },getZiele:function(){ return zielenData; },redraw:function(){zeichneGantt(gefilterteDaten());},refresh:refreshGanttUndMini};
 })();
 </script>
 <script>/* ===== GitHub Sync ===== */
