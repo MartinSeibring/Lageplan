@@ -4609,44 +4609,72 @@ body {
     }
 
     // -----------------------------------------------------------------------
-    // Server-Kommunikation
+    // Radar-Aktualisierung über GitHub Actions
+    // (statt lokalem Python-Server: Workflow update-radar.yml wird per API
+    //  gestartet, Ergebnis wird aus data/last_run.json + radar-vorschlaege.json
+    //  im Repository gelesen)
     // -----------------------------------------------------------------------
 
-    let _serverRetryTimer = null;
+    function _ghConf() {
+      var p = window.location.pathname;
+      var def = {
+        pat: "", repo: "martinseibring/lageplan",
+        branch: p.includes("/dev/") ? "development"
+              : p.includes("/staging/") ? "staging" : "main"
+      };
+      try {
+        var s = localStorage.getItem("github_sync_settings");
+        return s ? Object.assign(def, JSON.parse(s)) : def;
+      } catch(e) { return def; }
+    }
+
+    async function _ghDatei(pfad) {
+      const s = _ghConf();
+      const headers = {
+        "Accept": "application/vnd.github+json",
+        "X-GitHub-Api-Version": "2022-11-28"
+      };
+      if (s.pat) headers["Authorization"] = "Bearer " + s.pat;
+      const res = await fetch(
+        `https://api.github.com/repos/${s.repo}/contents/${pfad}?ref=${s.branch}&_=${Date.now()}`,
+        { headers, cache: "no-store" }
+      );
+      if (!res.ok) {
+        const err = new Error("GitHub " + res.status);
+        err.status = res.status;
+        throw err;
+      }
+      const data = await res.json();
+      return JSON.parse(decodeURIComponent(escape(atob(data.content.replace(/\s/g, "")))));
+    }
 
     async function pruefeServerStatus() {
       const btn    = document.getElementById("btn-aktualisieren");
       const status = document.getElementById("update-status");
+      const s = _ghConf();
+      if (!s.pat) {
+        status.style.color = "#c0392b";
+        status.textContent = "⚠ GitHub-Token fehlt – unter Einstellungen → GitHub-Sync eintragen";
+        btn.disabled = true;
+        return;
+      }
       try {
-        const controller = new AbortController();
-        const abortTimer = setTimeout(() => controller.abort(), 2000);
-        const res  = await fetch("http://localhost:5050/status", { signal: controller.signal });
-        clearTimeout(abortTimer);
-        const data = await res.json();
-
-        // Server erreichbar → Retry-Timer stoppen falls aktiv
-        if (_serverRetryTimer) {
-          clearInterval(_serverRetryTimer);
-          _serverRetryTimer = null;
-        }
-
-        const lauf = data.letzter_lauf?.letzter_lauf;
-        if (lauf) {
-          const dt = new Date(lauf);
-          status.textContent = "Zuletzt aktualisiert: " + dt.toLocaleDateString("de-DE");
-        } else {
-          status.textContent = "Server aktiv – noch kein Lauf";
-        }
+        const data = await _ghDatei("data/last_run.json");
+        const lauf = data.letzter_lauf;
+        status.textContent = lauf
+          ? "Zuletzt aktualisiert: " + new Date(lauf).toLocaleDateString("de-DE")
+          : "Bereit – noch kein Lauf";
         status.style.color = "#555";
         btn.disabled = false;
-      } catch {
-        status.style.color = "#c0392b";
-        status.textContent = "⚠ Server nicht aktiv – wird automatisch erkannt …";
-        btn.disabled = true;
-
-        // Alle 10 Sekunden erneut prüfen bis Server antwortet
-        if (!_serverRetryTimer) {
-          _serverRetryTimer = setInterval(pruefeServerStatus, 10000);
+      } catch (e) {
+        if (e.status === 404) {
+          status.textContent = "Bereit – noch kein Lauf";
+          status.style.color = "#555";
+          btn.disabled = false;
+        } else {
+          status.style.color = "#c0392b";
+          status.textContent = "⚠ GitHub nicht erreichbar (" + (e.status || e.message) + ")";
+          btn.disabled = true;
         }
       }
     }
@@ -4654,28 +4682,39 @@ body {
     async function starteAktualisierung() {
       const btn    = document.getElementById("btn-aktualisieren");
       const status = document.getElementById("update-status");
+      const s = _ghConf();
+      if (!s.pat) {
+        status.style.color = "#c0392b";
+        status.textContent = "⚠ GitHub-Token fehlt – unter Einstellungen → GitHub-Sync eintragen";
+        return;
+      }
       btn.disabled    = true;
       btn.textContent = "Läuft…";
       status.style.color = "#555";
-      status.textContent = "Analyse wird durchgeführt…";
+      status.textContent = "GitHub-Action wird gestartet…";
       try {
-        const res  = await fetch("http://localhost:5050/starte-update");
-        const data = await res.json();
-        if (data.status === "gestartet") {
-          const startZeit = new Date();
-          pollStatus(startZeit);
-        } else if (data.status === "laeuft-bereits") {
-          status.textContent = "Analyse läuft bereits – bitte warten";
-          const startZeit = new Date();
-          pollStatus(startZeit);
+        const res = await fetch(
+          `https://api.github.com/repos/${s.repo}/actions/workflows/update-radar.yml/dispatches`,
+          {
+            method: "POST",
+            headers: {
+              "Authorization": "Bearer " + s.pat,
+              "Accept": "application/vnd.github+json",
+              "X-GitHub-Api-Version": "2022-11-28",
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ ref: s.branch })
+          }
+        );
+        if (res.status === 204) {
+          status.textContent = "Analyse läuft auf GitHub (dauert ca. 1–2 Min.)…";
+          pollStatus(new Date());
         } else {
-          status.textContent = "⚠ " + (data.fehler || "Unbekannter Fehler beim Start");
-          status.style.color = "#c0392b";
-          btn.disabled    = false;
-          btn.textContent = "Radar aktualisieren";
+          const txt = await res.text();
+          throw new Error(res.status + " – " + txt.substring(0, 150));
         }
-      } catch {
-        status.textContent = "Fehler – Server erreichbar?";
+      } catch (e) {
+        status.textContent = "⚠ Start fehlgeschlagen: " + e.message;
         status.style.color = "#c0392b";
         btn.disabled    = false;
         btn.textContent = "Radar aktualisieren";
@@ -4685,16 +4724,15 @@ body {
     function pollStatus(startZeit) {
       const btn    = document.getElementById("btn-aktualisieren");
       const status = document.getElementById("update-status");
-      const maxWait   = 120000;
-      const intervall = 3000;
+      const maxWait   = 300000;   // 5 Min – Action braucht typ. 1–2 Min
+      const intervall = 15000;
       let vergangen   = 0;
 
       const timer = setInterval(async () => {
         vergangen += intervall;
         try {
-          const res  = await fetch("http://localhost:5050/status");
-          const data = await res.json();
-          const lauf = data.letzter_lauf?.letzter_lauf;
+          const data = await _ghDatei("data/last_run.json");
+          const lauf = data.letzter_lauf;
           if (lauf && new Date(lauf) > startZeit) {
             clearInterval(timer);
             btn.disabled    = false;
@@ -4704,8 +4742,7 @@ body {
 
             // Vorschläge automatisch nachladen und anzeigen
             try {
-              const vRes  = await fetch("http://localhost:5050/vorschlaege");
-              const vDaten = await vRes.json();
+              const vDaten = await _ghDatei("data/radar-vorschlaege.json");
               const liste = Array.isArray(vDaten) ? vDaten
                           : (Array.isArray(vDaten.vorschlaege) ? vDaten.vorschlaege : []);
               if (liste.length > 0) {
@@ -4715,18 +4752,18 @@ body {
                 status.textContent = "✓ Update fertig – keine neuen Treffer";
               }
             } catch {
-              status.textContent = "✓ Update fertig – Vorschläge manuell importieren";
+              status.textContent = "✓ Update fertig – Vorschläge konnten nicht geladen werden";
             }
             return;
           }
-        } catch { /* Server kurz nicht erreichbar – weiter warten */ }
+        } catch { /* GitHub kurz nicht erreichbar – weiter warten */ }
 
         if (vergangen >= maxWait) {
           clearInterval(timer);
           btn.disabled    = false;
           btn.textContent = "Radar aktualisieren";
           status.style.color = "#c0392b";
-          status.textContent = "Timeout – kein Ergebnis nach 120 s";
+          status.textContent = "Timeout – Status im Actions-Tab auf GitHub prüfen";
         }
       }, intervall);
     }
