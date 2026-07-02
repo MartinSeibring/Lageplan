@@ -4668,6 +4668,11 @@ body {
           status.textContent = "Analyse läuft bereits – bitte warten";
           const startZeit = new Date();
           pollStatus(startZeit);
+        } else {
+          status.textContent = "⚠ " + (data.fehler || "Unbekannter Fehler beim Start");
+          status.style.color = "#c0392b";
+          btn.disabled    = false;
+          btn.textContent = "Radar aktualisieren";
         }
       } catch {
         status.textContent = "Fehler – Server erreichbar?";
