@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lageplan — BPMN Prozessdokumentation</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap');
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Open Sans', sans-serif; font-size: 13px; color: #222; background: #f7f8fa; line-height: 1.5; }
+  .page { max-width: 980px; margin: 0 auto; padding: 32px 24px 60px; background: #fff; min-height: 100vh; }
+
+  /* ── Typography ── */
+  h1 { font-size: 22px; font-weight: 700; color: #1a4f5e; border-bottom: 3px solid #2d7a8e; padding-bottom: 10px; margin-bottom: 6px; }
+  h2 { font-size: 16px; font-weight: 700; color: #2d7a8e; margin: 32px 0 6px; border-left: 4px solid #2d7a8e; padding-left: 10px; }
+  h3 { font-size: 13px; font-weight: 700; color: #333; margin: 18px 0 6px; }
+  p  { margin-bottom: 8px; color: #444; }
+  .subtitle { color: #666; font-size: 12px; margin-bottom: 28px; }
+  .meta { font-size: 11px; color: #999; margin-top: 4px; }
+
+  /* ── Process section ── */
+  .prozess { margin-bottom: 40px; border: 1px solid #e0e0e0; border-radius: 6px; overflow: hidden; }
+  .prozess-kopf { background: #f0f6f8; border-bottom: 1px solid #d0dfe3; padding: 12px 16px; }
+  .prozess-kopf h2 { margin: 0; border: none; padding: 0; font-size: 14px; }
+  .prozess-beschr { padding: 10px 16px 0; }
+  .prozess-svg    { padding: 12px 16px; overflow-x: auto; }
+  .prozess-svg svg { display: block; min-width: 640px; }
+
+  /* ── Legend ── */
+  .legende { display: flex; flex-wrap: wrap; gap: 16px 28px; padding: 14px 16px; border: 1px solid #e0e0e0; border-radius: 6px; margin-bottom: 28px; background: #fafafa; }
+  .legende-item { display: flex; align-items: center; gap: 8px; font-size: 11px; color: #444; }
+  .legende-item svg { flex-shrink: 0; }
+
+  /* ── BPMN SVG shared styles ── */
+  .bpmn-task   { fill: #dce8f7; stroke: #2d6dad; stroke-width: 1.5; }
+  .bpmn-task-sys { fill: #e8f4f0; stroke: #3a8a6f; stroke-width: 1.5; }
+  .bpmn-start  { fill: #d5e8d4; stroke: #5a9e50; stroke-width: 2; }
+  .bpmn-end    { fill: #f8cecc; stroke: #b85450; stroke-width: 3; }
+  .bpmn-gw     { fill: #fff2cc; stroke: #c8a428; stroke-width: 1.5; }
+  .bpmn-event  { fill: #ffe6cc; stroke: #d46b08; stroke-width: 1.5; }
+  .bpmn-pool   { fill: none; stroke: #333; stroke-width: 2; }
+  .bpmn-lane-bg-user   { fill: #f9fafb; }
+  .bpmn-lane-bg-system { fill: #f0f6f4; }
+  .bpmn-lane-header    { fill: #e8eaed; stroke: #999; stroke-width: 1; }
+  .bpmn-flow   { stroke: #555; stroke-width: 1.4; fill: none; marker-end: url(#arr); }
+  .bpmn-flow-cond { stroke: #555; stroke-width: 1.4; fill: none; marker-end: url(#arr); stroke-dasharray: 4 2; }
+  .bpmn-label  { font-family: 'Open Sans', sans-serif; font-size: 10px; fill: #222; text-anchor: middle; dominant-baseline: middle; }
+  .bpmn-label-sm { font-size: 9px; fill: #555; }
+  .bpmn-cond-label { font-size: 9px; fill: #888; font-style: italic; }
+  .bpmn-pool-title { font-size: 10px; font-weight: bold; fill: #333; }
+  .bpmn-lane-title { font-size: 9px; fill: #555; font-weight: 600; }
+  .bpmn-note { font-size: 9px; fill: #888; text-anchor: middle; }
+
+  @media print {
+    body { background: #fff; }
+    .page { max-width: 100%; padding: 16px; }
+    .prozess { page-break-inside: avoid; }
+    h2 { page-break-before: auto; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+<h1>Lageplan — BPMN Prozessdokumentation</h1>
+<p class="subtitle">Business Process Model and Notation 2.0 · Strategisches Lagebild &amp; Portfoliomanagement</p>
+
+<!-- ── Legende ── -->
+<h3>Legende — BPMN 2.0 Symbole</h3>
+<div class="legende">
+  <div class="legende-item">
+    <svg width="32" height="32"><circle cx="16" cy="16" r="13" class="bpmn-start"/></svg>
+    Start-Ereignis
+  </div>
+  <div class="legende-item">
+    <svg width="32" height="32"><circle cx="16" cy="16" r="13" class="bpmn-end"/></svg>
+    End-Ereignis
+  </div>
+  <div class="legende-item">
+    <svg width="60" height="32"><rect x="2" y="6" width="56" height="20" rx="5" class="bpmn-task"/><text x="30" y="16" class="bpmn-label">Aufgabe</text></svg>
+    Nutzer-Aufgabe
+  </div>
+  <div class="legende-item">
+    <svg width="60" height="32"><rect x="2" y="6" width="56" height="20" rx="5" class="bpmn-task-sys"/><text x="30" y="16" class="bpmn-label">System</text></svg>
+    System-Aufgabe
+  </div>
+  <div class="legende-item">
+    <svg width="32" height="32"><polygon points="16,3 29,16 16,29 3,16" class="bpmn-gw"/><text x="16" y="17" class="bpmn-label" font-size="12">×</text></svg>
+    XOR-Gateway (Entscheidung)
+  </div>
+  <div class="legende-item">
+    <svg width="32" height="32"><polygon points="16,3 29,16 16,29 3,16" class="bpmn-gw"/><text x="16" y="17" class="bpmn-label" font-size="12">+</text></svg>
+    AND-Gateway (Parallelität)
+  </div>
+  <div class="legende-item">
+    <svg width="50" height="20"><line x1="2" y1="10" x2="44" y2="10" stroke="#555" stroke-width="1.4" marker-end="url(#arr-leg)"/><defs><marker id="arr-leg" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#555"/></marker></defs></svg>
+    Sequenzfluss
+  </div>
+  <div class="legende-item">
+    <svg width="50" height="20"><line x1="2" y1="10" x2="44" y2="10" stroke="#555" stroke-width="1.4" stroke-dasharray="4 2" marker-end="url(#arr-leg2)"/><defs><marker id="arr-leg2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#555"/></marker></defs></svg>
+    Bedingter Fluss
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════
+     P1: Themenradar — Strategisches Thema erfassen
+     ════════════════════════════════════════════════════════════ -->
+<div class="prozess">
+  <div class="prozess-kopf"><h2>P1 · Themenradar — Strategisches Thema erfassen und positionieren</h2></div>
+  <div class="prozess-beschr">
+    <p>Der Kernprozess erfasst ein strategisch relevantes Thema, ordnet es einer Kategorie und einem Zeithorizont zu und positioniert es automatisch im Vier-Quadranten-Radar. Auf Wunsch übernimmt eine KI-gestützte Dokumentenanalyse die Dateneingabe. Anschließend wird das Thema mit GitHub synchronisiert und steht für die Ableitung von Meilensteinen zur Verfügung.</p>
+  </div>
+  <div class="prozess-svg">
+<svg viewBox="0 0 900 260" width="100%" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#555"/></marker>
+</defs>
+
+<!-- Pool -->
+<rect x="4" y="4" width="892" height="252" rx="4" class="bpmn-pool"/>
+<rect x="4" y="4" width="22" height="252" rx="4" fill="#dde6e9" stroke="#333" stroke-width="1"/>
+<text transform="rotate(-90,15,130)" x="15" y="130" class="bpmn-pool-title" text-anchor="middle" dominant-baseline="middle">P1 · Themenradar</text>
+
+<!-- Lane 1: Nutzer -->
+<rect x="26" y="4" width="870" height="126" class="bpmn-lane-bg-user" stroke="#bbb" stroke-width="0.5"/>
+<rect x="26" y="4" width="22" height="126" class="bpmn-lane-header" stroke="#bbb" stroke-width="0.5"/>
+<text transform="rotate(-90,37,67)" x="37" y="67" class="bpmn-lane-title" text-anchor="middle" dominant-baseline="middle">Strategie­team</text>
+
+<!-- Lane 2: System -->
+<rect x="26" y="130" width="870" height="126" class="bpmn-lane-bg-system" stroke="#bbb" stroke-width="0.5"/>
+<rect x="26" y="130" width="22" height="126" class="bpmn-lane-header" stroke="#bbb" stroke-width="0.5"/>
+<text transform="rotate(-90,37,193)" x="37" y="193" class="bpmn-lane-title" text-anchor="middle" dominant-baseline="middle">Lageplan­-App</text>
+
+<!-- ── START ── -->
+<circle cx="75" cy="67" r="16" class="bpmn-start"/>
+<text x="75" y="95" class="bpmn-note">Start</text>
+
+<!-- Start → Task 1 -->
+<line x1="91" y1="67" x2="115" y2="67" class="bpmn-flow"/>
+
+<!-- Task 1: Thema erfassen -->
+<rect x="115" y="44" width="115" height="46" rx="7" class="bpmn-task"/>
+<text x="172" y="64" class="bpmn-label">Thema</text>
+<text x="172" y="78" class="bpmn-label">erfassen</text>
+
+<!-- T1 → T2 -->
+<line x1="230" y1="67" x2="252" y2="67" class="bpmn-flow"/>
+
+<!-- Task 2: Kategorisieren -->
+<rect x="252" y="44" width="120" height="46" rx="7" class="bpmn-task"/>
+<text x="312" y="60" class="bpmn-label">Kategorie,</text>
+<text x="312" y="74" class="bpmn-label">Zeithorizont &amp;</text>
+<text x="312" y="87" class="bpmn-label">Bewertung</text>
+
+<!-- T2 → GW1 -->
+<line x1="372" y1="67" x2="398" y2="67" class="bpmn-flow"/>
+
+<!-- GW1: KI-Extraktion? -->
+<polygon points="418,48 438,67 418,86 398,67" class="bpmn-gw"/>
+<text x="418" y="68" class="bpmn-label" font-size="12">×</text>
+<text x="418" y="98" class="bpmn-note">KI-Extraktion?</text>
+
+<!-- GW1 yes → Task 3a (upper lane, system) -->
+<line x1="418" y1="86" x2="418" y2="170" class="bpmn-flow"/>
+<text x="430" y="112" class="bpmn-cond-label">Ja</text>
+
+<!-- Task 3a: Dokument hochladen (Nutzer) -->
+<rect x="115" y="148" width="120" height="46" rx="7" class="bpmn-task"/>
+<text x="175" y="164" class="bpmn-label">Dokument</text>
+<text x="175" y="178" class="bpmn-label">hochladen</text>
+<!-- Nutzer lädt hoch, also Verbindung von GW1 nach unten dann links -->
+<line x1="418" y1="170" x2="240" y2="170" class="bpmn-flow"/>
+
+<!-- T3a → T3b KI-Analyse (System) -->
+<rect x="252" y="148" width="120" height="46" rx="7" class="bpmn-task-sys"/>
+<text x="312" y="164" class="bpmn-label">KI-Analyse &amp;</text>
+<text x="312" y="178" class="bpmn-label">Daten extrahieren</text>
+<line x1="235" y1="171" x2="252" y2="171" class="bpmn-flow"/>
+
+<!-- T3b → GW2 join -->
+<line x1="372" y1="171" x2="398" y2="171" class="bpmn-flow"/>
+
+<!-- GW1 nein → GW2 (direct) -->
+<line x1="438" y1="67" x2="460" y2="67" class="bpmn-flow-cond"/>
+<text x="448" y="60" class="bpmn-cond-label">Nein</text>
+<line x1="460" y1="67" x2="460" y2="171" stroke="#555" stroke-width="1.4" fill="none"/>
+<line x1="460" y1="171" x2="398" y2="171" class="bpmn-flow"/>
+
+<!-- GW2: Merge -->
+<polygon points="418,152 438,171 418,190 398,171" class="bpmn-gw"/>
+<text x="418" y="172" class="bpmn-label" font-size="12">×</text>
+
+<!-- GW2 → T4 Radar-Position (System) -->
+<line x1="438" y1="171" x2="462" y2="171" class="bpmn-flow"/>
+
+<!-- T4: Radar positionieren -->
+<rect x="462" y="148" width="120" height="46" rx="7" class="bpmn-task-sys"/>
+<text x="522" y="164" class="bpmn-label">Radar-Position</text>
+<text x="522" y="178" class="bpmn-label">berechnen</text>
+
+<!-- T4 → T5 -->
+<line x1="582" y1="171" x2="606" y2="171" class="bpmn-flow"/>
+
+<!-- T5: GitHub-Sync (System) -->
+<rect x="606" y="148" width="110" height="46" rx="7" class="bpmn-task-sys"/>
+<text x="661" y="164" class="bpmn-label">GitHub-Sync</text>
+<text x="661" y="178" class="bpmn-label">speichern</text>
+
+<!-- T5 → GW3 Meilenstein? -->
+<line x1="716" y1="171" x2="716" y2="67" stroke="#555" stroke-width="1.4" fill="none"/>
+<line x1="716" y1="67" x2="734" y2="67" class="bpmn-flow"/>
+
+<!-- GW3: Meilenstein ableiten? -->
+<polygon points="754,48 774,67 754,86 734,67" class="bpmn-gw"/>
+<text x="754" y="68" class="bpmn-label" font-size="12">×</text>
+<text x="754" y="98" class="bpmn-note">Meilenstein</text>
+<text x="754" y="108" class="bpmn-note">ableiten?</text>
+
+<!-- GW3 ja → End-Meilenstein -->
+<line x1="774" y1="67" x2="820" y2="67" class="bpmn-flow"/>
+<text x="795" y="59" class="bpmn-cond-label">Ja → P2</text>
+
+<!-- Task: Meilenstein ableiten -->
+<rect x="820" y="44" width="60" height="46" rx="7" class="bpmn-task"/>
+<text x="850" y="64" class="bpmn-label">Meilenstein</text>
+<text x="850" y="78" class="bpmn-label">ableiten</text>
+
+<!-- GW3 nein → End -->
+<line x1="754" y1="86" x2="754" y2="228" class="bpmn-flow"/>
+<text x="766" y="148" class="bpmn-cond-label">Nein</text>
+
+<!-- END -->
+<circle cx="850" cy="228" r="16" class="bpmn-end"/>
+<text x="850" y="252" class="bpmn-note">Ende</text>
+
+<!-- Meilenstein ableiten → End (unten) -->
+<line x1="850" y1="90" x2="850" y2="212" class="bpmn-flow"/>
+
+<!-- GW3 nein → End -->
+<line x1="754" y1="228" x2="834" y2="228" class="bpmn-flow"/>
+
+</svg>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════
+     P2: Meilenstein-Management
+     ════════════════════════════════════════════════════════════ -->
+<div class="prozess">
+  <div class="prozess-kopf"><h2>P2 · Meilenstein-Management — Planen, Verfolgen und Abschließen</h2></div>
+  <div class="prozess-beschr">
+    <p>Meilensteine werden mit Zeitplan, strategischem Cluster, Kategorie, Abhängigkeiten und Verantwortlichen angelegt. Die GANTT-Ansicht visualisiert den Fortschritt. Der Regelkreis aus Statusaktualisierung und Überprüfung läuft bis zum Abschluss. Verzögerte Meilensteine können direkt ein Risiko erzeugen (→ P3).</p>
+  </div>
+  <div class="prozess-svg">
+<svg viewBox="0 0 940 240" width="100%" xmlns="http://www.w3.org/2000/svg">
+<defs><marker id="arr2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#555"/></marker></defs>
+<style>.f2{stroke:#555;stroke-width:1.4;fill:none;marker-end:url(#arr2)}.fc2{stroke:#555;stroke-width:1.4;fill:none;marker-end:url(#arr2);stroke-dasharray:4 2}</style>
+
+<!-- Pool -->
+<rect x="4" y="4" width="932" height="232" rx="4" class="bpmn-pool"/>
+<rect x="4" y="4" width="22" height="232" rx="4" fill="#dde6e9" stroke="#333" stroke-width="1"/>
+<text transform="rotate(-90,15,120)" x="15" y="120" class="bpmn-pool-title" text-anchor="middle" dominant-baseline="middle">P2 · Meilenstein-Management</text>
+
+<!-- Lane Nutzer -->
+<rect x="26" y="4" width="910" height="116" class="bpmn-lane-bg-user" stroke="#bbb" stroke-width="0.5"/>
+<rect x="26" y="4" width="22" height="116" class="bpmn-lane-header" stroke="#bbb" stroke-width="0.5"/>
+<text transform="rotate(-90,37,62)" x="37" y="62" class="bpmn-lane-title" text-anchor="middle" dominant-baseline="middle">Strategie­team</text>
+
+<!-- Lane System -->
+<rect x="26" y="120" width="910" height="116" class="bpmn-lane-bg-system" stroke="#bbb" stroke-width="0.5"/>
+<rect x="26" y="120" width="22" height="116" class="bpmn-lane-header" stroke="#bbb" stroke-width="0.5"/>
+<text transform="rotate(-90,37,178)" x="37" y="178" class="bpmn-lane-title" text-anchor="middle" dominant-baseline="middle">Lageplan­-App</text>
+
+<!-- START -->
+<circle cx="72" cy="62" r="16" class="bpmn-start"/>
+<text x="72" y="88" class="bpmn-note">Start</text>
+
+<line x1="88" y1="62" x2="110" y2="62" class="f2"/>
+
+<!-- T1: Meilenstein anlegen -->
+<rect x="110" y="39" width="115" height="46" rx="7" class="bpmn-task"/>
+<text x="167" y="59" class="bpmn-label">Meilenstein</text>
+<text x="167" y="73" class="bpmn-label">anlegen</text>
+
+<line x1="225" y1="62" x2="247" y2="62" class="f2"/>
+
+<!-- T2: Zeitplan & Cluster -->
+<rect x="247" y="39" width="115" height="46" rx="7" class="bpmn-task"/>
+<text x="304" y="55" class="bpmn-label">Zeitplan,</text>
+<text x="304" y="69" class="bpmn-label">Cluster &amp;</text>
+<text x="304" y="83" class="bpmn-label">Abhängigkeiten</text>
+
+<line x1="362" y1="62" x2="384" y2="62" class="f2"/>
+
+<!-- T3: GitHub-Sync (System) -->
+<rect x="247" y="143" width="115" height="46" rx="7" class="bpmn-task-sys"/>
+<text x="304" y="163" class="bpmn-label">Daten speichern</text>
+<text x="304" y="177" class="bpmn-label">&amp; GitHub-Sync</text>
+
+<!-- Vertical drop from T2 to T3 -->
+<line x1="384" y1="62" x2="384" y2="165" stroke="#555" stroke-width="1.4" fill="none"/>
+<line x1="384" y1="165" x2="362" y2="165" class="f2"/>
+
+<line x1="247" y1="165" x2="225" y2="165" stroke="#555" stroke-width="1.4" fill="none"/>
+
+<!-- T3 → T4 GANTT -->
+<rect x="110" y="143" width="115" height="46" rx="7" class="bpmn-task-sys"/>
+<text x="167" y="159" class="bpmn-label">GANTT-Ansicht</text>
+<text x="167" y="173" class="bpmn-label">aktualisieren</text>
+<line x1="225" y1="165" x2="167" y2="165" stroke="#555" stroke-width="1.4" fill="none" marker-end="url(#arr2)"/>
+
+<!-- T4 up to Status-Update in Nutzer-Lane -->
+<line x1="167" y1="143" x2="167" y2="62" stroke="#555" stroke-width="1.4" fill="none"/>
+<line x1="167" y1="62" x2="110" y2="62" stroke="#555" stroke-width="1.4" fill="none" marker-start="none"/>
+
+<!-- actually let me redo this flow more clearly -->
+<!-- T4 GANTT → up → Nutzer lane → Status aktualisieren task -->
+
+<!-- T5: Status aktualisieren (Nutzer) -->
+<rect x="420" y="39" width="115" height="46" rx="7" class="bpmn-task"/>
+<text x="477" y="59" class="bpmn-label">Fortschritt &amp;</text>
+<text x="477" y="73" class="bpmn-label">Status erfassen</text>
+
+<!-- GANTT → Status (up from system to user lane) -->
+<line x1="167" y1="143" x2="167" y2="105" stroke="#555" stroke-width="1.4" fill="none"/>
+<line x1="167" y1="105" x2="477" y2="105" stroke="#555" stroke-width="1.4" fill="none"/>
+<line x1="477" y1="105" x2="477" y2="85" class="f2"/>
+
+<!-- T5 → GW1 Abgeschlossen? -->
+<line x1="535" y1="62" x2="557" y2="62" class="f2"/>
+
+<polygon points="577,43 597,62 577,81 557,62" class="bpmn-gw"/>
+<text x="577" y="63" class="bpmn-label" font-size="12">×</text>
+<text x="577" y="93" class="bpmn-note">Abge­schlossen?</text>
+
+<!-- Nein: loop back → Sync (system) -->
+<line x1="597" y1="62" x2="650" y2="62" class="fc2"/>
+<text x="618" y="54" class="bpmn-cond-label">Nein</text>
+<line x1="650" y1="62" x2="650" y2="165" stroke="#555" stroke-width="1.4" fill="none"/>
+
+<!-- T6: Sync erneut (System) -->
+<rect x="600" y="143" width="115" height="46" rx="7" class="bpmn-task-sys"/>
+<text x="657" y="163" class="bpmn-label">Sync &amp; Radar</text>
+<text x="657" y="177" class="bpmn-label">aktualisieren</text>
+<line x1="650" y1="165" x2="715" y2="165" class="f2"/>
+
+<!-- Loop back arrow -->
+<line x1="715" y1="165" x2="715" y2="220" stroke="#555" stroke-width="1.4" fill="none"/>
+<line x1="715" y1="220" x2="420" y2="220" stroke="#555" stroke-width="1.4" fill="none"/>
+<line x1="420" y1="220" x2="420" y2="105" stroke="#555" stroke-width="1.4" fill="none"/>
+<line x1="420" y1="105" x2="477" y2="105" stroke="#555" stroke-width="1.4" fill="none"/>
+<text x="567" y="215" class="bpmn-cond-label">Wiederholung (periodische Review)</text>
+
+<!-- Ja: GW1 → GW2 Verzögert? -->
+<line x1="577" y1="43" x2="577" y2="20" stroke="#555" stroke-width="1.4" fill="none"/>
+<line x1="577" y1="20" x2="760" y2="20" stroke="#555" stroke-width="1.4" fill="none"/>
+<line x1="760" y1="20" x2="760" y2="43" class="f2"/>
+<text x="660" y="15" class="bpmn-cond-label">Ja</text>
+
+<polygon points="760,43 780,62 760,81 740,62" class="bpmn-gw"/>
+<text x="760" y="63" class="bpmn-label" font-size="12">×</text>
+<text x="760" y="93" class="bpmn-note">Verzögert?</text>
+
+<!-- Ja: Risiko ableiten -->
+<line x1="780" y1="62" x2="820" y2="62" class="fc2"/>
+<text x="797" y="54" class="bpmn-cond-label">Ja → P3</text>
+<rect x="820" y="39" width="100" height="46" rx="7" class="bpmn-task"/>
+<text x="870" y="59" class="bpmn-label">Risiko</text>
+<text x="870" y="73" class="bpmn-label">ableiten</text>
+
+<!-- Nein: End -->
+<line x1="760" y1="81" x2="760" y2="165" class="f2"/>
+<text x="772" y="120" class="bpmn-cond-label">Nein</text>
+<rect x="710" y="143" width="100" height="46" rx="7" class="bpmn-task-sys"/>
+<text x="760" y="163" class="bpmn-label">Abschluss</text>
+<text x="760" y="177" class="bpmn-label">dokumentieren</text>
+
+<line x1="810" y1="165" x2="870" y2="165" class="f2"/>
+
+<!-- Risiko ableiten → End -->
+<line x1="870" y1="85" x2="870" y2="165" stroke="#555" stroke-width="1.4" fill="none"/>
+
+<circle cx="890" cy="165" r="16" class="bpmn-end"/>
+<text x="890" y="191" class="bpmn-note">Ende</text>
+</svg>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════
+     P3: Risikomanagement
+     ════════════════════════════════════════════════════════════ -->
+<div class="prozess">
+  <div class="prozess-kopf"><h2>P3 · Risikomanagement — Risiko bewerten und steuern</h2></div>
+  <div class="prozess-beschr">
+    <p>Risiken werden entweder manuell erfasst oder aus einem Meilenstein abgeleitet. Die Bewertung erfolgt über Eintrittswahrscheinlichkeit (EW) und Schadensausmaß (€); der Risikoscore ergibt sich automatisch als EW × Schaden. Maßnahmen werden definiert, zugewiesen und periodisch überprüft.</p>
+  </div>
+  <div class="prozess-svg">
+<svg viewBox="0 0 920 240" width="100%" xmlns="http://www.w3.org/2000/svg">
+<defs><marker id="arr3" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#555"/></marker></defs>
+<style>.f3{stroke:#555;stroke-width:1.4;fill:none;marker-end:url(#arr3)}.fc3{stroke:#555;stroke-width:1.4;fill:none;marker-end:url(#arr3);stroke-dasharray:4 2}</style>
+
+<!-- Pool -->
+<rect x="4" y="4" width="912" height="232" rx="4" class="bpmn-pool"/>
+<rect x="4" y="4" width="22" height="232" rx="4" fill="#dde6e9" stroke="#333" stroke-width="1"/>
+<text transform="rotate(-90,15,120)" x="15" y="120" class="bpmn-pool-title" text-anchor="middle" dominant-baseline="middle">P3 · Risikomanagement</text>
+
+<!-- Lane Nutzer -->
+<rect x="26" y="4" width="890" height="116" class="bpmn-lane-bg-user" stroke="#bbb" stroke-width="0.5"/>
+<rect x="26" y="4" width="22" height="116" class="bpmn-lane-header" stroke="#bbb" stroke-width="0.5"/>
+<text transform="rotate(-90,37,62)" x="37" y="62" class="bpmn-lane-title" text-anchor="middle" dominant-baseline="middle">Risiko­manager</text>
+
+<!-- Lane System -->
+<rect x="26" y="120" width="890" height="116" class="bpmn-lane-bg-system" stroke="#bbb" stroke-width="0.5"/>
+<rect x="26" y="120" width="22" height="116" class="bpmn-lane-header" stroke="#bbb" stroke-width="0.5"/>
+<text transform="rotate(-90,37,178)" x="37" y="178" class="bpmn-lane-title" text-anchor="middle" dominant-baseline="middle">Lageplan­-App</text>
+
+<!-- START -->
+<circle cx="72" cy="62" r="16" class="bpmn-start"/>
+<text x="72" y="88" class="bpmn-note">Start</text>
+<line x1="88" y1="62" x2="108" y2="62" class="f3"/>
+
+<!-- GW1: Quelle? -->
+<polygon points="128,43 148,62 128,81 108,62" class="bpmn-gw"/>
+<text x="128" y="63" class="bpmn-label" font-size="12">×</text>
+<text x="128" y="93" class="bpmn-note">Quelle?</text>
+
+<!-- Ja: aus Meilenstein -->
+<line x1="128" y1="43" x2="128" y2="20" stroke="#555" stroke-width="1.4" fill="none"/>
+<line x1="128" y1="20" x2="200" y2="20" stroke="#555" stroke-width="1.4" fill="none"/>
+<line x1="200" y1="20" x2="200" y2="39" class="f3"/>
+<text x="162" y="14" class="bpmn-cond-label">Aus P2</text>
+
+<!-- T1a: Aus Meilenstein übernehmen -->
+<rect x="150" y="39" width="110" height="46" rx="7" class="bpmn-task"/>
+<text x="205" y="55" class="bpmn-label">Aus Meilenstein</text>
+<text x="205" y="69" class="bpmn-label">übernehmen</text>
+
+<!-- Nein: Manuell -->
+<line x1="148" y1="62" x2="168" y2="62" class="fc3"/>
+<text x="155" y="54" class="bpmn-cond-label">Neu</text>
+
+<!-- T1b: Manuell erfassen -->
+<rect x="168" y="80" width="110" height="46" rx="7" class="bpmn-task"/>
+<text x="223" y="96" class="bpmn-label">Risiko manuell</text>
+<text x="223" y="110" class="bpmn-label">erfassen</text>
+
+<!-- Join T1a + T1b → GW2 merge -->
+<line x1="260" y1="62" x2="295" y2="62" class="f3"/>
+<line x1="278" y1="103" x2="295" y2="103" stroke="#555" stroke-width="1.4" fill="none"/>
+<line x1="295" y1="62" x2="295" y2="103" stroke="#555" stroke-width="1.4" fill="none"/>
+<line x1="295" y1="82" x2="310" y2="82" class="f3"/>
+
+<!-- GW2: merge -->
+<polygon points="330,63 350,82 330,101 310,82" class="bpmn-gw"/>
+<text x="330" y="83" class="bpmn-label" font-size="12">×</text>
+
+<line x1="350" y1="82" x2="365" y2="82" stroke="#555" stroke-width="1.4" fill="none"/>
+<line x1="365" y1="82" x2="365" y2="62" stroke="#555" stroke-width="1.4" fill="none"/>
+<line x1="365" y1="62" x2="380" y2="62" class="f3"/>
+
+<!-- T2: EW & Schaden bewerten -->
+<rect x="380" y="39" width="115" height="46" rx="7" class="bpmn-task"/>
+<text x="437" y="55" class="bpmn-label">EW &amp; Schaden­</text>
+<text x="437" y="69" class="bpmn-label">ausmaß (€) bewerten</text>
+
+<!-- T2 → T3 Risikoscore (System) -->
+<line x1="437" y1="85" x2="437" y2="165" class="f3"/>
+
+<!-- T3: Score berechnen -->
+<rect x="380" y="143" width="115" height="46" rx="7" class="bpmn-task-sys"/>
+<text x="437" y="159" class="bpmn-label">Risikoscore</text>
+<text x="437" y="173" class="bpmn-label">EW × Schaden</text>
+
+<line x1="495" y1="165" x2="517" y2="165" class="f3"/>
+
+<!-- T3 → Maßnahmen zurück in Nutzer-Lane -->
+<rect x="495" y="39" width="110" height="46" rx="7" class="bpmn-task"/>
+<text x="550" y="55" class="bpmn-label">Maßnahmen &amp;</text>
+<text x="550" y="69" class="bpmn-label">Verantwortliche</text>
+
+<!-- Score → Maßnahmen (up) -->
+<line x1="517" y1="165" x2="517" y2="62" stroke="#555" stroke-width="1.4" fill="none"/>
+<line x1="517" y1="62" x2="495" y2="62" class="f3"/>
+
+<line x1="605" y1="62" x2="625" y2="62" class="f3"/>
+
+<!-- T4: GitHub-Sync -->
+<rect x="515" y="143" width="110" height="46" rx="7" class="bpmn-task-sys"/>
+<text x="570" y="163" class="bpmn-label">GitHub-Sync</text>
+<text x="570" y="177" class="bpmn-label">speichern</text>
+
+<!-- Maßnahmen → Sync (down) -->
+<line x1="605" y1="62" x2="625" y2="62" stroke="#555" stroke-width="1.4" fill="none"/>
+<line x1="625" y1="62" x2="625" y2="165" stroke="#555" stroke-width="1.4" fill="none"/>
+<line x1="625" y1="165" x2="515" y2="165" class="f3"/>
+
+<!-- Sync → Review (up to nutzer lane) -->
+<!-- T5: Periodische Review -->
+<rect x="650" y="39" width="110" height="46" rx="7" class="bpmn-task"/>
+<text x="705" y="55" class="bpmn-label">Periodische</text>
+<text x="705" y="69" class="bpmn-label">Review</text>
+
+<line x1="570" y1="143" x2="570" y2="105" stroke="#555" stroke-width="1.4" fill="none"/>
+<line x1="570" y1="105" x2="705" y2="105" stroke="#555" stroke-width="1.4" fill="none"/>
+<line x1="705" y1="105" x2="705" y2="85" class="f3"/>
+
+<line x1="760" y1="62" x2="778" y2="62" class="f3"/>
+
+<!-- GW3: Risiko geschlossen? -->
+<polygon points="798,43 818,62 798,81 778,62" class="bpmn-gw"/>
+<text x="798" y="63" class="bpmn-label" font-size="12">×</text>
+<text x="798" y="93" class="bpmn-note">Geschlossen?</text>
+
+<!-- Nein: loop -->
+<line x1="818" y1="62" x2="860" y2="62" class="fc3"/>
+<text x="836" y="54" class="bpmn-cond-label">Nein</text>
+<line x1="860" y1="62" x2="860" y2="220" stroke="#555" stroke-width="1.4" fill="none"/>
+<line x1="860" y1="220" x2="650" y2="220" stroke="#555" stroke-width="1.4" fill="none"/>
+<line x1="650" y1="220" x2="650" y2="105" stroke="#555" stroke-width="1.4" fill="none"/>
+<line x1="650" y1="105" x2="705" y2="105" stroke="#555" stroke-width="1.4" fill="none"/>
+<text x="755" y="216" class="bpmn-cond-label">Wiederholung</text>
+
+<!-- Ja: Status = Abgeschlossen -->
+<line x1="798" y1="43" x2="798" y2="165" class="f3"/>
+<text x="810" y="110" class="bpmn-cond-label">Ja</text>
+
+<rect x="745" y="143" width="110" height="46" rx="7" class="bpmn-task-sys"/>
+<text x="800" y="159" class="bpmn-label">Status →</text>
+<text x="800" y="173" class="bpmn-label">abgeschlossen</text>
+
+<line x1="855" y1="165" x2="880" y2="165" class="f3"/>
+
+<!-- END -->
+<circle cx="896" cy="165" r="16" class="bpmn-end"/>
+<text x="896" y="191" class="bpmn-note">Ende</text>
+</svg>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════
+     P4: Forschungsprojekte
+     ════════════════════════════════════════════════════════════ -->
+<div class="prozess">
+  <div class="prozess-kopf"><h2>P4 · Forschungsprojekte — Projekt begleiten und dokumentieren</h2></div>
+  <div class="prozess-beschr">
+    <p>Forschungsprojekte werden mit Typ, Priorität, Status, Partner und Budget erfasst und einem strategischen Thema zugeordnet. Der Fortschritt wird periodisch aktualisiert. Abgeschlossene Projekte werden mit Ergebnissen dokumentiert und bleiben dauerhaft archiviert.</p>
+  </div>
+  <div class="prozess-svg">
+<svg viewBox="0 0 860 180" width="100%" xmlns="http://www.w3.org/2000/svg">
+<defs><marker id="arr4" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#555"/></marker></defs>
+<style>.f4{stroke:#555;stroke-width:1.4;fill:none;marker-end:url(#arr4)}.fc4{stroke:#555;stroke-width:1.4;fill:none;marker-end:url(#arr4);stroke-dasharray:4 2}</style>
+
+<!-- Pool (single lane) -->
+<rect x="4" y="4" width="852" height="172" rx="4" class="bpmn-pool"/>
+<rect x="4" y="4" width="22" height="172" rx="4" fill="#dde6e9" stroke="#333" stroke-width="1"/>
+<text transform="rotate(-90,15,90)" x="15" y="90" class="bpmn-pool-title" text-anchor="middle" dominant-baseline="middle">P4 · Forschungsprojekte</text>
+
+<rect x="26" y="4" width="830" height="172" fill="#fafafa" stroke="none"/>
+
+<!-- Elements on single y=88 line -->
+<!-- START -->
+<circle cx="65" cy="88" r="16" class="bpmn-start"/>
+<text x="65" y="114" class="bpmn-note">Start</text>
+<line x1="81" y1="88" x2="103" y2="88" class="f4"/>
+
+<!-- T1: Projekt anlegen -->
+<rect x="103" y="65" width="115" height="46" rx="7" class="bpmn-task"/>
+<text x="160" y="85" class="bpmn-label">Forschungs­</text>
+<text x="160" y="99" class="bpmn-label">projekt anlegen</text>
+<line x1="218" y1="88" x2="240" y2="88" class="f4"/>
+
+<!-- T2: Thema verknüpfen -->
+<rect x="240" y="65" width="115" height="46" rx="7" class="bpmn-task"/>
+<text x="297" y="81" class="bpmn-label">Thema &amp;</text>
+<text x="297" y="95" class="bpmn-label">Details erfassen</text>
+<line x1="355" y1="88" x2="377" y2="88" class="f4"/>
+
+<!-- T3: GitHub-Sync (system, below) -->
+<rect x="240" y="125" width="115" height="46" rx="7" class="bpmn-task-sys"/>
+<text x="297" y="145" class="bpmn-label">GitHub-Sync</text>
+<text x="297" y="159" class="bpmn-label">speichern</text>
+
+<!-- T2 → Sync (down) then right -->
+<line x1="377" y1="88" x2="377" y2="148" stroke="#555" stroke-width="1.4" fill="none"/>
+<line x1="377" y1="148" x2="355" y2="148" class="f4"/>
+
+<line x1="240" y1="148" x2="218" y2="148" stroke="#555" stroke-width="1.4" fill="none"/>
+<line x1="218" y1="148" x2="218" y2="88" stroke="#555" stroke-width="1.4" fill="none"/>
+
+<!-- T4: Fortschritt aktualisieren -->
+<rect x="390" y="65" width="115" height="46" rx="7" class="bpmn-task"/>
+<text x="447" y="85" class="bpmn-label">Fortschritt</text>
+<text x="447" y="99" class="bpmn-label">aktualisieren</text>
+
+<!-- Sync up to T4 -->
+<line x1="218" y1="88" x2="390" y2="88" class="f4"/>
+
+<line x1="505" y1="88" x2="527" y2="88" class="f4"/>
+
+<!-- GW: Abgeschlossen? -->
+<polygon points="547,69 567,88 547,107 527,88" class="bpmn-gw"/>
+<text x="547" y="89" class="bpmn-label" font-size="12">×</text>
+<text x="547" y="120" class="bpmn-note">Abge­schlossen?</text>
+
+<!-- Nein: loop back -->
+<line x1="567" y1="88" x2="620" y2="88" class="fc4"/>
+<text x="588" y="80" class="bpmn-cond-label">Nein</text>
+<line x1="620" y1="88" x2="620" y2="150" stroke="#555" stroke-width="1.4" fill="none"/>
+<line x1="620" y1="150" x2="447" y2="150" stroke="#555" stroke-width="1.4" fill="none"/>
+<line x1="447" y1="150" x2="447" y2="111" class="f4"/>
+<text x="530" y="160" class="bpmn-cond-label">Periodische Aktualisierung</text>
+
+<!-- Ja: Ergebnisse dokumentieren -->
+<line x1="547" y1="69" x2="547" y2="30" stroke="#555" stroke-width="1.4" fill="none"/>
+<line x1="547" y1="30" x2="660" y2="30" stroke="#555" stroke-width="1.4" fill="none"/>
+<line x1="660" y1="30" x2="660" y2="65" class="f4"/>
+<text x="598" y="24" class="bpmn-cond-label">Ja</text>
+
+<!-- T5: Ergebnisse -->
+<rect x="610" y="65" width="115" height="46" rx="7" class="bpmn-task"/>
+<text x="667" y="85" class="bpmn-label">Ergebnisse</text>
+<text x="667" y="99" class="bpmn-label">dokumentieren</text>
+<line x1="725" y1="88" x2="747" y2="88" class="f4"/>
+
+<!-- T6: Archivieren (System) -->
+<rect x="747" y="65" width="85" height="46" rx="7" class="bpmn-task-sys"/>
+<text x="789" y="85" class="bpmn-label">Archivieren</text>
+<text x="789" y="99" class="bpmn-label">&amp; Sync</text>
+<line x1="832" y1="88" x2="840" y2="88" class="f4"/>
+
+<!-- END -->
+<circle cx="840" cy="88" r="12" class="bpmn-end"/>
+<text x="840" y="112" class="bpmn-note">Ende</text>
+</svg>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════
+     P5: GitHub-Datensynchronisation
+     ════════════════════════════════════════════════════════════ -->
+<div class="prozess">
+  <div class="prozess-kopf"><h2>P5 · GitHub-Datensynchronisation — Lese- und Schreibzugriff auf Datenbasis</h2></div>
+  <div class="prozess-beschr">
+    <p>Alle persistenten Daten (Themen, Meilensteine, Risiken, Forschungsprojekte) werden als JSON-Dateien im GitHub-Repository gespeichert. Beim Laden liest die App die Daten über die GitHub-API (PAT-authentifiziert). Beim Speichern schreibt sie die geänderten JSON-Dateien zurück. Der Prozess ist für alle Module identisch.</p>
+  </div>
+  <div class="prozess-svg">
+<svg viewBox="0 0 840 180" width="100%" xmlns="http://www.w3.org/2000/svg">
+<defs><marker id="arr5" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#555"/></marker></defs>
+<style>.f5{stroke:#555;stroke-width:1.4;fill:none;marker-end:url(#arr5)}.fc5{stroke:#555;stroke-width:1.4;fill:none;marker-end:url(#arr5);stroke-dasharray:4 2}</style>
+
+<!-- Pool -->
+<rect x="4" y="4" width="832" height="172" rx="4" class="bpmn-pool"/>
+<rect x="4" y="4" width="22" height="172" rx="4" fill="#dde6e9" stroke="#333" stroke-width="1"/>
+<text transform="rotate(-90,15,90)" x="15" y="90" class="bpmn-pool-title" text-anchor="middle" dominant-baseline="middle">P5 · GitHub-Sync</text>
+
+<!-- Lane Nutzer -->
+<rect x="26" y="4" width="810" height="86" class="bpmn-lane-bg-user" stroke="#bbb" stroke-width="0.5"/>
+<rect x="26" y="4" width="22" height="86" class="bpmn-lane-header" stroke="#bbb" stroke-width="0.5"/>
+<text transform="rotate(-90,37,47)" x="37" y="47" class="bpmn-lane-title" text-anchor="middle" dominant-baseline="middle">Nutzer</text>
+
+<!-- Lane System -->
+<rect x="26" y="90" width="810" height="86" class="bpmn-lane-bg-system" stroke="#bbb" stroke-width="0.5"/>
+<rect x="26" y="90" width="22" height="86" class="bpmn-lane-header" stroke="#bbb" stroke-width="0.5"/>
+<text transform="rotate(-90,37,133)" x="37" y="133" class="bpmn-lane-title" text-anchor="middle" dominant-baseline="middle">App / GitHub API</text>
+
+<!-- START -->
+<circle cx="70" cy="47" r="14" class="bpmn-start"/>
+<text x="70" y="70" class="bpmn-note">Start</text>
+<line x1="84" y1="47" x2="104" y2="47" class="f5"/>
+
+<!-- GW1: PAT vorhanden? -->
+<polygon points="124,29 142,47 124,65 106,47" class="bpmn-gw"/>
+<text x="124" y="48" class="bpmn-label" font-size="11">×</text>
+<text x="124" y="76" class="bpmn-note">PAT konfiguriert?</text>
+
+<!-- Nein: PAT eingeben -->
+<line x1="124" y1="29" x2="124" y2="12" stroke="#555" stroke-width="1.4" fill="none"/>
+<line x1="124" y1="12" x2="210" y2="12" stroke="#555" stroke-width="1.4" fill="none"/>
+<line x1="210" y1="12" x2="210" y2="29" class="fc5"/>
+<text x="164" y="9" class="bpmn-cond-label">Nein</text>
+
+<!-- T: PAT eingeben -->
+<rect x="160" y="29" width="100" height="36" rx="7" class="bpmn-task"/>
+<text x="210" y="49" class="bpmn-label">PAT-Token</text>
+<text x="210" y="61" class="bpmn-label">eingeben</text>
+<line x1="260" y1="47" x2="278" y2="47" class="f5"/>
+
+<!-- GW merge -->
+<polygon points="298,29 316,47 298,65 280,47" class="bpmn-gw"/>
+<text x="298" y="48" class="bpmn-label" font-size="11">×</text>
+<line x1="142" y1="47" x2="280" y2="47" class="f5"/>
+<text x="200" y="39" class="bpmn-cond-label">Ja</text>
+
+<!-- GW merge → Daten laden (System) -->
+<line x1="298" y1="65" x2="298" y2="133" class="f5"/>
+
+<!-- T: JSON laden -->
+<rect x="248" y="111" width="100" height="44" rx="7" class="bpmn-task-sys"/>
+<text x="298" y="131" class="bpmn-label">JSON-Datei</text>
+<text x="298" y="145" class="bpmn-label">via API laden</text>
+
+<line x1="348" y1="133" x2="368" y2="133" class="f5"/>
+
+<!-- GW: Erfolg? -->
+<polygon points="388,115 406,133 388,151 370,133" class="bpmn-gw"/>
+<text x="388" y="134" class="bpmn-label" font-size="11">×</text>
+
+<!-- Fehler (up to nutzer) -->
+<line x1="388" y1="115" x2="388" y2="47" class="fc5"/>
+<text x="396" y="80" class="bpmn-cond-label">Fehler</text>
+<rect x="420" y="29" width="100" height="36" rx="7" class="bpmn-task"/>
+<text x="470" y="44" class="bpmn-label">Fehler</text>
+<text x="470" y="58" class="bpmn-label">anzeigen</text>
+<line x1="388" y1="47" x2="420" y2="47" class="f5"/>
+<!-- Retry -->
+<line x1="470" y1="65" x2="470" y2="83" stroke="#555" stroke-width="1.4" fill="none"/>
+<line x1="470" y1="83" x2="298" y2="83" stroke="#555" stroke-width="1.4" fill="none"/>
+<line x1="298" y1="83" x2="298" y2="155" stroke="#555" stroke-width="1.4" fill="none"/>
+<line x1="298" y1="155" x2="248" y2="155" class="f5"/>
+<text x="384" y="79" class="bpmn-cond-label">Retry</text>
+
+<!-- Erfolg → Anzeigen -->
+<line x1="406" y1="133" x2="426" y2="133" class="f5"/>
+<rect x="426" y="111" width="100" height="44" rx="7" class="bpmn-task-sys"/>
+<text x="476" y="131" class="bpmn-label">Daten</text>
+<text x="476" y="145" class="bpmn-label">rendern</text>
+
+<!-- Up to Nutzer: Änderungen vornehmen -->
+<line x1="476" y1="111" x2="476" y2="47" class="f5"/>
+<rect x="546" y="29" width="100" height="36" rx="7" class="bpmn-task"/>
+<text x="596" y="44" class="bpmn-label">Änderungen</text>
+<text x="596" y="58" class="bpmn-label">vornehmen</text>
+<line x1="476" y1="47" x2="546" y2="47" class="f5"/>
+
+<!-- Speichern (down to system) -->
+<line x1="646" y1="47" x2="666" y2="47" class="f5"/>
+<rect x="666" y="29" width="80" height="36" rx="7" class="bpmn-task"/>
+<text x="706" y="44" class="bpmn-label">Speichern</text>
+<text x="706" y="58" class="bpmn-label">auslösen</text>
+
+<line x1="706" y1="65" x2="706" y2="111" class="f5"/>
+
+<!-- Write back -->
+<rect x="656" y="111" width="100" height="44" rx="7" class="bpmn-task-sys"/>
+<text x="706" y="131" class="bpmn-label">JSON schreiben</text>
+<text x="706" y="145" class="bpmn-label">via GitHub API</text>
+
+<line x1="756" y1="133" x2="800" y2="133" class="f5"/>
+
+<!-- END -->
+<circle cx="815" cy="133" r="13" class="bpmn-end"/>
+<text x="815" y="157" class="bpmn-note">Ende</text>
+</svg>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════
+     P6: Themendurchgängigkeit
+     ════════════════════════════════════════════════════════════ -->
+<div class="prozess">
+  <div class="prozess-kopf"><h2>P6 · Themendurchgängigkeit — Strategisches Thema über alle Module verknüpfen</h2></div>
+  <div class="prozess-beschr">
+    <p>Ein strategisches Thema aus dem Radar kann direkt einen Meilenstein erzeugen. Aus einem Meilenstein kann ein Risiko abgeleitet werden. Alle drei Objekte sind bidirektional verknüpft und im Lageplan-Dashboard aggregiert sichtbar. Diese Durchgängigkeit ist das zentrale Feature der Lageplan-App.</p>
+  </div>
+  <div class="prozess-svg">
+<svg viewBox="0 0 820 160" width="100%" xmlns="http://www.w3.org/2000/svg">
+<defs><marker id="arr6" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#555"/></marker></defs>
+<style>.f6{stroke:#555;stroke-width:1.4;fill:none;marker-end:url(#arr6)}.fc6{stroke:#2d7a8e;stroke-width:1.4;fill:none;marker-end:url(#arr6-b);stroke-dasharray:6 3}
+</style>
+<defs><marker id="arr6-b" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#2d7a8e"/></marker></defs>
+
+<!-- Pool (no lanes) -->
+<rect x="4" y="4" width="812" height="152" rx="4" class="bpmn-pool"/>
+<rect x="4" y="4" width="22" height="152" rx="4" fill="#dde6e9" stroke="#333" stroke-width="1"/>
+<text transform="rotate(-90,15,80)" x="15" y="80" class="bpmn-pool-title" text-anchor="middle" dominant-baseline="middle">P6 · Themendurchgängigkeit</text>
+
+<!-- START -->
+<circle cx="70" cy="80" r="16" class="bpmn-start"/>
+<text x="70" y="106" class="bpmn-note">Start</text>
+<line x1="86" y1="80" x2="110" y2="80" class="f6"/>
+
+<!-- Thema im Radar -->
+<rect x="110" y="57" width="130" height="46" rx="7" style="fill:#e8f0fb;stroke:#2d6dad;stroke-width:1.5"/>
+<text x="175" y="77" class="bpmn-label" font-weight="bold">Thema</text>
+<text x="175" y="91" class="bpmn-label">im Themenradar</text>
+<line x1="240" y1="80" x2="268" y2="80" class="f6"/>
+
+<!-- GW: Meilenstein ableiten? -->
+<polygon points="288,61 308,80 288,99 268,80" class="bpmn-gw"/>
+<text x="288" y="81" class="bpmn-label" font-size="11">×</text>
+<text x="288" y="112" class="bpmn-note">Meilenstein?</text>
+
+<line x1="308" y1="80" x2="330" y2="80" class="f6"/>
+<text x="315" y="72" class="bpmn-cond-label">Ja</text>
+
+<!-- Meilenstein -->
+<rect x="330" y="57" width="130" height="46" rx="7" style="fill:#e8f4f0;stroke:#3a8a6f;stroke-width:1.5"/>
+<text x="395" y="77" class="bpmn-label" font-weight="bold">Meilenstein</text>
+<text x="395" y="91" class="bpmn-label">im GANTT</text>
+<line x1="460" y1="80" x2="488" y2="80" class="f6"/>
+
+<!-- GW: Risiko ableiten? -->
+<polygon points="508,61 528,80 508,99 488,80" class="bpmn-gw"/>
+<text x="508" y="81" class="bpmn-label" font-size="11">×</text>
+<text x="508" y="112" class="bpmn-note">Risiko?</text>
+
+<line x1="528" y1="80" x2="550" y2="80" class="f6"/>
+<text x="535" y="72" class="bpmn-cond-label">Ja</text>
+
+<!-- Risiko -->
+<rect x="550" y="57" width="130" height="46" rx="7" style="fill:#fef4e4;stroke:#c8a428;stroke-width:1.5"/>
+<text x="615" y="77" class="bpmn-label" font-weight="bold">Risiko</text>
+<text x="615" y="91" class="bpmn-label">im Risiko­mgmt.</text>
+
+<line x1="680" y1="80" x2="700" y2="80" class="f6"/>
+
+<!-- Lageplan Dashboard -->
+<rect x="700" y="57" width="100" height="46" rx="7" style="fill:#f0e8f4;stroke:#7a6ea0;stroke-width:1.5"/>
+<text x="750" y="77" class="bpmn-label" font-weight="bold">Lageplan</text>
+<text x="750" y="91" class="bpmn-label">Dashboard</text>
+
+<line x1="800" y1="80" x2="806" y2="80" class="f6"/>
+<!-- END -->
+<circle cx="806" cy="80" r="12" class="bpmn-end"/>
+<text x="806" y="106" class="bpmn-note">Ende</text>
+
+<!-- GW1 nein path -->
+<line x1="288" y1="61" x2="288" y2="30" stroke="#555" stroke-width="1.4" fill="none"/>
+<line x1="288" y1="30" x2="750" y2="30" stroke="#555" stroke-width="1.4" fill="none"/>
+<line x1="750" y1="30" x2="750" y2="57" class="f6"/>
+<text x="420" y="24" class="bpmn-cond-label">Nein → direkt zum Dashboard</text>
+
+<!-- GW2 nein path -->
+<line x1="508" y1="99" x2="508" y2="130" stroke="#555" stroke-width="1.4" fill="none"/>
+<line x1="508" y1="130" x2="750" y2="130" stroke="#555" stroke-width="1.4" fill="none"/>
+<line x1="750" y1="130" x2="750" y2="103" class="f6"/>
+<text x="608" y="144" class="bpmn-cond-label">Nein → direkt zum Dashboard</text>
+
+<!-- Verknüpfungs-Pfeile (blau, gestrichelt) -->
+<line x1="395" y1="57" x2="175" y2="48" class="fc6"/>
+<line x1="615" y1="57" x2="395" y2="48" class="fc6"/>
+<text x="280" y="38" class="bpmn-cond-label" style="fill:#2d7a8e">thema_id Referenz</text>
+<text x="500" y="40" class="bpmn-cond-label" style="fill:#2d7a8e">meilenstein_id Referenz</text>
+</svg>
+  </div>
+</div>
+
+<!-- Footer -->
+<div style="margin-top:40px;padding-top:16px;border-top:1px solid #e0e0e0;color:#999;font-size:11px;">
+  <p>Lageplan App · BPMN 2.0 Prozessdokumentation · Erstellt mit Claude Code</p>
+  <p>Notation gemäß OMG Business Process Model and Notation (BPMN) Version 2.0</p>
+</div>
+
+</div><!-- .page -->
+</body>
+</html>
