@@ -12,9 +12,10 @@ import json
 import os
 import re
 import ssl
+import urllib.parse
 import urllib.request
 import xml.etree.ElementTree as ET
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from email.utils import parsedate_to_datetime
 
 BASE_DIR         = os.path.dirname(os.path.abspath(__file__))
@@ -150,22 +151,28 @@ def main():
     vorschlaege = []
     neu_gesehen = []
 
-    for feed in feeds:
-        if feed.get("aktiv") is False:
-            continue
-        name, url = feed.get("name", "Quelle"), feed.get("url", "")
-        print(f"Feed: {name}")
-        baum = hole_feed(url)
-        if baum is None:
-            continue
+    def verarbeite(name, baum, erzwungenes_kw=None, limit=None, max_alter_tage=None):
+        """Feed-Einträge gegen Keywords prüfen und als Vorschläge sammeln.
 
+        erzwungenes_kw: bei Google-News-Suchfeeds zählt das gesuchte Keyword
+        immer als Treffer (es steht oft nur im Artikeltext, nicht im Titel).
+        limit begrenzt neue Vorschläge pro Feed, max_alter_tage das Artikelalter.
+        """
+        anzahl = 0
         for titel, besch, link, datum_roh in feed_items(baum):
             if not titel or (link and link in gesehen):
                 continue
+            datum = parse_datum(datum_roh)
+            if max_alter_tage and datum:
+                grenze = datetime.now(timezone.utc) - timedelta(days=max_alter_tage)
+                if datum < grenze.strftime("%Y-%m-%d"):
+                    continue
             text = f"{titel} {besch}".lower()
 
             gefunden = [kw for kw in keywords if kw.lower() in text]
-            if len(gefunden) < min_treffer:
+            if erzwungenes_kw and erzwungenes_kw not in gefunden:
+                gefunden.append(erzwungenes_kw)
+            if len(gefunden) < (1 if erzwungenes_kw else min_treffer):
                 continue
             if titel.strip().lower() in bekannte_titel:
                 continue
@@ -173,10 +180,12 @@ def main():
             vorschlaege.append({
                 "titel":                       titel[:150],
                 "zusammenfassung":             besch[:400],
-                "begruendung":                 "Keywords: " + ", ".join(gefunden[:5]),
+                "begruendung":                 ("Google-News-Suche: " + erzwungenes_kw
+                                                if erzwungenes_kw
+                                                else "Keywords: " + ", ".join(gefunden[:5])),
                 "name":                        name,
                 "link":                        link,
-                "datum":                       parse_datum(datum_roh),
+                "datum":                       datum,
                 "vorgeschlagene_kategorie":    finde_kategorie(text),
                 "vorgeschlagener_zeithorizont": "kurzfristig",
                 "vorgeschlagene_auswirkung":   3,
@@ -185,7 +194,35 @@ def main():
             })
             if link:
                 neu_gesehen.append(link)
+                gesehen.add(link)  # verhindert Dubletten im selben Lauf
             print(f"  + {titel[:70]}")
+            anzahl += 1
+            if limit and anzahl >= limit:
+                break
+
+    # ── Stufe 1: konfigurierte RSS-Feeds ──────────────────────────
+    for feed in feeds:
+        if feed.get("aktiv") is False:
+            continue
+        name, url = feed.get("name", "Quelle"), feed.get("url", "")
+        print(f"Feed: {name}")
+        baum = hole_feed(url)
+        if baum is not None:
+            verarbeite(name, baum)
+
+    # ── Stufe 2: globale Google-News-Suche pro Keyword ────────────
+    # Für jedes Keyword wird der Google-News-Suchfeed abgefragt
+    # (deutschsprachige Nachrichten, letzte 14 Tage, max. 3 neue
+    # Vorschläge pro Keyword und Lauf).
+    if config.get("google_news_suche", True):
+        for kw in keywords:
+            url = ("https://news.google.com/rss/search?q=" +
+                   urllib.parse.quote(kw) + "&hl=de&gl=DE&ceid=DE:de")
+            print(f"Google News: {kw}")
+            baum = hole_feed(url)
+            if baum is not None:
+                verarbeite(f"Google News: {kw}", baum,
+                           erzwungenes_kw=kw, limit=3, max_alter_tage=14)
 
     jetzt = datetime.now(timezone.utc).isoformat()
 
