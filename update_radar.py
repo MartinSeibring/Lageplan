@@ -124,7 +124,9 @@ def main():
     feeds    = config.get("rss_feeds", [])
     min_treffer = int(config.get("min_keyword_treffer", 1))
 
-    themen = lade_json(THEMEN_PATH, {}).get("themen", [])
+    # themen.json ist eine Top-Level-Liste; {"themen": [...]} wird ebenfalls unterstützt
+    themen_roh = lade_json(THEMEN_PATH, [])
+    themen = themen_roh.get("themen", []) if isinstance(themen_roh, dict) else themen_roh
     bekannte_titel = {t.get("titel", "").strip().lower() for t in themen}
 
     gesehen = set(lade_json(GESEHEN_PATH, {}).get("links", []))
