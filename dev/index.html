@@ -3412,8 +3412,7 @@ body {
   <div id="ms-header">
     <strong>Meilenstein-Zielrahmen</strong>
     <span id="ms-stand-datum"></span>
-    <span id="gh-sync-pill" class="gh-sync-pill gh-sync-bereit" title="GitHub Sync nicht konfiguriert" onclick="GH.oeffneEinstellungen()">☁ GitHub</span>
-    <button id="btn-gh-einstellungen" onclick="GH.oeffneEinstellungen()">⚙ Sync</button>
+    <span id="gh-sync-pill" class="gh-sync-pill gh-sync-bereit" title="GitHub Sync – Einstellungen unter dem Tab Einstellungen" onclick="GH.oeffneEinstellungen()">☁ GitHub</span>
     <button id="btn-ms-export" onclick="MS.exportiereJSON()">↓ Meilensteine exportieren (JSON)</button>
     <button id="btn-ms-neu" onclick="MS.oeffneMsFormular()">+ Meilenstein anlegen</button>
   </div>
@@ -3463,8 +3462,8 @@ body {
           <input type="text" id="gh-repo-input" value="martinseibring/lageplan" />
         </div>
         <div class="gh-feld">
-          <label>Branch</label>
-          <input type="text" id="gh-branch-input" value="main" />
+          <label>Branch (gilt nur für diese Umgebung)</label>
+          <input type="text" id="gh-branch-input" value="" />
         </div>
         <div id="gh-test-ergebnis"></div>
       </div>
@@ -3706,6 +3705,26 @@ body {
 
   <!-- ── Hauptbereich ───────────────────────────────── -->
   <div id="st-main">
+
+    <!-- Sektion: GitHub-Synchronisation -->
+    <div class="settings-karte" id="sektion-github">
+      <div class="settings-karte-kopf">
+        <h3>☁ GitHub-Synchronisation</h3>
+        <div class="settings-karte-beschr">
+          Verbindung zum GitHub-Repository. <strong>Lesen</strong> funktioniert
+          ohne Token – für das <strong>Schreiben</strong> (Themen, Meilensteine,
+          Risiken anlegen/ändern) und den Button „Radar aktualisieren" wird ein
+          Personal Access Token benötigt. Der Branch wird pro Umgebung
+          (Produktiv / DEV / Staging) getrennt gespeichert.
+        </div>
+      </div>
+      <div class="settings-karte-inhalt">
+        <div id="gh-karte-status" style="font-size:12px;margin-bottom:12px;color:#555"></div>
+        <button class="st-btn-primaer" onclick="GH.oeffneEinstellungen()">
+          ⚙ Sync-Einstellungen öffnen
+        </button>
+      </div>
+    </div>
 
     <!-- Sektion: Suchbegriffe & Keywords -->
     <div class="settings-karte" id="sektion-keywords">
@@ -4616,16 +4635,18 @@ body {
     // -----------------------------------------------------------------------
 
     function _ghConf() {
-      var p = window.location.pathname;
-      var def = {
-        pat: "", repo: "martinseibring/lageplan",
-        branch: p.includes("/dev/") ? "development"
-              : p.includes("/staging/") ? "staging" : "main"
-      };
+      // Muss die Branch-Auflösung des GH-Moduls spiegeln (Branch pro Umgebung),
+      // da GH beim Init dieses Moduls noch nicht existiert
+      var p   = window.location.pathname;
+      var env = p.includes("/dev/") ? "dev" : p.includes("/staging/") ? "staging" : "prod";
+      var defBranch = { prod: "Produktiv", dev: "development", staging: "staging" }[env];
+      var s = { pat: "", repo: "martinseibring/lageplan" };
       try {
-        var s = localStorage.getItem("github_sync_settings");
-        return s ? Object.assign(def, JSON.parse(s)) : def;
-      } catch(e) { return def; }
+        var roh = localStorage.getItem("github_sync_settings");
+        if (roh) Object.assign(s, JSON.parse(roh));
+      } catch(e) {}
+      s.branch = (s.branches && s.branches[env]) || defBranch;
+      return s;
     }
 
     async function _ghDatei(pfad) {
@@ -8527,19 +8548,28 @@ window.MS={exportiereJSON,zeigeDetail,renderMini,renderUebersicht,oeffneMsFormul
   var _risikenSyncPending = false;
   var RISIKEN_PFAD = "data/risiken.json";
   var SETTINGS_KEY = "github_sync_settings";
-  function _defaultBranch() {
+  // Umgebung anhand des URL-Pfads: prod (/) | dev (/dev/) | staging (/staging/)
+  function _umgebung() {
     var p = window.location.pathname;
-    if (p.includes("/dev/"))     return "development";
+    if (p.includes("/dev/"))     return "dev";
     if (p.includes("/staging/")) return "staging";
-    return "main";
+    return "prod";
   }
-  var DEFAULT = { pat: "", repo: "martinseibring/lageplan", branch: _defaultBranch(), pfad: "data/meilensteine.json" };
+  var BRANCH_DEFAULTS = { prod: "Produktiv", dev: "development", staging: "staging" };
+  function _defaultBranch() { return BRANCH_DEFAULTS[_umgebung()]; }
+  var DEFAULT = { pat: "", repo: "martinseibring/lageplan", pfad: "data/meilensteine.json" };
 
   function ladeEinstellungen() {
+    var s;
     try {
-      var s = localStorage.getItem(SETTINGS_KEY);
-      return s ? Object.assign({}, DEFAULT, JSON.parse(s)) : Object.assign({}, DEFAULT);
-    } catch(e) { return Object.assign({}, DEFAULT); }
+      var roh = localStorage.getItem(SETTINGS_KEY);
+      s = roh ? Object.assign({}, DEFAULT, JSON.parse(roh)) : Object.assign({}, DEFAULT);
+    } catch(e) { s = Object.assign({}, DEFAULT); }
+    // Branch wird pro Umgebung gespeichert (branches.prod/dev/staging),
+    // damit Produktiv- und DEV-Seite sich nicht gegenseitig verstellen.
+    // Das Legacy-Feld "branch" wird ignoriert.
+    s.branch = (s.branches && s.branches[_umgebung()]) || _defaultBranch();
+    return s;
   }
 
   function speichereEinstellungen(s) {
@@ -8959,7 +8989,7 @@ window.MS={exportiereJSON,zeigeDetail,renderMini,renderUebersicht,oeffneMsFormul
     var s = ladeEinstellungen();
     document.getElementById("gh-pat-input").value = s.pat || "";
     document.getElementById("gh-repo-input").value = s.repo || DEFAULT.repo;
-    document.getElementById("gh-branch-input").value = s.branch || DEFAULT.branch;
+    document.getElementById("gh-branch-input").value = s.branch || _defaultBranch();
     document.getElementById("gh-test-ergebnis").textContent = "";
     document.getElementById("gh-einstellungen-modal").classList.add("offen");
   }
@@ -8969,13 +8999,17 @@ window.MS={exportiereJSON,zeigeDetail,renderMini,renderUebersicht,oeffneMsFormul
   }
 
   function speichereEinstellungenUndSchliesse() {
+    var alt = ladeEinstellungen();
+    var branches = alt.branches || {};
+    branches[_umgebung()] = document.getElementById("gh-branch-input").value.trim() || _defaultBranch();
     var s = {
-      pat:    document.getElementById("gh-pat-input").value.trim(),
-      repo:   document.getElementById("gh-repo-input").value.trim() || DEFAULT.repo,
-      branch: document.getElementById("gh-branch-input").value.trim() || DEFAULT.branch,
-      pfad:   DEFAULT.pfad
+      pat:      document.getElementById("gh-pat-input").value.trim(),
+      repo:     document.getElementById("gh-repo-input").value.trim() || DEFAULT.repo,
+      branches: branches,
+      pfad:     DEFAULT.pfad
     };
     speichereEinstellungen(s);
+    renderSettingsKarte();
     _sha = null;
     _themenSha = null;
     _forschungSha = null;
@@ -9012,10 +9046,25 @@ window.MS={exportiereJSON,zeigeDetail,renderMini,renderUebersicht,oeffneMsFormul
     }
   }
 
+  // Status-Zeile in der Einstellungen-Karte "GitHub-Synchronisation" befüllen
+  function renderSettingsKarte() {
+    var el = document.getElementById("gh-karte-status");
+    if (!el) return;
+    var s = ladeEinstellungen();
+    var umgLabel = { prod: "Produktiv-Umgebung", dev: "DEV-Umgebung", staging: "Staging-Umgebung" }[_umgebung()];
+    el.innerHTML =
+      '<span style="color:' + (s.pat ? "#27ae60" : "#c0392b") + ';font-weight:600">' +
+        (s.pat ? "✓ Token hinterlegt" : "✗ Kein Token hinterlegt") + '</span>' +
+      '<span style="color:#bbb;margin:0 8px">|</span>Repository: <strong>' + s.repo + '</strong>' +
+      '<span style="color:#bbb;margin:0 8px">|</span>Branch: <strong>' + s.branch + '</strong>' +
+      ' <span style="color:#999">(' + umgLabel + ')</span>';
+  }
+
   // Initiale Statusanzeige – immer "lesend" bis Laden abgeschlossen
   setzeSyncStatus("lesend", "Lade Daten von GitHub…");
 
-  window.GH = { ladeMeilensteine, debouncedSync, oeffneEinstellungen, schliesseEinstellungen, speichereEinstellungenUndSchliesse, testeVerbindung, ladeEinstellungen, ladeThemen, debouncedThemenSync, ladeForschung, debouncedForschungSync, ladeRisiken, debouncedRisikenSync };
+  window.GH = { ladeMeilensteine, debouncedSync, oeffneEinstellungen, schliesseEinstellungen, speichereEinstellungenUndSchliesse, testeVerbindung, ladeEinstellungen, ladeThemen, debouncedThemenSync, ladeForschung, debouncedForschungSync, ladeRisiken, debouncedRisikenSync, renderSettingsKarte };
+  renderSettingsKarte();
 })();
 </script>
 <script>/* ===== Forschungsprojekte ===== */
