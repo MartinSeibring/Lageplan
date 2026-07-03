@@ -4,6 +4,7 @@
     "Smart Meter", "Netzanschluss", "Regulierung", "Eigenkapital",
     "Anreizregulierung", "Redispatch", "Wärmepumpe", "Rollout"
   ],
+  "google_news_suche": true,
   "rss_feeds": [
     {
       "name": "BNetzA Pressemitteilungen",
@@ -18,12 +19,36 @@
       "url": "https://www.bundesnetzagentur.de/SiteGlobals/Functions/RSSFeed/DE/RSSNewsfeed/RSSNewsfeed_EEG.xml?nn=693926"
     },
     {
-      "name": "BMWK Energie",
+      "name": "BMWE Energie",
       "url": "https://www.bundeswirtschaftsministerium.de/SiteGlobals/BMWI/Functions/RSSFeed/DE/RSSFeed-Energie.xml"
     },
     {
-      "name": "BMWK Pressemitteilungen",
+      "name": "BMWE Pressemitteilungen",
       "url": "https://www.bundeswirtschaftsministerium.de/SiteGlobals/BMWI/Functions/RSSFeed/DE/RSSFeed-Pressemitteilung.xml"
+    },
+    {
+      "name": "BMUV Meldungen",
+      "url": "https://www.bundesumweltministerium.de/meldungen.rss"
+    },
+    {
+      "name": "pv magazine Deutschland",
+      "url": "https://www.pv-magazine.de/feed/"
+    },
+    {
+      "name": "Clean Energy Wire",
+      "url": "https://www.cleanenergywire.org/rss.xml"
+    },
+    {
+      "name": "VKU Pressemitteilungen",
+      "url": "https://www.vku.de/rss/rss-vku-pressemitteilungen.xml?tx_wwt3list_recordlist%5Baction%5D=rss&tx_wwt3list_recordlist%5BcontentUid%5D=2564&tx_wwt3list_recordlist%5Bcontroller%5D=Recordlist&cHash=0d1cdca25109854d9c6eeba84c6d2110"
+    },
+    {
+      "name": "VKU Aktuelle Meldungen",
+      "url": "https://www.vku.de/rss/rss-aktuelle-meldungen.xml?tx_wwt3list_recordlist%5Baction%5D=rss&tx_wwt3list_recordlist%5BcontentUid%5D=2563&tx_wwt3list_recordlist%5Bcontroller%5D=Recordlist&cHash=9823aefb7d917d08014286db8c6d7830"
+    },
+    {
+      "name": "EU-Kommission Energie",
+      "url": "https://energy.ec.europa.eu/node/2/rss_en"
     }
   ],
   "behoerden_seiten": [
