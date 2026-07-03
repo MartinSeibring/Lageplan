@@ -59,13 +59,29 @@ def lade_json(pfad, default):
 
 def hole_feed(url):
     """Feed abrufen und als XML-Baum liefern (None bei Fehler)."""
-    req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 (Lageplan-Radar)"})
+    req = urllib.request.Request(url, headers={
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                      "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36",
+        "Accept": "application/rss+xml, application/xml, text/xml, */*",
+        "Accept-Encoding": "identity",
+    })
     ctx = ssl.create_default_context()
     try:
         with urllib.request.urlopen(req, timeout=30, context=ctx) as resp:
-            return ET.fromstring(resp.read())
+            roh = resp.read()
     except Exception as e:
         print(f"  FEHLER beim Abruf {url}: {e}")
+        return None
+    # BOM und führende Leerzeilen entfernen (BMWK liefert Leerzeile vor <?xml)
+    if roh.startswith(b"\xef\xbb\xbf"):
+        roh = roh[3:]
+    roh = roh.lstrip()
+    try:
+        return ET.fromstring(roh)
+    except ET.ParseError as e:
+        anfang = roh[:120].decode("utf-8", errors="replace")
+        print(f"  FEHLER beim Parsen {url}: {e}")
+        print(f"    Antwort beginnt mit: {anfang!r}")
         return None
 
 
