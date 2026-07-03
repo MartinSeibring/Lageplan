@@ -1,6 +1,9 @@
 name: Feed-Kandidaten testen (temporaer)
 
 on:
+  push:
+    branches: [development]
+    paths: [probe_feeds.py, .github/workflows/probe-feeds.yml]
   workflow_dispatch:
 
 jobs:
