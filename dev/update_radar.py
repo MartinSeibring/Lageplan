@@ -146,6 +146,19 @@ def main():
     themen = themen_roh.get("themen", []) if isinstance(themen_roh, dict) else themen_roh
     bekannte_titel = {t.get("titel", "").strip().lower() for t in themen}
 
+    # Themen-Beobachtung: explizite Beobachtungs-Begriffe je Thema,
+    # ohne Eintrag dienen die Tags als Fallback. Treffer werden als
+    # Update-Vorschlag dem Thema zugeordnet statt als neues Thema.
+    beobachtete = []
+    for t in themen:
+        begriffe = [b.strip() for b in (t.get("beobachtung") or []) if len(b.strip()) >= 4]
+        explizit = bool(begriffe)
+        if not begriffe:
+            begriffe = [b.strip() for b in (t.get("tags") or []) if len(b.strip()) >= 4]
+        if begriffe and t.get("id") is not None:
+            beobachtete.append({"id": t["id"], "titel": t.get("titel", ""),
+                                "begriffe": begriffe, "explizit": explizit})
+
     gesehen = set(lade_json(GESEHEN_PATH, {}).get("links", []))
 
     vorschlaege = []
@@ -168,6 +181,36 @@ def main():
                 if datum < grenze.strftime("%Y-%m-%d"):
                     continue
             text = f"{titel} {besch}".lower()
+
+            # Themen-Beobachtung: Treffer wird dem bestehenden Thema
+            # als Update zugeordnet (kein neuer Themen-Vorschlag)
+            update_thema, update_begriff = None, None
+            for b in beobachtete:
+                for begriff in b["begriffe"]:
+                    if begriff.lower() in text:
+                        update_thema, update_begriff = b, begriff
+                        break
+                if update_thema:
+                    break
+            if update_thema:
+                vorschlaege.append({
+                    "titel":                  titel[:150],
+                    "zusammenfassung":        besch[:400],
+                    "begruendung":            f'Beobachtung "{update_begriff}"',
+                    "name":                   name,
+                    "link":                   link,
+                    "datum":                  datum,
+                    "update_fuer_thema_id":   update_thema["id"],
+                    "update_fuer_thema_titel": update_thema["titel"],
+                })
+                if link:
+                    neu_gesehen.append(link)
+                    gesehen.add(link)
+                print(f"  ↻ {titel[:60]} → Thema: {update_thema['titel'][:40]}")
+                anzahl += 1
+                if limit and anzahl >= limit:
+                    break
+                continue
 
             gefunden = [kw for kw in keywords if kw.lower() in text]
             if erzwungenes_kw and erzwungenes_kw not in gefunden:
@@ -223,6 +266,24 @@ def main():
             if baum is not None:
                 verarbeite(f"Google News: {kw}", baum,
                            erzwungenes_kw=kw, limit=3, max_alter_tage=14)
+
+        # Gezielte Suche nach expliziten Beobachtungs-Begriffen der Themen
+        # (Tags-Fallback loest bewusst KEINE eigene Suche aus, sonst wird
+        # das Suchvolumen zu gross - Tags matchen nur gegen obige Treffer)
+        gesucht = []
+        for b in beobachtete:
+            if b["explizit"]:
+                for begriff in b["begriffe"]:
+                    if begriff.lower() not in [g.lower() for g in gesucht]:
+                        gesucht.append(begriff)
+        for begriff in gesucht[:15]:
+            url = ("https://news.google.com/rss/search?q=" +
+                   urllib.parse.quote(begriff) + "&hl=de&gl=DE&ceid=DE:de")
+            print(f"Google News (Beobachtung): {begriff}")
+            baum = hole_feed(url)
+            if baum is not None:
+                verarbeite(f"Google News: {begriff}", baum,
+                           erzwungenes_kw=begriff, limit=3, max_alter_tage=14)
 
     jetzt = datetime.now(timezone.utc).isoformat()
 
