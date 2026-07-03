@@ -2695,6 +2695,7 @@ body {
     <button class="app-tab" id="tab-meilensteine" data-tab="meilensteine">Meilensteine &amp; GANTT</button>
     <button class="app-tab" id="tab-risiko"       data-tab="risiko">Risikomanagement</button>
     <button class="app-tab" id="tab-settings"     data-tab="settings">Einstellungen</button>
+    <button class="app-tab" id="tab-max" title="Platzhalter – Funktion folgt">Max</button>
   </div>
 
   <div id="gf-indikator">
@@ -10326,7 +10327,7 @@ window.ST={speichereEinstellungen,resetteEinstellungen};
     }, 60);
   }
 
-  document.querySelectorAll(".app-tab").forEach(function(t){
+  document.querySelectorAll(".app-tab[data-tab]").forEach(function(t){
     t.addEventListener("click", function(e){ e.preventDefault(); activate(t.dataset.tab); });
   });
   document.querySelectorAll("[data-jump]").forEach(function(b){
