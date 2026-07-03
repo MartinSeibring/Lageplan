@@ -27,7 +27,7 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: .
           keep_files: true
-          exclude_assets: '.github,.git,server.py,README.md'
+          exclude_assets: '.github,server.py,README.md'
 
       - name: Deploy staging (staging → /staging/)
         if: github.ref_name == 'staging'
@@ -37,7 +37,7 @@ jobs:
           publish_dir: .
           destination_dir: staging
           keep_files: true
-          exclude_assets: '.github,.git,server.py,README.md'
+          exclude_assets: '.github,server.py,README.md'
 
       - name: Deploy development (development → /dev/)
         if: github.ref_name == 'development'
@@ -47,4 +47,4 @@ jobs:
           publish_dir: .
           destination_dir: dev
           keep_files: true
-          exclude_assets: '.github,.git,server.py,README.md'
+          exclude_assets: '.github,server.py,README.md'

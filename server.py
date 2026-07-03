@@ -64,7 +64,14 @@ class RadarHandler(BaseHTTPRequestHandler):
         # GET /starte-update
         # ------------------------------------------------------------------
         elif self.path == "/starte-update":
-            if _laufender_prozess is not None and _laufender_prozess.poll() is None:
+            if not os.path.exists(SKRIPT_PATH):
+                self._sende_json(
+                    {"status": "fehler",
+                     "fehler": "update_radar.py nicht gefunden – Skript muss im "
+                               "gleichen Ordner wie server.py liegen."},
+                    status=500,
+                )
+            elif _laufender_prozess is not None and _laufender_prozess.poll() is None:
                 self._sende_json({"status": "laeuft-bereits"})
             else:
                 _laufender_prozess = subprocess.Popen(
