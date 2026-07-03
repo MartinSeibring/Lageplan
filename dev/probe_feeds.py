@@ -1,55 +1,64 @@
-"""Temporäres Skript: testet RSS-Kandidaten-URLs auf dem GitHub-Runner.
+"""Temporäres Skript (Runde 2): findet echte Feed-URLs hinter HTML-Seiten.
 
-Nutzt dieselbe Abruflogik wie update_radar.py und meldet pro URL,
-ob sie ein parsebarer Feed ist und wie viele Einträge sie liefert.
-Wird nach der Verifikation wieder entfernt.
+Lädt Übersichts-/Presseseiten und extrahiert alle Links, die nach
+RSS/Feed aussehen. Wird nach der Verifikation wieder entfernt.
 """
+
+import re
+import ssl
+import urllib.request
 
 import update_radar as ur
 
-KANDIDATEN = [
-    ("ZfK a",        "https://www.zfk.de/rss.xml"),
-    ("ZfK b",        "https://www.zfk.de/feed"),
-    ("ZfK c",        "https://www.zfk.de/rss/news"),
-    ("ZfK d",        "https://www.zfk.de/rss-feed"),
-    ("pv-magazine",  "https://www.pv-magazine.de/feed/"),
-    ("CLEW a",       "https://www.cleanenergywire.org/rss"),
-    ("CLEW b",       "https://www.cleanenergywire.org/rss.xml"),
-    ("energate a",   "https://www.energate-messenger.de/rss"),
-    ("energate b",   "https://www.energate-messenger.de/feed/"),
-    ("BDEW a",       "https://www.bdew.de/rss/"),
-    ("BDEW b",       "https://www.bdew.de/feed/"),
-    ("BDEW c",       "https://www.bdew.de/presse/presseinformationen/feed/"),
-    ("VKU Meldungen","https://www.vku.de/rss/rss-aktuelle-meldungen/"),
-    ("VKU Presse",   "https://www.vku.de/rss/rss-vku-pressemitteilungen/"),
-    ("50Hertz a",    "https://www.50hertz.com/de/rss"),
-    ("50Hertz b",    "https://www.50hertz.com/rss"),
-    ("Amprion a",    "https://www.amprion.net/rss.xml"),
-    ("Amprion b",    "https://www.amprion.net/Presse/rss.xml"),
-    ("TenneT a",     "https://www.tennet.eu/de/rss"),
-    ("TenneT b",     "https://www.tennet.eu/rss.xml"),
-    ("TransnetBW a", "https://www.transnetbw.de/de/rss"),
-    ("TransnetBW b", "https://www.transnetbw.de/rss.xml"),
-    ("BMUV a",       "https://www.bundesumweltministerium.de/meldungen.rss"),
-    ("BMUV b",       "https://www.bmuv.de/meldungen.rss"),
-    ("EU ENER a",    "https://ec.europa.eu/newsroom/ener/items/itemType/1047/rss"),
-    ("EU ENER b",    "https://ec.europa.eu/newsroom/ener/rss.cfm"),
-    ("EU ENER c",    "https://energy.ec.europa.eu/rss.xml"),
-    ("EU ENER d",    "https://energy.ec.europa.eu/news_en.rss"),
+HTML_SEITEN = [
+    ("ZfK RSS-Seite",   "https://www.zfk.de/rss-feed"),
+    ("VKU RSS-Seite",   "https://www.vku.de/rss/"),
+    ("VKU Presse-Feed", "https://www.vku.de/rss/rss-vku-pressemitteilungen/"),
+    ("50Hertz News",    "https://www.50hertz.com/de/News"),
+    ("Amprion Presse",  "https://www.amprion.net/Presse/"),
+    ("TransnetBW",      "https://www.transnetbw.de/de/newsroom"),
+    ("EU Energie News", "https://energy.ec.europa.eu/news_en"),
 ]
+
+FEED_KANDIDATEN_2 = [
+    ("ZfK alt+Accept",  "https://www.zfk.de/rss-feed"),
+]
+
+
+def hole_html(url):
+    req = urllib.request.Request(url, headers={
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                      "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36",
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+        "Accept-Language": "de-DE,de;q=0.9",
+    })
+    ctx = ssl.create_default_context()
+    try:
+        with urllib.request.urlopen(req, timeout=30, context=ctx) as resp:
+            return resp.read().decode("utf-8", errors="replace")
+    except Exception as e:
+        print(f"  FEHLER {url}: {e}")
+        return None
 
 
 def main():
     print("=" * 70)
-    for name, url in KANDIDATEN:
-        baum = ur.hole_feed(url)
-        if baum is None:
-            print(f"✗ {name:15s} {url}")
-        else:
-            items = ur.feed_items(baum)
-            beispiel = items[0][0][:50] if items else "-"
-            print(f"✓ {name:15s} {len(items):3d} Eintraege | {url}")
-            print(f"    Beispiel: {beispiel}")
+    for name, url in HTML_SEITEN:
+        print(f"\n### {name}: {url}")
+        html = hole_html(url)
+        if html is None:
+            continue
+        # href- und link-Tags mit rss/feed/xml
+        treffer = set(re.findall(
+            r'(?:href|src)=["\']([^"\']*(?:rss|feed|atom)[^"\']*)["\']',
+            html, re.IGNORECASE))
+        treffer |= set(re.findall(
+            r'<link[^>]+type=["\']application/(?:rss|atom)\+xml["\'][^>]+href=["\']([^"\']+)["\']',
+            html, re.IGNORECASE))
+        for t in sorted(treffer)[:15]:
+            print(f"  → {t}")
+        if not treffer:
+            print("  (keine Feed-Links gefunden)")
     print("=" * 70)
 
 
