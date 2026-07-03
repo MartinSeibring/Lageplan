@@ -189,6 +189,13 @@ def main():
 
     jetzt = datetime.now(timezone.utc).isoformat()
 
+    # Bestehende (noch nicht bearbeitete) Vorschläge behalten - neue kommen
+    # nach vorn, Duplikate per Link aussortiert, Gesamtliste begrenzt
+    alte = lade_json(VORSCHLAEGE_PATH, {}).get("vorschlaege", [])
+    neue_links = {v["link"] for v in vorschlaege if v.get("link")}
+    behalten = [v for v in alte if v.get("link") not in neue_links]
+    vorschlaege = (vorschlaege + behalten)[:50]
+
     os.makedirs(os.path.dirname(VORSCHLAEGE_PATH), exist_ok=True)
     with open(VORSCHLAEGE_PATH, "w", encoding="utf-8") as f:
         json.dump({"erstellt": jetzt, "vorschlaege": vorschlaege},
