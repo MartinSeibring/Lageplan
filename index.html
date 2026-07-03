@@ -3126,6 +3126,16 @@ body {
         <div class="tf-hinweis">Einzelne Schlagworte mit Komma trennen</div>
       </div>
 
+      <!-- 8b. Beobachtungs-Begriffe -->
+      <div class="tf-gruppe">
+        <label class="tf-label" for="f-beobachtung">Beobachtungs-Begriffe</label>
+        <input id="f-beobachtung" type="text" class="tf-input"
+          placeholder="z. B. AgNes, Eigenkapitalzinssatz">
+        <div class="tf-hinweis">Die automatische Recherche sucht gezielt nach diesen
+          Begriffen und schlägt Treffer als Neuigkeit zu diesem Thema vor
+          (Komma-getrennt; ohne Eintrag dienen die Tags als Fallback)</div>
+      </div>
+
       <!-- 9. Quelle -->
       <div class="tf-gruppe">
         <label class="tf-label" for="f-quelle">Quelle / Link</label>
@@ -4124,6 +4134,21 @@ body {
         `<span style="background:#eef2ff;border-radius:3px;padding:1px 5px;margin-right:3px;font-size:10px;display:inline-block;margin-bottom:3px">${t}</span>`
       ).join("");
 
+      // Verlauf: zugeordnete Neuigkeiten aus der Themen-Beobachtung
+      const updates = d.aktualisierungen || [];
+      const updatesHTML = updates.length === 0 ? "" : `
+        <div style="margin:8px 0 6px">
+          <div style="font-size:11px;font-weight:700;color:#2d7a8e;margin-bottom:4px">↻ Neuigkeiten (${updates.length})</div>
+          ${updates.slice(0, 8).map(u => `
+            <div style="border-left:3px solid #9cc5d0;padding:3px 8px;margin-bottom:4px;background:#f4fafc;border-radius:0 4px 4px 0">
+              <div style="font-size:11px;line-height:1.4;word-break:break-word">${u.titel || "–"}</div>
+              <div style="font-size:10px;color:#999">${u.datum || ""} · ${u.link
+                ? `<a href="${u.link}" target="_blank" style="color:#63a2b4">${u.quelle || "Quelle"} ↗</a>`
+                : (u.quelle || "")}</div>
+            </div>`).join("")}
+          ${updates.length > 8 ? `<div style="font-size:10px;color:#aaa">… und ${updates.length - 8} ältere</div>` : ""}
+        </div>`;
+
       // Abgeleitete Meilensteine aus localStorage
       const meilensteine = meilensteinCache.filter(m => m.thema_id === d.id);
       const msListeHTML = meilensteine.length === 0
@@ -4172,6 +4197,7 @@ body {
         <div style="font-size:14px;color:#f5a623;margin-bottom:6px;letter-spacing:1px">${sterne}</div>
         ${clusterBadges ? `<div style="margin-bottom:4px;line-height:1.6">${clusterBadges}</div>` : ""}
         ${tagBadges     ? `<div style="margin-bottom:6px;line-height:1.6">${tagBadges}</div>`     : ""}
+        ${updatesHTML}
         ${d.beschreibung ? `
         <div style="margin-bottom:6px">
           <div id="dp-beschr"
@@ -4534,6 +4560,30 @@ body {
     ladeManuellErfassteThemen();
     zeichnePunkte();
 
+    // Update-Vorschlag an bestehendes Thema anhängen (Verlauf)
+    function uebernehmeUpdateVorschlag(v, btn) {
+      const thema = radarData.find(d => String(d.id) === String(v.update_fuer_thema_id));
+      if (!thema) {
+        zeigeBanner("Thema nicht mehr vorhanden – bitte als neues Thema übernehmen", "#c0392b");
+        return;
+      }
+      if (!Array.isArray(thema.aktualisierungen)) thema.aktualisierungen = [];
+      thema.aktualisierungen.unshift({
+        datum:  v.datum || new Date().toISOString().slice(0, 10),
+        titel:  v.titel || "",
+        quelle: v.name  || "",
+        link:   v.link  || ""
+      });
+      if (thema.manuell_erfasst) speichereManuelleThemen();
+      if (window.GH && GH.schreibeThemaDirekt) {
+        try { GH.schreibeThemaDirekt(thema); } catch(e) {}
+      }
+      zeigeDetail(thema);
+      btn.textContent = "✓ Übernommen";
+      btn.disabled    = true;
+      btn.style.cssText = "padding:3px 9px;font-size:11px;cursor:default;background:#aaa;color:#fff;border:none;border-radius:3px;margin-right:6px";
+    }
+
     function uebernehmeVorschlag(v, btn) {
       const neueId = Math.max(...radarData.map(d => d.id)) + 1;
       const neuerEintrag = {
@@ -4807,12 +4857,18 @@ body {
       liste.innerHTML = "";
 
       daten.forEach(v => {
+        const istUpdate = !!v.update_fuer_thema_id;
         const farbe    = katFarben[v.vorgeschlagene_kategorie] || "#888";
         const katBadge = `<span style="background:${farbe};color:#fff;border-radius:3px;padding:1px 7px;font-size:11px;margin-right:4px">${v.vorgeschlagene_kategorie || "–"}</span>`;
         const hzBadge  = `<span style="background:#e8e8e8;border-radius:3px;padding:1px 7px;font-size:11px">${v.vorgeschlagener_zeithorizont || "–"}</span>`;
+        const updateBadge = istUpdate
+          ? `<span style="background:#2d7a8e;color:#fff;border-radius:3px;padding:1px 7px;font-size:11px">↻ Neuigkeit zu: ${v.update_fuer_thema_titel || "Thema"}</span>`
+          : "";
 
         const karte = document.createElement("div");
-        karte.style.cssText = "border:1px solid #e8d88a;border-radius:5px;padding:10px 12px;margin-bottom:8px;background:#fff";
+        karte.style.cssText = istUpdate
+          ? "border:1px solid #9cc5d0;border-radius:5px;padding:10px 12px;margin-bottom:8px;background:#f4fafc"
+          : "border:1px solid #e8d88a;border-radius:5px;padding:10px 12px;margin-bottom:8px;background:#fff";
         karte.innerHTML = `
           <div style="overflow:hidden;margin-bottom:4px">
             <strong style="font-size:13px">${v.titel || "–"}</strong>
@@ -4820,16 +4876,20 @@ body {
               <a href="${v.link || '#'}" target="_blank" style="color:#63a2b4">${v.name || "Quelle"} ↗</a>
             </span>
           </div>
-          <div style="margin-bottom:5px">${katBadge}${hzBadge}</div>
+          <div style="margin-bottom:5px">${istUpdate ? updateBadge : katBadge + hzBadge}</div>
           <div style="font-size:11px;color:#888;font-style:italic;margin-bottom:6px">${v.begruendung || ""}</div>
         `;
 
         const btnUebernehmen = document.createElement("button");
-        btnUebernehmen.textContent = "⊕ In Radar übernehmen";
+        btnUebernehmen.textContent = istUpdate ? "⊕ Zum Thema hinzufügen" : "⊕ In Radar übernehmen";
         btnUebernehmen.style.cssText = "padding:3px 9px;font-size:11px;cursor:pointer;background:#27ae60;color:#fff;border:none;border-radius:3px;margin-right:6px";
         btnUebernehmen.addEventListener("click", () => {
-          uebernehmeVorschlag(v, btnUebernehmen);
-          zeigeDetail(radarData[radarData.length - 1]);
+          if (istUpdate) {
+            uebernehmeUpdateVorschlag(v, btnUebernehmen);
+          } else {
+            uebernehmeVorschlag(v, btnUebernehmen);
+            zeigeDetail(radarData[radarData.length - 1]);
+          }
         });
 
         const btnIgnorieren = document.createElement("button");
@@ -4987,6 +5047,7 @@ body {
       // Detailfelder zurücksetzen
       document.getElementById("f-beschreibung").value = "";
       document.getElementById("f-tags").value          = "";
+      document.getElementById("f-beobachtung").value   = "";
       document.getElementById("f-quelle").value        = "";
       document.querySelectorAll("input.f-cluster").forEach(cb => cb.checked = false);
       // Schieberegler-Anzeige initialisieren
@@ -5076,24 +5137,30 @@ body {
       ).map(cb => cb.value);
       const tags = document.getElementById("f-tags").value
         .split(",").map(t => t.trim()).filter(Boolean);
+      const beobachtung = document.getElementById("f-beobachtung").value
+        .split(",").map(t => t.trim()).filter(Boolean);
 
       let gespeichert;
+      let warBearbeitung = false;
 
       if (_bearbeitungsId !== null) {
         // ── Bearbeiten-Modus: bestehenden Eintrag überschreiben ──
         const idx = radarData.findIndex(d => d.id === _bearbeitungsId);
         if (idx !== -1) {
           const manuellFlag = radarData[idx].manuell_erfasst; // beibehalten
+          const updates     = radarData[idx].aktualisierungen || []; // Verlauf erhalten
           radarData[idx] = {
             id: _bearbeitungsId,
             titel, kategorie, zeithorizont,
             auswirkung, unsicherheit, beschreibung,
             strategische_cluster: cluster,
-            tags, quelle,
+            tags, beobachtung, quelle,
+            aktualisierungen: updates,
             manuell_erfasst: manuellFlag
           };
           radarData[idx].radar_score = berechneScore(radarData[idx]);
           gespeichert = radarData[idx];
+          warBearbeitung = true;
         }
         _bearbeitungsId = null;
         zeigeBanner("✓ Thema aktualisiert", "#27ae60");
@@ -5104,12 +5171,19 @@ body {
           titel, kategorie, zeithorizont,
           auswirkung, unsicherheit, beschreibung,
           strategische_cluster: cluster,
-          tags, quelle,
+          tags, beobachtung, quelle,
+          aktualisierungen: [],
           manuell_erfasst: true
         };
         gespeichert.radar_score = berechneScore(gespeichert);
         radarData.push(gespeichert);
         zeigeBanner("✓ Thema erfolgreich hinzugefügt", "#27ae60");
+      }
+
+      // Bearbeitete Themen direkt nach GitHub schreiben – der Standard-Sync
+      // uebertraegt nur NEUE Themen, Aenderungen an bestehenden gingen verloren
+      if (warBearbeitung && gespeichert && window.GH && GH.schreibeThemaDirekt) {
+        try { GH.schreibeThemaDirekt(gespeichert); } catch(e) {}
       }
 
       zeichnePunkte();
@@ -5137,6 +5211,7 @@ body {
       document.getElementById("f-unsicherheit").value = d.unsicherheit;
       document.getElementById("f-beschreibung").value = d.beschreibung   || "";
       document.getElementById("f-tags").value          = (d.tags || []).join(", ");
+      document.getElementById("f-beobachtung").value   = (d.beobachtung || []).join(", ");
       document.getElementById("f-quelle").value        = d.quelle         || "";
 
       // Cluster-Checkboxen entsprechend der gespeicherten Werte setzen
@@ -9047,6 +9122,32 @@ window.MS={exportiereJSON,zeigeDetail,renderMini,renderUebersicht,oeffneMsFormul
     }
   }
 
+  // Einzelnes Thema direkt in themen.json schreiben (Read-Modify-Write).
+  // Noetig, weil der Standard-Sync (_mergeThemen) nur NEUE Themen anfuegt
+  // und Aenderungen an bestehenden Eintraegen verwerfen wuerde.
+  async function schreibeThemaDirekt(thema) {
+    var s = ladeEinstellungen();
+    if (!s.pat) return false;
+    try {
+      var meta = await githubRequest("GET", THEMEN_PFAD + "?ref=" + s.branch);
+      var themen = JSON.parse(decodeURIComponent(escape(atob(meta.content.replace(/\s/g, "")))));
+      if (!Array.isArray(themen)) themen = [];
+      var idx = themen.findIndex(function(t){ return String(t.id) === String(thema.id); });
+      if (idx !== -1) themen[idx] = thema; else themen.push(thema);
+      var encoded = btoa(unescape(encodeURIComponent(JSON.stringify(themen, null, 2))));
+      await githubRequest("PUT", THEMEN_PFAD, {
+        message: "Thema aktualisiert: " + (thema.titel || thema.id),
+        content: encoded, branch: s.branch, sha: meta.sha
+      });
+      _themenSha = null;
+      setzeSyncStatus("ok", "Thema gespeichert");
+      return true;
+    } catch(e) {
+      setzeSyncStatus("fehler", "Thema-Update: " + e.message);
+      return false;
+    }
+  }
+
   // Status-Zeile in der Einstellungen-Karte "GitHub-Synchronisation" befüllen
   function renderSettingsKarte() {
     var el = document.getElementById("gh-karte-status");
@@ -9064,7 +9165,7 @@ window.MS={exportiereJSON,zeigeDetail,renderMini,renderUebersicht,oeffneMsFormul
   // Initiale Statusanzeige – immer "lesend" bis Laden abgeschlossen
   setzeSyncStatus("lesend", "Lade Daten von GitHub…");
 
-  window.GH = { ladeMeilensteine, debouncedSync, oeffneEinstellungen, schliesseEinstellungen, speichereEinstellungenUndSchliesse, testeVerbindung, ladeEinstellungen, ladeThemen, debouncedThemenSync, ladeForschung, debouncedForschungSync, ladeRisiken, debouncedRisikenSync, renderSettingsKarte };
+  window.GH = { ladeMeilensteine, debouncedSync, oeffneEinstellungen, schliesseEinstellungen, speichereEinstellungenUndSchliesse, testeVerbindung, ladeEinstellungen, ladeThemen, debouncedThemenSync, ladeForschung, debouncedForschungSync, ladeRisiken, debouncedRisikenSync, renderSettingsKarte, schreibeThemaDirekt };
   renderSettingsKarte();
 })();
 </script>
