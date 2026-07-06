@@ -779,17 +779,18 @@ Beispiel:  EW 30 %  ×  Schaden 250.000 €  =  75.000 € (Erwartungswert)</div
 <p>12 voreingestellte Stichworte für die Nachrichtenüberwachung (MsbG, §14a, Netzentgelt, Flexibilität u.a.). Hinzufügen / Entfernen möglich. Werden in der Statusleiste als Zähler angezeigt.</p>
 
 <h3>RSS-Feeds</h3>
-<p>Vorkonfigurierte Quellen (BNetzA, BMWK). Aktivieren/Deaktivieren einzelner Feeds, eigene Feeds hinzufügen.</p>
+<p>Vorkonfigurierte Quellen (BNetzA, BMWE, BMUV, pv magazine, Clean Energy Wire, VKU, EU-Kommission Energie). Aktivieren/Deaktivieren einzelner Feeds, eigene Feeds hinzufügen. Keywords und Feeds werden in der <code>config.json</code> im Repository gespeichert (GitHub-Token nötig) — nur diese Konfiguration liest der automatische Suchlauf.</p>
 
-<h3>Behörden-Seiten</h3>
-<p>Webquellen mit CSS-Selektoren für regulatorische Updates (BNetzA, BDEW, dena, VKU). Erfordert lokal laufendes <code>server.py</code>.</p>
-
-<h3>Server-Status</h3>
+<h3>Automatische Radar-Aktualisierung (GitHub Actions)</h3>
+<p>Die Recherche läuft komplett auf GitHub — ein lokaler Server ist nicht mehr nötig:</p>
 <table>
-  <tr><th>Anzeige</th><th>Bedeutung</th></tr>
-  <tr><td style="color:#27ae60">● Server verbunden</td><td><code>server.py</code> läuft auf localhost:5050 → automatische Nachrichtenaktualisierung aktiv</td></tr>
-  <tr><td style="color:#d46b08">Offline-Modus</td><td>Kein lokaler Server → manuelle Eingabe, kein automatischer Feed-Abruf</td></tr>
+  <tr><th>Baustein</th><th>Funktion</th></tr>
+  <tr><td>Zeitplan</td><td>Werktags ca. 05:30/06:30 Uhr automatisch; zusätzlich manuell per Button „Radar aktualisieren" (startet den Workflow über die GitHub-API, PAT erforderlich)</td></tr>
+  <tr><td>Quellen</td><td>Alle konfigurierten RSS-Feeds + globale Google-News-Suche pro Keyword (letzte 14 Tage, max. 3 Vorschläge je Keyword und Lauf)</td></tr>
+  <tr><td>Themen-Beobachtung</td><td>Pro Thema können „Beobachtungs-Begriffe" gepflegt werden (Themen-Formular; ohne Eintrag dienen die Tags als Fallback). Treffer erscheinen als blaue Karte „↻ Neuigkeit zu: [Thema]" und landen per „Zum Thema hinzufügen" im Verlauf des Themas (Detail-Panel, Abschnitt „↻ Neuigkeiten")</td></tr>
+  <tr><td>Ergebnis</td><td>Offene Vorschläge werden beim Öffnen des Themenradars angezeigt; Übernehmen/Ignorieren wird dauerhaft gemerkt</td></tr>
 </table>
+<p>Der lokale <code>server.py</code> wird nur noch optional für die KI-Dokumentenanalyse benötigt (API-Key als Umgebungsvariable <code>ANTHROPIC_API_KEY</code>, niemals in <code>config.json</code>).</p>
 
 <!-- 10 DURCHGAENGIGKEIT -->
 <h2 id="durchgaengigkeit">10. Themendurchgängigkeit — Wie Inhalte die Module verbinden</h2>
@@ -904,7 +905,7 @@ Externes Ereignis (z.B. neue Regulierung veröffentlicht)
   <tr><td>Daten nur ansehen</td><td>Browser + Internetzugang</td><td>Lesen von GitHub, alle Visualisierungen</td></tr>
   <tr><td>Daten bearbeiten &amp; synchronisieren</td><td>+ GitHub-Account + PAT</td><td>Vollzugriff, geräteübergreifend</td></tr>
   <tr><td>Offline arbeiten</td><td>nur Browser</td><td>localStorage, Sync beim nächsten Online-Öffnen</td></tr>
-  <tr><td>Nachrichtenüberwachung</td><td>+ <code>server.py</code> lokal</td><td>Automatischer RSS- und Behördenseiten-Abruf</td></tr>
+  <tr><td>Nachrichtenüberwachung</td><td>+ GitHub-Account + PAT</td><td>Automatischer RSS-/Google-News-Abruf via GitHub Actions (werktags + auf Knopfdruck)</td></tr>
 </table>
 
 <h3>Datensicherheit</h3>

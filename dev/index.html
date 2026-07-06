@@ -2369,7 +2369,8 @@ body {
 }
 .app-tab:hover { background: rgba(255,255,255,0.1); color: #fff; }
 .app-tab.aktiv { color: #fff; border-bottom-color: #fff; }
-#tab-max       { margin-left: auto; }  /* schiebt Max + Einstellungen nach rechts */
+#tab-max       { margin-left: auto; opacity: .55; cursor: default; }  /* Platzhalter, schiebt Max + Einstellungen nach rechts */
+#tab-max:hover { background: none; color: rgba(255,255,255,0.8); }
 .tab-panel { display: none; }
 #panel-themenradar  { font-size: 13px; }
 #panel-meilensteine { font-size: 14px; }
@@ -2514,11 +2515,6 @@ body {
 .gh-sync-lesend { background: rgba(180,210,255,0.2);  color: rgba(200,225,255,0.9); border-color: rgba(180,210,255,0.3); }
 .gh-sync-fehler { background: rgba(255,100,100,0.25); color: #ffcfcf; border-color: rgba(255,100,100,0.4); }
 @keyframes gh-spin { to { transform: rotate(360deg); } }
-#btn-gh-einstellungen {
-  background: transparent; border: 1px solid rgba(255,255,255,0.35); color: rgba(255,255,255,0.8);
-  padding: 3px 10px; border-radius: 6px; font-size: 11px; cursor: pointer;
-}
-#btn-gh-einstellungen:hover { background: rgba(255,255,255,0.15); color: #fff; }
 
 /* GitHub Settings Modal */
 #gh-einstellungen-modal {
@@ -5491,7 +5487,10 @@ body {
       });
 
       // Positionen berechnen
-      var miniPunkte = radarData.map(function(d){ return Object.assign({},d); });
+      var _gfc = window.GlobalFilter && GlobalFilter.cluster;
+      var miniPunkte = radarData
+        .filter(function(d){ return !_gfc || (d.strategische_cluster||[]).includes(_gfc); })
+        .map(function(d){ return Object.assign({},d); });
       var gruppen = {};
       miniPunkte.forEach(function(d) {
         var k = d.kategorie+"|"+d.zeithorizont;
@@ -6486,7 +6485,7 @@ body {
       document.body.appendChild(panel);
     }
 
-window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisierung,schliesseThemaFormular,aktualisiereScore,aktualisiereSlider,speichereThema,schliesseLoeschenModal,filterAktualisieren,zeigeDetail,oeffneKiModal,schliesseKiModal,_kiWechsleTab,_kiSetzeUrl,_kiKopierePrompt,starteKiAnalyse,ladeVonGithub,redraw:zeichnePunkte,renderMini:renderMini,getDaten:function(){ return radarData; },getManuell:function(){ return radarData.filter(d=>d.manuell_erfasst); },oeffneDokModal,schliesseDokModal,starteDokAnalyse,_trDokDateiGewaehlt,_trDokDropped};
+window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisierung,schliesseThemaFormular,aktualisiereScore,aktualisiereSlider,speichereThema,schliesseLoeschenModal,filterAktualisieren,zeigeDetail,oeffneKiModal,schliesseKiModal,_kiWechsleTab,_kiSetzeUrl,_kiKopierePrompt,starteKiAnalyse,ladeVonGithub,redraw:zeichnePunkte,renderMini:renderMini,pruefeStatus:pruefeServerStatus,getDaten:function(){ return radarData; },getManuell:function(){ return radarData.filter(d=>d.manuell_erfasst); },oeffneDokModal,schliesseDokModal,starteDokAnalyse,_trDokDateiGewaehlt,_trDokDropped};
 })();
 </script>
 <script>/* ===== Meilensteine ===== */
@@ -7088,7 +7087,7 @@ window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisieru
           </span>
 
           <span class="ms-detail-label">Radar-Score</span>
-          <span class="ms-detail-value">${ms.radar_score.toFixed(2)}</span>
+          <span class="ms-detail-value">${(ms.radar_score || 0).toFixed(2)}</span>
 
         </div>
         ${(function(){
@@ -7639,19 +7638,24 @@ window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisieru
           if (!vor || !ziel || !vorg) return;
 
           const typ = abh.typ || 'FS';
-          const lagPx = (abh.lag || 0) * (xScale(new Date(heute.getTime() + 86400000)) - xScale(heute));
+          const lag = abh.lag || 0;
+          const addTage = (d, t) => { const x = new Date(d); x.setDate(x.getDate() + t); return x; };
 
-          // Ansatzpunkte je Typ
+          // Ansatzpunkte je Typ – Pfeilspitze zeigt immer auf den Meilenstein
           const ax1 = typ === 'SS' ? vorg.xStart : vorg.xEnde;
-          const ax2 = (typ === 'FF' ? ziel.xEnde : ziel.xStart) + lagPx;
+          const ax2 = typ === 'FF' ? ziel.xEnde : ziel.xStart;
           const ay1 = vorg.yMid;
           const ay2 = ziel.yMid;
 
-          // Warnlogik je Typ
+          // Warnlogik je Typ: Planverletzung (Termine widersprechen der
+          // Beziehung inkl. Lag) ODER Laufzeitverletzung (Vorgänger hinkt)
           let warnung = false;
-          if (typ === 'FS') warnung = vor.status !== "abgeschlossen" && new Date(ms.start) <= heute;
-          if (typ === 'SS') warnung = vor.status === "offen" && ms.status !== "offen";
-          if (typ === 'FF') warnung = vor.status !== "abgeschlossen" && new Date(ms.ende) <= heute;
+          if (typ === 'FS') warnung = new Date(ms.start) < addTage(vor.ende, lag) ||
+                                      (vor.status !== "abgeschlossen" && new Date(ms.start) <= heute);
+          if (typ === 'SS') warnung = new Date(ms.start) < addTage(vor.start, lag) ||
+                                      (vor.status === "offen" && ms.status !== "offen");
+          if (typ === 'FF') warnung = new Date(ms.ende) < addTage(vor.ende, lag) ||
+                                      (vor.status !== "abgeschlossen" && new Date(ms.ende) <= heute);
 
           const farbe    = warnung ? "#c0392b" : "#999";
           const markerId = warnung ? "pfeil-warnung" : "pfeil-normal";
@@ -7665,17 +7669,18 @@ window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisieru
             .attr("stroke-dasharray", "4,3")
             .attr("marker-end", `url(#${markerId})`);
 
-          // Typ-Kürzel am Pfeil (Mitte der horizontalen Verbindung)
-          if (typ !== 'FS') {
+          // Typ-Kürzel + Lag am Pfeil (Mitte der horizontalen Verbindung)
+          if (typ !== 'FS' || lag !== 0) {
             const midX = (kink + ax2) / 2;
             const midY = ay2 - 5;
+            const lagLabel = lag !== 0 ? (lag > 0 ? ` +${lag}T` : ` ${lag}T`) : "";
             arrowG.append("text")
               .attr("x", midX).attr("y", midY)
               .attr("text-anchor", "middle")
               .attr("font-size", "9px")
               .attr("fill", farbe)
               .attr("font-weight", "700")
-              .text(typ);
+              .text(typ + lagLabel);
           }
         });
       });
@@ -7716,7 +7721,10 @@ window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisieru
 
       const vorhandeneIds = new Set(meilensteinData.map(m => m.id));
       const neu = gespeichert.filter(m => m.id && !vorhandeneIds.has(m.id));
-      neu.forEach(m => meilensteinData.push(m));
+      neu.forEach(m => {
+        m.abhaengig_von = normAbh(m.abhaengig_von);  // Alt-Format vereinheitlichen
+        meilensteinData.push(m);
+      });
 
       if (neu.length > 0) {
         const einheit = neu.length === 1
@@ -8081,7 +8089,10 @@ window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisieru
       var el = document.getElementById("ms-uebersicht-inhalt");
       if (!el) return;
 
-      var alle = meilensteinData;
+      var _gfc = window.GlobalFilter && GlobalFilter.cluster;
+      var alle = _gfc
+        ? meilensteinData.filter(function(m){ return (m.strategische_cluster||[]).includes(_gfc); })
+        : meilensteinData;
       var gesamt = alle.length;
       var aktJahr = new Date().getFullYear();
 
@@ -8152,13 +8163,15 @@ window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisieru
       const zeile = document.createElement("div");
       zeile.className = "msf-abh-zeile";
 
-      const optionen = meilensteinData
+      const leerSel = eintrag && eintrag.id ? '' : ' selected';
+      const optionen = `<option value=""${leerSel}>– bitte wählen –</option>` +
+        meilensteinData
         .filter(function(m) {
           return !_bearbeitenId || m.id !== _bearbeitenId;
         })
         .map(function(m) {
           const sel = (eintrag && eintrag.id === m.id) ? ' selected' : '';
-          return `<option value="${m.id}"${sel}>${m.id}: ${m.titel}</option>`;
+          return `<option value="${m.id}"${sel}>${m.id}: ${_escHtml(m.titel)}</option>`;
         }).join("");
 
       const typ = (eintrag && eintrag.typ) ? eintrag.typ : 'FS';
@@ -8189,6 +8202,7 @@ window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisieru
     }
 
     function _leseAbhListe() {
+      const gesehen = new Set();
       return Array.from(document.querySelectorAll("#msf-abh-liste .msf-abh-zeile"))
         .map(function(z) {
           const id  = z.querySelector(".msf-abh-id")  ? z.querySelector(".msf-abh-id").value  : "";
@@ -8196,7 +8210,30 @@ window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisieru
           const lag = z.querySelector(".msf-abh-lag")  ? parseInt(z.querySelector(".msf-abh-lag").value) || 0 : 0;
           return { id, typ, lag };
         })
-        .filter(function(a) { return !!a.id; });
+        .filter(function(a) {
+          if (!a.id || gesehen.has(a.id)) return false;  // leer + Duplikate raus
+          gesehen.add(a.id);
+          return true;
+        });
+    }
+
+    // Zyklusprüfung: würde msId mit neuer Abhängigkeitsliste einen Kreis bilden?
+    function _erzeugtZyklus(msId, neueAbh) {
+      const kanten = {};
+      meilensteinData.forEach(function(m) {
+        kanten[m.id] = normAbh(m.abhaengig_von).map(function(a){ return a.id; });
+      });
+      kanten[msId] = neueAbh.map(function(a){ return a.id; });
+      const besucht = new Set();
+      function dfs(id, pfad) {
+        if (pfad.has(id)) return true;
+        if (besucht.has(id)) return false;
+        besucht.add(id); pfad.add(id);
+        for (const n of (kanten[id] || [])) { if (dfs(n, pfad)) return true; }
+        pfad.delete(id);
+        return false;
+      }
+      return dfs(msId, new Set());
     }
     // ── Ende Abhängigkeits-Hilfsfunktionen ─────────────────────────────────
 
@@ -8223,7 +8260,7 @@ window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisieru
     function zeigeMsBanner(text) {
       const b = document.getElementById("ms-neu-banner");
       if (!b) return;
-      b.textContent = "✓ " + text;
+      b.textContent = (text.charAt(0) === "⚠" ? "" : "✓ ") + text;
       b.style.display = "block";
       b.style.opacity = "1";
       setTimeout(() => {
@@ -8369,6 +8406,10 @@ window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisieru
       }
 
       const abh = _leseAbhListe();
+      if (_bearbeitenId && _erzeugtZyklus(_bearbeitenId, abh)) {
+        zeigeMsBanner("⚠ Abhängigkeiten würden einen Zyklus erzeugen – bitte korrigieren", "#c0392b");
+        return;
+      }
       const fortschritt      = parseInt(document.getElementById("msf-fortschritt").value) || 0;
       const notiz            = document.getElementById("msf-notiz").value;
       const kategorie        = document.getElementById("msf-kategorie").value;
@@ -8421,6 +8462,13 @@ window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisieru
       if (_loeschenId) {
         const idx = meilensteinData.findIndex(x => x.id === _loeschenId);
         if (idx !== -1) meilensteinData.splice(idx, 1);
+        // Hängende Referenzen in den Abhängigkeiten anderer Meilensteine entfernen
+        meilensteinData.forEach(function(m) {
+          if (m.abhaengig_von && m.abhaengig_von.length) {
+            m.abhaengig_von = normAbh(m.abhaengig_von)
+              .filter(function(a){ return a.id !== _loeschenId; });
+          }
+        });
         speichereMeilensteineLocal();
         schliesseDetail();
         refreshGanttUndMini();
@@ -8732,8 +8780,8 @@ window.MS={exportiereJSON,zeigeDetail,renderMini,renderUebersicht,oeffneMsFormul
     if (!pill) return;
     pill.className = "gh-sync-pill gh-sync-" + status;
     pill.title = text || "";
-    var icons  = { bereit: "☁", aktiv: "⟳", ok: "✓", fehler: "✕" };
-    var labels = { bereit: "GitHub", aktiv: "Syncing…", ok: "Synced", fehler: "Sync-Fehler" };
+    var icons  = { bereit: "☁", aktiv: "⟳", ok: "✓", fehler: "✕", lesend: "⟳" };
+    var labels = { bereit: "GitHub", aktiv: "Syncing…", ok: "Synced", fehler: "Sync-Fehler", lesend: "Lade…" };
     pill.textContent = (icons[status] || "☁") + " " + (labels[status] || "GitHub");
   }
 
@@ -9161,6 +9209,8 @@ window.MS={exportiereJSON,zeigeDetail,renderMini,renderUebersicht,oeffneMsFormul
     };
     speichereEinstellungen(s);
     renderSettingsKarte();
+    // Radar-Button/Status neu prüfen (war ohne PAT deaktiviert)
+    if (window.TR && TR.pruefeStatus) { try { TR.pruefeStatus(); } catch(e) {} }
     _sha = null;
     _themenSha = null;
     _forschungSha = null;
@@ -9200,7 +9250,7 @@ window.MS={exportiereJSON,zeigeDetail,renderMini,renderUebersicht,oeffneMsFormul
   // Einzelnes Thema direkt in themen.json schreiben (Read-Modify-Write).
   // Noetig, weil der Standard-Sync (_mergeThemen) nur NEUE Themen anfuegt
   // und Aenderungen an bestehenden Eintraegen verwerfen wuerde.
-  async function schreibeThemaDirekt(thema) {
+  async function schreibeThemaDirekt(thema, versuch) {
     var s = ladeEinstellungen();
     if (!s.pat) return false;
     try {
@@ -9218,6 +9268,12 @@ window.MS={exportiereJSON,zeigeDetail,renderMini,renderUebersicht,oeffneMsFormul
       setzeSyncStatus("ok", "Thema gespeichert");
       return true;
     } catch(e) {
+      // 409 = paralleler Schreibzugriff (z. B. debouncedThemenSync) – einmal
+      // mit frischem SHA wiederholen, damit die Änderung nicht verloren geht
+      if (e.status === 409 && !versuch) {
+        await new Promise(function(r){ setTimeout(r, 1200); });
+        return schreibeThemaDirekt(thema, 1);
+      }
       setzeSyncStatus("fehler", "Thema-Update: " + e.message);
       return false;
     }
@@ -9634,8 +9690,12 @@ window.MS={exportiereJSON,zeigeDetail,renderMini,renderUebersicht,oeffneMsFormul
     var el = document.getElementById("rm-kachel-inhalt");
     if (!el) return;
 
-    var gesamt = risikenDaten.length;
-    var offen  = risikenDaten.filter(function(r){ return r.status==="offen"||r.status==="in Bearbeitung"; }).length;
+    var _gfc = window.GlobalFilter && GlobalFilter.cluster;
+    var kachelDaten = _gfc
+      ? risikenDaten.filter(function(r){ return r.cluster === _gfc; })
+      : risikenDaten;
+    var gesamt = kachelDaten.length;
+    var offen  = kachelDaten.filter(function(r){ return r.status==="offen"||r.status==="in Bearbeitung"; }).length;
 
     var h = '<div style="padding:12px 14px">';
     h += '<div class="ms-ue-summary">';
@@ -9650,7 +9710,7 @@ window.MS={exportiereJSON,zeigeDetail,renderMini,renderUebersicht,oeffneMsFormul
 
       var maxRs = 0;
       var clusterDaten = CLUSTERS.map(function(c) {
-        var cr = risikenDaten.filter(function(r){ return r.cluster===c; });
+        var cr = kachelDaten.filter(function(r){ return r.cluster===c; });
         if (cr.length===0) return { name:c, anzahl:0, ewD:0, rs:0 };
         var ewS = cr.reduce(function(s,r){ return s+(r.eintrittswahrscheinlichkeit||0); }, 0);
         var rs  = cr.reduce(function(s,r){ return s+(r.risikoscore||0); }, 0);
@@ -9877,8 +9937,11 @@ window.MS={exportiereJSON,zeigeDetail,renderMini,renderUebersicht,oeffneMsFormul
 
       // Radar-Themen: direkt aus TR.getDaten() wenn vorhanden
       let themenGesamt = 0, themenKritisch = 0;
+      const _gfc = window.GlobalFilter && GlobalFilter.cluster;
+      const _gfThemen = d => !_gfc || (d.strategische_cluster||[]).includes(_gfc);
       try {
-        const daten = (window.TR && TR.getDaten) ? TR.getDaten() : [];
+        let daten = (window.TR && TR.getDaten) ? TR.getDaten() : [];
+        daten = daten.filter(_gfThemen);
         if (daten.length > 0) {
           themenGesamt   = daten.length;
           themenKritisch = daten.filter(d => (d.radar_score||0) >= 0.7).length;
@@ -9908,7 +9971,8 @@ window.MS={exportiereJSON,zeigeDetail,renderMini,renderUebersicht,oeffneMsFormul
       // Meilensteine: direkt aus MS.getDaten() wenn vorhanden
       let msGesamt = 0, msOffen = 0, msVerzoegert = 0;
       try {
-        const liste = (window.MS && MS.getDaten) ? MS.getDaten() : [];
+        let liste = (window.MS && MS.getDaten) ? MS.getDaten() : [];
+        liste = liste.filter(_gfThemen);
         if (liste.length > 0) {
           msGesamt     = liste.length;
           msOffen      = liste.filter(m => m.status === "offen" || m.status === "in Bearbeitung").length;
@@ -10565,6 +10629,7 @@ window.ST={speichereEinstellungen,resetteEinstellungen};
       var v = localStorage.getItem('lp_globalCluster');
       this.cluster = v || null;
       this._updateUI();
+      if (this.cluster) this._propagate();
     },
     _propagate: function() {
       try { if (window.TR && TR.redraw)       TR.redraw();       } catch(e){}
