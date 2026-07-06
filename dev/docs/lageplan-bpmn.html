@@ -109,6 +109,7 @@
   <div class="prozess-kopf"><h2>P1 · Themenradar — Strategisches Thema erfassen und positionieren</h2></div>
   <div class="prozess-beschr">
     <p>Der Kernprozess erfasst ein strategisch relevantes Thema, ordnet es einer Kategorie und einem Zeithorizont zu und positioniert es automatisch im Vier-Quadranten-Radar. Auf Wunsch übernimmt eine KI-gestützte Dokumentenanalyse die Dateneingabe. Anschließend wird das Thema mit GitHub synchronisiert und steht für die Ableitung von Meilensteinen zur Verfügung.</p>
+    <p><strong>Automatische Recherche (GitHub Actions):</strong> Ergänzend zur manuellen Erfassung läuft werktags (ca. 05:30/06:30 Uhr) sowie auf Knopfdruck ein automatischer Suchlauf im Repository: Er ruft die konfigurierten RSS-Feeds ab (BNetzA, BMWE, BMUV, pv magazine, Clean Energy Wire, VKU, EU-Kommission), führt pro Keyword eine globale Google-News-Suche durch (letzte 14 Tage) und gleicht Treffer mit den Beobachtungs-Begriffen bestehender Themen ab. Neue Treffer erscheinen als Vorschlagskarten im Themenradar („In Radar übernehmen" / „Ignorieren"); Treffer zu beobachteten Themen als Update-Karten „↻ Neuigkeit zu: [Thema]", die per Klick in den Verlauf des Themas übernommen werden.</p>
   </div>
   <div class="prozess-svg">
 <svg viewBox="0 0 900 260" width="100%" xmlns="http://www.w3.org/2000/svg">
@@ -641,7 +642,7 @@
 <div class="prozess">
   <div class="prozess-kopf"><h2>P5 · GitHub-Datensynchronisation — Lese- und Schreibzugriff auf Datenbasis</h2></div>
   <div class="prozess-beschr">
-    <p>Alle persistenten Daten (Themen, Meilensteine, Risiken, Forschungsprojekte) werden als JSON-Dateien im GitHub-Repository gespeichert. Beim Laden liest die App die Daten über die GitHub-API (PAT-authentifiziert). Beim Speichern schreibt sie die geänderten JSON-Dateien zurück. Der Prozess ist für alle Module identisch.</p>
+    <p>Alle persistenten Daten (Themen, Meilensteine, Risiken, Forschungsprojekte) werden als JSON-Dateien im GitHub-Repository gespeichert. Beim Laden liest die App die Daten über die GitHub-API (PAT-authentifiziert). Beim Speichern schreibt sie die geänderten JSON-Dateien zurück. Der Prozess ist für alle Module identisch. Der Ziel-Branch wird pro Umgebung getrennt gespeichert (Produktiv-Seite → <code>Produktiv</code>, /dev/ → <code>development</code>, /staging/ → <code>staging</code>); Token und Repository teilen sich alle Umgebungen.</p>
   </div>
   <div class="prozess-svg">
 <svg viewBox="0 0 840 180" width="100%" xmlns="http://www.w3.org/2000/svg">
