@@ -177,5 +177,55 @@
     "size": 9,
     "farbe": "#2d7a8e",
     "opacity": 0.7
+  },
+  {
+    "id": 1783345726773,
+    "titel": "Tagung zum EEG 2027: Neue Bedingungen für Netzanschluss und Förderung - idw - Informationsdienst Wissenschaft",
+    "kategorie": "regulatorisch",
+    "zeithorizont": "kurzfristig",
+    "auswirkung": 3,
+    "unsicherheit": 3,
+    "beschreibung": "Tagung zum EEG 2027: Neue Bedingungen für Netzanschluss und Förderung &nbsp;&nbsp; idw - Informationsdienst Wissenschaft",
+    "strategische_cluster": [
+      "Netzanschluss"
+    ],
+    "tags": [
+      "Netzanschluss"
+    ],
+    "quelle": "https://news.google.com/rss/articles/CBMiS0FVX3lxTE1vYi1FZUxtbjJBb0RmczJkamFmRzVnX1p6RXRjZXZGR1Nwamx6V0FZcVhnUHBrM1V5XzhUVnlfUkVJMlRzUkxPR2kyMA?oc=5",
+    "beobachtung": [],
+    "aktualisierungen": [],
+    "manuell_erfasst": true,
+    "radar_score": 0.84,
+    "x": 350,
+    "y": 213.39745962155615,
+    "size": 9,
+    "farbe": "#2d7a8e",
+    "opacity": 0.7
+  },
+  {
+    "id": 1783345732654,
+    "titel": "Smart Meter und Stromnetz: 74 % der Deutschen fürchten Sabotage - Ingenieur.de",
+    "kategorie": "technologisch",
+    "zeithorizont": "kurzfristig",
+    "auswirkung": 3,
+    "unsicherheit": 3,
+    "beschreibung": "Smart Meter und Stromnetz: 74 % der Deutschen fürchten Sabotage &nbsp;&nbsp; Ingenieur.de",
+    "strategische_cluster": [
+      "Messstellenbetrieb"
+    ],
+    "tags": [
+      "Smart Meter"
+    ],
+    "quelle": "https://news.google.com/rss/articles/CBMi8AFBVV95cUxPcF9NNW1kbjZJRThMUFFXQVVGdlE4Zk1paVdYb0ktYnYyRkhuSGU0aXNjRzN0VXdoVTJxSFcyOVllZHFqcGVmb1JrcWNiczIyV0ZOZ2RudnNKckRVSG56ZFZiUDlFd0lQRTZzYXZZUTQwaVJEdVJudXNaWWp4YmJsTkFXR0Y3NzdtSTIxZmRrbGJra2dkTGx0NnFsSE1kVVFzNDJNWWFDSWpKM3htOWNRZ29CTG9Ddm9aSmRQQW9xNjlVQ3VKMlJDMXZEWkhKZkRKRkJQN0lGbVh3azNQNFVpRTNLVW9yNWs5czRxVjRtUVY?oc=5",
+    "beobachtung": [],
+    "aktualisierungen": [],
+    "manuell_erfasst": true,
+    "radar_score": 0.84,
+    "x": 235.72123903134604,
+    "y": 376.6044443118978,
+    "size": 9,
+    "farbe": "#4a8a6f",
+    "opacity": 0.7
   }
 ]
