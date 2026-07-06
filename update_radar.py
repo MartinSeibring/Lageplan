@@ -35,7 +35,7 @@ CLUSTER_REGELN = {
                            "zähler", "rollout", "msbg"],
     "Netzwirtschaft":     ["netzentgelt", "anreizregulierung", "eigenkapital",
                            "regulierung", "redispatch", "erlösobergrenze", "aregv"],
-    "Technologie":        ["digitalisierung", "ki ", "künstliche intelligenz",
+    "Technologie":        ["digitalisierung", "künstliche intelligenz",
                            "smart grid", "flexibilität", "14a"],
     "Organisation":       ["personal", "fachkräfte", "organisation"],
 }
@@ -144,7 +144,7 @@ def main():
     # themen.json ist eine Top-Level-Liste; {"themen": [...]} wird ebenfalls unterstützt
     themen_roh = lade_json(THEMEN_PATH, [])
     themen = themen_roh.get("themen", []) if isinstance(themen_roh, dict) else themen_roh
-    bekannte_titel = {t.get("titel", "").strip().lower() for t in themen}
+    bekannte_titel = {(t.get("titel") or "").strip().lower() for t in themen}
 
     # Themen-Beobachtung: explizite Beobachtungs-Begriffe je Thema,
     # ohne Eintrag dienen die Tags als Fallback. Treffer werden als
@@ -156,7 +156,7 @@ def main():
         if not begriffe:
             begriffe = [b.strip() for b in (t.get("tags") or []) if len(b.strip()) >= 4]
         if begriffe and t.get("id") is not None:
-            beobachtete.append({"id": t["id"], "titel": t.get("titel", ""),
+            beobachtete.append({"id": t["id"], "titel": t.get("titel") or "",
                                 "begriffe": begriffe, "explizit": explizit})
 
     gesehen = set(lade_json(GESEHEN_PATH, {}).get("links", []))
@@ -173,7 +173,10 @@ def main():
         """
         anzahl = 0
         for titel, besch, link, datum_roh in feed_items(baum):
-            if not titel or (link and link in gesehen):
+            if not titel:
+                continue
+            dkey = link or ("titel:" + titel.strip().lower())
+            if dkey in gesehen:
                 continue
             datum = parse_datum(datum_roh)
             if max_alter_tage and datum:
@@ -203,9 +206,8 @@ def main():
                     "update_fuer_thema_id":   update_thema["id"],
                     "update_fuer_thema_titel": update_thema["titel"],
                 })
-                if link:
-                    neu_gesehen.append(link)
-                    gesehen.add(link)
+                neu_gesehen.append(dkey)
+                gesehen.add(dkey)
                 print(f"  ↻ {titel[:60]} → Thema: {update_thema['titel'][:40]}")
                 anzahl += 1
                 if limit and anzahl >= limit:
@@ -235,9 +237,8 @@ def main():
                 "vorgeschlagene_cluster":      finde_cluster(text),
                 "vorgeschlagene_tags":         gefunden[:5],
             })
-            if link:
-                neu_gesehen.append(link)
-                gesehen.add(link)  # verhindert Dubletten im selben Lauf
+            neu_gesehen.append(dkey)
+            gesehen.add(dkey)  # verhindert Dubletten im selben Lauf
             print(f"  + {titel[:70]}")
             anzahl += 1
             if limit and anzahl >= limit:
@@ -290,8 +291,10 @@ def main():
     # Bestehende (noch nicht bearbeitete) Vorschläge behalten - neue kommen
     # nach vorn, Duplikate per Link aussortiert, Gesamtliste begrenzt
     alte = lade_json(VORSCHLAEGE_PATH, {}).get("vorschlaege", [])
-    neue_links = {v["link"] for v in vorschlaege if v.get("link")}
-    behalten = [v for v in alte if v.get("link") not in neue_links]
+    def _vkey(v):
+        return v.get("link") or ("titel:" + (v.get("titel") or "").strip().lower())
+    neue_keys = {_vkey(v) for v in vorschlaege}
+    behalten = [v for v in alte if _vkey(v) not in neue_keys]
     vorschlaege = (vorschlaege + behalten)[:50]
 
     os.makedirs(os.path.dirname(VORSCHLAEGE_PATH), exist_ok=True)
@@ -299,7 +302,9 @@ def main():
         json.dump({"erstellt": jetzt, "vorschlaege": vorschlaege},
                   f, ensure_ascii=False, indent=2)
 
-    alle_links = (list(gesehen) + neu_gesehen)[-MAX_GESEHEN:]
+    alte_links = lade_json(GESEHEN_PATH, {}).get("links", [])
+    alt_set = set(alte_links)
+    alle_links = (alte_links + [l for l in neu_gesehen if l not in alt_set])[-MAX_GESEHEN:]
     with open(GESEHEN_PATH, "w", encoding="utf-8") as f:
         json.dump({"links": alle_links}, f, ensure_ascii=False, indent=2)
 
