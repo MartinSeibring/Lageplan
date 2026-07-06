@@ -4141,10 +4141,10 @@ body {
           <div style="font-size:11px;font-weight:700;color:#2d7a8e;margin-bottom:4px">↻ Neuigkeiten (${updates.length})</div>
           ${updates.slice(0, 8).map(u => `
             <div style="border-left:3px solid #9cc5d0;padding:3px 8px;margin-bottom:4px;background:#f4fafc;border-radius:0 4px 4px 0">
-              <div style="font-size:11px;line-height:1.4;word-break:break-word">${u.titel || "–"}</div>
-              <div style="font-size:10px;color:#999">${u.datum || ""} · ${u.link
-                ? `<a href="${u.link}" target="_blank" style="color:#63a2b4">${u.quelle || "Quelle"} ↗</a>`
-                : (u.quelle || "")}</div>
+              <div style="font-size:11px;line-height:1.4;word-break:break-word">${_escT(u.titel) || "–"}</div>
+              <div style="font-size:10px;color:#999">${_escT(u.datum)} · ${u.link
+                ? `<a href="${_safeUrl(u.link)}" target="_blank" rel="noopener noreferrer" style="color:#63a2b4">${_escT(u.quelle) || "Quelle"} ↗</a>`
+                : _escT(u.quelle)}</div>
             </div>`).join("")}
           ${updates.length > 8 ? `<div style="font-size:10px;color:#aaa">… und ${updates.length - 8} ältere</div>` : ""}
         </div>`;
@@ -4570,14 +4570,15 @@ body {
       if (!Array.isArray(thema.aktualisierungen)) thema.aktualisierungen = [];
       thema.aktualisierungen.unshift({
         datum:  v.datum || new Date().toISOString().slice(0, 10),
-        titel:  v.titel || "",
-        quelle: v.name  || "",
-        link:   v.link  || ""
+        titel:  _sanitize(v.titel),
+        quelle: _sanitize(v.name),
+        link:   /^https?:\/\//i.test(v.link || "") ? v.link : ""
       });
       if (thema.manuell_erfasst) speichereManuelleThemen();
       if (window.GH && GH.schreibeThemaDirekt) {
         try { GH.schreibeThemaDirekt(thema); } catch(e) {}
       }
+      _merkeVorschlagBearbeitet(v);
       zeigeDetail(thema);
       btn.textContent = "✓ Übernommen";
       btn.disabled    = true;
@@ -4585,20 +4586,25 @@ body {
     }
 
     function uebernehmeVorschlag(v, btn) {
-      const neueId = Math.max(...radarData.map(d => d.id)) + 1;
       const neuerEintrag = {
-        id:                   neueId,
-        titel:                v.titel || "Neues Thema",
+        id:                   Date.now(),
+        titel:                _sanitize(v.titel) || "Neues Thema",
         kategorie:            v.vorgeschlagene_kategorie  || "regulatorisch",
         zeithorizont:         v.vorgeschlagener_zeithorizont || "mittelfristig",
         auswirkung:           v.vorgeschlagene_auswirkung  || 3,
         unsicherheit:         3,
-        beschreibung:         v.zusammenfassung || "",
+        beschreibung:         _sanitize(v.zusammenfassung),
         strategische_cluster: v.vorgeschlagene_cluster || [],
-        tags:                 v.vorgeschlagene_tags    || [],
+        tags:                 (v.vorgeschlagene_tags || []).map(_sanitize),
+        quelle:               /^https?:\/\//i.test(v.link || "") ? v.link : "",
+        beobachtung:          [],
+        aktualisierungen:     [],
+        manuell_erfasst:      true
       };
       neuerEintrag.radar_score = berechneScore(neuerEintrag);
       radarData.push(neuerEintrag);
+      speichereManuelleThemen();
+      _merkeVorschlagBearbeitet(v);
       zeichnePunkte();
       btn.textContent = "✓ Im Radar";
       btn.disabled    = true;
@@ -4640,28 +4646,28 @@ body {
           const sterne = "★".repeat(v.vorgeschlagene_auswirkung || 1) +
                          "☆".repeat(5 - (v.vorgeschlagene_auswirkung || 1));
           const clusterBadges = (v.vorgeschlagene_cluster || []).map(c =>
-            `<span style="background:#e0e0e0;border-radius:3px;padding:1px 7px;margin-right:3px;font-size:11px">${c}</span>`
+            `<span style="background:#e0e0e0;border-radius:3px;padding:1px 7px;margin-right:3px;font-size:11px">${_escT(c)}</span>`
           ).join("");
           const tagBadges = (v.vorgeschlagene_tags || []).map(t =>
-            `<span style="background:#f0f4ff;border-radius:3px;padding:1px 6px;margin-right:3px;font-size:11px">${t}</span>`
+            `<span style="background:#f0f4ff;border-radius:3px;padding:1px 6px;margin-right:3px;font-size:11px">${_escT(t)}</span>`
           ).join("");
 
           const karte = document.createElement("div");
           karte.style.cssText = "border:1px solid #ddd;border-radius:5px;padding:12px 14px;margin-bottom:10px;background:#fafafa";
           karte.innerHTML = `
             <div style="overflow:hidden;margin-bottom:6px">
-              <strong style="font-size:14px">${v.titel || "–"}</strong>
-              <span style="background:${farbe};color:#fff;border-radius:3px;padding:1px 8px;font-size:11px;margin-left:8px">${v.vorgeschlagene_kategorie || "–"}</span>
-              <span style="float:right;font-size:11px;color:#888">${v.datum || ""} · <a href="${v.link || '#'}" target="_blank" style="color:#63a2b4">Quelle ↗</a></span>
+              <strong style="font-size:14px">${_escT(v.titel) || "–"}</strong>
+              <span style="background:${farbe};color:#fff;border-radius:3px;padding:1px 8px;font-size:11px;margin-left:8px">${_escT(v.vorgeschlagene_kategorie) || "–"}</span>
+              <span style="float:right;font-size:11px;color:#888">${_escT(v.datum)} · <a href="${_safeUrl(v.link)}" target="_blank" rel="noopener noreferrer" style="color:#63a2b4">Quelle ↗</a></span>
             </div>
-            <div style="font-size:12px;color:#555;margin-bottom:6px">${v.zusammenfassung ? v.zusammenfassung.slice(0,200) + (v.zusammenfassung.length > 200 ? "…" : "") : ""}</div>
+            <div style="font-size:12px;color:#555;margin-bottom:6px">${v.zusammenfassung ? _escT(v.zusammenfassung.slice(0,200)) + (v.zusammenfassung.length > 200 ? "…" : "") : ""}</div>
             <div style="margin-bottom:4px">
-              <span style="font-size:12px"><strong>Horizont:</strong> ${v.vorgeschlagener_zeithorizont || "–"}</span>
+              <span style="font-size:12px"><strong>Horizont:</strong> ${_escT(v.vorgeschlagener_zeithorizont) || "–"}</span>
               <span style="font-size:16px;color:#f5a623;margin-left:12px">${sterne}</span>
             </div>
             <div style="margin-bottom:4px">${clusterBadges}</div>
             <div style="margin-bottom:6px">${tagBadges}</div>
-            <div style="font-size:11px;color:#888;font-style:italic">${v.begruendung || ""}</div>
+            <div style="font-size:11px;color:#888;font-style:italic">${_escT(v.begruendung)}</div>
           `;
           const btn = document.createElement("button");
           btn.textContent = "⊕ In Radar übernehmen";
@@ -4720,6 +4726,51 @@ body {
       return JSON.parse(decodeURIComponent(escape(atob(data.content.replace(/\s/g, "")))));
     }
 
+    // ── HTML-Escaping für Inhalte aus externen Feeds (XSS-Schutz) ──
+    function _escT(s) {
+      return String(s == null ? "" : s)
+        .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+    }
+    function _safeUrl(u) {
+      return /^https?:\/\//i.test(u || "") ? _escT(u) : "#";
+    }
+    // Feed-Texte vor Übernahme in die Daten bereinigen
+    function _sanitize(s) {
+      return String(s == null ? "" : s).replace(/<[^>]*>/g, "").trim();
+    }
+
+    // ── Bearbeitete Vorschläge (übernommen/ignoriert) dauerhaft merken ──
+    const VORSCHLAG_LOG_KEY = "radar-vorschlaege-bearbeitet";
+    function _vorschlagKey(v) {
+      return v.link || ((v.titel || "") + "|" + (v.datum || ""));
+    }
+    function _bearbeiteteVorschlaege() {
+      try { return new Set(JSON.parse(localStorage.getItem(VORSCHLAG_LOG_KEY) || "[]")); }
+      catch(e) { return new Set(); }
+    }
+    function _merkeVorschlagBearbeitet(v) {
+      const keys = _bearbeiteteVorschlaege();
+      keys.add(_vorschlagKey(v));
+      try {
+        localStorage.setItem(VORSCHLAG_LOG_KEY,
+          JSON.stringify(Array.from(keys).slice(-300)));
+      } catch(e) {}
+    }
+
+    // Offene Vorschläge aus dem Repo laden (z. B. vom täglichen Cron-Lauf)
+    async function ladeOffeneVorschlaege() {
+      try {
+        const vDaten = await _ghDatei("data/radar-vorschlaege.json");
+        const liste = Array.isArray(vDaten) ? vDaten
+                    : (Array.isArray(vDaten.vorschlaege) ? vDaten.vorschlaege : []);
+        const bearbeitet = _bearbeiteteVorschlaege();
+        const offen = liste.filter(v => !bearbeitet.has(_vorschlagKey(v)));
+        if (offen.length > 0) zeigeAutoVorschlaege(offen);
+        return offen.length;
+      } catch(e) { return 0; }
+    }
+
     async function pruefeServerStatus() {
       const btn    = document.getElementById("btn-aktualisieren");
       const status = document.getElementById("update-status");
@@ -4738,6 +4789,11 @@ body {
           : "Bereit – noch kein Lauf";
         status.style.color = "#555";
         btn.disabled = false;
+        // Offene Vorschläge des letzten Laufs direkt anzeigen
+        const offen = await ladeOffeneVorschlaege();
+        if (offen > 0) {
+          status.textContent += " · " + offen + " offene Vorschläge";
+        }
       } catch (e) {
         if (e.status === 404) {
           status.textContent = "Bereit – noch kein Lauf";
@@ -4847,7 +4903,12 @@ body {
         technologisch:  "#4a8a6f",
         wettbewerblich: "#7a6ea0"
       };
+      // Bereits übernommene/ignorierte Vorschläge dauerhaft ausblenden
+      const bearbeitet = _bearbeiteteVorschlaege();
+      daten = daten.filter(v => !bearbeitet.has(_vorschlagKey(v)));
+
       const panel = document.getElementById("vorschlaege-panel");
+      if (daten.length === 0) { panel.style.display = "none"; return; }
       panel.style.cssText = "clear:both;border:1px solid #f0c040;background:#fffdf0;border-radius:8px;padding:12px;margin-top:12px";
 
       document.getElementById("vorschlaege-meta").textContent =
@@ -4859,10 +4920,10 @@ body {
       daten.forEach(v => {
         const istUpdate = !!v.update_fuer_thema_id;
         const farbe    = katFarben[v.vorgeschlagene_kategorie] || "#888";
-        const katBadge = `<span style="background:${farbe};color:#fff;border-radius:3px;padding:1px 7px;font-size:11px;margin-right:4px">${v.vorgeschlagene_kategorie || "–"}</span>`;
-        const hzBadge  = `<span style="background:#e8e8e8;border-radius:3px;padding:1px 7px;font-size:11px">${v.vorgeschlagener_zeithorizont || "–"}</span>`;
+        const katBadge = `<span style="background:${farbe};color:#fff;border-radius:3px;padding:1px 7px;font-size:11px;margin-right:4px">${_escT(v.vorgeschlagene_kategorie) || "–"}</span>`;
+        const hzBadge  = `<span style="background:#e8e8e8;border-radius:3px;padding:1px 7px;font-size:11px">${_escT(v.vorgeschlagener_zeithorizont) || "–"}</span>`;
         const updateBadge = istUpdate
-          ? `<span style="background:#2d7a8e;color:#fff;border-radius:3px;padding:1px 7px;font-size:11px">↻ Neuigkeit zu: ${v.update_fuer_thema_titel || "Thema"}</span>`
+          ? `<span style="background:#2d7a8e;color:#fff;border-radius:3px;padding:1px 7px;font-size:11px">↻ Neuigkeit zu: ${_escT(v.update_fuer_thema_titel) || "Thema"}</span>`
           : "";
 
         const karte = document.createElement("div");
@@ -4871,13 +4932,13 @@ body {
           : "border:1px solid #e8d88a;border-radius:5px;padding:10px 12px;margin-bottom:8px;background:#fff";
         karte.innerHTML = `
           <div style="overflow:hidden;margin-bottom:4px">
-            <strong style="font-size:13px">${v.titel || "–"}</strong>
-            <span style="float:right;font-size:11px;color:#999">${v.datum || ""} ·
-              <a href="${v.link || '#'}" target="_blank" style="color:#63a2b4">${v.name || "Quelle"} ↗</a>
+            <strong style="font-size:13px">${_escT(v.titel) || "–"}</strong>
+            <span style="float:right;font-size:11px;color:#999">${_escT(v.datum)} ·
+              <a href="${_safeUrl(v.link)}" target="_blank" rel="noopener noreferrer" style="color:#63a2b4">${_escT(v.name) || "Quelle"} ↗</a>
             </span>
           </div>
           <div style="margin-bottom:5px">${istUpdate ? updateBadge : katBadge + hzBadge}</div>
-          <div style="font-size:11px;color:#888;font-style:italic;margin-bottom:6px">${v.begruendung || ""}</div>
+          <div style="font-size:11px;color:#888;font-style:italic;margin-bottom:6px">${_escT(v.begruendung)}</div>
         `;
 
         const btnUebernehmen = document.createElement("button");
@@ -4896,6 +4957,7 @@ body {
         btnIgnorieren.textContent = "Ignorieren";
         btnIgnorieren.style.cssText = "padding:3px 9px;font-size:11px;cursor:pointer;background:none;border:1px solid #ccc;border-radius:3px;color:#888";
         btnIgnorieren.addEventListener("click", () => {
+          _merkeVorschlagBearbeitet(v);
           karte.style.display = "none";
         });
 
@@ -5292,15 +5354,27 @@ body {
       for (var i = radarData.length - 1; i >= 0; i--) {
         if (radarData[i].manuell_erfasst) radarData.splice(i, 1);
       }
-      var vorhandeneIds = new Set(radarData.map(d => d.id));
+      var lokalNachId = {};
+      radarData.forEach(function(d, idx) { lokalNachId[String(d.id)] = idx; });
       daten.forEach(function(d) {
-        if (d.id && !vorhandeneIds.has(d.id)) {
-          d.radar_score = berechneScore(d);
+        if (!d.id) return;
+        d.radar_score = berechneScore(d);
+        var idx = lokalNachId[String(d.id)];
+        if (idx !== undefined) {
+          // Thema existiert bereits (z. B. eingebauter Basisbestand):
+          // GitHub-Version übernehmen, damit Aktualisierungen/Beobachtung
+          // und Formular-Änderungen den Reload überleben
+          radarData[idx] = d;
+        } else {
+          lokalNachId[String(d.id)] = radarData.length;
           radarData.push(d);
-          vorhandeneIds.add(d.id);
         }
       });
-      try { localStorage.setItem("radarData-manuell", JSON.stringify(daten)); } catch(e) {}
+      // Nur manuell erfasste Themen in den localStorage-Store schreiben
+      try {
+        localStorage.setItem("radarData-manuell",
+          JSON.stringify(daten.filter(function(d){ return d.manuell_erfasst; })));
+      } catch(e) {}
       aktualisiereManuellCounter();
       zeichnePunkte();
     }
@@ -7085,6 +7159,7 @@ window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisieru
         ));
         msObj.notiz = document.getElementById("detail-notiz").value;
 
+        speichereMeilensteineLocal();
         localStorage.setItem("last_update", new Date().toLocaleString("de-DE"));
 
         const fb = document.getElementById("detail-speichern-feedback");
@@ -9148,6 +9223,35 @@ window.MS={exportiereJSON,zeigeDetail,renderMini,renderUebersicht,oeffneMsFormul
     }
   }
 
+  // Keywords/Feeds/Quellen in die Repo-config.json schreiben - nur dort
+  // liest sie der Suchlauf (GitHub Action). Read-Modify-Write wie bei Themen.
+  async function speichereConfig(patch) {
+    var s = ladeEinstellungen();
+    if (!s.pat) return false;
+    try {
+      var meta = await githubRequest("GET", "config.json?ref=" + s.branch);
+      var cfg = JSON.parse(decodeURIComponent(escape(atob(meta.content.replace(/\s/g, "")))));
+      if (patch.keywords) cfg.keywords = patch.keywords;
+      if (patch.feeds) cfg.rss_feeds = patch.feeds.map(function(f) {
+        return { name: f.name || "", url: f.url || "", aktiv: f.aktiv !== false };
+      });
+      if (patch.quellen) cfg.behoerden_seiten = patch.quellen.map(function(q) {
+        return { name: q.name || "", url: q.url || "",
+                 selektor: q.selektor || "body", aktiv: q.aktiv !== false };
+      });
+      var encoded = btoa(unescape(encodeURIComponent(JSON.stringify(cfg, null, 2))));
+      await githubRequest("PUT", "config.json", {
+        message: "Recherche-Konfiguration aktualisiert",
+        content: encoded, branch: s.branch, sha: meta.sha
+      });
+      setzeSyncStatus("ok", "Konfiguration gespeichert");
+      return true;
+    } catch(e) {
+      setzeSyncStatus("fehler", "Config: " + e.message);
+      return false;
+    }
+  }
+
   // Status-Zeile in der Einstellungen-Karte "GitHub-Synchronisation" befüllen
   function renderSettingsKarte() {
     var el = document.getElementById("gh-karte-status");
@@ -9165,7 +9269,7 @@ window.MS={exportiereJSON,zeigeDetail,renderMini,renderUebersicht,oeffneMsFormul
   // Initiale Statusanzeige – immer "lesend" bis Laden abgeschlossen
   setzeSyncStatus("lesend", "Lade Daten von GitHub…");
 
-  window.GH = { ladeMeilensteine, debouncedSync, oeffneEinstellungen, schliesseEinstellungen, speichereEinstellungenUndSchliesse, testeVerbindung, ladeEinstellungen, ladeThemen, debouncedThemenSync, ladeForschung, debouncedForschungSync, ladeRisiken, debouncedRisikenSync, renderSettingsKarte, schreibeThemaDirekt };
+  window.GH = { ladeMeilensteine, debouncedSync, oeffneEinstellungen, schliesseEinstellungen, speichereEinstellungenUndSchliesse, testeVerbindung, ladeEinstellungen, ladeThemen, debouncedThemenSync, ladeForschung, debouncedForschungSync, ladeRisiken, debouncedRisikenSync, renderSettingsKarte, schreibeThemaDirekt, speichereConfig };
   renderSettingsKarte();
 })();
 </script>
@@ -10071,10 +10175,10 @@ window.LP={toggleVollbild,beendeVollbild,aktualisiereStatusleiste,zeichneLpRadar
       var el = document.getElementById("st-server-status");
       if (!el) return;
       if (verbunden) {
-        el.textContent = "● Server verbunden";
+        el.textContent = "● Konfiguration aus GitHub geladen";
         el.className = "verbunden";
       } else {
-        el.textContent = "● Offline-Modus (server.py starten)";
+        el.textContent = "● Konfiguration nur lokal (GitHub nicht erreichbar)";
         el.className = "offline";
       }
     }
@@ -10119,22 +10223,30 @@ window.LP={toggleVollbild,beendeVollbild,aktualisiereStatusleiste,zeichneLpRadar
         if (container) container.appendChild(erstelleQuelleZeile({ name:"", url:"", selektor:"", aktiv:true }));
       });
 
-      /* Server abfragen – Server ist führend */
-      fetch("http://localhost:5050/config")
-        .then(function(res) {
-          if (!res.ok) throw new Error("HTTP " + res.status);
-          return res.json();
-        })
-        .then(function(cfg) {
-          localStorage.setItem(LS_KEY,        JSON.stringify(cfg.keywords        || []));
-          localStorage.setItem(LS_KEY_FEEDS,  JSON.stringify(cfg.rss_feeds       || []));
-          localStorage.setItem(LS_KEY_QUELLEN,JSON.stringify(cfg.behoerden_seiten|| []));
-          rendereAlles(cfg);
-          setzteServerStatus(true);
-        })
-        .catch(function() {
-          setzteServerStatus(false);
-        });
+      /* Repo-config.json ist führend – nur die liest der Suchlauf */
+      (function() {
+        var s = (window.GH && GH.ladeEinstellungen) ? GH.ladeEinstellungen() : null;
+        if (!s) { setzteServerStatus(false); return; }
+        var headers = { "Accept": "application/vnd.github+json" };
+        if (s.pat) headers["Authorization"] = "Bearer " + s.pat;
+        fetch("https://api.github.com/repos/" + s.repo + "/contents/config.json?ref=" +
+              s.branch + "&_=" + Date.now(), { headers: headers, cache: "no-store" })
+          .then(function(res) {
+            if (!res.ok) throw new Error("HTTP " + res.status);
+            return res.json();
+          })
+          .then(function(data) {
+            var cfg = JSON.parse(decodeURIComponent(escape(atob(data.content.replace(/\s/g, "")))));
+            localStorage.setItem(LS_KEY,        JSON.stringify(cfg.keywords        || []));
+            localStorage.setItem(LS_KEY_FEEDS,  JSON.stringify(cfg.rss_feeds       || []));
+            localStorage.setItem(LS_KEY_QUELLEN,JSON.stringify(cfg.behoerden_seiten|| []));
+            rendereAlles(cfg);
+            setzteServerStatus(true);
+          })
+          .catch(function() {
+            setzteServerStatus(false);
+          });
+      })();
     });
 
     /* ── Feeds laden/speichern ─── */
@@ -10343,21 +10455,22 @@ window.LP={toggleVollbild,beendeVollbild,aktualisiereStatusleiste,zeichneLpRadar
       localStorage.setItem("config-gespeichert",
         new Date().toLocaleString("de-DE"));
 
-      fetch("http://localhost:5050/config", {
-        method:  "POST",
-        headers: { "Content-Type": "application/json" },
-        body:    JSON.stringify({ keywords: keywords, feeds: feeds, quellen: quellen })
-      })
-      .then(function(res) {
-        if (!res.ok) throw new Error("HTTP " + res.status);
-        zeigeBanner("Einstellungen gespeichert und an Update-Skript übertragen ✓");
-      })
-      .catch(function() {
-        zeigeBanner(
-          "Lokal gespeichert – Server nicht aktiv. Einstellungen werden beim nächsten Server-Start übernommen.",
-          "var(--farbe-relevant)"
-        );
-      });
+      // In die Repo-config.json schreiben – nur dort liest sie der Suchlauf
+      if (window.GH && GH.speichereConfig) {
+        GH.speichereConfig({ keywords: keywords, feeds: feeds, quellen: quellen })
+          .then(function(ok) {
+            if (ok) {
+              zeigeBanner("In GitHub gespeichert – gilt ab dem nächsten Suchlauf ✓");
+            } else {
+              zeigeBanner(
+                "Nur lokal gespeichert – GitHub-Token fehlt (Einstellungen → GitHub-Synchronisation)",
+                "var(--farbe-relevant)"
+              );
+            }
+          });
+      } else {
+        zeigeBanner("Nur lokal gespeichert", "var(--farbe-relevant)");
+      }
     }
 
     function resetteEinstellungen() {
