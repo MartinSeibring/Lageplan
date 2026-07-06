@@ -1,40 +1,79 @@
+import ipaddress
 import json
 import os
 import re
+import socket
 import subprocess
 from http.server import BaseHTTPRequestHandler, HTTPServer
+from urllib.parse import urlparse
 
 import anthropic
 import requests
 from bs4 import BeautifulSoup
 
-BASE_DIR      = os.path.dirname(os.path.abspath(__file__))
-LAST_RUN_PATH = os.path.join(BASE_DIR, "last_run.json")
-SKRIPT_PATH   = os.path.join(BASE_DIR, "update_radar.py")
-CONFIG_PATH   = os.path.join(BASE_DIR, "config.json")
+BASE_DIR         = os.path.dirname(os.path.abspath(__file__))
+LAST_RUN_PATH    = os.path.join(BASE_DIR, "data", "last_run.json")
+VORSCHLAEGE_PATH = os.path.join(BASE_DIR, "data", "radar-vorschlaege.json")
+SKRIPT_PATH      = os.path.join(BASE_DIR, "update_radar.py")
+CONFIG_PATH      = os.path.join(BASE_DIR, "config.json")
+
+# Nur diese Origins dürfen den lokalen Server per Browser ansprechen
+ERLAUBTE_ORIGINS = {
+    "https://martinseibring.github.io",
+    "http://localhost:8000",
+    "http://127.0.0.1:8000",
+    "null",  # file://-Aufrufe
+}
 
 # Laufender Update-Prozess (global, damit wir ihn prüfen können)
 _laufender_prozess = None
 
 
+def _api_key(config):
+    """Anthropic-Key: bevorzugt aus der Umgebung, config.json nur als Fallback."""
+    return (os.environ.get("ANTHROPIC_API_KEY")
+            or config.get("anthropic_api_key")
+            or config.get("api_key") or "")
+
+
+def _url_erlaubt(url):
+    """SSRF-Schutz: nur http(s) auf öffentliche Adressen zulassen."""
+    try:
+        p = urlparse(url)
+        if p.scheme not in ("http", "https") or not p.hostname:
+            return False
+        for info in socket.getaddrinfo(p.hostname, None):
+            ip = ipaddress.ip_address(info[4][0])
+            if (ip.is_private or ip.is_loopback or ip.is_link_local
+                    or ip.is_reserved or ip.is_multicast):
+                return False
+        return True
+    except (ValueError, OSError):
+        return False
+
+
 class RadarHandler(BaseHTTPRequestHandler):
+
+    def _cors_headers(self):
+        origin = self.headers.get("Origin", "")
+        if origin in ERLAUBTE_ORIGINS:
+            self.send_header("Access-Control-Allow-Origin", origin)
+            self.send_header("Vary", "Origin")
+        self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+        self.send_header("Access-Control-Allow-Headers", "Content-Type")
 
     def _sende_json(self, daten, status=200):
         body = json.dumps(daten, ensure_ascii=False).encode("utf-8")
         self.send_response(status)
         self.send_header("Content-Type",  "application/json; charset=utf-8")
         self.send_header("Content-Length", str(len(body)))
-        self.send_header("Access-Control-Allow-Origin", "*")
-        self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
-        self.send_header("Access-Control-Allow-Headers", "Content-Type")
+        self._cors_headers()
         self.end_headers()
         self.wfile.write(body)
 
     def do_OPTIONS(self):
         self.send_response(204)
-        self.send_header("Access-Control-Allow-Origin", "*")
-        self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
-        self.send_header("Access-Control-Allow-Headers", "Content-Type")
+        self._cors_headers()
         self.end_headers()
 
     def do_GET(self):
@@ -84,24 +123,11 @@ class RadarHandler(BaseHTTPRequestHandler):
         # GET /vorschlaege
         # ------------------------------------------------------------------
         elif self.path == "/vorschlaege":
-            vorschlaege_dir = os.path.join(BASE_DIR, "vorschlaege")
-            if not os.path.exists(vorschlaege_dir):
+            if not os.path.exists(VORSCHLAEGE_PATH):
                 self._sende_json({"vorschlaege": [], "hinweis": "Noch keine Vorschläge"})
                 return
-
-            dateien = sorted(
-                [f for f in os.listdir(vorschlaege_dir)
-                 if f.startswith("vorschlaege-") and f.endswith(".json")],
-                reverse=True   # neueste zuerst (ISO-Datum im Namen)
-            )
-
-            if not dateien:
-                self._sende_json({"vorschlaege": [], "hinweis": "Noch keine Vorschläge"})
-                return
-
-            neueste = os.path.join(vorschlaege_dir, dateien[0])
             try:
-                with open(neueste, encoding="utf-8") as f:
+                with open(VORSCHLAEGE_PATH, encoding="utf-8") as f:
                     inhalt = json.load(f)
                 self._sende_json(inhalt)
             except (json.JSONDecodeError, OSError) as e:
@@ -114,6 +140,9 @@ class RadarHandler(BaseHTTPRequestHandler):
             try:
                 with open(CONFIG_PATH, encoding="utf-8") as f:
                     config = json.load(f)
+                # API-Keys niemals an den Browser ausliefern
+                config.pop("anthropic_api_key", None)
+                config.pop("api_key", None)
                 self._sende_json(config)
             except (json.JSONDecodeError, OSError) as e:
                 self._sende_json({"fehler": f"config.json nicht lesbar: {e}"}, status=500)
@@ -186,6 +215,9 @@ class RadarHandler(BaseHTTPRequestHandler):
             if not re.match(r"^https?://", url, re.IGNORECASE):
                 self._sende_json({"error": "URL muss mit http:// oder https:// beginnen."}, status=400)
                 return
+            if not _url_erlaubt(url):
+                self._sende_json({"error": "URL nicht erlaubt (nur öffentliche http/https-Adressen)."}, status=400)
+                return
 
             try:
                 resp = requests.get(
@@ -247,10 +279,12 @@ class RadarHandler(BaseHTTPRequestHandler):
                 self._sende_json({"error": f"config.json nicht lesbar: {e}"}, status=500)
                 return
 
-            api_key = config.get("anthropic_api_key") or config.get("api_key") or ""
+            api_key = _api_key(config)
             if not api_key:
                 self._sende_json(
-                    {"error": "Kein Anthropic API-Key in config.json (Feld: anthropic_api_key)"},
+                    {"error": "Kein Anthropic API-Key – Umgebungsvariable "
+                              "ANTHROPIC_API_KEY setzen (empfohlen, nicht in "
+                              "config.json committen!)"},
                     status=500,
                 )
                 return

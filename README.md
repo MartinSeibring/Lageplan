@@ -46,8 +46,13 @@ Read/Write).
 
 `server.py` wird für die Radar-Aktualisierung **nicht mehr benötigt**.
 Er bietet weiterhin optionale lokale Endpunkte für die KI-Dokumenten-Analyse
-(`/ki-analyse`, `/fetch-url`) — dafür wird ein Anthropic-API-Key in
-`config.json` benötigt (Feld `anthropic_api_key`).
+(`/ki-analyse`, `/fetch-url`) — dafür wird ein Anthropic-API-Key benötigt.
+
+> ⚠ **Den API-Key NIEMALS in `config.json` eintragen** — die Datei liegt im
+> öffentlichen Repository und wird mit veröffentlicht. Stattdessen als
+> Umgebungsvariable setzen, bevor der Server gestartet wird:
+> `set ANTHROPIC_API_KEY=sk-…` (Windows) bzw.
+> `export ANTHROPIC_API_KEY=sk-…` (Mac/Linux).
 
 Start: `start-server.bat` (Windows) bzw. `./start-server.sh` (Mac/Linux),
 oder manuell:
