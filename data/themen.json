@@ -51,5 +51,30 @@
     "size": 15,
     "farbe": "#2d7a8e",
     "opacity": 0.7
+  },
+  {
+    "id": 1783345634365,
+    "titel": "Reiche beschleunigt Netzanschluss für Rechenzentren in Deutschland - Hasepost",
+    "kategorie": "regulatorisch",
+    "zeithorizont": "kurzfristig",
+    "auswirkung": 3,
+    "unsicherheit": 3,
+    "beschreibung": "Reiche beschleunigt Netzanschluss für Rechenzentren in Deutschland &nbsp;&nbsp; Hasepost",
+    "strategische_cluster": [
+      "Netzanschluss"
+    ],
+    "tags": [
+      "Netzanschluss"
+    ],
+    "quelle": "https://news.google.com/rss/articles/CBMimwFBVV95cUxQYXI5Y3A4ckliSFNvamVEUnYwSnVsU09wYndXN20yMXJLVnNBNG5NWElhT1R4WEtFRTNDVlljX1kxZTVhME9vaXUwb3lxUDVBZTlzTHhXZGxFSGQzNndMZ3ZlQ1RsQXNoUnl3eHpfODNuSkFvemZRekNzcW9CaDRrS21SeEZlN3NsYmVuc1hSektaanJqWGZFMXRuVQ?oc=5",
+    "beobachtung": [],
+    "aktualisierungen": [],
+    "manuell_erfasst": true,
+    "radar_score": 0.84,
+    "x": 334.2020143325668,
+    "y": 206.03073792140913,
+    "size": 9,
+    "farbe": "#2d7a8e",
+    "opacity": 0.7
   }
 ]
