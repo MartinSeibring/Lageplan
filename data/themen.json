@@ -20,7 +20,15 @@
     "y": 235.72123903134607,
     "size": 15,
     "farbe": "#63a2b4",
-    "opacity": 0.4
+    "opacity": 0.4,
+    "aktualisierungen": [
+      {
+        "datum": "2026-07-06",
+        "titel": "Bundesnetzagentur startet Konsultation des Netzentwicklungsplans zum Stromnetzausbau",
+        "quelle": "BNetzA Pressemitteilungen",
+        "link": "http://www.bundesnetzagentur.de/SharedDocs/Pressemitteilungen/DE/2026/20260612_NEP.html"
+      }
+    ]
   },
   {
     "id": 1780908007140,
