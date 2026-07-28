@@ -3042,6 +3042,38 @@
       "beschreibung": "Die Bundesnetzagentur übermittelt der Europäischen Kommission auf deren Ersuchen alle zur Ausarbeitung des Berichts nach Artikel 49 der Datenverordnung erforderlichen Informationen.",
       "manuell_erfasst": true,
       "ki_extrahiert": true
+    },
+    {
+      "id": "M17833486175248325",
+      "titel": "Verteilnetzpaket auf den Weg bringen",
+      "thema_id": null,
+      "thema_titel": "",
+      "kategorie": "regulatorisch",
+      "start": "2026-07-06",
+      "ende": "2026-12-31",
+      "verantwortlicher": "",
+      "status": "offen",
+      "fortschritt": 0,
+      "abhaengig_von": [],
+      "pflicht_deadline": "2026-12-31",
+      "deadline_quelle": "EnWG (Novelle), Koalitionsausschuss-Beschluss 02.07.2026, Ziff. 16",
+      "deadline_typ": "politisch",
+      "strategische_cluster": [
+        "Netzwirtschaft"
+      ],
+      "radar_score": 0.5,
+      "notiz": "",
+      "tags": [
+        "verteilnetz",
+        "planungsbeschleunigung",
+        "datenplattform",
+        "netzanschluss"
+      ],
+      "auswirkung": 5,
+      "unsicherheit": 3,
+      "beschreibung": "Gesetzespaket zur Beschleunigung des Verteilnetzausbaus, Modernisierung und Digitalisierung sowie Verbesserung der Finanzierungsmöglichkeiten; Ziel ist die Halbierung der Realisierungszeiträume von Netzprojekten, Nutzung des EU Grids Package, Flexibilisierung von Planfeststellungsverfahren, Straffung von UVP-Verfahren und Stichtagsregelungen. Enthält zudem zentrale Datenplattform für Netzausbau-, Auslastungs- und Anschlusskapazitätsdaten, Kooperationsanreize für Netzbetreiber-Software ('einer für alle') und Anschlussgarantie mit klarer Frist für Industriebetriebe.",
+      "manuell_erfasst": true,
+      "ki_extrahiert": true
     }
   ],
   "ziele": [
