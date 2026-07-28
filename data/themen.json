@@ -42,5 +42,181 @@
     "size": 15,
     "farbe": "#2d7a8e",
     "opacity": 0.7
+  },
+  {
+    "id": 1783345634365,
+    "titel": "Reiche beschleunigt Netzanschluss für Rechenzentren in Deutschland - Hasepost",
+    "kategorie": "regulatorisch",
+    "zeithorizont": "kurzfristig",
+    "auswirkung": 3,
+    "unsicherheit": 3,
+    "beschreibung": "Reiche beschleunigt Netzanschluss für Rechenzentren in Deutschland &nbsp;&nbsp; Hasepost",
+    "strategische_cluster": [
+      "Netzanschluss"
+    ],
+    "tags": [
+      "Netzanschluss"
+    ],
+    "quelle": "https://news.google.com/rss/articles/CBMimwFBVV95cUxQYXI5Y3A4ckliSFNvamVEUnYwSnVsU09wYndXN20yMXJLVnNBNG5NWElhT1R4WEtFRTNDVlljX1kxZTVhME9vaXUwb3lxUDVBZTlzTHhXZGxFSGQzNndMZ3ZlQ1RsQXNoUnl3eHpfODNuSkFvemZRekNzcW9CaDRrS21SeEZlN3NsYmVuc1hSektaanJqWGZFMXRuVQ?oc=5",
+    "beobachtung": [],
+    "aktualisierungen": [],
+    "manuell_erfasst": true,
+    "radar_score": 0.84,
+    "x": 334.2020143325668,
+    "y": 206.03073792140913,
+    "size": 9,
+    "farbe": "#2d7a8e",
+    "opacity": 0.7
+  },
+  {
+    "id": 1783345650482,
+    "titel": "Neuer Mustervertrag für flexible Netzanschlüsse - photovoltaik.eu",
+    "kategorie": "regulatorisch",
+    "zeithorizont": "kurzfristig",
+    "auswirkung": 3,
+    "unsicherheit": 3,
+    "beschreibung": "Neuer Mustervertrag für flexible Netzanschlüsse &nbsp;&nbsp; photovoltaik.eu",
+    "strategische_cluster": [
+      "Netzwirtschaft"
+    ],
+    "tags": [
+      "Netzanschluss"
+    ],
+    "quelle": "https://news.google.com/rss/articles/CBMikgFBVV95cUxPMUd6Xzk5NjUwcTdYcUcwWjdJSGw4MkE4N21HR2c2NzJ3MVZJeEhyTzluMmpjaFRHam9qTGJVMjUweDVZbkFncVV1LVZjRExBZV9SR3pNWmlOT01WNjRRSHZWalotNXZwTHJ3eVg3TUo3a1FGbWhyRnJFclJWcXZZMHFfUngzZjROQWlRaFBZano5dw?oc=5",
+    "beobachtung": [],
+    "aktualisierungen": [],
+    "manuell_erfasst": true,
+    "radar_score": 0.84,
+    "x": 317.364817766693,
+    "y": 201.51922469877917,
+    "size": 9,
+    "farbe": "#2d7a8e",
+    "opacity": 0.7
+  },
+  {
+    "id": 1783345663810,
+    "titel": "Smart Meter Light: Kommt jetzt die Prosumer-Revolution? - Energie-Experten",
+    "kategorie": "technologisch",
+    "zeithorizont": "kurzfristig",
+    "auswirkung": 3,
+    "unsicherheit": 3,
+    "beschreibung": "Smart Meter Light: Kommt jetzt die Prosumer-Revolution? &nbsp;&nbsp; Energie-Experten",
+    "strategische_cluster": [
+      "Messstellenbetrieb"
+    ],
+    "tags": [
+      "Smart Meter"
+    ],
+    "quelle": "https://news.google.com/rss/articles/CBMilgFBVV95cUxPVVRrT1JDa3pXNmllS1lLaTYzZlh6WEJlN2R2LTBKR0JpMWR6UHlWa081dnJWQWtta2dtZXprZ0dJbHlFa1MtdzlGOW9EcDZRM1V6SXExVXdGQ3U2ZWF2bGw5R1pLN01aZmtHMk1HVjZKZE0tWTJoeHY5a1JpTGlobEtGMkhaVVBCYVdlX3p4OXY1QlB1U0E?oc=5",
+    "beobachtung": [],
+    "aktualisierungen": [],
+    "manuell_erfasst": true,
+    "radar_score": 0.84,
+    "x": 300,
+    "y": 400,
+    "size": 9,
+    "farbe": "#4a8a6f",
+    "opacity": 0.7
+  },
+  {
+    "id": 1783345672218,
+    "titel": "\"Flexibilität ermöglichen\": Studie: Mehr Batteriespeicher würden Milliardenentlastung bringen - Ntv",
+    "kategorie": "regulatorisch",
+    "zeithorizont": "kurzfristig",
+    "auswirkung": 3,
+    "unsicherheit": 3,
+    "beschreibung": "\"Flexibilität ermöglichen\": Studie: Mehr Batteriespeicher würden Milliardenentlastung bringen &nbsp;&nbsp; Ntv",
+    "strategische_cluster": [
+      "Technologie"
+    ],
+    "tags": [
+      "Flexibilität"
+    ],
+    "quelle": "https://news.google.com/rss/articles/CBMisgFBVV95cUxOaTlSaHJyZ241cXdJOGQ1T3g1WnlBOWxJQ29rX21ET1ZuQzcwSEk4b1pxeUFrSFR5a0xzdkx5b3NjMFBsX0dhWkllNGkzM1VJRlUwTHlxWW1VSnkxbS1sRkh3MzBkTHJuSHluM1p3TzJNOFRqS0VuNGQtcldwNTNrMHZORzVLV05VWVlWak5iZ3puQWdYYndhdnk5dFphY1R4RFFiYlBTbkFIUV9Bc1ctemlB?oc=5",
+    "beobachtung": [],
+    "aktualisierungen": [],
+    "manuell_erfasst": true,
+    "radar_score": 0.84,
+    "x": 235.72123903134604,
+    "y": 223.3955556881022,
+    "size": 9,
+    "farbe": "#2d7a8e",
+    "opacity": 0.7
+  },
+  {
+    "id": 1783345678257,
+    "titel": "Können Rechenzentren abgeschaltet werden? § 14a, § 13k EnWG und der ökonomische Flexibilitätsdruck - Anwalt.de",
+    "kategorie": "regulatorisch",
+    "zeithorizont": "kurzfristig",
+    "auswirkung": 3,
+    "unsicherheit": 3,
+    "beschreibung": "Können Rechenzentren abgeschaltet werden? § 14a, § 13k EnWG und der ökonomische Flexibilitätsdruck &nbsp;&nbsp; Anwalt.de",
+    "strategische_cluster": [
+      "Technologie"
+    ],
+    "tags": [
+      "14a",
+      "Flexibilität"
+    ],
+    "quelle": "https://news.google.com/rss/articles/CBMi2AFBVV95cUxNLVFGVm45OTNmcjgxVlJvdVRoMUxTaHBzNHRVRlVxWFllV1RQaWk0U29leTVEUXRuYUtZN2NnSVNYdlJQRzFiQVhKeFBRUDVKanY4NHBKVGxTTmFkdVo3VjgweDdhakRlTlAtY09OVy13R3VFS21qXzZvVWxyaE1ZQ01JT25NVVp3bTJKdHJfa2lEd25TUTQ5RTRoOUhSdmFMeFdUWW9ZODJoNFp6MGhqTVRfNkxZR3lhMkY2SVJNNjNXdnhOUm9HVDNRMGMwSE9JMGoyNldWREs?oc=5",
+    "beobachtung": [],
+    "aktualisierungen": [],
+    "manuell_erfasst": true,
+    "radar_score": 0.84,
+    "x": 265.79798566743307,
+    "y": 206.03073792140918,
+    "size": 9,
+    "farbe": "#2d7a8e",
+    "opacity": 0.7
+  },
+  {
+    "id": 1783345726773,
+    "titel": "Tagung zum EEG 2027: Neue Bedingungen für Netzanschluss und Förderung - idw - Informationsdienst Wissenschaft",
+    "kategorie": "regulatorisch",
+    "zeithorizont": "kurzfristig",
+    "auswirkung": 3,
+    "unsicherheit": 3,
+    "beschreibung": "Tagung zum EEG 2027: Neue Bedingungen für Netzanschluss und Förderung &nbsp;&nbsp; idw - Informationsdienst Wissenschaft",
+    "strategische_cluster": [
+      "Netzanschluss"
+    ],
+    "tags": [
+      "Netzanschluss"
+    ],
+    "quelle": "https://news.google.com/rss/articles/CBMiS0FVX3lxTE1vYi1FZUxtbjJBb0RmczJkamFmRzVnX1p6RXRjZXZGR1Nwamx6V0FZcVhnUHBrM1V5XzhUVnlfUkVJMlRzUkxPR2kyMA?oc=5",
+    "beobachtung": [],
+    "aktualisierungen": [],
+    "manuell_erfasst": true,
+    "radar_score": 0.84,
+    "x": 350,
+    "y": 213.39745962155615,
+    "size": 9,
+    "farbe": "#2d7a8e",
+    "opacity": 0.7
+  },
+  {
+    "id": 1783345732654,
+    "titel": "Smart Meter und Stromnetz: 74 % der Deutschen fürchten Sabotage - Ingenieur.de",
+    "kategorie": "technologisch",
+    "zeithorizont": "kurzfristig",
+    "auswirkung": 3,
+    "unsicherheit": 3,
+    "beschreibung": "Smart Meter und Stromnetz: 74 % der Deutschen fürchten Sabotage &nbsp;&nbsp; Ingenieur.de",
+    "strategische_cluster": [
+      "Messstellenbetrieb"
+    ],
+    "tags": [
+      "Smart Meter"
+    ],
+    "quelle": "https://news.google.com/rss/articles/CBMi8AFBVV95cUxPcF9NNW1kbjZJRThMUFFXQVVGdlE4Zk1paVdYb0ktYnYyRkhuSGU0aXNjRzN0VXdoVTJxSFcyOVllZHFqcGVmb1JrcWNiczIyV0ZOZ2RudnNKckRVSG56ZFZiUDlFd0lQRTZzYXZZUTQwaVJEdVJudXNaWWp4YmJsTkFXR0Y3NzdtSTIxZmRrbGJra2dkTGx0NnFsSE1kVVFzNDJNWWFDSWpKM3htOWNRZ29CTG9Ddm9aSmRQQW9xNjlVQ3VKMlJDMXZEWkhKZkRKRkJQN0lGbVh3azNQNFVpRTNLVW9yNWs5czRxVjRtUVY?oc=5",
+    "beobachtung": [],
+    "aktualisierungen": [],
+    "manuell_erfasst": true,
+    "radar_score": 0.84,
+    "x": 235.72123903134604,
+    "y": 376.6044443118978,
+    "size": 9,
+    "farbe": "#4a8a6f",
+    "opacity": 0.7
   }
 ]
