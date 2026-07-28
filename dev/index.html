@@ -2656,6 +2656,78 @@ body {
     #rm-loeschen-modal.offen { display:flex; }
     .rm-ableit-btn { padding:6px 12px;font-size:12px;background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.4);border-radius:4px;cursor:pointer;font-family:inherit;white-space:nowrap; }
 
+    /* ── Normennetz (Verweisnetz) ─────────────────────────────── */
+    #panel-normennetz {
+      --lvl-gesetz:#24454e; --lvl-festlegung:#3e7686; --lvl-technik:#63a2b4;
+      --lvl-eu:#8fbcc8; --lvl-vertrag:#b9d6de;
+      --nn-swm:#63a2b4; --nn-deep:#24454e; --nn-dark:#3e7686;
+      --nn-ink:#1c2b30; --nn-grey:#5a6b70; --nn-light:#eaf1f3;
+      --nn-accent:#e08a3c; --nn-line:#d5e1e5;
+      font-size:15px; line-height:1.5; color:var(--nn-ink);
+    }
+    #panel-normennetz .nn-wrap { max-width:1400px; margin:0 auto; padding:20px 24px 32px; }
+    #panel-normennetz .nn-header { border-bottom:2px solid var(--nn-swm); padding-bottom:14px; margin-bottom:16px; }
+    #panel-normennetz .nn-eyebrow { font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--nn-dark);margin:0 0 6px; }
+    #panel-normennetz .nn-h1 { font-size:26px;font-weight:700;margin:0 0 6px;letter-spacing:-.01em; }
+    #panel-normennetz .nn-sub { margin:0;color:var(--nn-grey);font-size:14px;max-width:82ch; }
+    #panel-normennetz .nn-sub em { color:var(--nn-dark);font-style:italic; }
+    #panel-normennetz .nn-toolbar { display:flex;flex-wrap:wrap;gap:9px;align-items:center;margin:14px 0 12px;padding:11px 13px;background:var(--nn-light);border-radius:8px; }
+    #panel-normennetz .nn-tb-label { font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--nn-grey);margin-right:2px; }
+    #panel-normennetz .nn-chip { border:1px solid var(--nn-line);background:#fff;color:var(--nn-ink);font:inherit;font-size:12.5px;padding:5px 11px;border-radius:999px;cursor:pointer;display:inline-flex;align-items:center;gap:7px;transition:.15s; }
+    #panel-normennetz .nn-chip:hover { border-color:var(--nn-swm); }
+    #panel-normennetz .nn-chip:focus-visible { outline:2px solid var(--nn-swm);outline-offset:2px; }
+    #panel-normennetz .nn-chip .nn-dot { width:9px;height:9px;border-radius:50%;flex:none; }
+    #panel-normennetz .nn-chip[aria-pressed="false"] { opacity:.35; }
+    #panel-normennetz .nn-spacer { flex:1; }
+    #panel-normennetz .nn-toolbar-stufen { background:#fff;border:1px solid var(--nn-line);margin-top:-4px; }
+    #panel-normennetz .nn-chip.nn-stufe .nn-num { width:18px;height:18px;border-radius:50%;background:var(--nn-deep);color:#fff;font-size:11px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;flex:none; }
+    #panel-normennetz .nn-chip.nn-stufe[aria-pressed="true"] { background:var(--nn-accent);border-color:var(--nn-accent);color:#fff;opacity:1; }
+    #panel-normennetz .nn-chip.nn-stufe[aria-pressed="true"] .nn-num { background:#fff;color:var(--nn-accent); }
+    #panel-normennetz .nn-chip.nn-stufe[aria-pressed="false"] { opacity:1; }
+    #panel-normennetz .nn-hint { font-size:12px;color:var(--nn-grey);margin-left:4px; }
+    #panel-normennetz .nn-btn { border:1px solid var(--nn-dark);background:var(--nn-deep);color:#fff;font:inherit;font-size:12.5px;font-weight:600;padding:6px 13px;border-radius:6px;cursor:pointer; }
+    #panel-normennetz .nn-btn:hover { background:var(--nn-dark); }
+    #panel-normennetz .nn-btn:focus-visible { outline:2px solid var(--nn-accent);outline-offset:2px; }
+    #panel-normennetz .nn-stage { display:grid;grid-template-columns:1fr 340px;gap:18px;align-items:start; }
+    @media (max-width:1080px){ #panel-normennetz .nn-stage { grid-template-columns:1fr; } }
+    #panel-normennetz .nn-canvas-box { position:relative;background:#fff;border:1px solid var(--nn-line);border-radius:10px;overflow:hidden; }
+    #panel-normennetz .band-label { font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;fill:var(--nn-grey);opacity:.75; }
+    #panel-normennetz .band-rule { stroke:var(--nn-line);stroke-width:1;stroke-dasharray:3 4; }
+    #panel-normennetz #nn-net { display:block;width:100%;height:600px;touch-action:none; }
+    #panel-normennetz .nn-link { stroke:var(--nn-dark);stroke-opacity:.28;fill:none; }
+    #panel-normennetz .nn-link.hi { stroke:var(--nn-accent);stroke-opacity:.95;stroke-width:2.4; }
+    #panel-normennetz .nn-link.dim { stroke-opacity:.06; }
+    #panel-normennetz .nn-node circle { stroke:#fff;stroke-width:2.5;cursor:pointer; }
+    #panel-normennetz .nn-node text { font-size:11.5px;font-weight:700;fill:var(--nn-ink);pointer-events:none;paint-order:stroke;stroke:#fff;stroke-width:3.5px;stroke-linejoin:round; }
+    #panel-normennetz .nn-node.dim { opacity:.2; }
+    #panel-normennetz .nn-node.sel circle { stroke:var(--nn-accent);stroke-width:3.5; }
+    #panel-normennetz .nn-node.stufe-hi circle { stroke:var(--nn-accent);stroke-width:4; }
+    #panel-normennetz .nn-aside { background:#fff;border:1px solid var(--nn-line);border-radius:10px;padding:16px 17px;position:sticky;top:16px;max-height:640px;overflow-y:auto; }
+    #panel-normennetz .nn-aside-h2 { font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--nn-dark);margin:0 0 10px; }
+    #panel-normennetz .nn-empty { color:var(--nn-grey);font-size:13.5px;margin:0; }
+    #panel-normennetz .nn-node-name { font-size:19px;font-weight:700;margin:0 0 2px;line-height:1.25; }
+    #panel-normennetz .nn-node-full { font-size:12.5px;color:var(--nn-grey);margin:0 0 4px; }
+    #panel-normennetz .nn-node-lvl { display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:3px 9px;border-radius:999px;color:#fff;margin-bottom:12px; }
+    #panel-normennetz .nn-rel { border-top:1px solid var(--nn-line);padding:11px 0 2px; }
+    #panel-normennetz .nn-rel-head { display:flex;align-items:baseline;gap:6px;margin-bottom:3px; }
+    #panel-normennetz .nn-rel-to { font-weight:700;font-size:14px; }
+    #panel-normennetz .nn-rel-dir { font-size:11px;color:var(--nn-grey); }
+    #panel-normennetz .nn-rel-what { font-size:13px;color:var(--nn-ink);margin:0 0 3px; }
+    #panel-normennetz .nn-rel-ref { font-size:11.5px;color:var(--nn-grey);font-family:"Consolas",monospace; }
+    #panel-normennetz .nn-verkn { margin-top:14px;border-top:2px solid var(--nn-swm);padding-top:10px; }
+    #panel-normennetz .nn-verkn-h { font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--nn-dark);margin:0 0 7px; }
+    #panel-normennetz .nn-verkn-item { display:block;width:100%;text-align:left;border:1px solid var(--nn-line);background:#fbfdfd;border-radius:6px;padding:6px 9px;margin-bottom:5px;cursor:pointer;font:inherit;font-size:12.5px;color:var(--nn-ink);transition:.12s; }
+    #panel-normennetz .nn-verkn-item:hover { border-color:var(--nn-swm);background:var(--nn-light); }
+    #panel-normennetz .nn-verkn-item .nn-vk-typ { font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--nn-dark);margin-right:6px; }
+    #panel-normennetz .nn-verkn-leer { font-size:12px;color:var(--nn-grey);margin:2px 0 0; }
+    #panel-normennetz .nn-tip { position:absolute;pointer-events:none;background:var(--nn-deep);color:#fff;padding:8px 11px;border-radius:6px;font-size:12.5px;max-width:290px;opacity:0;transition:opacity .12s;line-height:1.4;z-index:5; }
+    #panel-normennetz .nn-tip .nn-t-what { display:block;margin-top:3px;color:var(--nn-light);font-size:11.5px; }
+    #panel-normennetz .nn-footer { margin-top:20px;padding-top:14px;border-top:1px solid var(--nn-line);color:var(--nn-grey);font-size:11.5px;max-width:100ch; }
+    #panel-normennetz .nn-footer strong { color:var(--nn-ink); }
+    /* Rechtsrahmen-Verknüpfung in TR/MS-Detailpanels */
+    .rechtsrahmen-chip { display:inline-block;font-size:10.5px;font-weight:700;padding:1px 8px;border-radius:12px;background:#eaf1f3;color:#24454e;border:1px solid #cadde3;cursor:pointer;margin:0 4px 3px 0; }
+    .rechtsrahmen-chip:hover { background:#24454e;color:#fff; }
+
   </style>
 </head>
 <body>
@@ -2676,6 +2748,7 @@ body {
     <button class="app-tab" id="tab-themenradar"  data-tab="themenradar">Themenradar</button>
     <button class="app-tab" id="tab-meilensteine" data-tab="meilensteine">Meilensteine &amp; GANTT</button>
     <button class="app-tab" id="tab-risiko"       data-tab="risiko">Risikomanagement</button>
+    <button class="app-tab" id="tab-normennetz"   data-tab="normennetz">Normennetz</button>
     <button class="app-tab" id="tab-max" title="Platzhalter – Funktion folgt">Max</button>
     <button class="app-tab" id="tab-settings"     data-tab="settings">Einstellungen</button>
   </div>
@@ -3681,6 +3754,53 @@ body {
     <div id="rm-tab-inhalt" style="flex:1;overflow-y:auto"></div>
   </div>
 
+  <!-- ── Normennetz (Regulatorischer Rahmen) ──────────── -->
+  <div class="tab-panel" id="panel-normennetz">
+    <div class="nn-wrap">
+      <header class="nn-header">
+        <p class="nn-eyebrow">Messstellenbetrieb · Regulatorischer Rahmen</p>
+        <h1 class="nn-h1">Das Verweisnetz</h1>
+        <p class="nn-sub">Jeder Knoten ist ein Regelwerk, jede Kante ein inhaltlicher Querverweis. Knoten anklicken, um alle Verbindungen und verknüpfte Meilensteine/Themen zu sehen — oder über eine Kante fahren, um zu lesen, was genau referenziert wird. <em>Fokus Messstellenbetrieb; unabhängig vom globalen Cluster-Filter.</em></p>
+      </header>
+
+      <div class="nn-toolbar">
+        <span class="nn-tb-label">Ebenen</span>
+        <button class="nn-chip" data-lvl="gesetz" aria-pressed="true"><span class="nn-dot" style="background:var(--lvl-gesetz)"></span>Gesetz</button>
+        <button class="nn-chip" data-lvl="festlegung" aria-pressed="true"><span class="nn-dot" style="background:var(--lvl-festlegung)"></span>BNetzA-Festlegung</button>
+        <button class="nn-chip" data-lvl="technik" aria-pressed="true"><span class="nn-dot" style="background:var(--lvl-technik)"></span>Technik</button>
+        <button class="nn-chip" data-lvl="eu" aria-pressed="true"><span class="nn-dot" style="background:var(--lvl-eu)"></span>EU-Recht</button>
+        <button class="nn-chip" data-lvl="vertrag" aria-pressed="true"><span class="nn-dot" style="background:var(--lvl-vertrag)"></span>Vertrag</button>
+        <span class="nn-spacer"></span>
+        <button class="nn-btn" id="nn-reset">Auswahl zurücksetzen</button>
+      </div>
+
+      <div class="nn-toolbar nn-toolbar-stufen">
+        <span class="nn-tb-label">Wertschöpfungsstufe</span>
+        <button class="nn-chip nn-stufe" data-stufe="1" aria-pressed="false"><span class="nn-num">1</span>Gerät &amp; MeLo</button>
+        <button class="nn-chip nn-stufe" data-stufe="2" aria-pressed="false"><span class="nn-num">2</span>Kommunikation</button>
+        <button class="nn-chip nn-stufe" data-stufe="3" aria-pressed="false"><span class="nn-num">3</span>Datenerhebung</button>
+        <button class="nn-chip nn-stufe" data-stufe="4" aria-pressed="false"><span class="nn-num">4</span>Verarbeitung &amp; MaKo</button>
+        <button class="nn-chip nn-stufe" data-stufe="5" aria-pressed="false"><span class="nn-num">5</span>Steuerung §14a</button>
+        <span class="nn-hint" id="nn-stufe-hint">Eine Stufe wählen, um zu sehen, welche Regelwerke sie prägen.</span>
+      </div>
+
+      <div class="nn-stage">
+        <div class="nn-canvas-box">
+          <svg id="nn-net" role="img" aria-label="Netzdiagramm der Querverweise zwischen energierechtlichen Regelwerken"></svg>
+          <div class="nn-tip" id="nn-tip"></div>
+        </div>
+        <aside class="nn-aside">
+          <h2 class="nn-aside-h2">Details</h2>
+          <div id="nn-panel"><p class="nn-empty">Noch kein Knoten gewählt. Klicke ein Regelwerk im Netz an, um seine Querverweise und Verknüpfungen zu lesen.</p></div>
+        </aside>
+      </div>
+
+      <footer class="nn-footer">
+        <strong>Lesehinweis:</strong> Kuratierte Auswahl der strukturbildenden Verweise, keine vollständige Erfassung — zwischen diesen Regelwerken bestehen weit mehr Einzelverweise. Die Kantenbeschriftung nennt den inhaltlichen Bezug, nicht jede Fundstelle. Fachliche Einschätzung, kein Rechtsgutachten; Paragraphenangaben vor Verwendung gegenprüfen. Stand Juli 2026.
+      </footer>
+    </div>
+  </div>
+
   <div class="tab-panel" id="panel-settings">
 
   <!-- ── Header ─────────────────────────────────────── -->
@@ -4116,6 +4236,18 @@ body {
         `<span style="background:#eef2ff;border-radius:3px;padding:1px 5px;margin-right:3px;font-size:10px;display:inline-block;margin-bottom:3px">${t}</span>`
       ).join("");
 
+      // Rechtsrahmen-Bezug: passende Regelwerke aus dem Normennetz
+      let rechtsrahmenHTML = "";
+      try {
+        if (window.NN && NN.treffer) {
+          const rr = NN.treffer((d.titel||"") + " " + (d.beschreibung||"") + " " + ((d.tags||[]).join(" ")));
+          if (rr.length) {
+            rechtsrahmenHTML = `<div style="margin:8px 0 4px"><span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#24454e">Rechtsrahmen</span><br>`
+              + rr.map(n => `<span class="rechtsrahmen-chip" onclick="NN.zeige('${n.id}')" title="Im Normennetz zeigen">${n.label}</span>`).join("") + `</div>`;
+          }
+        }
+      } catch(e){}
+
       // Verlauf: zugeordnete Neuigkeiten aus der Themen-Beobachtung
       const updates = d.aktualisierungen || [];
       const updatesHTML = updates.length === 0 ? "" : `
@@ -4179,6 +4311,7 @@ body {
         <div style="font-size:14px;color:#f5a623;margin-bottom:6px;letter-spacing:1px">${sterne}</div>
         ${clusterBadges ? `<div style="margin-bottom:4px;line-height:1.6">${clusterBadges}</div>` : ""}
         ${tagBadges     ? `<div style="margin-bottom:6px;line-height:1.6">${tagBadges}</div>`     : ""}
+        ${rechtsrahmenHTML}
         ${updatesHTML}
         ${d.beschreibung ? `
         <div style="margin-bottom:6px">
@@ -7074,6 +7207,17 @@ window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisieru
 
           <span class="ms-detail-label">Radar-Score</span>
           <span class="ms-detail-value">${(ms.radar_score || 0).toFixed(2)}</span>
+
+          ${(function(){
+            try {
+              if (!(window.NN && NN.treffer)) return "";
+              var rr = NN.treffer((ms.deadline_quelle||"") + " " + (ms.titel||"") + " " + (ms.thema_titel||""));
+              if (!rr.length) return "";
+              return '<span class="ms-detail-label">Rechtsrahmen</span><span class="ms-detail-value">'
+                + rr.map(function(n){ return '<span class="rechtsrahmen-chip" onclick="NN.zeige(\''+n.id+'\')" title="Im Normennetz zeigen">'+n.label+'</span>'; }).join("")
+                + '</span>';
+            } catch(e){ return ""; }
+          })()}
 
         </div>
         ${(function(){
@@ -10386,14 +10530,365 @@ window.LP={toggleVollbild,beendeVollbild,aktualisiereStatusleiste,zeichneLpRadar
 window.ST={speichereEinstellungen,resetteEinstellungen};
 })();
 </script>
+<script>/* ===== Normennetz (Verweisnetz regulatorischer Rahmen) ===== */
+(function(){
+  // ---------- Datenmodell ----------
+  var LEVELS = {
+    eu:         {name:"EU-Recht",           color:"#8fbcc8", tier:1},
+    gesetz:     {name:"Gesetz",             color:"#24454e", tier:2},
+    festlegung: {name:"BNetzA-Festlegung",  color:"#3e7686", tier:3},
+    technik:    {name:"Technik",            color:"#63a2b4", tier:4},
+    vertrag:    {name:"Vertrag",            color:"#b9d6de", tier:5}
+  };
+  var NODES = [
+    {id:"EltRL", label:"RL 2019/944", full:"Strombinnenmarkt-Richtlinie (EU) 2019/944", level:"eu", stufen:[1,3,5]},
+    {id:"NIS2",  label:"NIS2-RL",     full:"Richtlinie (EU) 2022/2555 (Cybersicherheit)", level:"eu", stufen:[2]},
+    {id:"MsbG",  label:"MsbG",        full:"Messstellenbetriebsgesetz", level:"gesetz", stufen:[1,2,3,4,5]},
+    {id:"EnWG",  label:"EnWG",        full:"Energiewirtschaftsgesetz", level:"gesetz", stufen:[4,5]},
+    {id:"EEG",   label:"EEG 2023",    full:"Erneuerbare-Energien-Gesetz", level:"gesetz", stufen:[5]},
+    {id:"BSIG",  label:"BSIG",        full:"BSI-Gesetz", level:"gesetz", stufen:[2]},
+    {id:"GPKE",  label:"GPKE",        full:"Geschäftsprozesse Kundenbelieferung Strom (BK6-06-009)", level:"festlegung", stufen:[4,5]},
+    {id:"WiM",   label:"WiM",         full:"Wechselprozesse im Messwesen (BK6-09-034)", level:"festlegung", stufen:[1,3,4]},
+    {id:"MaBiS", label:"MaBiS",       full:"Marktregeln Bilanzkreisabrechnung Strom (BK6-07-002)", level:"festlegung", stufen:[3,4]},
+    {id:"P14a",  label:"§14a-Festl.", full:"Festlegungen zu steuerbaren Verbrauchseinrichtungen (BK6/BK8)", level:"festlegung", stufen:[5]},
+    {id:"TR",    label:"TR-03109",    full:"BSI Technische Richtlinie TR-03109 (-1 bis -6)", level:"technik", stufen:[1,2,3,5]},
+    {id:"EDI",   label:"EDI@Energy",  full:"AHB / MIG — Nachrichtenformate der Marktkommunikation", level:"technik", stufen:[4]},
+    {id:"MSBRV", label:"MSB-RV",      full:"Messstellenbetreiber-Rahmenvertrag", level:"vertrag", stufen:[1,2,4,5]}
+  ];
+  var LINKS = [
+    {source:"EltRL", target:"EnWG", what:"Umsetzung der Binnenmarktvorgaben in nationales Recht: Netzzugang, Entflechtung, Verbraucherrechte", ref:"RL (EU) 2019/944 → EnWG"},
+    {source:"EltRL", target:"MsbG", what:"Pflicht zur Einführung intelligenter Messsysteme und Datenzugang für Marktteilnehmer", ref:"Art. 19–24 RL (EU) 2019/944"},
+    {source:"NIS2",  target:"BSIG", what:"Umsetzung der Cybersicherheitsanforderungen für Betreiber wesentlicher Dienste", ref:"RL (EU) 2022/2555 → BSIG"},
+    {source:"MsbG",  target:"EnWG", what:"MsbG knüpft durchgehend an EnWG-Begriffe und -Rollen an; EnWG enthält die Festlegungskompetenz der BNetzA", ref:"MsbG § 3 ↔ EnWG § 3; EnWG § 29"},
+    {source:"EEG",   target:"MsbG", what:"Geräteausstattung an der Messstelle und Messung von Einspeiseanlagen — EEG verweist für Messung und Steuerbarkeit auf das MsbG", ref:"EEG § 9, § 10a ↔ MsbG §§ 29 ff."},
+    {source:"EEG",   target:"EnWG", what:"Steuerbarkeit von EE-Anlagen und Netzanschluss; Schnittstelle zur Netzführung", ref:"EEG § 9 ↔ EnWG § 14, § 14a"},
+    {source:"MsbG",  target:"BSIG", what:"Sicherheitsanforderungen an Gateway-Administration und Messsystembetrieb; BSI als Zertifizierungs- und Aufsichtsinstanz", ref:"MsbG § 25 ↔ BSIG"},
+    {source:"GPKE",  target:"EnWG", what:"Festlegung auf Grundlage der EnWG-Ermächtigung zur Regelung diskriminierungsfreier Netzzugangsprozesse", ref:"EnWG §§ 20, 29 → BK6-06-009"},
+    {source:"WiM",   target:"MsbG", what:"Prozessuale Ausgestaltung des Messstellenbetriebs: Gerätewechsel, MSB-Wechsel, Datenbereitstellung", ref:"MsbG §§ 5–14, 60 ff. → BK6-09-034"},
+    {source:"WiM",   target:"GPKE", what:"Gemeinsame Prozesslandschaft und abgestimmte Fristen; WiM-Prozesse setzen GPKE-Rollenmodell voraus", ref:"BK6-09-034 ↔ BK6-06-009"},
+    {source:"MaBiS", target:"EnWG", what:"Bilanzkreisabrechnung als Teil des Netzzugangs; Ermächtigung über EnWG", ref:"EnWG § 29 → BK6-07-002"},
+    {source:"MaBiS", target:"WiM",  what:"Messwerte aus dem Messwesen sind Eingangsgröße der Bilanzierung — gemeinsame Zeitreihen und Fristen", ref:"BK6-07-002 ↔ BK6-09-034"},
+    {source:"P14a",  target:"EnWG", what:"Konkretisierung der Steuerung steuerbarer Verbrauchseinrichtungen und des reduzierten Netzentgelts", ref:"EnWG § 14a → BK6/BK8-Festlegungen"},
+    {source:"P14a",  target:"GPKE", what:"Steuerbefehl-Prozesse werden in die Marktprozesslandschaft eingebettet (Rolle des aEMT)", ref:"BK6-24-174 ↔ GPKE Use-Cases"},
+    {source:"P14a",  target:"MsbG", what:"Steuerbox und Steuerungsfunktion sind Teil der Messstelleninfrastruktur", ref:"MsbG §§ 21 ff. ↔ §14a-Festlegungen"},
+    {source:"TR",    target:"MsbG", what:"MsbG verweist für technische Anforderungen an Messsysteme und Gateway direkt auf die BSI-Richtlinien", ref:"MsbG §§ 21–25 → TR-03109"},
+    {source:"TR",    target:"BSIG", what:"BSI erlässt und pflegt die Richtlinie; Zertifizierungsverfahren nach BSIG", ref:"BSIG ↔ TR-03109-1/-4"},
+    {source:"TR",    target:"P14a", what:"Steuerpfad über CLS-Schnittstelle und Steuerbox — technische Umsetzung der Steuerungsanforderung", ref:"TR-03109-1/-5 ↔ §14a"},
+    {source:"EDI",   target:"GPKE", what:"Nachrichtenformate bilden die GPKE-Prozessschritte ab; Prüfidentifikatoren referenzieren die Festlegung", ref:"AHB/MIG ↔ BK6-06-009"},
+    {source:"EDI",   target:"WiM",  what:"UTILMD- und MSCONS-Formate setzen die Messwesen-Prozesse technisch um", ref:"AHB/MIG ↔ BK6-09-034"},
+    {source:"EDI",   target:"MaBiS",what:"Bilanzierungszeitreihen werden über definierte Nachrichtentypen ausgetauscht", ref:"AHB/MIG ↔ BK6-07-002"},
+    {source:"MSBRV", target:"MsbG", what:"Rahmenvertrag setzt die gesetzlichen Pflichten zwischen MSB und Netzbetreiber zivilrechtlich um", ref:"MsbG § 9 ↔ MSB-RV"},
+    {source:"MSBRV", target:"WiM",  what:"Vertragliche Abbildung der Wechsel- und Messprozesse", ref:"MSB-RV ↔ BK6-09-034"}
+  ];
+  // Suchbegriffe je Knoten für die Verknüpfung mit Themen/Meilensteinen
+  var ALIASES = {
+    EltRL:["2019/944","strombinnenmarkt","binnenmarkt-richtlinie"],
+    NIS2:["nis2","nis-2","2022/2555"],
+    MsbG:["msbg","messstellenbetriebsgesetz"],
+    EnWG:["enwg","energiewirtschaftsgesetz"],
+    EEG:["eeg"],
+    BSIG:["bsig","bsi-gesetz"],
+    GPKE:["gpke"],
+    WiM:["wim","wechselprozesse im messwesen"],
+    MaBiS:["mabis"],
+    P14a:["§14a","14a"],
+    TR:["tr-03109","tr 03109","tr03109"],
+    EDI:["edi@energy","utilmd","mscons"],
+    MSBRV:["msb-rv","messstellenbetreiber-rahmenvertrag","rahmenvertrag"]
+  };
+
+  function _esc(s){ return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;"); }
+
+  var svgEl, tip, panel, svg, W, H = 600, nodeById, gBands, gLink, gNode,
+      sim, link, node, degree, selected = null, activeStufe = null, stufeHint,
+      _initialisiert = false;
+  var TIERS = [1,2,3,4,5];
+  var STUFE_NAMEN = {1:"Gerät & MeLo",2:"Kommunikation",3:"Datenerhebung",4:"Verarbeitung & MaKo",5:"Steuerung §14a"};
+
+  function tierY(t){ return 58 + (t-1) * ((H-116)/4); }
+  function rOf(d){ return 13 + Math.sqrt(degree.get(d.id)||1) * 4.6; }
+
+  function drawBands(){
+    gBands.selectAll("*").remove();
+    var seen = {};
+    Object.keys(LEVELS).forEach(function(key){
+      var v = LEVELS[key];
+      if (seen[v.tier]) return; seen[v.tier] = true;
+      var y = tierY(v.tier);
+      gBands.append("line").attr("class","band-rule").attr("x1",18).attr("x2",W-18).attr("y1",y).attr("y2",y);
+      gBands.append("text").attr("class","band-label").attr("x",20).attr("y",y-9).text(v.name);
+    });
+  }
+
+  function neighborsOf(id){
+    var set = {}; set[id] = true;
+    LINKS.forEach(function(l){
+      if (l.source.id===id) set[l.target.id]=true;
+      if (l.target.id===id) set[l.source.id]=true;
+    });
+    return set;
+  }
+
+  // Verknüpfte Meilensteine/Themen zu einem Regelwerk finden
+  function verknuepfungen(id){
+    var alias = (ALIASES[id] || []).map(function(a){ return a.toLowerCase(); });
+    if (!alias.length) return [];
+    function trifft(txt){ txt = (txt||"").toLowerCase(); return alias.some(function(a){ return txt.indexOf(a) !== -1; }); }
+    var res = [];
+    try {
+      var ms = (window.MS && MS.getDaten) ? MS.getDaten() : [];
+      ms.forEach(function(m){
+        if (trifft((m.deadline_quelle||"") + " " + (m.titel||"") + " " + (m.thema_titel||"")))
+          res.push({ typ:"Meilenstein", tab:"meilensteine", id:m.id, label:m.titel||m.id });
+      });
+    } catch(e){}
+    try {
+      var th = (window.TR && TR.getDaten) ? TR.getDaten() : [];
+      th.forEach(function(t){
+        if (trifft((t.titel||"") + " " + (t.beschreibung||"") + " " + ((t.tags||[]).join(" "))))
+          res.push({ typ:"Thema", tab:"themenradar", id:t.id, label:t.titel||t.id });
+      });
+    } catch(e){}
+    return res;
+  }
+
+  function renderPanel(id){
+    if (!id){
+      panel.innerHTML = '<p class="nn-empty">Noch kein Knoten gewählt. Klicke ein Regelwerk im Netz an, um seine Querverweise und Verknüpfungen zu lesen.</p>';
+      return;
+    }
+    var n = nodeById.get(id);
+    var rels = LINKS.filter(function(l){ return l.source.id===id||l.target.id===id; }).map(function(l){
+      var outgoing = l.source.id===id;
+      return { other: outgoing ? l.target : l.source, outgoing:outgoing, what:l.what, ref:l.ref };
+    }).sort(function(a,b){ return a.other.tier-b.other.tier; });
+
+    var html = '<p class="nn-node-name">'+_esc(n.label)+'</p>'
+      + '<p class="nn-node-full">'+_esc(n.full)+'</p>'
+      + '<span class="nn-node-lvl" style="background:'+n.color+'">'+_esc(LEVELS[n.level].name)+'</span>'
+      + '<p style="font-size:12.5px;color:var(--nn-grey);margin:0 0 4px">'+rels.length+' Verbindung'+(rels.length===1?"":"en")+'</p>';
+
+    rels.forEach(function(r){
+      html += '<div class="nn-rel"><div class="nn-rel-head"><span class="nn-rel-to">'+_esc(r.other.label)+'</span>'
+        + '<span class="nn-rel-dir">'+(r.outgoing?"verweist auf / konkretisiert":"wird referenziert von")+'</span></div>'
+        + '<p class="nn-rel-what">'+_esc(r.what)+'</p><p class="nn-rel-ref">'+_esc(r.ref)+'</p></div>';
+    });
+
+    // Verknüpfung mit den Strategiedaten
+    var vk = verknuepfungen(id);
+    html += '<div class="nn-verkn"><p class="nn-verkn-h">Im Lageplan verknüpft ('+vk.length+')</p>';
+    if (vk.length === 0){
+      html += '<p class="nn-verkn-leer">Kein Thema und kein Meilenstein bezieht sich derzeit auf dieses Regelwerk.</p>';
+    } else {
+      vk.forEach(function(v){
+        html += '<button class="nn-verkn-item" data-tab="'+v.tab+'" data-id="'+_esc(String(v.id))+'">'
+          + '<span class="nn-vk-typ">'+v.typ+'</span>'+_esc(v.label)+'</button>';
+      });
+    }
+    html += '</div>';
+    panel.innerHTML = html;
+
+    panel.querySelectorAll(".nn-verkn-item").forEach(function(btn){
+      btn.addEventListener("click", function(){
+        var tab = btn.dataset.tab, rid = btn.dataset.id;
+        var ziel = null;
+        try {
+          var quelle = tab==="meilensteine" ? (MS.getDaten?MS.getDaten():[]) : (TR.getDaten?TR.getDaten():[]);
+          var treffer = quelle.find(function(x){ return String(x.id)===String(rid); });
+          ziel = treffer ? treffer.id : rid;
+        } catch(e){ ziel = rid; }
+        if (window.App && App.wechsleZuTab) App.wechsleZuTab(tab, ziel);
+      });
+    });
+  }
+
+  function applyStufe(){
+    if (!activeStufe){
+      node.classed("stufe-hi", false);
+      if (!selected) node.classed("dim", false);
+      stufeHint.textContent = "Eine Stufe wählen, um zu sehen, welche Regelwerke sie prägen.";
+      return;
+    }
+    var inStufe = function(d){ return (d.stufen||[]).indexOf(activeStufe) !== -1; };
+    node.classed("stufe-hi", inStufe);
+    if (!selected){
+      node.classed("dim", function(d){ return !inStufe(d); });
+      link.classed("dim", function(l){ return !(inStufe(l.source) && inStufe(l.target)); }).classed("hi", false);
+    }
+    var treffer = NODES.filter(inStufe).length;
+    stufeHint.textContent = "Stufe "+activeStufe+" · "+STUFE_NAMEN[activeStufe]+": "+treffer+" prägende Regelwerke hervorgehoben.";
+  }
+
+  function applySelection(){
+    if (!selected){
+      node.classed("sel", false);
+      if (activeStufe){ applyStufe(); }
+      else { node.classed("dim", false); link.classed("hi", false).classed("dim", false); }
+      renderPanel(null);
+      return;
+    }
+    var nb = neighborsOf(selected);
+    node.classed("dim", function(d){ return !nb[d.id]; }).classed("sel", function(d){ return d.id===selected; });
+    link.classed("hi", function(l){ return l.source.id===selected||l.target.id===selected; })
+        .classed("dim", function(l){ return !(l.source.id===selected||l.target.id===selected); });
+    renderPanel(selected);
+  }
+
+  function resize(){
+    W = svgEl.clientWidth || 1000;
+    svg.attr("viewBox","0 0 "+W+" "+H);
+    drawBands();
+    sim.force("x", d3.forceX(W/2).strength(.045));
+    sim.force("y", d3.forceY(function(d){ return tierY(d.tier); }).strength(.92));
+    sim.alpha(.55).restart();
+  }
+
+  function init(){
+    svgEl = document.getElementById("nn-net");
+    tip   = document.getElementById("nn-tip");
+    panel = document.getElementById("nn-panel");
+    if (!svgEl || typeof d3 === "undefined") return;
+    svg = d3.select(svgEl);
+    W = svgEl.clientWidth || 1000;
+
+    nodeById = new Map(NODES.map(function(n){ return [n.id, n]; }));
+    NODES.forEach(function(n){ n.tier = LEVELS[n.level].tier; n.color = LEVELS[n.level].color; });
+
+    gBands = svg.append("g"); gLink = svg.append("g"); gNode = svg.append("g");
+
+    sim = d3.forceSimulation(NODES)
+      .force("link", d3.forceLink(LINKS).id(function(d){ return d.id; }).distance(function(l){
+          var st = typeof l.source==='object'?l.source.id:l.source;
+          var tg = typeof l.target==='object'?l.target.id:l.target;
+          var dt = Math.abs(nodeById.get(st).tier - nodeById.get(tg).tier);
+          return 95 + dt*26;
+        }).strength(.35))
+      .force("charge", d3.forceManyBody().strength(-620))
+      .force("x", d3.forceX(W/2).strength(.045))
+      .force("y", d3.forceY(function(d){ return tierY(d.tier); }).strength(.92))
+      .force("collide", d3.forceCollide(46));
+
+    link = gLink.selectAll("path").data(LINKS).join("path").attr("class","nn-link").attr("stroke-width",1.5);
+
+    node = gNode.selectAll("g").data(NODES).join("g")
+      .attr("class","nn-node").attr("tabindex",0).attr("role","button").attr("aria-label",function(d){ return d.full; })
+      .call(d3.drag()
+        .on("start",function(e,d){ if(!e.active) sim.alphaTarget(.25).restart(); d.fx=d.x; d.fy=d.y; })
+        .on("drag",function(e,d){ d.fx=e.x; d.fy=e.y; })
+        .on("end",function(e,d){ if(!e.active) sim.alphaTarget(0); d.fx=null; d.fy=null; }));
+
+    degree = new Map();
+    LINKS.forEach(function(l){
+      var s = typeof l.source==='object'?l.source.id:l.source;
+      var t = typeof l.target==='object'?l.target.id:l.target;
+      degree.set(s,(degree.get(s)||0)+1); degree.set(t,(degree.get(t)||0)+1);
+    });
+
+    node.append("circle").attr("r",rOf).attr("fill",function(d){ return d.color; });
+    node.append("text").attr("text-anchor","middle").attr("dy",function(d){ return rOf(d)+14; }).text(function(d){ return d.label; });
+
+    sim.on("tick", function(){
+      link.attr("d", function(d){
+        var x1=d.source.x,y1=d.source.y,x2=d.target.x,y2=d.target.y;
+        var dr = Math.hypot(x2-x1,y2-y1)*1.9;
+        return "M"+x1+","+y1+"A"+dr+","+dr+" 0 0,1 "+x2+","+y2;
+      });
+      node.attr("transform", function(d){ return "translate("+d.x+","+d.y+")"; });
+    });
+
+    node.on("click",function(e,d){ selected=(selected===d.id)?null:d.id; applySelection(); })
+        .on("keydown",function(e,d){ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); selected=(selected===d.id)?null:d.id; applySelection(); } })
+        .on("mouseenter",function(e,d){
+          if (selected) return;
+          var nb = neighborsOf(d.id);
+          node.classed("dim", function(x){ return !nb[x.id]; });
+          link.classed("hi", function(l){ return l.source.id===d.id||l.target.id===d.id; })
+              .classed("dim", function(l){ return !(l.source.id===d.id||l.target.id===d.id); });
+        })
+        .on("mouseleave",function(){ if(!selected){ node.classed("dim",false); link.classed("hi",false).classed("dim",false); } });
+
+    var box = svgEl.parentNode;
+    link.on("mousemove",function(e,l){
+      var r = box.getBoundingClientRect();
+      tip.style.opacity = 1;
+      tip.style.left = Math.min(e.clientX - r.left + 14, r.width - 305) + "px";
+      tip.style.top  = (e.clientY - r.top + 14) + "px";
+      tip.innerHTML = "<strong>"+_esc(l.source.label)+" → "+_esc(l.target.label)+"</strong><span class=\"nn-t-what\">"+_esc(l.what)+"</span>";
+    }).on("mouseleave",function(){ tip.style.opacity = 0; });
+
+    // Ebenen-Filter
+    var active = {}; Object.keys(LEVELS).forEach(function(k){ active[k]=true; });
+    document.querySelectorAll("#panel-normennetz .nn-chip[data-lvl]").forEach(function(btn){
+      btn.addEventListener("click",function(){
+        var lvl = btn.dataset.lvl;
+        if (active[lvl]){ active[lvl]=false; btn.setAttribute("aria-pressed","false"); }
+        else { active[lvl]=true; btn.setAttribute("aria-pressed","true"); }
+        node.style("display", function(d){ return active[d.level] ? null : "none"; });
+        link.style("display", function(l){ return (active[l.source.level]&&active[l.target.level]) ? null : "none"; });
+        if (selected && !active[nodeById.get(selected).level]){ selected=null; applySelection(); }
+      });
+    });
+
+    // Stufen-Filter
+    stufeHint = document.getElementById("nn-stufe-hint");
+    document.querySelectorAll("#panel-normennetz .nn-chip.nn-stufe").forEach(function(btn){
+      btn.addEventListener("click",function(){
+        var st = +btn.dataset.stufe;
+        document.querySelectorAll("#panel-normennetz .nn-chip.nn-stufe").forEach(function(b){ b.setAttribute("aria-pressed","false"); });
+        if (activeStufe === st){ activeStufe = null; }
+        else { activeStufe = st; btn.setAttribute("aria-pressed","true"); }
+        applyStufe();
+      });
+    });
+
+    var resetBtn = document.getElementById("nn-reset");
+    if (resetBtn) resetBtn.addEventListener("click",function(){
+      selected=null; activeStufe=null;
+      document.querySelectorAll("#panel-normennetz .nn-chip.nn-stufe").forEach(function(b){ b.setAttribute("aria-pressed","false"); });
+      node.classed("stufe-hi",false); applySelection(); applyStufe();
+    });
+
+    window.addEventListener("resize", function(){ if (document.getElementById("panel-normennetz").style.display !== "none") resize(); });
+    resize();
+    _initialisiert = true;
+  }
+
+  // Tab wird angezeigt: einmalig initialisieren, danach nur neu vermessen
+  function zeigeTab(){
+    if (!_initialisiert) init();
+    else resize();
+  }
+
+  // Sprung aus Themenradar/Meilenstein: Tab öffnen + Knoten vorselektieren
+  function zeige(nodeId){
+    if (window.App && App.activate) App.activate("normennetz");
+    setTimeout(function(){
+      if (!_initialisiert) return;
+      selected = nodeId; applySelection();
+    }, 40);
+  }
+
+  // Zu einem Freitext die passenden Regelwerk-Knoten finden (für Rückwärts-Links)
+  function treffer(text){
+    var t = (text||"").toLowerCase();
+    if (!t) return [];
+    return NODES.filter(function(n){
+      return (ALIASES[n.id]||[]).some(function(a){ return t.indexOf(a.toLowerCase()) !== -1; });
+    }).map(function(n){ return { id:n.id, label:n.label }; });
+  }
+
+  window.NN = { zeigeTab: zeigeTab, zeige: zeige, treffer: treffer, knoten: function(){ return NODES; } };
+})();
+</script>
 <script>/* ===== App-Controller / Tab-Navigation ===== */
 (function(){
-  var PANELS = ["lageplan","themenradar","meilensteine","risiko","settings"];
+  var PANELS = ["lageplan","themenradar","meilensteine","risiko","normennetz","settings"];
   var TITLES = {
     lageplan:     "Lageplan | Energie & Asset Management",
     themenradar:  "Themenradar | Energie & Asset Management",
     meilensteine: "Meilensteine | Energie & Asset Management",
     risiko:       "Risikomanagement | Energie & Asset Management",
+    normennetz:   "Normennetz | Energie & Asset Management",
     settings:     "Einstellungen | Energie & Asset Management"
   };
 
@@ -10409,6 +10904,7 @@ window.ST={speichereEinstellungen,resetteEinstellungen};
     if (name==="themenradar"  && window.TR && TR.redraw)       { try { TR.redraw();       } catch(e){} }
     if (name==="meilensteine" && window.MS && MS.redraw)       { try { MS.redraw();       } catch(e){} }
     if (name==="risiko"       && window.RM && RM.renderTab)    { try { RM.renderTab();    } catch(e){} }
+    if (name==="normennetz"   && window.NN && NN.zeigeTab)     { try { NN.zeigeTab();     } catch(e){} }
     if (name==="lageplan") {
       if (window.LP && LP.aktualisiereStatusleiste) { try { LP.aktualisiereStatusleiste(); } catch(e){} }
       if (window.LP && LP.zeichneLpRadar) { try { LP.zeichneLpRadar(false); } catch(e){} }
