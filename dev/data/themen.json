@@ -134,7 +134,14 @@
     ],
     "quelle": "https://news.google.com/rss/articles/CBMisgFBVV95cUxOaTlSaHJyZ241cXdJOGQ1T3g1WnlBOWxJQ29rX21ET1ZuQzcwSEk4b1pxeUFrSFR5a0xzdkx5b3NjMFBsX0dhWkllNGkzM1VJRlUwTHlxWW1VSnkxbS1sRkh3MzBkTHJuSHluM1p3TzJNOFRqS0VuNGQtcldwNTNrMHZORzVLV05VWVlWak5iZ3puQWdYYndhdnk5dFphY1R4RFFiYlBTbkFIUV9Bc1ctemlB?oc=5",
     "beobachtung": [],
-    "aktualisierungen": [],
+    "aktualisierungen": [
+      {
+        "datum": "2026-09-07",
+        "titel": "Bundesnetzagentur startet Konsultation zur Reform der Netzentgeltsystematik Strom",
+        "quelle": "BNetzA Pressemitteilungen",
+        "link": "http://www.bundesnetzagentur.de/SharedDocs/Pressemitteilungen/DE/2026/20260806_Agnes.html"
+      }
+    ],
     "manuell_erfasst": true,
     "radar_score": 0.84,
     "x": 235.72123903134604,

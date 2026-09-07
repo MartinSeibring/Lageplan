@@ -1,6 +1,571 @@
 {
-  "erstellt": "2026-07-06T14:24:01.360953+00:00",
+  "erstellt": "2026-09-07T10:09:44.234814+00:00",
   "vorschlaege": [
+    {
+      "titel": "Bundesnetzagentur startet Konsultation zur Reform der Netzentgeltsystematik Strom",
+      "zusammenfassung": "Präsident Müller: „Auf dem Weg zu mehr Flexibilität und Systemeffizienz im Strommarkt liegen wir gut im Zeitplan. Nach der heute gestarteten Konsultation wollen wir mit einer Festlegung zum Jahresende den Strommarktakteuren zwei Jahre Zeit für die Umsetzung der zukünftigen Entgeltsystematik geben.“",
+      "begruendung": "Beobachtung \"Flexibilität\"",
+      "name": "BNetzA Pressemitteilungen",
+      "link": "http://www.bundesnetzagentur.de/SharedDocs/Pressemitteilungen/DE/2026/20260806_Agnes.html",
+      "datum": "",
+      "update_fuer_thema_id": 1783345672218,
+      "update_fuer_thema_titel": "\"Flexibilität ermöglichen\": Studie: Mehr Batteriespeicher würden Milliardenentlastung bringen - Ntv"
+    },
+    {
+      "titel": "Entwurf eines Gesetzes zur Änderung des Energiewirtschaftsrechts zur Synchronisierung des Anlagenzubaus mit dem Netzausbau sowie zur Verbesserung des ",
+      "zusammenfassung": "",
+      "begruendung": "Beobachtung \"Netzausbau\"",
+      "name": "BMWE Energie",
+      "link": "https://www.bundeswirtschaftsministerium.de/Redaktion/DE/Artikel/Service/Gesetzesvorhaben/2026/20260812-entwurf-netzanschlusspaket.html",
+      "datum": "2026-08-12",
+      "update_fuer_thema_id": 1780298987606,
+      "update_fuer_thema_titel": "Bernds zu hause"
+    },
+    {
+      "titel": "Energy Hubs: Mehr Energieautonomie für Gewerbestandorte",
+      "zusammenfassung": "Netzengpässe bremsen die Elektrifizierung von Industrie und Logistik. Die Antwort darauf liegt hinter dem Netzanschlusspunkt: Ein sogenannter Energy Hub verbindet Photovoltaik, Batteriespeicher, Verbraucher, Ladeinfrastruktur und Energiemanagement und macht den lokal erzeugten Strom bedarfsgerecht verfügbar. Zusätzlich können leichte Montagesysteme die lokale Energie-Erzeugungsbasis deutlich erwei",
+      "begruendung": "Beobachtung \"Netzanschluss\"",
+      "name": "pv magazine Deutschland",
+      "link": "https://www.pv-magazine.de/2026/09/07/energy-hubs-mehr-energieautonomie-fuer-gewerbestandorte/",
+      "datum": "2026-09-07",
+      "update_fuer_thema_id": 1783345634365,
+      "update_fuer_thema_titel": "Reiche beschleunigt Netzanschluss für Rechenzentren in Deutschland - Hasepost"
+    },
+    {
+      "titel": "Marktübersicht: 31 Energiemanagement-Systeme für Gewerbe und Industrie",
+      "zusammenfassung": "pv+: Wegen der zunehmenden Relevanz des Marktes für Photovoltaik-Anlagen und Batterie­speicher in Gewerbe und Industrie und weil die Integration in den Strommarkt absehbar attraktiv wird, stellen wir in einer Übersicht erstmals Energiemanagementsysteme für das Segment vor. Die Lösungen unterscheiden sich nicht nur bei signifikanten Eigenschaften, sondern auch darin, wie gut Installationsbetriebe s",
+      "begruendung": "Beobachtung \"Flexibilität\"",
+      "name": "pv magazine Deutschland",
+      "link": "https://www.pv-magazine.de/2026/09/04/marktuebersicht-31-energiemanagement-systeme-fuer-gewerbe-und-industrie/",
+      "datum": "2026-09-04",
+      "update_fuer_thema_id": 1783345672218,
+      "update_fuer_thema_titel": "\"Flexibilität ermöglichen\": Studie: Mehr Batteriespeicher würden Milliardenentlastung bringen - Ntv"
+    },
+    {
+      "titel": "Analyse zu AgNes und GGV: Ziele verfehlt",
+      "zusammenfassung": "Das 1000 GW Institut betrachtet in einer Kurzanalyse, welche Auswirkungen der aktuelle Entwurf der Bundesnetzagentur für die Netzentgeltsystematik hätte. Das Ergebnis deckt sich mit den Befürchtungen anderer Experten: In der jetzigen Form wäre AgNes das faktische Ende für Photovoltaik-Nutzung in der gemeinschaftlichen Gebäudeversorgung.",
+      "begruendung": "Keywords: Netzentgelt",
+      "name": "pv magazine Deutschland",
+      "link": "https://www.pv-magazine.de/2026/09/04/analyse-zu-agnes-und-ggv-ziele-verfehlt/",
+      "datum": "2026-09-04",
+      "vorgeschlagene_kategorie": "regulatorisch",
+      "vorgeschlagener_zeithorizont": "kurzfristig",
+      "vorgeschlagene_auswirkung": 3,
+      "vorgeschlagene_cluster": [
+        "Netzwirtschaft"
+      ],
+      "vorgeschlagene_tags": [
+        "Netzentgelt"
+      ]
+    },
+    {
+      "titel": "pv magazine Podcast: Matthias Karger, was passiert beim Redispatch und wie schütze ich meine Erträge?",
+      "zusammenfassung": "Redispatch ist für das Netz notwendig, aber muss er so kompliziert sein? Schon heute gibt es viel Verdruss über abgeregelten Eigenverbrauch, Doppelbelastungen und Verfahrensfehler. Künftig kommt der Redispatch-Vorbehalt hinzu und immer mehr kleine steuerbare Anlagen erweitern den Durchgriff der Netzbetreiber. Wo wir stehen und was Betreiber tun können, um sich gegen Redispatch-Maßnahmen und wirtsc",
+      "begruendung": "Keywords: Redispatch",
+      "name": "pv magazine Deutschland",
+      "link": "https://www.pv-magazine.de/2026/09/04/pv-magazine-podcast-matthias-karger-was-passiert-beim-redispatch-und-wie-schuetze-ich-meine-ertraege/",
+      "datum": "2026-09-04",
+      "vorgeschlagene_kategorie": "regulatorisch",
+      "vorgeschlagener_zeithorizont": "kurzfristig",
+      "vorgeschlagene_auswirkung": 3,
+      "vorgeschlagene_cluster": [
+        "Netzwirtschaft"
+      ],
+      "vorgeschlagene_tags": [
+        "Redispatch"
+      ]
+    },
+    {
+      "titel": "Gute Grundlage für Reform der Netzentgelte, aber Kritik an dynamischen Netzentgelten",
+      "zusammenfassung": "Die Bundesnetzagentur hat die Konsultation zur Reform der Allgemeinen Netzentgeltsystematik Strom (AgNes) gestartet. Die neue Systematik soll ab 2029 die bisherigen Regeln der Stromnetzentgeltverordnung ersetzen.",
+      "begruendung": "Keywords: Netzentgelt",
+      "name": "VKU Pressemitteilungen",
+      "link": "https://www.vku.de/presse/pressemitteilungen/vku-zur-agnes-konsultation-gute-grundlage-fuer-reform-der-netzentgelte-aber-kritik-an-dynamischen-netzentgelten/",
+      "datum": "2026-08-06",
+      "vorgeschlagene_kategorie": "regulatorisch",
+      "vorgeschlagener_zeithorizont": "kurzfristig",
+      "vorgeschlagene_auswirkung": 3,
+      "vorgeschlagene_cluster": [
+        "Netzwirtschaft"
+      ],
+      "vorgeschlagene_tags": [
+        "Netzentgelt"
+      ]
+    },
+    {
+      "titel": "VKU begrüßt Reformen bei EEG, Netzanschlüssen und Flexibilitäten",
+      "zusammenfassung": "Das Bundeskabinett hat heute die Entwürfe zum Erneuerbare-Energien-Gesetz (EEG 2027), zum Netzanschlusspaket sowie zum Flexibilitätsbeschleunigungsgesetz (FlexBG) beschlossen. Der Verband kommunaler Unternehmen (VKU) begrüßt, dass die Bundesregierung sich bei diesen zentralen energiepolitischen Gesetzesvorhaben geeinigt hat, Erneuerbare Energien weiter kraftvoll ausgebaut und die Weichen für mehr ",
+      "begruendung": "Beobachtung \"Netzanschluss\"",
+      "name": "VKU Pressemitteilungen",
+      "link": "https://www.vku.de/presse/pressemitteilungen/bundesregierung-beschliesst-energie-reformen-vku-begruesst-reformen-bei-eeg-netzanschluessen-und-flexibilitaeten/",
+      "datum": "2026-07-29",
+      "update_fuer_thema_id": 1783345634365,
+      "update_fuer_thema_titel": "Reiche beschleunigt Netzanschluss für Rechenzentren in Deutschland - Hasepost"
+    },
+    {
+      "titel": "VKU begrüßt Referentenentwurf zum Netzanschlusspaket und fordert schnelleren Verteilnetzausbau",
+      "zusammenfassung": "Der Verband kommunaler Unternehmen (VKU) begrüßt den Referentenentwurf für ein Netzanschlusspaket des Bundesministeriums für Wirtschaft und Energie (BMWE). Der Entwurf setzt aus Sicht der kommunalen Unternehmen an einem Engpass der Energiewende an und soll den Zubau neuer Windenergie- und Solaranlagen besser mit dem Netzausbau verzahnen. Gleichzeitig warnt der Verband davor, die neuen Regelungen o",
+      "begruendung": "Beobachtung \"Netzausbau\"",
+      "name": "VKU Pressemitteilungen",
+      "link": "https://www.vku.de/presse/pressemitteilungen/vku-begruesst-referentenentwurf-zum-netzanschlusspaket-und-fordert-schnelleren-verteilnetzausbau/",
+      "datum": "2026-07-23",
+      "update_fuer_thema_id": 1780298987606,
+      "update_fuer_thema_titel": "Bernds zu hause"
+    },
+    {
+      "titel": "VKU-Ersteinschätzung zum Start der Verbändeanhörung",
+      "zusammenfassung": "Die Bundesregierung hat die Verbändeanhörung für das Erneuerbaren-Energien-Gesetz (EEG 2027) und das Netzpaket gestartet. Der Verband kommunaler Unternehmen (VKU) begrüßt wichtige Fortschritte bei der Verzahnung von Erneuerbaren-Ausbau und Netzausbau, sieht aber Nachbesserungsbedarf.",
+      "begruendung": "Beobachtung \"Netzausbau\"",
+      "name": "VKU Pressemitteilungen",
+      "link": "https://www.vku.de/presse/pressemitteilungen/eeg-und-netzpaket-vku-ersteinschaetzung-zum-start-der-verbaendeanhoerung/",
+      "datum": "2026-07-20",
+      "update_fuer_thema_id": 1780298987606,
+      "update_fuer_thema_titel": "Bernds zu hause"
+    },
+    {
+      "titel": "Bundesregierung plant schnellere Genehmigungen für Flexibilität im Stromsystem",
+      "zusammenfassung": "Durch neue Fristen, Verfahrensbündelung, Digitalisierung und eingeschränkte Klagemöglichkeiten soll der Bau von Kraftwerken, Speichern, Pumpspeichern und Offshore-Zulieferinfrastruktur deutlich beschleunigt werden. Möglich machen soll es das neue FlexBG. Es greift allerdings zu kurz, die Beschleunigungsregeln nur auf StromVKG-Anlagen zu beschränken.",
+      "begruendung": "Beobachtung \"Flexibilität\"",
+      "name": "VKU Aktuelle Meldungen",
+      "link": "https://www.vku.de/themen/energiewende/artikel/bundesregierung-plant-schnellere-genehmigungen-fuer-flexibilitaet-im-stromsystem/",
+      "datum": "2026-07-27",
+      "update_fuer_thema_id": 1783345672218,
+      "update_fuer_thema_titel": "\"Flexibilität ermöglichen\": Studie: Mehr Batteriespeicher würden Milliardenentlastung bringen - Ntv"
+    },
+    {
+      "titel": "Netzanschluss ist Nadelöhr der Energiewende – Netzausbau deutlich beschleunigen!",
+      "zusammenfassung": "Der Verband kommunaler Unternehmen (VKU) begrüßt das Netzanschlusspaket der Bundesregierung. Der Gesetzentwurf setzt aus Sicht der kommunalen Unternehmen an einem Engpass der Energiewende an und soll den Zubau neuer Anlagen besser mit dem Netzausbau verzahnen.",
+      "begruendung": "Beobachtung \"Netzausbau\"",
+      "name": "VKU Aktuelle Meldungen",
+      "link": "https://www.vku.de/themen/energiewende/artikel/vku-begruesst-referentenentwurf-zum-netzanschlusspaket/",
+      "datum": "2026-07-23",
+      "update_fuer_thema_id": 1780298987606,
+      "update_fuer_thema_titel": "Bernds zu hause"
+    },
+    {
+      "titel": "BNetzA: Keine Sonderlösung für Netzbetreiber beim Energy Sharing",
+      "zusammenfassung": "Die Bundesnetzagentur (BNetzA) hat mit ihrer Mitteilung vom 7. Juli 2026 wesentliche Klarstellungen zur praktischen Umsetzung von Energy Sharing veröffentlicht. Damit beantwortet die BNetzA Fragen zur Marktkommunikation, Bilanzierung und Netzentgeltabrechnung, die bei Inkrafttreten der Energy-Sharing-Regelungen noch ungeklärt waren.",
+      "begruendung": "Keywords: Netzentgelt",
+      "name": "VKU Aktuelle Meldungen",
+      "link": "https://www.vku.de/themen/energiewende/artikel/bnetza-keine-sonderloesung-fuer-netzbetreiber-beim-energy-sharing/",
+      "datum": "2026-07-23",
+      "vorgeschlagene_kategorie": "marktlich",
+      "vorgeschlagener_zeithorizont": "kurzfristig",
+      "vorgeschlagene_auswirkung": 3,
+      "vorgeschlagene_cluster": [
+        "Netzwirtschaft"
+      ],
+      "vorgeschlagene_tags": [
+        "Netzentgelt"
+      ]
+    },
+    {
+      "titel": "Kundenanlagen - Lösung auf EU-Ebene in Sicht",
+      "zusammenfassung": "Auf EU-Ebene zeichnet sich eine Regelung für die Abgrenzung von der Regulierung unterliegender Energieverteilernetze von regulierungsfreien Kundenanlagen ab. Noch in diesem Jahr könnte eine entsprechende Regelung Eingang in die Strombinnenmarktrichtlinie finden.",
+      "begruendung": "Keywords: Regulierung",
+      "name": "VKU Aktuelle Meldungen",
+      "link": "https://www.vku.de/themen/recht/artikel/kundenanlagen-loesung-auf-eu-ebene-in-sicht/",
+      "datum": "2026-07-17",
+      "vorgeschlagene_kategorie": "marktlich",
+      "vorgeschlagener_zeithorizont": "kurzfristig",
+      "vorgeschlagene_auswirkung": 3,
+      "vorgeschlagene_cluster": [
+        "Netzwirtschaft"
+      ],
+      "vorgeschlagene_tags": [
+        "Regulierung"
+      ]
+    },
+    {
+      "titel": "Eigener Solarstrom schützt nicht vor neuen Kosten – dieser Netz-Aufschlag ist geplant - Joyn",
+      "zusammenfassung": "Eigener Solarstrom schützt nicht vor neuen Kosten – dieser Netz-Aufschlag ist geplant &nbsp;&nbsp; Joyn",
+      "begruendung": "Google-News-Suche: Netzentgelt",
+      "name": "Google News: Netzentgelt",
+      "link": "https://news.google.com/rss/articles/CBMipwFBVV95cUxNNmpZMjkyTEpram9nZW9KTTdSZ3JrQjNYeEgtUjItcmVSdDd2ZWpJNnJGTEcteXdRT0Rtbng4WERCYVhRY25zc2FtYmlxVkdjRHpxR0U3eVN6dUptRHhYRndGZDg1LVlaMFRNYlNqTURITEdlVnVfVXU4Qzh4ZW5TRW5YeV8xNExKREM3QVFJV1hYMGNtWFNhMzRoNEpfcVBiek1pZ1M5QQ?oc=5",
+      "datum": "2026-09-01",
+      "vorgeschlagene_kategorie": "regulatorisch",
+      "vorgeschlagener_zeithorizont": "kurzfristig",
+      "vorgeschlagene_auswirkung": 3,
+      "vorgeschlagene_cluster": [
+        "Netzwirtschaft"
+      ],
+      "vorgeschlagene_tags": [
+        "Netzentgelt"
+      ]
+    },
+    {
+      "titel": "Doppelzahlungen vermeiden: Darum können Sie auch zwei Stromrechnungen erhalten - CHIP",
+      "zusammenfassung": "Doppelzahlungen vermeiden: Darum können Sie auch zwei Stromrechnungen erhalten &nbsp;&nbsp; CHIP",
+      "begruendung": "Google-News-Suche: Messstellenbetrieb",
+      "name": "Google News: Messstellenbetrieb",
+      "link": "https://news.google.com/rss/articles/CBMi-AFBVV95cUxNdy1ZMXhGUmJmajAwdkJSX056RENBb3ZHNFVvMHI4VG1BSEdMQXdLcjlncEhWTmxhdWVhTVd2ZmNXZGl0UWNaVHB2Y090Y0YyRElTZ0JlLTlHTHVUNkpmTTZQVFZpc0FiUjZEemNrSDNSUkwyMGVkTWUxOWtCMERWUHpsMXl0dTFfN1JHZ01QczJVd2VYZFROS1dJOEhFS3pYb0t1a1J3YmxwbDEtOS0zYWZSZ25GekprNE1VZERMNHZaMEVEbVFqN1Jmd2VFVVNiaDJBUS0xMW5VU2N6XzVucE5GYUlZQXRoTU9FcEg5VFRkZ2p0U0xaYg?oc=5",
+      "datum": "2026-08-27",
+      "vorgeschlagene_kategorie": "regulatorisch",
+      "vorgeschlagener_zeithorizont": "kurzfristig",
+      "vorgeschlagene_auswirkung": 3,
+      "vorgeschlagene_cluster": [
+        "Netzwirtschaft"
+      ],
+      "vorgeschlagene_tags": [
+        "Messstellenbetrieb"
+      ]
+    },
+    {
+      "titel": "Intel Aktie: 14A-Prozess erreicht Defektdichte-Rekord - Börse Express",
+      "zusammenfassung": "Intel Aktie: 14A-Prozess erreicht Defektdichte-Rekord &nbsp;&nbsp; Börse Express",
+      "begruendung": "Google-News-Suche: 14a",
+      "name": "Google News: 14a",
+      "link": "https://news.google.com/rss/articles/CBMipwFBVV95cUxNdzdmSlpxT2ZBSkxvOWxreUpBNkRVY3ZkMU83cHByejV5VGJBR2s0VHhmYjZTMkVOZUY0Z1ZuN053eWkxQktkUWNwYzhiUDdqVFJUVG8zbzd6MThZZFRTQlR5QzZxaWxjenF5U1BydHYxd2w3MDlLUTF4VGptSWx1SEZUTHNGNzNBU1lrSWNDdHVPQUVmZ1FLQ0hxTHo2WXBsZHg0Z29Obw?oc=5",
+      "datum": "2026-09-02",
+      "vorgeschlagene_kategorie": "regulatorisch",
+      "vorgeschlagener_zeithorizont": "kurzfristig",
+      "vorgeschlagene_auswirkung": 3,
+      "vorgeschlagene_cluster": [
+        "Technologie"
+      ],
+      "vorgeschlagene_tags": [
+        "14a"
+      ]
+    },
+    {
+      "titel": "Intel Foundry: 14A sei das Beste seit 22 nm, Kunden ab 2027 auch für EMIB - ComputerBase",
+      "zusammenfassung": "Intel Foundry: 14A sei das Beste seit 22 nm, Kunden ab 2027 auch für EMIB &nbsp;&nbsp; ComputerBase",
+      "begruendung": "Google-News-Suche: 14a",
+      "name": "Google News: 14a",
+      "link": "https://news.google.com/rss/articles/CBMiwAFBVV95cUxNV3pJNnBFMnF5MzRwWHg1Z2hQZ3RJNGFkZG5FX0FCbW5JVlFQbmlaVkJRV3BtcE9MVHFvN2JpYUJvZGNsejBmX05jS3VGRTE2Tlk1UEpTam92bWVMWDh0bzhpTk5BUklnYWJtRkFxVzM3djdiMFJzUGR5T2FQTldGeDliWmJBNEdPRTVsSUxrVGZFMWluMVVhTE1JWmxpZjVzMkNQSGc1V2c4eDZsU0w2bm00a1Z0YUQtbGJkbzlkTDg?oc=5",
+      "datum": "2026-08-27",
+      "vorgeschlagene_kategorie": "regulatorisch",
+      "vorgeschlagener_zeithorizont": "kurzfristig",
+      "vorgeschlagene_auswirkung": 3,
+      "vorgeschlagene_cluster": [
+        "Technologie"
+      ],
+      "vorgeschlagene_tags": [
+        "14a"
+      ]
+    },
+    {
+      "titel": "Intel 14A-Prozess: 15–20% mehr Performance, 25–35% weniger Strom - BornCity",
+      "zusammenfassung": "Intel 14A-Prozess: 15–20% mehr Performance, 25–35% weniger Strom &nbsp;&nbsp; BornCity",
+      "begruendung": "Google-News-Suche: 14a",
+      "name": "Google News: 14a",
+      "link": "https://news.google.com/rss/articles/CBMikAFBVV95cUxOcGlQOUgxMzlWU0dwZ25VcnFSRHlZTmQzTzlUMkVzTl94M29WS2I2OXprUGtaVS1mQ1llZVBsSXNNamJaU2dXYTM0dkNIT0xEajBRMmdib2I2eXFoSWFzMVFxVXhfZXdERzNyN1JiWXljeHVQRWg4aFhWTXhXaWJKYi1rTGhQTmFhRkhNbUtqZU8?oc=5",
+      "datum": "2026-08-30",
+      "vorgeschlagene_kategorie": "regulatorisch",
+      "vorgeschlagener_zeithorizont": "kurzfristig",
+      "vorgeschlagene_auswirkung": 3,
+      "vorgeschlagene_cluster": [
+        "Technologie"
+      ],
+      "vorgeschlagene_tags": [
+        "14a"
+      ]
+    },
+    {
+      "titel": "Smart Factory bringt Flexibilität in die Blechfertigung - produktion.de",
+      "zusammenfassung": "Smart Factory bringt Flexibilität in die Blechfertigung &nbsp;&nbsp; produktion.de",
+      "begruendung": "Beobachtung \"Flexibilität\"",
+      "name": "Google News: Flexibilität",
+      "link": "https://news.google.com/rss/articles/CBMinwFBVV95cUxPNWt5WjBuR3lCVG1vT01YdVFRV0RJeUJ2QzJBWmU1QXlLcjVYX2VSdGpwcE9oUGJNQ004NkdUS1VvU1NzZFYtSDRZTFUtRTRnT3BvV1RPUjlMaEJxSklQenZCdXhsVXhDWkJMRld5U0dzZnlieHZIMzJLemJrYWI0MDFOekt5dkw1d1dKQjBWSnVGcTZNeWZTR0FjeFVsdnM?oc=5",
+      "datum": "2026-09-03",
+      "update_fuer_thema_id": 1783345672218,
+      "update_fuer_thema_titel": "\"Flexibilität ermöglichen\": Studie: Mehr Batteriespeicher würden Milliardenentlastung bringen - Ntv"
+    },
+    {
+      "titel": "Transportkapazität: Die Krise hat Substanz gekostet und Flexibilität genommen - dvz.de",
+      "zusammenfassung": "Transportkapazität: Die Krise hat Substanz gekostet und Flexibilität genommen &nbsp;&nbsp; dvz.de",
+      "begruendung": "Beobachtung \"Flexibilität\"",
+      "name": "Google News: Flexibilität",
+      "link": "https://news.google.com/rss/articles/CBMizwFBVV95cUxPX2MtYXN6Q25PeF9UbE9UYW5XSUhnR0kxYzRJbk82SlRnbDhSMnM0RnNLNUt3dWZMclRTcHZZYjF5N2JzdlZKSUxmbm0zREEwbTlrNkxvSThEM2dGWlNCSHpxdzFhVnNrRDBVNXY0M2VLalkxcUlIankwTkZYWEVqMmlBMUlXTGV3Rjc4YURqY1F0QXJqeml4WEZIek1DXzhFTEZKbWhRYTE2bzBQZEQyVGpXWlFfeUl6N1gzcWxKVmJQT3NlNk44MmgzbG9KTzA?oc=5",
+      "datum": "2026-09-02",
+      "update_fuer_thema_id": 1783345672218,
+      "update_fuer_thema_titel": "\"Flexibilität ermöglichen\": Studie: Mehr Batteriespeicher würden Milliardenentlastung bringen - Ntv"
+    },
+    {
+      "titel": "KB5120998 ab 8. September: Microsoft bringt Taskleisten-Flexibilität zurück - BornCity",
+      "zusammenfassung": "KB5120998 ab 8. September: Microsoft bringt Taskleisten-Flexibilität zurück &nbsp;&nbsp; BornCity",
+      "begruendung": "Beobachtung \"Flexibilität\"",
+      "name": "Google News: Flexibilität",
+      "link": "https://news.google.com/rss/articles/CBMipAFBVV95cUxOcnd2VDhNemNMMXdLb3hFZTZOWFE1T1g0Q1g2RmotWlFXZzdtVFNyMXdXLVpuaFpjQnRFNmNFaWkwNmVzdHI1czhBcVYwZDBDbl9zMkRxWnRkLWVWWVpDdHpYVDBQQWJaWnRka0t2Y2JIekh3SGtlUVp5OGg1T0RsdVlpSXhMaTB1SFZpRzFTUG51aHdPaVVob2lRQW55QTVXZ0EyQQ?oc=5",
+      "datum": "2026-09-03",
+      "update_fuer_thema_id": 1783345672218,
+      "update_fuer_thema_titel": "\"Flexibilität ermöglichen\": Studie: Mehr Batteriespeicher würden Milliardenentlastung bringen - Ntv"
+    },
+    {
+      "titel": "Wärmepumpen-Förderung: Smart Meter ab 4,2 kW jetzt Pflicht - Börse Express",
+      "zusammenfassung": "Wärmepumpen-Förderung: Smart Meter ab 4,2 kW jetzt Pflicht &nbsp;&nbsp; Börse Express",
+      "begruendung": "Beobachtung \"Smart Meter\"",
+      "name": "Google News: Smart Meter",
+      "link": "https://news.google.com/rss/articles/CBMirwFBVV95cUxNdGE4NVVyY3ZwcnpkR25OblRYWnJDeDN0b3RrNXJKYjM3dVFTYXE0QUotMC1GT3ZVNEdYRXpiLUdJMFpHX05oZWtnTkNsdXhFaHRVbmZ5SW43RHRRNENZZlkzWUdUY3hNZ0tHdHZTRVQ2emtsYjhiV2pldzI0bUdCSDduMzlzd2hiMVhFMmh1dVJCdUVZTTRCVDFzZy1WRzk1TG5sRGM1dDVuR05ZaS04?oc=5",
+      "datum": "2026-09-07",
+      "update_fuer_thema_id": 1783345663810,
+      "update_fuer_thema_titel": "Smart Meter Light: Kommt jetzt die Prosumer-Revolution? - Energie-Experten"
+    },
+    {
+      "titel": "Smart-Meter-Rollout soll schneller gehen - Deutsches Handwerksblatt",
+      "zusammenfassung": "Smart-Meter-Rollout soll schneller gehen &nbsp;&nbsp; Deutsches Handwerksblatt",
+      "begruendung": "Google-News-Suche: Smart Meter",
+      "name": "Google News: Smart Meter",
+      "link": "https://news.google.com/rss/articles/CBMikAFBVV95cUxQYXRCRzJqRFJCbmRfdkc5SG55MUowN1lQcEpzWmNjdGhpbnFSaWF3Ul94czMyaFI2UEdKc3RlUmV0WVJiV2xMOUJtNEYyalJBTERzSGlPMDFjMkZSdEc2SVZaeC1hSWhLVHNmdy1lbi12RjdYbU5BVEVrRlhGT2RPd2FDbW5QNFhUTlZ1ZTJRU2U?oc=5",
+      "datum": "2026-09-06",
+      "vorgeschlagene_kategorie": "regulatorisch",
+      "vorgeschlagener_zeithorizont": "kurzfristig",
+      "vorgeschlagene_auswirkung": 3,
+      "vorgeschlagene_cluster": [
+        "Messstellenbetrieb"
+      ],
+      "vorgeschlagene_tags": [
+        "Rollout",
+        "Smart Meter"
+      ]
+    },
+    {
+      "titel": "Messstellenbetriebsgesetz: SMI macht konkrete Vorschläge für Smart Meter Light - energiezukunft.eu",
+      "zusammenfassung": "Messstellenbetriebsgesetz: SMI macht konkrete Vorschläge für Smart Meter Light &nbsp;&nbsp; energiezukunft.eu",
+      "begruendung": "Beobachtung \"Smart Meter\"",
+      "name": "Google News: Smart Meter",
+      "link": "https://news.google.com/rss/articles/CBMitAFBVV95cUxOeUQxNHloVDVQVE1sN3ZaNjVVanR5VTA0Zm1MWC1nOFpNNzBfTjFQVTF5aW5rMzloYjRQcG5sZ1ZMbFNEeUpSRHVCclNZY3Ewb3dQdWw4elJlN0FicTV4bDN5QXFZcWVHUkFOSGF2cDNHVHN3TnplcUhoUUpyWTE3Wlp1WUpWZVByM01CZE1VRnp6Y0M5dE5tUHFKcGlWV3RzTGgtaEFLd25FSEtDU3VYeEZEQS0?oc=5",
+      "datum": "2026-09-03",
+      "update_fuer_thema_id": 1783345663810,
+      "update_fuer_thema_titel": "Smart Meter Light: Kommt jetzt die Prosumer-Revolution? - Energie-Experten"
+    },
+    {
+      "titel": "Update Netzanschluss: Neue Vergabeverfahren auf Verteilnetzebene – Netze BW und E.ON-Töchter stellen Pilotverfahren vor - Gleiss Lutz",
+      "zusammenfassung": "Update Netzanschluss: Neue Vergabeverfahren auf Verteilnetzebene – Netze BW und E.ON-Töchter stellen Pilotverfahren vor &nbsp;&nbsp; Gleiss Lutz",
+      "begruendung": "Beobachtung \"Netzanschluss\"",
+      "name": "Google News: Netzanschluss",
+      "link": "https://news.google.com/rss/articles/CBMi6wFBVV95cUxPektTX2VDZzRGSkw2WFpLQVpOMEhab1VaZmJmWnlveUIzN1BmTHNNNFBNTUE1NWp3TEZ3SmRFc0l5ZnZjbXY3UnhUcndUV1pPRTBkS0xTTW9LRllxcnd0QWx1Z0xBT0MzQW95aVBXMUdWamF6dDcxeHA3eS16T3k1WkEyMWtKRW1OUTBmbUU1bmV6YUI1dlg4Q1JGbU9Id2RWZ2JCT3VHSE5uNldQM1pvazN3YUE4NWhmOWpZT28yczVWZXZYYk9yVU43bWI5OEtIcEg0Z1B1U1BUaEZsZmhjUlN5SnpZQnhoZ0Q4?oc=5",
+      "datum": "2026-09-03",
+      "update_fuer_thema_id": 1783345634365,
+      "update_fuer_thema_titel": "Reiche beschleunigt Netzanschluss für Rechenzentren in Deutschland - Hasepost"
+    },
+    {
+      "titel": "Netzanschluss-Reformen: Handwerk sieht Handlungsbedarf - Deutsches Handwerksblatt",
+      "zusammenfassung": "Netzanschluss-Reformen: Handwerk sieht Handlungsbedarf &nbsp;&nbsp; Deutsches Handwerksblatt",
+      "begruendung": "Beobachtung \"Netzanschluss\"",
+      "name": "Google News: Netzanschluss",
+      "link": "https://news.google.com/rss/articles/CBMiogFBVV95cUxObTlNbHpfWktsUElHeXZOZEhwMXQ0aGV5clJ5ZXZmRnI1LTYtZEFFblNlUnh1QlZXRGM1OTlyMTJYQTBFWXJ1eWE5aHduYlEyOFZVaVN0cHJHam5vd0toRGRCZ2JmOVg4aXh2SmpKQm9BMUJ0cnlkV1VzandvTWFlSWxJNWtCcmZ4RFlIdmxIRHJQS2VZbU1lVU9EMzVCV0V4VGc?oc=5",
+      "datum": "2026-09-03",
+      "update_fuer_thema_id": 1783345634365,
+      "update_fuer_thema_titel": "Reiche beschleunigt Netzanschluss für Rechenzentren in Deutschland - Hasepost"
+    },
+    {
+      "titel": "Wege zum sicheren und schnellen Netzanschluss für Rechenzentren - DataCenter-Insider",
+      "zusammenfassung": "Wege zum sicheren und schnellen Netzanschluss für Rechenzentren &nbsp;&nbsp; DataCenter-Insider",
+      "begruendung": "Beobachtung \"Netzanschluss\"",
+      "name": "Google News: Netzanschluss",
+      "link": "https://news.google.com/rss/articles/CBMizwFBVV95cUxOMDlnQVpGRTF5YmtacU14ZHktWlJrMV9WcFVzUTZHQThicXVzVG9jRElWeDNJZXEtSjgzVVBXcm5STTJkd3dMVlpvNm5ZeXRTcGlzU3dsYktKRERvclFWWFlkU1J1ZERBWHF5TlRjUmdqb1IyLWNoaHkwVm1hQUdNUWpLUzZGUDRTc1NmTk5pN2VJWG9oZnpPR2J4c3F1MG05MDB6d19zYjJTZG5DeUdmNy1US3NacE9meTE1emxuTXloaUxjS0h3dk0ycFBUdlE?oc=5",
+      "datum": "2026-09-04",
+      "update_fuer_thema_id": 1783345634365,
+      "update_fuer_thema_titel": "Reiche beschleunigt Netzanschluss für Rechenzentren in Deutschland - Hasepost"
+    },
+    {
+      "titel": "Neurodaten-Regulierung: BfDI fordert EU-Rechtsrahmen für Brain-Daten - Börse Express",
+      "zusammenfassung": "Neurodaten-Regulierung: BfDI fordert EU-Rechtsrahmen für Brain-Daten &nbsp;&nbsp; Börse Express",
+      "begruendung": "Google-News-Suche: Regulierung",
+      "name": "Google News: Regulierung",
+      "link": "https://news.google.com/rss/articles/CBMivAFBVV95cUxNUmIxSGpyVU1CcXowbHJMcWlUQ2g0bTM2RVZoVkp0aFl0X2FRMEVDVWFHR1V3dFgxM0Q4RW9MNWt1NGpaM3Vscjhpam9uMjNPY0N3N1doVERveWl6N1JveXRwS3FlU3NMWElsOGlzcVhOX2J2QURwLWRQcllFdmthN1hyeE9zQTY3VkZDMHROaTl0a3BKZkdTRjZod1dUNlFPZThYWk5BeHE1MzJ0SkhFNlhOOEFfdk9EcEs3cg?oc=5",
+      "datum": "2026-09-07",
+      "vorgeschlagene_kategorie": "regulatorisch",
+      "vorgeschlagener_zeithorizont": "kurzfristig",
+      "vorgeschlagene_auswirkung": 3,
+      "vorgeschlagene_cluster": [
+        "Netzwirtschaft"
+      ],
+      "vorgeschlagene_tags": [
+        "Regulierung"
+      ]
+    },
+    {
+      "titel": "EU-Regulierung: ChatGPT, Reddit und Roblox müssen bis Dezember 2026 nachrüsten - AD HOC NEWS",
+      "zusammenfassung": "EU-Regulierung: ChatGPT, Reddit und Roblox müssen bis Dezember 2026 nachrüsten &nbsp;&nbsp; AD HOC NEWS",
+      "begruendung": "Google-News-Suche: Regulierung",
+      "name": "Google News: Regulierung",
+      "link": "https://news.google.com/rss/articles/CBMiswFBVV95cUxNZk92TUF4UDRRTkxJQktWdnpvME15aUM3aG5VOWdKMllZaFpTM2lyeVE5Tkl0VktFc044aXNyc0ZWakhGbGhiRDJYR0NTSDkyLXVnRGZ0bzBkUU5GUy1PQUY3T0FuMmhISlJmcjFjcVNDbUJsNlZFT095akNROS1WTGpkMDJQTXBkT3ZiN3JIUF9id1U5eGMtUUF5a0syR0U0NnhXaFdORE5maFljdVM4U2pGYw?oc=5",
+      "datum": "2026-09-07",
+      "vorgeschlagene_kategorie": "regulatorisch",
+      "vorgeschlagener_zeithorizont": "kurzfristig",
+      "vorgeschlagene_auswirkung": 3,
+      "vorgeschlagene_cluster": [
+        "Netzwirtschaft"
+      ],
+      "vorgeschlagene_tags": [
+        "Regulierung"
+      ]
+    },
+    {
+      "titel": "Baden-Württemberg: Amokläufe auf Social Media: Medienaufsicht fordert mehr Regulierung von TikTok - tagesschau.de",
+      "zusammenfassung": "Baden-Württemberg: Amokläufe auf Social Media: Medienaufsicht fordert mehr Regulierung von TikTok &nbsp;&nbsp; tagesschau.de",
+      "begruendung": "Google-News-Suche: Regulierung",
+      "name": "Google News: Regulierung",
+      "link": "https://news.google.com/rss/articles/CBMi5gFBVV95cUxNSVg4cWJ2R3hoZ3FyeXh3LXFyUjJSSkxTUC00S1U0NEVmVkdyUzRlVnFWTmEwY1V4SG1TUVZNXzRIZW9HQURtSDdkeGwwMk9DWEEyTUVVOEZCenR2V2FtamxyWnJkUVZzYkV0SS1peDFlMzhsYmw1c2NXb3dvR2RLQW9GVmNCUGt1NjBjaUxPQUFycXRUNHZXRW9JM1BRUHFyRzJNdzVNXy1WUDBORlhaNlB4ZXBvMVlVWS01SUJoMlFJZkFQMXhWTG9WNWtnLTRVbFVQeG9jRGdmOThESGZGNlJiSEVCQQ?oc=5",
+      "datum": "2026-09-04",
+      "vorgeschlagene_kategorie": "regulatorisch",
+      "vorgeschlagener_zeithorizont": "kurzfristig",
+      "vorgeschlagene_auswirkung": 3,
+      "vorgeschlagene_cluster": [
+        "Netzwirtschaft"
+      ],
+      "vorgeschlagene_tags": [
+        "Regulierung"
+      ]
+    },
+    {
+      "titel": "Mit einem rekordniedrigen Eigenkapital ertrinkt BNP Global Real Estate in Anleiheschulden. - Vietnam.vn",
+      "zusammenfassung": "Mit einem rekordniedrigen Eigenkapital ertrinkt BNP Global Real Estate in Anleiheschulden. &nbsp;&nbsp; Vietnam.vn",
+      "begruendung": "Google-News-Suche: Eigenkapital",
+      "name": "Google News: Eigenkapital",
+      "link": "https://news.google.com/rss/articles/CBMipAFBVV95cUxNSEJkOW5RQ1NOYW9ZZE8tRGk1bFIxTEtDWFpTZDBVbE1YWHRpLVlkVFpfT3BKOXMyeDgyU1RBejZqT1VvRnBKTHpBSW9WQVFURnJYNHBlWjl6V240amZCRXl4a2ZySy15UTYzZnJtNTY1eXhZMFN0QVI5Qy15X05UUHpGUHlwSEh6MjFrYTNzU2ZpNVRiMmlBdXgyUzV6dDF0dE5ZTQ?oc=5",
+      "datum": "2026-09-07",
+      "vorgeschlagene_kategorie": "regulatorisch",
+      "vorgeschlagener_zeithorizont": "kurzfristig",
+      "vorgeschlagene_auswirkung": 3,
+      "vorgeschlagene_cluster": [
+        "Netzwirtschaft"
+      ],
+      "vorgeschlagene_tags": [
+        "Eigenkapital"
+      ]
+    },
+    {
+      "titel": "Deutschlandfonds: Stadtwerke warten auf Lösung für mehr Eigenkapital - ZFK – Zeitung für kommunale Wirtschaft",
+      "zusammenfassung": "Deutschlandfonds: Stadtwerke warten auf Lösung für mehr Eigenkapital &nbsp;&nbsp; ZFK – Zeitung für kommunale Wirtschaft",
+      "begruendung": "Google-News-Suche: Eigenkapital",
+      "name": "Google News: Eigenkapital",
+      "link": "https://news.google.com/rss/articles/CBMitwFBVV95cUxOUmxNeVY0cFVwSDRjNUpHS0xMQmVWWkF4ZG93cW1NSUpuYUtUdF9PYVlHWjZiay1IT1A3NDBsekEtZ3RELU9aUUJLaXhBLW8zRXN0LU1iQ0lZd1YyTXhqWGl6dDI3M2dOWXNtYUlQejVPWjFJWHAzc1RIbW0wZGQwazJiZmg1eGlQWXRMN3FFemhlRGN4Z3hMdm5tLUFYZDl6Wno3NlNOaG1mdzBXMGZUZjJ4d2Jiekk?oc=5",
+      "datum": "2026-09-01",
+      "vorgeschlagene_kategorie": "regulatorisch",
+      "vorgeschlagener_zeithorizont": "kurzfristig",
+      "vorgeschlagene_auswirkung": 3,
+      "vorgeschlagene_cluster": [
+        "Netzwirtschaft"
+      ],
+      "vorgeschlagene_tags": [
+        "Eigenkapital"
+      ]
+    },
+    {
+      "titel": "Eigenkapital gesamt von Lavoro Limited – OTC:LVROF - TradingView",
+      "zusammenfassung": "Eigenkapital gesamt von Lavoro Limited – OTC:LVROF &nbsp;&nbsp; TradingView",
+      "begruendung": "Google-News-Suche: Eigenkapital",
+      "name": "Google News: Eigenkapital",
+      "link": "https://news.google.com/rss/articles/CBMiiwFBVV95cUxOQ1MwaWhQbE5UdllSSExORW1raGN1MjdEUXl0c05MVXFvSjlUSFNFQWYxcjVUaHp4bUdzNjI4Wlc3TTdJQU5Sd3BoaDl1cmVnNERaaWxLaHM5d3JxZklQVGpCdkhTMTZRay1aa3ZTWEpVTWFFRXM2XzJrajFNaWpHQlYxUmNSMUYzOUlj?oc=5",
+      "datum": "2026-09-05",
+      "vorgeschlagene_kategorie": "regulatorisch",
+      "vorgeschlagener_zeithorizont": "kurzfristig",
+      "vorgeschlagene_auswirkung": 3,
+      "vorgeschlagene_cluster": [
+        "Netzwirtschaft"
+      ],
+      "vorgeschlagene_tags": [
+        "Eigenkapital"
+      ]
+    },
+    {
+      "titel": "EEG-Novelle und Netzanschlusspaket treffen auf Kritik - Frontalangriff auf die Erneuerbaren - geb-info.de",
+      "zusammenfassung": "EEG-Novelle und Netzanschlusspaket treffen auf Kritik - Frontalangriff auf die Erneuerbaren &nbsp;&nbsp; geb-info.de",
+      "begruendung": "Beobachtung \"Netzanschluss\"",
+      "name": "Google News: Redispatch",
+      "link": "https://news.google.com/rss/articles/CBMivwFBVV95cUxQOWhOdThZMl84TjBCUFk4Z0U1Q1NYRTU1N2ZGT0ozWnpTdnBWMS02TkpLSnVaamtqOW0xeEdaR3JmaEdPYTJseW56Y1dZakNDRXhkMnpXdHpWbEVnSlBEeGRZeXNvbmdVbHVSV1N6eVFqemdvUDFHWW1xM0QwTzZsUlJjMFpXa3ZVb292LVBRZWdQZk9iZkU4VHpWWEZvLWhhS2tvUTRqd1dfUmR4TWxQV1pmdHc1aUhMUWhMa2NuMA?oc=5",
+      "datum": "2026-09-01",
+      "update_fuer_thema_id": 1783345634365,
+      "update_fuer_thema_titel": "Reiche beschleunigt Netzanschluss für Rechenzentren in Deutschland - Hasepost"
+    },
+    {
+      "titel": "Heizen mit Moselwasser: Wie eine Stadt den Fluss zur Wärmequelle macht - SWR",
+      "zusammenfassung": "Heizen mit Moselwasser: Wie eine Stadt den Fluss zur Wärmequelle macht &nbsp;&nbsp; SWR",
+      "begruendung": "Google-News-Suche: Wärmepumpe",
+      "name": "Google News: Wärmepumpe",
+      "link": "https://news.google.com/rss/articles/CBMirAFBVV95cUxNOEtGdjZGYlpXNEdSVENWM0RYcnp4bFhpQjNNSUFDdml2MVZWX2l3RmFCNUNCLVlXd3hlYlNVZ005Uk1kWi1xUi1RUnZxb20wQWJxQ0pfWFNRN3cxcnlJY1c5blo0blIxN21sUWoyVjM1QUlTa1RpYXdWTFhDb1lTUjNBUjcwYUlnR042ZktPYXl6ZlN3WV9XejdjcGNscHVXSk1peGQ1dTI2UXlm?oc=5",
+      "datum": "2026-09-07",
+      "vorgeschlagene_kategorie": "regulatorisch",
+      "vorgeschlagener_zeithorizont": "kurzfristig",
+      "vorgeschlagene_auswirkung": 3,
+      "vorgeschlagene_cluster": [
+        "Netzwirtschaft"
+      ],
+      "vorgeschlagene_tags": [
+        "Wärmepumpe"
+      ]
+    },
+    {
+      "titel": "Wärmepumpen im Altbau: Fraunhofer-Studie zerstört den größten Mythos - Utopia.de",
+      "zusammenfassung": "Wärmepumpen im Altbau: Fraunhofer-Studie zerstört den größten Mythos &nbsp;&nbsp; Utopia.de",
+      "begruendung": "Google-News-Suche: Wärmepumpe",
+      "name": "Google News: Wärmepumpe",
+      "link": "https://news.google.com/rss/articles/CBMipAFBVV95cUxOejdSdU5lam1OaFFycjNNbmhGQ1dmb0ZkMjFVMEh1d3RCMDZsU1J2b0RkOUVNaVA2dFktdHh1MUg5dXB1SERNVnhUY2FPT0tQZDJWOG1PVnAzUVRob3cyaWdONFlJaGxhRWFEVTNIaGFwVkZMdVMxdmMyOU0yVVRDbXBfdWNlMWxyY2JzMTRuQU5yYm5LRzNEX2hhVWhQU1c2NVMtOQ?oc=5",
+      "datum": "2026-09-07",
+      "vorgeschlagene_kategorie": "regulatorisch",
+      "vorgeschlagener_zeithorizont": "kurzfristig",
+      "vorgeschlagene_auswirkung": 3,
+      "vorgeschlagene_cluster": [
+        "Netzanschluss"
+      ],
+      "vorgeschlagene_tags": [
+        "Wärmepumpe"
+      ]
+    },
+    {
+      "titel": "Diese Kleinstadt heizt jetzt mit Ostsee-Wasser - bundesweit einmalig - NDR.de",
+      "zusammenfassung": "Diese Kleinstadt heizt jetzt mit Ostsee-Wasser - bundesweit einmalig &nbsp;&nbsp; NDR.de",
+      "begruendung": "Google-News-Suche: Wärmepumpe",
+      "name": "Google News: Wärmepumpe",
+      "link": "https://news.google.com/rss/articles/CBMizgFBVV95cUxNLUdKYjV2V1RuLWVlSzJGX3ptLW5xOE9mYzd3TjFqV2FZaW1OTm9BcV9ZTnZLRldqMUhXdE9YVmNVTldEVkx1dzJhZGxOZDI0aU5rdWQtQ3hRTFlSSmx2NUFwOVhUZDJPczY3OHdRNzFFOFJIRkRtNTI1aU1zTmRLVGpNU3Z0Ymhic3FTS0ZoQndrbF9IaW5SZHUteVZFakhTdzdJTjE3TUhMMDVPVG9NVkRsaUQ0TEpXUnluYWRvendkclpaR1ZzM1RPUW9yQQ?oc=5",
+      "datum": "2026-09-04",
+      "vorgeschlagene_kategorie": "regulatorisch",
+      "vorgeschlagener_zeithorizont": "kurzfristig",
+      "vorgeschlagene_auswirkung": 3,
+      "vorgeschlagene_cluster": [
+        "Netzwirtschaft"
+      ],
+      "vorgeschlagene_tags": [
+        "Wärmepumpe"
+      ]
+    },
+    {
+      "titel": "Google-Kernupdates 2026 laufen kürzer aus als 2025: Der Mai-Rollout endete nach elf Tagen, das Dezember-Update davor brauchte 18 Tage - PresseBox",
+      "zusammenfassung": "Google-Kernupdates 2026 laufen kürzer aus als 2025: Der Mai-Rollout endete nach elf Tagen, das Dezember-Update davor brauchte 18 Tage &nbsp;&nbsp; PresseBox",
+      "begruendung": "Google-News-Suche: Rollout",
+      "name": "Google News: Rollout",
+      "link": "https://news.google.com/rss/articles/CBMiqgJBVV95cUxQc0FBdkFtMjJzVEowckhZQzdyVjhjZE0zeGFobnIxT1R1eGdRSWhyY0J4Z0VUTnVfRERBQTVjU29xZV9fdlo5Njh1MWlZazNDVGRENThhbHUtNFNBRFRUa3lZeF9xNG5yZGxwMlpISk1KQldSMkhHOGZlMmNXUXZWU2FhRFN3UEZHajVHZF84aE01MUcxUEItVm5lcFZPenlHQl82T0x3MDhvOUgtYlkwM3VfbnFLWXNkV1AwT0FqN0M5LXBNWUlMUmxLcU4yZWVqY3htMnRsTDlxV3pUOEFVajY2aHBPT2lONkt5a1BSdW9SYWtfeVJ0TnZ5ajZYR1pBT1NzdDlOTnJEU29sSzlyVEhfZ3FqRjV2cTBFR3BoUDNHT2owTXpLdEJR?oc=5",
+      "datum": "2026-09-07",
+      "vorgeschlagene_kategorie": "regulatorisch",
+      "vorgeschlagener_zeithorizont": "kurzfristig",
+      "vorgeschlagene_auswirkung": 3,
+      "vorgeschlagene_cluster": [
+        "Messstellenbetrieb"
+      ],
+      "vorgeschlagene_tags": [
+        "Rollout"
+      ]
+    },
+    {
+      "titel": "GPT-6 Astra: OpenAI startet Rollout des neuen Mega-Modells - BornCity",
+      "zusammenfassung": "GPT-6 Astra: OpenAI startet Rollout des neuen Mega-Modells &nbsp;&nbsp; BornCity",
+      "begruendung": "Google-News-Suche: Rollout",
+      "name": "Google News: Rollout",
+      "link": "https://news.google.com/rss/articles/CBMijAFBVV95cUxPMWp0ZjVXMXRWbFpZcHFkWi1aLU1qTHVMNmt3azM2R2t1cjEtQVVDZUNPMzVuVkZ3SXQ4aEpNZjd1eHhpamhMbVJNbldYXzNTdzRtb250azRYUy1BekEtVy15RW1DS05aLU1FaW9jZzhCa2hhRkE0NENDUGhFcloybksyN2prR0tLNXFDMw?oc=5",
+      "datum": "2026-09-06",
+      "vorgeschlagene_kategorie": "regulatorisch",
+      "vorgeschlagener_zeithorizont": "kurzfristig",
+      "vorgeschlagene_auswirkung": 3,
+      "vorgeschlagene_cluster": [
+        "Messstellenbetrieb"
+      ],
+      "vorgeschlagene_tags": [
+        "Rollout"
+      ]
+    },
+    {
+      "titel": "Smart Meter Light: VDE warnt vor Parallelstrukturen beim Rollout - ZFK – Zeitung für kommunale Wirtschaft",
+      "zusammenfassung": "Smart Meter Light: VDE warnt vor Parallelstrukturen beim Rollout &nbsp;&nbsp; ZFK – Zeitung für kommunale Wirtschaft",
+      "begruendung": "Beobachtung \"Smart Meter\"",
+      "name": "Google News: Rollout",
+      "link": "https://news.google.com/rss/articles/CBMipwFBVV95cUxPMUMzNmdwTGl0ejRSZ0dGVHd5WEZNNzdhU256OFdwNjEzdjVURkhsbjhJUDF4UWRsNmNCQm1ER1Rob0otc05vVm91M1FhcGlMZjF0Q3BYWi1YSEwwOV9JRmlfaWg0NVg5N0JLY3RlRVhPaXNzN3U1d0F1bFpCc0xwcEhZUDVRRlVVMzJwUElFbHdRMmJKemE2c0F2SWNnbzc2REdHamFxcw?oc=5",
+      "datum": "2026-09-04",
+      "update_fuer_thema_id": 1783345663810,
+      "update_fuer_thema_titel": "Smart Meter Light: Kommt jetzt die Prosumer-Revolution? - Energie-Experten"
+    },
     {
       "titel": "Netzentgelt-Reform: Ernährungsindustrie fordert verlässliche Anreize für Elektrifizierung und Flexibilität - Presseportal",
       "zusammenfassung": "Netzentgelt-Reform: Ernährungsindustrie fordert verlässliche Anreize für Elektrifizierung und Flexibilität &nbsp;&nbsp; Presseportal",
@@ -154,676 +719,6 @@
       ],
       "vorgeschlagene_tags": [
         "Netzanschluss"
-      ]
-    },
-    {
-      "titel": "Netzanschluss von Rechenzentren: Reifegradverfahren, Netzpaket und FCA – was Betreiber wissen müssen - Anwalt.de",
-      "zusammenfassung": "Netzanschluss von Rechenzentren: Reifegradverfahren, Netzpaket und FCA – was Betreiber wissen müssen &nbsp;&nbsp; Anwalt.de",
-      "begruendung": "Google-News-Suche: Netzanschluss",
-      "name": "Google News: Netzanschluss",
-      "link": "https://news.google.com/rss/articles/CBMi2wFBVV95cUxQRWcyLWhBa2J2MjJhUGcxRGptc2FleGtsaW1rTkdER24tQm5JenNSQUt3czVWR0NkWHpvZk9QOVVnVHFwc2h0dkNKYWlrem0zRmFMVnR0RVFVRG1ZT1A1NzV4N0cza29MSXdJQ1p3YzF5MG5wM29yanVpWm1NTU5GZDRnTm5sQWcxS3h0eXF4V1ItdU5FX29NaW9LRWg5azRDblhDYkhBLXE3V3BFY1FqVlJpNS1JckxtdWFKOGhGbGF2dHFsdkpUUlphVUJIdWJZTU9GRkVQRFB2dkk?oc=5",
-      "datum": "2026-06-22",
-      "vorgeschlagene_kategorie": "regulatorisch",
-      "vorgeschlagener_zeithorizont": "kurzfristig",
-      "vorgeschlagene_auswirkung": 3,
-      "vorgeschlagene_cluster": [
-        "Netzanschluss"
-      ],
-      "vorgeschlagene_tags": [
-        "Netzanschluss"
-      ]
-    },
-    {
-      "titel": "U.S. Residential Energy Services von National Grid plc - smarter Netzanschluss und digitale Tools - AD HOC NEWS",
-      "zusammenfassung": "U.S. Residential Energy Services von National Grid plc - smarter Netzanschluss und digitale Tools &nbsp;&nbsp; AD HOC NEWS",
-      "begruendung": "Google-News-Suche: Netzanschluss",
-      "name": "Google News: Netzanschluss",
-      "link": "https://news.google.com/rss/articles/CBMivAFBVV95cUxPcFpGMzl0bnI5VDVDMlNwc19BV19vNm5TeHNJZHE4Qk9UTEhvN21aeWpPdmpKSlJtNnNLWVRtRU9hZnNEeGllNXNRVk9nTmpKSDFfRFJ6bGg3R0MwRUVLUUtBcWl0eFUzLXN2UTVnbERsYjVvU3Z2a2dnX1NiOHFtb0doV2l0dnZwaTBxWmE0YU5Damd3cnljYVdwbnFMeEFQWjFCT3J4V0VpNnJCSDVLU2FOMWtHT2JlZy1Kaw?oc=5",
-      "datum": "2026-06-25",
-      "vorgeschlagene_kategorie": "regulatorisch",
-      "vorgeschlagener_zeithorizont": "kurzfristig",
-      "vorgeschlagene_auswirkung": 3,
-      "vorgeschlagene_cluster": [
-        "Netzanschluss"
-      ],
-      "vorgeschlagene_tags": [
-        "Netzanschluss"
-      ]
-    },
-    {
-      "titel": "Guterres fordert internationale KI-Regulierung - DW.com",
-      "zusammenfassung": "Guterres fordert internationale KI-Regulierung &nbsp;&nbsp; DW.com",
-      "begruendung": "Google-News-Suche: Regulierung",
-      "name": "Google News: Regulierung",
-      "link": "https://news.google.com/rss/articles/CBMiyAFBVV95cUxNa2R5czNBbDhTTGR0ZjFwa2h1NTd0MDNOazhQbmwyMjh1eGFjZTFTT1k3ZlhsRVc1U2ZNVm9BbTFXRHFLTDl0aEhPREwwZEVEVWxhUnlUdkZtRFRxZ0hPU0FlOEllWFY0djNyWURGXzZiU0hFTEtGNzJ5anBLbExacXRMNnRTNEpyck55NjZHZDJYY3FEMVJSay1kOExxWlBneUEwQm5pVHF1SVNXUmpuRko3YW14LS1KRUdmTGRPT3lqX28tVF9LNtIByAFBVV95cUxOcndzUmlJRU5wbk1jVGp0eFJkSEM4UVVzWWlVNmNvYU1YaVN1WmhxaXd3Zktoc0M3c3FjYVYwemExSXl4RGlFS1JfUlFQTEtqdEJIS2htVnYybWUxd1FtRzhUczJYeXRXS1VyakFHaDk0OXhsenFKNjJZMmdrc3ctdUlmZE9EV0VQRzE2N0Vhb2FhdEp2MXNwSGNPemdFUFlGUzJ6M2hSTExOR0ZUdTM4ZVUtQ2hKR241VmFYM2M0aG9Kb2lIbDhyRw?oc=5",
-      "datum": "2026-07-06",
-      "vorgeschlagene_kategorie": "regulatorisch",
-      "vorgeschlagener_zeithorizont": "kurzfristig",
-      "vorgeschlagene_auswirkung": 3,
-      "vorgeschlagene_cluster": [
-        "Netzwirtschaft"
-      ],
-      "vorgeschlagene_tags": [
-        "Regulierung"
-      ]
-    },
-    {
-      "titel": "Großbritannien sollte eine Regulierung von KI-Modellen in Betracht ziehen, sagt ein Vertreter der FCA - TradingView",
-      "zusammenfassung": "Großbritannien sollte eine Regulierung von KI-Modellen in Betracht ziehen, sagt ein Vertreter der FCA &nbsp;&nbsp; TradingView",
-      "begruendung": "Google-News-Suche: Regulierung",
-      "name": "Google News: Regulierung",
-      "link": "https://news.google.com/rss/articles/CBMid0FVX3lxTE9RdHpVUFdTdlpoTmJkcWF4LTROd01wcERxakoyZ0tlTUE4Nk14YXdVQTFUbHlYaktycmF2TXRVLTRDejNnNGdFRXlPRnZvRGE3U3F2Zl9FdU1XV0d2enVmX3l3dGN0Rl9lT2RyemI4SG9ISU1BUHRv?oc=5",
-      "datum": "2026-07-06",
-      "vorgeschlagene_kategorie": "regulatorisch",
-      "vorgeschlagener_zeithorizont": "kurzfristig",
-      "vorgeschlagene_auswirkung": 3,
-      "vorgeschlagene_cluster": [
-        "Netzwirtschaft"
-      ],
-      "vorgeschlagene_tags": [
-        "Regulierung"
-      ]
-    },
-    {
-      "titel": "Regulierung: Digital Omnibus: Werbewirtschaft sieht noch viele Stolpersteine - Horizont.net",
-      "zusammenfassung": "Regulierung: Digital Omnibus: Werbewirtschaft sieht noch viele Stolpersteine &nbsp;&nbsp; Horizont.net",
-      "begruendung": "Google-News-Suche: Regulierung",
-      "name": "Google News: Regulierung",
-      "link": "https://news.google.com/rss/articles/CBMiwAFBVV95cUxPSldKMlU5bDNmOWNqSWFFVkVzbEdUODZWNUZReVdfbkR1Y0NHeXpOc1FnR05YbW81LUZIcHEwdzlfYS1kYW9QQndfcmZlQnlSdjNtb3d2dl9CNzAyUnhfbHV0bi15b3NIR28xMWNrbHV6ZWhHYlpDRTQ2X1UtQ2h5VUIwUDlKODBWdjZ3SjB3bzdnU3RsbjFKY2ZWcXpDMElrdEFkT080OC12QzJzZDVwcjYxdjJLUGVEMkZpYWQ3TTA?oc=5",
-      "datum": "2026-07-05",
-      "vorgeschlagene_kategorie": "regulatorisch",
-      "vorgeschlagener_zeithorizont": "kurzfristig",
-      "vorgeschlagene_auswirkung": 3,
-      "vorgeschlagene_cluster": [
-        "Netzwirtschaft"
-      ],
-      "vorgeschlagene_tags": [
-        "Regulierung"
-      ]
-    },
-    {
-      "titel": "Null Eigenkapital beim Hauskauf? Experten warnen vor Risiken - noz.de",
-      "zusammenfassung": "Null Eigenkapital beim Hauskauf? Experten warnen vor Risiken &nbsp;&nbsp; noz.de",
-      "begruendung": "Google-News-Suche: Eigenkapital",
-      "name": "Google News: Eigenkapital",
-      "link": "https://news.google.com/rss/articles/CBMivAFBVV95cUxQckdCcS0xLWVaaVNYZndYZ2UyTWdaa0h4RWdNTmQtaU5TaEh6TjNTY3FjQ24taUg3bnZZaEtHV0ZMS1FpUlllWnBYblVwbTV3RjFnWDRtckxxWV9ReEQ5U3MtZHBWUDdxS2VrOFpJTm03VmoxNWRjVUhVT0dYd0plc01UN3BUMzRJNFNwaTlXRGJid2pvS0JTNkJIRmVEOXpGa1FGaEUteDRvTEJudFJoRW5MakJnZ0Z6NDA3UA?oc=5",
-      "datum": "2026-07-06",
-      "vorgeschlagene_kategorie": "regulatorisch",
-      "vorgeschlagener_zeithorizont": "kurzfristig",
-      "vorgeschlagene_auswirkung": 3,
-      "vorgeschlagene_cluster": [
-        "Netzwirtschaft"
-      ],
-      "vorgeschlagene_tags": [
-        "Eigenkapital"
-      ]
-    },
-    {
-      "titel": "Eigenkapital gesamt von Power Probe Plc – LSE:PWR - TradingView",
-      "zusammenfassung": "Eigenkapital gesamt von Power Probe Plc – LSE:PWR &nbsp;&nbsp; TradingView",
-      "begruendung": "Google-News-Suche: Eigenkapital",
-      "name": "Google News: Eigenkapital",
-      "link": "https://news.google.com/rss/articles/CBMiiAFBVV95cUxOSTRmNkd4N2RDdE1tdDFpWlNobmxpMGIzcGpuWlNxMnVNTTU4YzJvUnNtTC13SGNSNUgyZzhjR3g1RE52cGVZN1BSS3JuUGV5ekQzX3pUUHd6dkFyQjhvSWFNZTVZWGg4NGxpMG9PSkpyZ1ktdFcwYkR5N2xJSmVXLUxta3RRY1VW?oc=5",
-      "datum": "2026-07-05",
-      "vorgeschlagene_kategorie": "regulatorisch",
-      "vorgeschlagener_zeithorizont": "kurzfristig",
-      "vorgeschlagene_auswirkung": 3,
-      "vorgeschlagene_cluster": [
-        "Netzwirtschaft"
-      ],
-      "vorgeschlagene_tags": [
-        "Eigenkapital"
-      ]
-    },
-    {
-      "titel": "Gutes Einkommen, 200.000 Euro Eigenkapital – warum der Immobilienkauf trotzdem nicht mehr aufgeht - Fuldaer Zeitung",
-      "zusammenfassung": "Gutes Einkommen, 200.000 Euro Eigenkapital – warum der Immobilienkauf trotzdem nicht mehr aufgeht &nbsp;&nbsp; Fuldaer Zeitung",
-      "begruendung": "Google-News-Suche: Eigenkapital",
-      "name": "Google News: Eigenkapital",
-      "link": "https://news.google.com/rss/articles/CBMiwAFBVV95cUxOQlRUdlJJelJLaW8yczZjdUhoWGlHck1LSXhGQWtVR0ZsaXNwSk9XZFpNVjBMekxxZU1naHdTZ21GSEdYWnlhSmVpT0JfQVdkSUd1XzkxY0ZYNE1HYk9OQk9GY3FMWElndE9vMFJKTXJxQkJkeXl3S0lLbDE3QzlQSVE5d1dYM040dzZtTHlKcUVZaHNpSGRGZmhUNm4teG1ya0NBUjlJRGF1SkpTWTAtS203V3NSd1JHMk1QOUViekM?oc=5",
-      "datum": "2026-07-03",
-      "vorgeschlagene_kategorie": "regulatorisch",
-      "vorgeschlagener_zeithorizont": "kurzfristig",
-      "vorgeschlagene_auswirkung": 3,
-      "vorgeschlagene_cluster": [
-        "Netzwirtschaft"
-      ],
-      "vorgeschlagene_tags": [
-        "Eigenkapital"
-      ]
-    },
-    {
-      "titel": "Wärmepumpe ist meistverkaufte Heiztechnik 2025 in Deutschland - Deutsches Handwerksblatt",
-      "zusammenfassung": "Wärmepumpe ist meistverkaufte Heiztechnik 2025 in Deutschland &nbsp;&nbsp; Deutsches Handwerksblatt",
-      "begruendung": "Google-News-Suche: Wärmepumpe",
-      "name": "Google News: Wärmepumpe",
-      "link": "https://news.google.com/rss/articles/CBMirgFBVV95cUxNNGwyR2FlamRsbWx0ZGt0SjR4dFhmWUk5eF9qYU90NDEtVXBsTzltT1pYazk5NWdybzNPaWpnU2h4RVpBOEZrMW9nVUsydXlrSDFYQnJiZ0l2YjRDcjJXemxEVXMzNDhrOGNvT05CTUJna21JbVVhQVYxYTV1M25IV1gzZHpTcVpDOVVheTNxMVdGYU5ERXFLQVpVdkNNQ1g2TFhDZ3ZfUk9BLVRZQUE?oc=5",
-      "datum": "2026-07-05",
-      "vorgeschlagene_kategorie": "regulatorisch",
-      "vorgeschlagener_zeithorizont": "kurzfristig",
-      "vorgeschlagene_auswirkung": 3,
-      "vorgeschlagene_cluster": [
-        "Netzanschluss"
-      ],
-      "vorgeschlagene_tags": [
-        "Wärmepumpe"
-      ]
-    },
-    {
-      "titel": "Bis zu 50.000 Euro: Dieser Fehler bei der Wärmepumpe kann richtig teuer werden - T-Online",
-      "zusammenfassung": "Bis zu 50.000 Euro: Dieser Fehler bei der Wärmepumpe kann richtig teuer werden &nbsp;&nbsp; T-Online",
-      "begruendung": "Google-News-Suche: Wärmepumpe",
-      "name": "Google News: Wärmepumpe",
-      "link": "https://news.google.com/rss/articles/CBMizAFBVV95cUxPcmduZzdsemllcncxOFZpVTBPYm01bTJlYzlOdDgydXYxRjktUkpKZFlIbU1mdG1xSi0wSzFIemRNenpnVmJ4dHRqZTlhaklrSnRsdUd0d0Q4WjlaSkpqYnFYdENUanNGaDQzSGVFTU5NQ2hPQlRCZFNZcnczaDBhRXYyd1JfOG1tbVhYbGplUFFlVS1pSWxUaFhrY19oT2ZaS1JlejZZVWF0OGc3a1czZ1pMZXloYW92a25ubWhVc05JekRKcHh3UjlsT0M?oc=5",
-      "datum": "2026-07-06",
-      "vorgeschlagene_kategorie": "regulatorisch",
-      "vorgeschlagener_zeithorizont": "kurzfristig",
-      "vorgeschlagene_auswirkung": 3,
-      "vorgeschlagene_cluster": [
-        "Netzanschluss"
-      ],
-      "vorgeschlagene_tags": [
-        "Wärmepumpe"
-      ]
-    },
-    {
-      "titel": "Meinung: Kulturkampf: Wer erklärt den Rechten, dass Klimaanlagen Wärmepumpen sind? - Spiegel",
-      "zusammenfassung": "Meinung: Kulturkampf: Wer erklärt den Rechten, dass Klimaanlagen Wärmepumpen sind? &nbsp;&nbsp; Spiegel",
-      "begruendung": "Google-News-Suche: Wärmepumpe",
-      "name": "Google News: Wärmepumpe",
-      "link": "https://news.google.com/rss/articles/CBMi_gFBVV95cUxPRjc4NjFhYV9WbmRWWmFJdWJmUkMxZ3hWMXpPQWxLV0NFbEdPOEpVdU5NOGlabDl5X1l3dTIxcXhmN21FMkNxaVRMU1pSUHpkR0ZjTk5PTlhSbUhGZEJ3YWJzQjdIY2s5VVZSbXVLZWhoTG9vTnA5aVFQeXRhYmJSRnF5VGNMUFEzeDhkc3R3Y1Z5OUw0SklCOUhRRFpzVExJWUFZcm8ycUNoeDd5R1dCNkU0OWFfRzRZaE01X25CU3R2bm8wNE9zMGVFTjNYdWM2dkpndFJrQ0RjWHZOa0RtVWlBZTNFV2gxbTdteUlWVkttR0JWUjdtNmhWUF9rQQ?oc=5",
-      "datum": "2026-07-05",
-      "vorgeschlagene_kategorie": "regulatorisch",
-      "vorgeschlagener_zeithorizont": "kurzfristig",
-      "vorgeschlagene_auswirkung": 3,
-      "vorgeschlagene_cluster": [
-        "Netzanschluss"
-      ],
-      "vorgeschlagene_tags": [
-        "Wärmepumpe"
-      ]
-    },
-    {
-      "titel": "WhatsApp-Benutzernamen: Indiens Regierung stoppt Rollout wegen Betrug - AD HOC NEWS",
-      "zusammenfassung": "WhatsApp-Benutzernamen: Indiens Regierung stoppt Rollout wegen Betrug &nbsp;&nbsp; AD HOC NEWS",
-      "begruendung": "Google-News-Suche: Rollout",
-      "name": "Google News: Rollout",
-      "link": "https://news.google.com/rss/articles/CBMiuAFBVV95cUxNVWE1MmxRdGdOSG1BOVFMbWpNTGVFanlWOTdKY2xOTE5fTDg3d1VVZ1VLQzlDWlA1UHBvYnpsZnpIQzNDQWFOTFNNcnA3Z3U0RlcwdVlGTk5uOGhNbmJ5d2x5bG1Da2tmcjRWVkNwXzFqX3BMY1NKd21UNHBEbTAyaC1tX2VlaHZvRFZMRGFkVUpJci1IRDQySV9yeFBmVHlwVWpFZWtHSjVaNTJ1bEZNNGdkNGdmdE9t?oc=5",
-      "datum": "2026-07-06",
-      "vorgeschlagene_kategorie": "regulatorisch",
-      "vorgeschlagener_zeithorizont": "kurzfristig",
-      "vorgeschlagene_auswirkung": 3,
-      "vorgeschlagene_cluster": [
-        "Messstellenbetrieb"
-      ],
-      "vorgeschlagene_tags": [
-        "Rollout"
-      ]
-    },
-    {
-      "titel": "NVIDIA-Aktie vor Belastungsprobe: Verpackungstechnologie bremst Rubin-Ultra-Rollout - finanzen.ch",
-      "zusammenfassung": "NVIDIA-Aktie vor Belastungsprobe: Verpackungstechnologie bremst Rubin-Ultra-Rollout &nbsp;&nbsp; finanzen.ch",
-      "begruendung": "Google-News-Suche: Rollout",
-      "name": "Google News: Rollout",
-      "link": "https://news.google.com/rss/articles/CBMi0gFBVV95cUxPRnlVMDNZZXRuYkl2bVVvcE91X3M2M1FjSnh6akhWNk9LZVpGdHNxellTcnR3QmdTUEZkUkkzOHdCcUZJQXBVY0pJM1NNNGdHTktmVUhKNmtvc0F0N3BYNW9kbDRuakt5dG8tendYcGR0OHRWSTJFb0JsaXQ2YUZYYW1lM296Tnh6NHhQQnZhRXpGZmlpQllVWXhoT0ZRSVBEazUzTDVmQjl2ZXV4T0NPdjlOOWZEMFFKcklZVXdadTVGMUE3anlSRGxkOEVYa1RhaFE?oc=5",
-      "datum": "2026-07-06",
-      "vorgeschlagene_kategorie": "technologisch",
-      "vorgeschlagener_zeithorizont": "kurzfristig",
-      "vorgeschlagene_auswirkung": 3,
-      "vorgeschlagene_cluster": [
-        "Messstellenbetrieb"
-      ],
-      "vorgeschlagene_tags": [
-        "Rollout"
-      ]
-    },
-    {
-      "titel": "CBF steps up semi-automatic offside rollout in Brazilian football - OneFootball",
-      "zusammenfassung": "CBF steps up semi-automatic offside rollout in Brazilian football &nbsp;&nbsp; OneFootball",
-      "begruendung": "Google-News-Suche: Rollout",
-      "name": "Google News: Rollout",
-      "link": "https://news.google.com/rss/articles/CBMiqgFBVV95cUxPUzdnU29Bd2FzYlVzZ2N3WV9BdUtSQWo2d2doVEVRZ0w4bXo1Q0JncTRZb1paSHZFQzdNd3lkRXhGY0RuY1hqdm1RSmd5bmFnR2hWWmo1OVo0bkpOSjdXTXdUb1JoOXBoeWhTMHFibTctLW1jQy1uVGlJdFNVemRzM0Y2VkRScDhhWE9HX0xBbnZzVzZ3S3JwZ0FMdU5RY0VYSFNMQW9nTXVzQQ?oc=5",
-      "datum": "2026-07-04",
-      "vorgeschlagene_kategorie": "regulatorisch",
-      "vorgeschlagener_zeithorizont": "kurzfristig",
-      "vorgeschlagene_auswirkung": 3,
-      "vorgeschlagene_cluster": [
-        "Messstellenbetrieb"
-      ],
-      "vorgeschlagene_tags": [
-        "Rollout"
-      ]
-    },
-    {
-      "titel": "Bundesnetzagentur startet Konsultation des Netzentwicklungsplans zum Stromnetzausbau",
-      "zusammenfassung": "Präsident Müller: „Der beschleunigte Ausbau der Stromnetze bleibt wichtig, um das Energiesystem zukunftsfest zu machen.“",
-      "begruendung": "Beobachtung \"Netzausbau\"",
-      "name": "BNetzA Pressemitteilungen",
-      "link": "http://www.bundesnetzagentur.de/SharedDocs/Pressemitteilungen/DE/2026/20260612_NEP.html",
-      "datum": "",
-      "update_fuer_thema_id": 1780298987606,
-      "update_fuer_thema_titel": "Bernds zu hause"
-    },
-    {
-      "titel": "Fortschritt beim Netzausbau: Bundesnetzagentur genehmigt Stromtrasse von Rheinland-Pfalz bis zur Grenze mit Luxemburg",
-      "zusammenfassung": "",
-      "begruendung": "Beobachtung \"Netzausbau\"",
-      "name": "BNetzA Aktuelles",
-      "link": "http://www.bundesnetzagentur.de/SharedDocs/Pressemitteilungen/DE/2026/20260227_Vorhaben71.html",
-      "datum": "",
-      "update_fuer_thema_id": 1780298987606,
-      "update_fuer_thema_titel": "Bernds zu hause"
-    },
-    {
-      "titel": "VKU begrüßt EU-Netzpaket als wichtigen Schritt nach vorn",
-      "zusammenfassung": "Der Energieausschuss des Europäische Parlaments hat heute seine Position zu schnelleren Genehmigungsverfahren im EU-Netzpaket abgestimmt. Ziel des Vorhabens ist es, den gesamteuropäischen Netzausbau zu beschleunigen und Verfahren für Netzanschlüsse deutlich zu verkürzen.",
-      "begruendung": "Beobachtung \"Netzausbau\"",
-      "name": "VKU Pressemitteilungen",
-      "link": "https://www.vku.de/presse/pressemitteilungen/vku-begruesst-eu-netzpaket-als-wichtigen-schritt-nach-vorn/",
-      "datum": "2026-07-02",
-      "update_fuer_thema_id": 1780298987606,
-      "update_fuer_thema_titel": "Bernds zu hause"
-    },
-    {
-      "titel": "VKU-Umfrage: Drei von vier Stadtwerken sehen Netzausbau finanziell gefährdet",
-      "zusammenfassung": "Für viele Stadtwerke wird die Finanzierung des Stromnetzausbaus zunehmend zur Herausforderung. Das zeigt eine Umfrage des Verbands kommunaler Unternehmen (VKU): 75 Prozent der befragten Unternehmen bewerten ihre Finanzierungskraft als angespannt oder kritisch.",
-      "begruendung": "Beobachtung \"Netzausbau\"",
-      "name": "VKU Pressemitteilungen",
-      "link": "https://www.vku.de/presse/pressemitteilungen/vku-umfrage-drei-von-vier-stadtwerken-sehen-netzausbau-finanziell-gefaehrdet/",
-      "datum": "2026-06-26",
-      "update_fuer_thema_id": 1780298987606,
-      "update_fuer_thema_titel": "Bernds zu hause"
-    },
-    {
-      "titel": "Digitalisierung: Alle wichtigen Meldungen auf einen Blick - ZFK – Zeitung für kommunale Wirtschaft",
-      "zusammenfassung": "Digitalisierung: Alle wichtigen Meldungen auf einen Blick &nbsp;&nbsp; ZFK – Zeitung für kommunale Wirtschaft",
-      "begruendung": "Google-News-Suche: 14a",
-      "name": "Google News: 14a",
-      "link": "https://news.google.com/rss/articles/CBMilwFBVV95cUxQcEtVZTBpRHF2YWQzbnNFMVBKU2ZDZFBfQ0tRR3dnZTZxZUxfT05oVEd5Z1dLMjdpeUZjTC1DMGJhUDBab1BpQ2FmbG1PY2gwNjFweTBsdUs5aldnQlg0NDBJeTZhYmYzdkw4VmpLMDU0RFg1aDlETTNyNGxIRFZFYXNSZmNvQTNBb1JCbDBXUlBoS3c3UUhZ?oc=5",
-      "datum": "2026-07-01",
-      "vorgeschlagene_kategorie": "technologisch",
-      "vorgeschlagener_zeithorizont": "kurzfristig",
-      "vorgeschlagene_auswirkung": 3,
-      "vorgeschlagene_cluster": [
-        "Technologie"
-      ],
-      "vorgeschlagene_tags": [
-        "14a"
-      ]
-    },
-    {
-      "titel": "Middelberg fordert mehr Flexibilität am Arbeitsmarkt - EU-Schwerbehinderung",
-      "zusammenfassung": "Middelberg fordert mehr Flexibilität am Arbeitsmarkt &nbsp;&nbsp; EU-Schwerbehinderung",
-      "begruendung": "Google-News-Suche: Flexibilität",
-      "name": "Google News: Flexibilität",
-      "link": "https://news.google.com/rss/articles/CBMi0gFBVV95cUxNczAtalJ5U0VjN1R2WGE2cUwwdmRyQkpiNkhuN092OUZrNjhyaXU5Ulg3RThTYWNqeTZNdlFNMGU5SzN0TlFNUmhNcHF2VldBWElQTUZsT3VLWVBKb2RsUmsyNENMbnMxZWtQQlo5QU9tYTg5UWRBdTcxb2VQbER5MkRvdDljMC1hamQ4YXVrQjhxRFkxakl1bm55eU9RcXRHeTRTZzZZdDRUMXJuODlIM1ZRZnpXajVkaUwwY1Qyam45V18tRjZqcjd2cjNJaHpTRUE?oc=5",
-      "datum": "2026-07-02",
-      "vorgeschlagene_kategorie": "marktlich",
-      "vorgeschlagener_zeithorizont": "kurzfristig",
-      "vorgeschlagene_auswirkung": 3,
-      "vorgeschlagene_cluster": [
-        "Technologie"
-      ],
-      "vorgeschlagene_tags": [
-        "Flexibilität"
-      ]
-    },
-    {
-      "titel": "AMR-Konzept: Neue Flexibilität für die Intralogistik von Fluro - Technische Logistik",
-      "zusammenfassung": "AMR-Konzept: Neue Flexibilität für die Intralogistik von Fluro &nbsp;&nbsp; Technische Logistik",
-      "begruendung": "Google-News-Suche: Flexibilität",
-      "name": "Google News: Flexibilität",
-      "link": "https://news.google.com/rss/articles/CBMirgFBVV95cUxOaDZKajJONFNHamdwV3JGdk5XdUtnWkk5ejBGVVQ0djQxWHpNU1JvZU9ibmwxRVVkRFdSNGRpcUY2OW1qN0lUWUJBYXN2R2RIckJmVGlMakZCc1huMnNmaEFHUVM4NTVnT3NFcWpucnRzMVAzVURXb2NPZEx0M3ZsNUEyMEk3Rk81TkhlNnJseXQ0YXd1MjNTaWl2ME1EbWJ6dVBUZlNONkt5LXptYmc?oc=5",
-      "datum": "2026-06-30",
-      "vorgeschlagene_kategorie": "regulatorisch",
-      "vorgeschlagener_zeithorizont": "kurzfristig",
-      "vorgeschlagene_auswirkung": 3,
-      "vorgeschlagene_cluster": [
-        "Technologie"
-      ],
-      "vorgeschlagene_tags": [
-        "Flexibilität"
-      ]
-    },
-    {
-      "titel": "Europas Luftfahrt fordert mehr Flexibilität beim neuen EU-Grenzsystem - aeroTELEGRAPH",
-      "zusammenfassung": "Europas Luftfahrt fordert mehr Flexibilität beim neuen EU-Grenzsystem &nbsp;&nbsp; aeroTELEGRAPH",
-      "begruendung": "Google-News-Suche: Flexibilität",
-      "name": "Google News: Flexibilität",
-      "link": "https://news.google.com/rss/articles/CBMitgFBVV95cUxPUjFCdXJWaDRJOUNRakZTckhtNFJZekdOM3VTSGpRUkVrTnNRMV9JWkowd29aQWVSbEx3b2ZBNVZDY0R6QTRPdkR1LXR0d3k4bzZxM2dmSmVWM0EzX05MMXlNY0Nub3haTHRBVUE4aTRlUVpqUkZlSVI1Q0xSc1ZjSUY4emNNNkVPdXJPZTlkR2hxYm9MSHExa1BHZzVqU1U0TDVPcVVyMHRxVXFVQ2o2OVR0UTZwdw?oc=5",
-      "datum": "2026-07-01",
-      "vorgeschlagene_kategorie": "regulatorisch",
-      "vorgeschlagener_zeithorizont": "kurzfristig",
-      "vorgeschlagene_auswirkung": 3,
-      "vorgeschlagene_cluster": [
-        "Technologie"
-      ],
-      "vorgeschlagene_tags": [
-        "Flexibilität"
-      ]
-    },
-    {
-      "titel": "Dieser Heimspeicher sammelt Strom für Ihr Zuhause - BILD",
-      "zusammenfassung": "Dieser Heimspeicher sammelt Strom für Ihr Zuhause &nbsp;&nbsp; BILD",
-      "begruendung": "Google-News-Suche: Smart Meter",
-      "name": "Google News: Smart Meter",
-      "link": "https://news.google.com/rss/articles/CBMidEFVX3lxTE9XaHNYTWNZZ0ZiTDBRRG45WWEwODRTMmFEdEVqbko5RzNxa2haMGVlUmFjZ2U2LVpBMEdXUzVvVElOaWxXSDFWeDZRdXBXWkIyWUw1SXpGckM1MFRDaFVpYS1yN1BQcm84VVNnLVBNM05pemZR?oc=5",
-      "datum": "2026-07-02",
-      "vorgeschlagene_kategorie": "regulatorisch",
-      "vorgeschlagener_zeithorizont": "kurzfristig",
-      "vorgeschlagene_auswirkung": 3,
-      "vorgeschlagene_cluster": [
-        "Netzwirtschaft"
-      ],
-      "vorgeschlagene_tags": [
-        "Smart Meter"
-      ]
-    },
-    {
-      "titel": "400 € Rabatt auf Neuheit Anker Solix 4 Pro! Brandneuer Speicher bei Kleines Kraftwerk mit Mega-Deal! - Express",
-      "zusammenfassung": "400 € Rabatt auf Neuheit Anker Solix 4 Pro! Brandneuer Speicher bei Kleines Kraftwerk mit Mega-Deal! &nbsp;&nbsp; Express",
-      "begruendung": "Google-News-Suche: Smart Meter",
-      "name": "Google News: Smart Meter",
-      "link": "https://news.google.com/rss/articles/CBMi7gFBVV95cUxQeWQ5anY5WUgzb3c0NVRvMTlEV21YdUhKaWFjLXFPRUh0QnRxUW5MNFVzMzh4QVNqckFyVVc4RW9tRVp0T2dTZG9sU3NDZ25aellMN0R6V2NhR3NZM05uNVE4RmY3aDFMbjNkNGVxWlVpV0d0bDBWbzFVNUM3S3FsTzRlcEp1RVpBaFJfZjlyRTM2SDJHQ1M1Z0Y3U0RnUGFROEFYMEJhU1ZZcm1HZzVYV1J1bVVRekdOcmZHcHl5OG50SkZjVm5PUXowc2gyNW5vd2RMVDFCZ3M0Mzl4UEt5YmR1OUh3VTl5TzRLenB3?oc=5",
-      "datum": "2026-07-03",
-      "vorgeschlagene_kategorie": "regulatorisch",
-      "vorgeschlagener_zeithorizont": "kurzfristig",
-      "vorgeschlagene_auswirkung": 3,
-      "vorgeschlagene_cluster": [
-        "Netzwirtschaft"
-      ],
-      "vorgeschlagene_tags": [
-        "Smart Meter"
-      ]
-    },
-    {
-      "titel": "Smart Meter und Stromnetz: 74 % der Deutschen fürchten Sabotage - Ingenieur.de",
-      "zusammenfassung": "Smart Meter und Stromnetz: 74 % der Deutschen fürchten Sabotage &nbsp;&nbsp; Ingenieur.de",
-      "begruendung": "Google-News-Suche: Smart Meter",
-      "name": "Google News: Smart Meter",
-      "link": "https://news.google.com/rss/articles/CBMi8AFBVV95cUxPcF9NNW1kbjZJRThMUFFXQVVGdlE4Zk1paVdYb0ktYnYyRkhuSGU0aXNjRzN0VXdoVTJxSFcyOVllZHFqcGVmb1JrcWNiczIyV0ZOZ2RudnNKckRVSG56ZFZiUDlFd0lQRTZzYXZZUTQwaVJEdVJudXNaWWp4YmJsTkFXR0Y3NzdtSTIxZmRrbGJra2dkTGx0NnFsSE1kVVFzNDJNWWFDSWpKM3htOWNRZ29CTG9Ddm9aSmRQQW9xNjlVQ3VKMlJDMXZEWkhKZkRKRkJQN0lGbVh3azNQNFVpRTNLVW9yNWs5czRxVjRtUVY?oc=5",
-      "datum": "2026-06-30",
-      "vorgeschlagene_kategorie": "technologisch",
-      "vorgeschlagener_zeithorizont": "kurzfristig",
-      "vorgeschlagene_auswirkung": 3,
-      "vorgeschlagene_cluster": [
-        "Messstellenbetrieb"
-      ],
-      "vorgeschlagene_tags": [
-        "Smart Meter"
-      ]
-    },
-    {
-      "titel": "Eltel verbucht Auftrag über 20 Mio. EUR für Netzanschluss eines Rechenzentrumsprojekts in Finnland - MarketScreener Deutschland",
-      "zusammenfassung": "Eltel verbucht Auftrag über 20 Mio. EUR für Netzanschluss eines Rechenzentrumsprojekts in Finnland &nbsp;&nbsp; MarketScreener Deutschland",
-      "begruendung": "Google-News-Suche: Netzanschluss",
-      "name": "Google News: Netzanschluss",
-      "link": "https://news.google.com/rss/articles/CBMi-AFBVV95cUxQOHJXUk0yck4zVGZxYTJIcERYUXF1WW4xMzJrTUZEbzlBZC1ST3VjcDlYdlF1NV94WWFMQ0pTa0hTMVNPM19jX3Y4Z2UxSzJVbld4YW9KWGdlNVVqNk5uVmU0cm43SDBvNDJfTlVabEFzTjhOS3c4OElrTW9RanREd2V0cjktb011bUxIazNjZ2dxeGVkSG1xcTJsQngzOTZpYW1MZHpnT0JuMDNNcFhkN3V3UERFVmdYNEp3LUtwaXBQYUhweDExWmNFT0xnMkpYcVRWZmhycHpHTlpwYzNkeV9pX0steGtZdTlxQUw0dVY3X2l6OWtDLQ?oc=5",
-      "datum": "2026-07-03",
-      "vorgeschlagene_kategorie": "regulatorisch",
-      "vorgeschlagener_zeithorizont": "kurzfristig",
-      "vorgeschlagene_auswirkung": 3,
-      "vorgeschlagene_cluster": [
-        "Netzanschluss"
-      ],
-      "vorgeschlagene_tags": [
-        "Netzanschluss"
-      ]
-    },
-    {
-      "titel": "Tagung zum EEG 2027: Neue Bedingungen für Netzanschluss und Förderung - idw - Informationsdienst Wissenschaft",
-      "zusammenfassung": "Tagung zum EEG 2027: Neue Bedingungen für Netzanschluss und Förderung &nbsp;&nbsp; idw - Informationsdienst Wissenschaft",
-      "begruendung": "Google-News-Suche: Netzanschluss",
-      "name": "Google News: Netzanschluss",
-      "link": "https://news.google.com/rss/articles/CBMiS0FVX3lxTE1vYi1FZUxtbjJBb0RmczJkamFmRzVnX1p6RXRjZXZGR1Nwamx6V0FZcVhnUHBrM1V5XzhUVnlfUkVJMlRzUkxPR2kyMA?oc=5",
-      "datum": "2026-06-19",
-      "vorgeschlagene_kategorie": "regulatorisch",
-      "vorgeschlagener_zeithorizont": "kurzfristig",
-      "vorgeschlagene_auswirkung": 3,
-      "vorgeschlagene_cluster": [
-        "Netzanschluss"
-      ],
-      "vorgeschlagene_tags": [
-        "Netzanschluss"
-      ]
-    },
-    {
-      "titel": "Bloom Energy Aktie: FERC senkt Netzanschluss auf 90 Tage - Börse Global",
-      "zusammenfassung": "Bloom Energy Aktie: FERC senkt Netzanschluss auf 90 Tage &nbsp;&nbsp; Börse Global",
-      "begruendung": "Google-News-Suche: Netzanschluss",
-      "name": "Google News: Netzanschluss",
-      "link": "https://news.google.com/rss/articles/CBMilgFBVV95cUxQMXcyRW50X3BtZzZKSHJrMTBQR2lldWV2Xzctc25WM3JTZmIxWWI5ZnI0MjNvb1dtdmlqMlNlOVNZU1VtTklDaFQyMll0VHVHblFaMFhtb1k5eW1VaWJsVVZHTlp3UXpTenZMZUtuQ1pZYVFhejN4QjJJZjlMWDlFeUdIN1ZnRi1jdDJYdkQtUUxsVzRXRmc?oc=5",
-      "datum": "2026-06-19",
-      "vorgeschlagene_kategorie": "regulatorisch",
-      "vorgeschlagener_zeithorizont": "kurzfristig",
-      "vorgeschlagene_auswirkung": 3,
-      "vorgeschlagene_cluster": [
-        "Netzanschluss"
-      ],
-      "vorgeschlagene_tags": [
-        "Netzanschluss"
-      ]
-    },
-    {
-      "titel": "ESG-Regulierung: ESMA übernimmt Kontrolle, Moody's kassiert 2,15 Mio. Euro - Ad-hoc-news.de",
-      "zusammenfassung": "ESG-Regulierung: ESMA übernimmt Kontrolle, Moody's kassiert 2,15 Mio. Euro &nbsp;&nbsp; Ad-hoc-news.de",
-      "begruendung": "Google-News-Suche: Regulierung",
-      "name": "Google News: Regulierung",
-      "link": "https://news.google.com/rss/articles/CBMitAFBVV95cUxNMEVvb0FsS1ZyU0xFbkRYd09nRWNmY0Q4LXhVQ1pVdkMyZ3pqVFpySWRuU0FINjFPNEQ4T3FmOGdWYUdrSFFmVTFpOEdqWjhOM0NDYkRKb1dDdkNGRUE5OHNyX29fejM0RTU5R01CVDdacFBKUFNKUTJITEluNnVsd0F0cUN1SmlvRDJickRFRld1VTFJb2JNQ3E5Ync1X2ZTdHA5U2ttcVcxNElMaVE3OFdLOXo?oc=5",
-      "datum": "2026-07-03",
-      "vorgeschlagene_kategorie": "regulatorisch",
-      "vorgeschlagener_zeithorizont": "kurzfristig",
-      "vorgeschlagene_auswirkung": 3,
-      "vorgeschlagene_cluster": [
-        "Netzwirtschaft"
-      ],
-      "vorgeschlagene_tags": [
-        "Regulierung"
-      ]
-    },
-    {
-      "titel": "(m+) Binance könnte die neuen Krypto-Regeln der EU umgehen - Manager Magazin",
-      "zusammenfassung": "(m+) Binance könnte die neuen Krypto-Regeln der EU umgehen &nbsp;&nbsp; Manager Magazin",
-      "begruendung": "Google-News-Suche: Regulierung",
-      "name": "Google News: Regulierung",
-      "link": "https://news.google.com/rss/articles/CBMi9AFBVV95cUxPQV9vemk5RHp4QVByaE9GWkhnU19UM3U0N0VCMFZ1TzdsSTFGVzdPalJEMUNyNEVUQlBVX2U4eEEzVjFnRWhraEFwdm11MFhNZVlXc05iMXA0ZEctbVJGakJpV2ZmeUxnWk9oSFJFbDZrdEZDa0xIYXBtcUNRZTdfTGhGZ2VZUzlGcVRvb0Jhd1hFbV9XS29qWVlsR293WEhfY3MzWFVKSHpNUWQ1YWgzS0ZoeXBxdEdHV0Z1NXJldWUzR09GSnA2bThDRm85U1RqMzhaVzNCV2JZZmJUWTlpTmRkVGdCRzZUU0VnN2IzdkN3aXhu?oc=5",
-      "datum": "2026-07-01",
-      "vorgeschlagene_kategorie": "regulatorisch",
-      "vorgeschlagener_zeithorizont": "kurzfristig",
-      "vorgeschlagene_auswirkung": 3,
-      "vorgeschlagene_cluster": [
-        "Netzwirtschaft"
-      ],
-      "vorgeschlagene_tags": [
-        "Regulierung"
-      ]
-    },
-    {
-      "titel": "UBS: SNB fordert schärfere Kapitalvorgaben für die Großbank - FAZ",
-      "zusammenfassung": "UBS: SNB fordert schärfere Kapitalvorgaben für die Großbank &nbsp;&nbsp; FAZ",
-      "begruendung": "Google-News-Suche: Regulierung",
-      "name": "Google News: Regulierung",
-      "link": "https://news.google.com/rss/articles/CBMiwwFBVV95cUxOMHdXUDNKbDJlSWNjbXRnc1VNcUFxQWxRZnRyN0FCWENKV3ItbHBiTDNueTZvRWlKSHZqRkpNRnlmVmpQQ3lxZ251WkU1SS11Nk5EZENTcWx6YjdyZ2c4U3VwalpocEhpRWtmd3U4NnJkZWlIdHJHV3dyWE45elphUVlIblNDbHl1WnZpYVg3NnUycHljTGZ0T2pGU1VIS3BxTVZ5UnJhbU15aEMxTG5aemExTU1CMGVnMm96QVZTMUlQZEk?oc=5",
-      "datum": "2026-07-02",
-      "vorgeschlagene_kategorie": "regulatorisch",
-      "vorgeschlagener_zeithorizont": "kurzfristig",
-      "vorgeschlagene_auswirkung": 3,
-      "vorgeschlagene_cluster": [
-        "Netzwirtschaft"
-      ],
-      "vorgeschlagene_tags": [
-        "Regulierung"
-      ]
-    },
-    {
-      "titel": "Gutes Einkommen, 200.000 Euro Eigenkapital – warum der Immobilienkauf trotzdem nicht mehr aufgeht - Lauterbacher Anzeiger",
-      "zusammenfassung": "Gutes Einkommen, 200.000 Euro Eigenkapital – warum der Immobilienkauf trotzdem nicht mehr aufgeht &nbsp;&nbsp; Lauterbacher Anzeiger",
-      "begruendung": "Google-News-Suche: Eigenkapital",
-      "name": "Google News: Eigenkapital",
-      "link": "https://news.google.com/rss/articles/CBMiugFBVV95cUxPVG1VcTZCd3dBdVczUnhPQkk5U21Pa2padUpqQWxORkpjVzRfWUF4d1MtamI1X0xTbUJva1ZpSXlJdWk0VXk5SnROXzJ6dEhWdjBwV3ktUkE1MlJWbk5GOXpwdjBGbUZaRXFreFdNMHYzbjFLUFdKNGhxOC1uemNqYk1ObVlsc2ppc0xzQmVVc3YwZDZlcnFCR3pYY2NyVl9tWnVDUE4yLV9oWTg2RjJJOXU4Ni1TQWhtOGc?oc=5",
-      "datum": "2026-07-03",
-      "vorgeschlagene_kategorie": "regulatorisch",
-      "vorgeschlagener_zeithorizont": "kurzfristig",
-      "vorgeschlagene_auswirkung": 3,
-      "vorgeschlagene_cluster": [
-        "Netzwirtschaft"
-      ],
-      "vorgeschlagene_tags": [
-        "Eigenkapital"
-      ]
-    },
-    {
-      "titel": "Wer zahlt, wenn die Grossbank kippt? Warum UBS und Nationalbank aneinander vorbeireden - Tages-Anzeiger",
-      "zusammenfassung": "Wer zahlt, wenn die Grossbank kippt? Warum UBS und Nationalbank aneinander vorbeireden &nbsp;&nbsp; Tages-Anzeiger",
-      "begruendung": "Google-News-Suche: Eigenkapital",
-      "name": "Google News: Eigenkapital",
-      "link": "https://news.google.com/rss/articles/CBMipAFBVV95cUxOU1dXRGZBQjdfTzZkVVBjMGo1RlZWaGhNZHozcGFEdXNDYkVSQzFwVzJzeUtYZThSaExMa2FyaFNETEhMMjlnVTBJdTNRUXRyT0RyejNfdlItS1MyT0NrczNtbWxHS0dEcHRDcU1HQkVwdUhROUhMd0w3dk5pbC02ZU13Z2tQZFBxNnFraWV1MXdZY1VBWDFlSUJXa1h0LWl2Z3N3TQ?oc=5",
-      "datum": "2026-07-03",
-      "vorgeschlagene_kategorie": "regulatorisch",
-      "vorgeschlagener_zeithorizont": "kurzfristig",
-      "vorgeschlagene_auswirkung": 3,
-      "vorgeschlagene_cluster": [
-        "Netzwirtschaft"
-      ],
-      "vorgeschlagene_tags": [
-        "Eigenkapital"
-      ]
-    },
-    {
-      "titel": "Eigenkapital gesamt von GoHealth, Inc. – OTC:GOCOQ - TradingView",
-      "zusammenfassung": "Eigenkapital gesamt von GoHealth, Inc. – OTC:GOCOQ &nbsp;&nbsp; TradingView",
-      "begruendung": "Google-News-Suche: Eigenkapital",
-      "name": "Google News: Eigenkapital",
-      "link": "https://news.google.com/rss/articles/CBMiiwFBVV95cUxPanJvSlFmYnhEM1p1ZEZXMVFRTDNjZWJOZ1RkcXZTc0RqTnVIN2lXOTZnaWpuVVVVeTB2MFp3bHJUVXBBMF80cGw1X2Vsc252ZWY4VHNHbE8zU0VhbXRJU2xCWE9fUl9VMmhkSG1RRkszR181QmhMZ0ZUWEg1RmtHbTNxRGtraU5hNnFN?oc=5",
-      "datum": "2026-07-02",
-      "vorgeschlagene_kategorie": "regulatorisch",
-      "vorgeschlagener_zeithorizont": "kurzfristig",
-      "vorgeschlagene_auswirkung": 3,
-      "vorgeschlagene_cluster": [
-        "Netzwirtschaft"
-      ],
-      "vorgeschlagene_tags": [
-        "Eigenkapital"
-      ]
-    },
-    {
-      "titel": "Wärmepumpen-Lärm: Warum 2026 viele Geräte leiser sein müssen - Ingenieur.de",
-      "zusammenfassung": "Wärmepumpen-Lärm: Warum 2026 viele Geräte leiser sein müssen &nbsp;&nbsp; Ingenieur.de",
-      "begruendung": "Google-News-Suche: Wärmepumpe",
-      "name": "Google News: Wärmepumpe",
-      "link": "https://news.google.com/rss/articles/CBMiuAFBVV95cUxNZjVJTEkxeTFlZlIxSG5yTWplemNyRHd1UXNHcW9TMDQ4cHJaNG1ha2t4S2NMNzBFNDdUV240ajBtWGx3eTlLWTAyZmlKM3VJczJBTS0xa0VxbDhYS0pjVGpLb0NNZW9GQTV1b3R2ZzhNMHhMdEd3WUItMnJnM3d6RjV1Z19EdFpoZGN2dFRwRUdldmMxMFlXS0tlWjhiMzBILURfcTlGajdmN0FPSDgwU3lFWjlLcWo3?oc=5",
-      "datum": "2026-07-02",
-      "vorgeschlagene_kategorie": "regulatorisch",
-      "vorgeschlagener_zeithorizont": "kurzfristig",
-      "vorgeschlagene_auswirkung": 3,
-      "vorgeschlagene_cluster": [
-        "Netzanschluss"
-      ],
-      "vorgeschlagene_tags": [
-        "Wärmepumpe"
-      ]
-    },
-    {
-      "titel": "Immobilien: Eigentümerbeschluss zur Wärmepumpe scheitert - FAZ",
-      "zusammenfassung": "Immobilien: Eigentümerbeschluss zur Wärmepumpe scheitert &nbsp;&nbsp; FAZ",
-      "begruendung": "Google-News-Suche: Wärmepumpe",
-      "name": "Google News: Wärmepumpe",
-      "link": "https://news.google.com/rss/articles/CBMi5AFBVV95cUxPQlRET2QyZXVhaVdMeFNPZW96My1MaERzZk5tNldkNW1Cb2xlY3g4c054YlY2QnpNTk1zdDFQUndFV2lqVGNydUJjNkJwVkJGU0VISjN0SEJsLWdIQnhxWVdlRDhWSm9Sa1UybzRQaGJyUm5rT1NzNTFvOE1tYlUzRnZobXBEd2N6RTBrVkxJWGlNcklhX2F5S0F0Z010NDhZMXdyODNlZ3RKa24tYXZZWEV5cXc4Z200Y2YxQmhrNVFoalptYm9wVHQtOUtLSUJMX20tUGswX1BmanJ0US1kWnZyVG8?oc=5",
-      "datum": "2026-06-30",
-      "vorgeschlagene_kategorie": "regulatorisch",
-      "vorgeschlagener_zeithorizont": "kurzfristig",
-      "vorgeschlagene_auswirkung": 3,
-      "vorgeschlagene_cluster": [
-        "Netzanschluss"
-      ],
-      "vorgeschlagene_tags": [
-        "Wärmepumpe"
-      ]
-    },
-    {
-      "titel": "Diese Mega-Wärmepumpe beheizt 24 Wohnungen - Radio Dresden",
-      "zusammenfassung": "Diese Mega-Wärmepumpe beheizt 24 Wohnungen &nbsp;&nbsp; Radio Dresden",
-      "begruendung": "Google-News-Suche: Wärmepumpe",
-      "name": "Google News: Wärmepumpe",
-      "link": "https://news.google.com/rss/articles/CBMikAFBVV95cUxPN1QzUTVoUGdCOXQtRl91MG5oMHcxUWVCVGJTNEsxN3ZFd3ZGSm43THRtSGlQVHVkck5sellJMjRCZm1wZFM2R2pCaDFTSGgxLWF3clZ0ak1ia184YnRHQjhianZhYTc2Mjc3V0h1OVA1azRpZDczMVQyNlFrSVlSWlFuM0hpSk5PZFg4SjU0dXg?oc=5",
-      "datum": "2026-07-03",
-      "vorgeschlagene_kategorie": "regulatorisch",
-      "vorgeschlagener_zeithorizont": "kurzfristig",
-      "vorgeschlagene_auswirkung": 3,
-      "vorgeschlagene_cluster": [
-        "Netzanschluss"
-      ],
-      "vorgeschlagene_tags": [
-        "Wärmepumpe"
-      ]
-    },
-    {
-      "titel": "Der Smart Meter Rollout von Vonovia - Wohnungsriese setzt auf digitale Verbrauchsdaten - Ad-hoc-news.de",
-      "zusammenfassung": "Der Smart Meter Rollout von Vonovia - Wohnungsriese setzt auf digitale Verbrauchsdaten &nbsp;&nbsp; Ad-hoc-news.de",
-      "begruendung": "Google-News-Suche: Rollout",
-      "name": "Google News: Rollout",
-      "link": "https://news.google.com/rss/articles/CBMixgFBVV95cUxPX180YnpaeUo4UmxBaGxMTVNSSkJhOFZ1TjhscWFsNTdJNFNnNGt2elNyalBHRzluZW44ZHFTQ1QwSDNPeXdTSG9yaHVqa2JqQ0h2dkdvZFd2UmxqZWpkNkpDTFVKckJrMVl2dF9rZjhzRUkxQ3pRX2I3Z1RuUDBzUERSc1BxRzRPb2Q3bUdWVkJ6a2tMalJCTGxrX1JzZm9xMHFjLTVfRzI1bW1KRDBDZUUzRGZLcGpVWWNiSkxzTVk3eXFNYWc?oc=5",
-      "datum": "2026-07-01",
-      "vorgeschlagene_kategorie": "technologisch",
-      "vorgeschlagener_zeithorizont": "kurzfristig",
-      "vorgeschlagene_auswirkung": 3,
-      "vorgeschlagene_cluster": [
-        "Messstellenbetrieb"
-      ],
-      "vorgeschlagene_tags": [
-        "Smart Meter",
-        "Rollout"
-      ]
-    },
-    {
-      "titel": "Copilot-Rollout: Microsoft startet Zwangsinstallation auf Windows 11 - BornCity",
-      "zusammenfassung": "Copilot-Rollout: Microsoft startet Zwangsinstallation auf Windows 11 &nbsp;&nbsp; BornCity",
-      "begruendung": "Google-News-Suche: Rollout",
-      "name": "Google News: Rollout",
-      "link": "https://news.google.com/rss/articles/CBMimgFBVV95cUxNbjA3Q2tMVVNOb05xN1hvenZhY0VVaFBQQ0hLeDJLQW5VNHlWemVzMjhxS3I5dTFEdzhWOXQzSGYxbW00TXR0VWUzSXc3dGdDck9HRHVVU2VxdThOWTJBNmR4MmhWTmVXdEU5VU41MXoyTGFDZlRRYzVLLWVDMTdZdlV6TGdNUVYtTTREcHFxaV9UbFk3RjJoc3pR?oc=5",
-      "datum": "2026-06-23",
-      "vorgeschlagene_kategorie": "regulatorisch",
-      "vorgeschlagener_zeithorizont": "kurzfristig",
-      "vorgeschlagene_auswirkung": 3,
-      "vorgeschlagene_cluster": [
-        "Messstellenbetrieb"
-      ],
-      "vorgeschlagene_tags": [
-        "Rollout"
-      ]
-    },
-    {
-      "titel": "Cytokinetics Prepares for Commercial Rollout Following Regulatory Approvals Across Major Markets - TIKR.com",
-      "zusammenfassung": "Cytokinetics Prepares for Commercial Rollout Following Regulatory Approvals Across Major Markets &nbsp;&nbsp; TIKR.com",
-      "begruendung": "Google-News-Suche: Rollout",
-      "name": "Google News: Rollout",
-      "link": "https://news.google.com/rss/articles/CBMimwJBVV95cUxOV2lRek1OV3hfblM2OTU0MVZQMk5sNzdBaWVSNXlIamROYlAxUTVQd2hIMWhEbGNpVTNQc2ZmeXJFME5tWUxjdHNyUVdEanlTTk1IM3QyeXJyWVpSUGFTcWJZampkdWZOVjh3ZGdmelh0ZXpkeU5xOTZEMVZ1eEpqY0M1cnlDMHpyeDZZUGxjdEdHdXN6QXhFRUxGcTNsOWVHQVVqNnpEUTMyeTlnc2czdUlYaTZQOWJ1NXNNSWo0VkRQa1p3T0xJM19BNzdDamg4S3prN3p3MzVvb09oUDVhYXR4aHFDRUhHemF6bFJ1cE9iazA5UWpVdEJGV0QwYk5ubG5nbE5yOUthZEZpdGFhVkxkam1TWkRfLTZr?oc=5",
-      "datum": "2026-06-30",
-      "vorgeschlagene_kategorie": "regulatorisch",
-      "vorgeschlagener_zeithorizont": "kurzfristig",
-      "vorgeschlagene_auswirkung": 3,
-      "vorgeschlagene_cluster": [
-        "Messstellenbetrieb"
-      ],
-      "vorgeschlagene_tags": [
-        "Rollout"
-      ]
-    },
-    {
-      "titel": "Biotreppe, Grüngasquote, Netzentgelte - Wie teuer wird die Gasheizung? - energate messenger",
-      "zusammenfassung": "Biotreppe, Grüngasquote, Netzentgelte - Wie teuer wird die Gasheizung? &nbsp;&nbsp; energate messenger",
-      "begruendung": "Google-News-Suche: Netzentgelt",
-      "name": "Google News: Netzentgelt",
-      "link": "https://news.google.com/rss/articles/CBMisgFBVV95cUxNb3REZlhlNjA3Q3VkUmpRMENQWHFuNUp0YzFsNy1ZNkRBaFRLVWZSbndxVC1HMlM1RHgzb0Z2TVBTMmZzVkVOazhpSWYyVk9oeDR1VzViaEtXeVc3MVNZaFBSY0V6V1JtbzhjVjJ1bURoNjJHMllUbDllU2t2Vm83d2xGZDVWMzRsbG5SN1ZqbW5qNGVQQWlDMnFQVWlFbXhWV3g1ZFhnUWNKWnJMaGhodzJn?oc=5",
-      "datum": "2026-06-26",
-      "vorgeschlagene_kategorie": "regulatorisch",
-      "vorgeschlagener_zeithorizont": "kurzfristig",
-      "vorgeschlagene_auswirkung": 3,
-      "vorgeschlagene_cluster": [
-        "Netzwirtschaft"
-      ],
-      "vorgeschlagene_tags": [
-        "Netzentgelt"
       ]
     }
   ]
