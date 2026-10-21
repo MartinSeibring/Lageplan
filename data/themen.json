@@ -227,5 +227,64 @@
     "size": 9,
     "farbe": "#4a8a6f",
     "opacity": 0.7
+  },
+  {
+    "id": 1792496363807,
+    "titel": "MiSPeL Umsetzung",
+    "kategorie": "regulatorisch",
+    "zeithorizont": "kurzfristig",
+    "auswirkung": 5,
+    "unsicherheit": 4,
+    "beschreibung": "Ermöglichung von bidirektionaler Nutzung von Speichern und Fahrzeug-Akkus und deren Marktintegration. Zwei Umsetzungsmodelle: Abgrenzungmodell und Pauschalmodell.",
+    "strategische_cluster": [
+      "Netzanschluss",
+      "Messstellenbetrieb",
+      "Netzwirtschaft",
+      "Technologie"
+    ],
+    "tags": [
+      "BNetzA",
+      "Regulatorik",
+      "Marktinteraktion",
+      "Speicher",
+      "Ladeinfrastruktur"
+    ],
+    "beobachtung": [
+      "Speicher",
+      "Ladeinfrastruktur",
+      "intelligente Messsysteme"
+    ],
+    "quelle": "https://www.bundesnetzagentur.de/DE/Fachthemen/ElektrizitaetundGas/ErneuerbareEnergien/EEG_Aufsicht/MiSpeL/start.html",
+    "aktualisierungen": [],
+    "manuell_erfasst": true,
+    "radar_score": 1,
+    "x": 262.18001418283575,
+    "y": 207.42760307311096,
+    "size": 15,
+    "farbe": "#2d7a8e",
+    "opacity": 0.55
+  },
+  {
+    "id": 1792497002922,
+    "titel": "Netzanschlusspaket",
+    "kategorie": "regulatorisch",
+    "zeithorizont": "kurzfristig",
+    "auswirkung": 5,
+    "unsicherheit": 3,
+    "beschreibung": "",
+    "strategische_cluster": [
+      "Netzanschluss"
+    ],
+    "tags": [],
+    "beobachtung": [],
+    "quelle": "",
+    "aktualisierungen": [],
+    "manuell_erfasst": true,
+    "radar_score": 1,
+    "x": 292.2507579328069,
+    "y": 200.30070588322081,
+    "size": 15,
+    "farbe": "#2d7a8e",
+    "opacity": 0.7
   }
 ]
