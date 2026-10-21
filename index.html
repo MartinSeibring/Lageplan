@@ -3516,20 +3516,20 @@ body {
       </div>
       <div class="gh-modal-body">
         <div style="background:#e8f4f7;border-radius:6px;padding:10px 12px;font-size:12px;color:#2d7a8e;line-height:1.5">
-          <strong>Lesen</strong> funktioniert ohne Token – alle Geräte laden automatisch den aktuellen Stand.<br>
-          <strong>Schreiben</strong> (Meilensteine anlegen/ändern) erfordert einen Personal Access Token.
+          Die Daten liegen in einem <strong>privaten</strong> Repository – zum Lesen und
+          Schreiben ist ein Personal Access Token mit Zugriff auf Code- und Daten-Repository nötig.
         </div>
         <div class="gh-feld">
-          <label>Personal Access Token (PAT) – nur für Schreibzugriff</label>
-          <input type="password" id="gh-pat-input" placeholder="github_pat_… (leer lassen für Nur-Lesen)" autocomplete="off" />
+          <label>Personal Access Token (PAT)</label>
+          <input type="password" id="gh-pat-input" placeholder="github_pat_…" autocomplete="off" />
         </div>
         <div class="gh-feld">
-          <label>Repository (owner/repo)</label>
+          <label>Code-Repository (owner/repo) – für „Radar aktualisieren"</label>
           <input type="text" id="gh-repo-input" value="martinseibring/lageplan" />
         </div>
         <div class="gh-feld">
-          <label>Branch (gilt nur für diese Umgebung)</label>
-          <input type="text" id="gh-branch-input" value="" />
+          <label>Daten-Repository (owner/repo, privat)</label>
+          <input type="text" id="gh-daten-repo-input" value="martinseibring/lageplan-daten" />
         </div>
         <div id="gh-test-ergebnis"></div>
       </div>
@@ -3824,11 +3824,10 @@ body {
       <div class="settings-karte-kopf">
         <h3>☁ GitHub-Synchronisation</h3>
         <div class="settings-karte-beschr">
-          Verbindung zum GitHub-Repository. <strong>Lesen</strong> funktioniert
-          ohne Token – für das <strong>Schreiben</strong> (Themen, Meilensteine,
-          Risiken anlegen/ändern) und den Button „Radar aktualisieren" wird ein
-          Personal Access Token benötigt. Der Branch wird pro Umgebung
-          (Produktiv / DEV / Staging) getrennt gespeichert.
+          Die Daten liegen im privaten Repository <code>lageplan-daten</code>,
+          je Umgebung (Produktiv / Staging / DEV) in einem eigenen Ordner.
+          Zum Lesen, Schreiben und für „Radar aktualisieren" wird ein Personal
+          Access Token mit Zugriff auf beide Repositories benötigt.
         </div>
       </div>
       <div class="settings-karte-inhalt">
@@ -4802,22 +4801,20 @@ body {
     // -----------------------------------------------------------------------
     // Radar-Aktualisierung über GitHub Actions
     // (statt lokalem Python-Server: Workflow update-radar.yml wird per API
-    //  gestartet, Ergebnis wird aus data/last_run.json + radar-vorschlaege.json
+    //  gestartet, Ergebnis wird aus last_run.json + radar-vorschlaege.json
     //  im Repository gelesen)
     // -----------------------------------------------------------------------
 
     function _ghConf() {
-      // Muss die Branch-Auflösung des GH-Moduls spiegeln (Branch pro Umgebung),
-      // da GH beim Init dieses Moduls noch nicht existiert
-      var p   = window.location.pathname;
-      var env = p.includes("/dev/") ? "dev" : p.includes("/staging/") ? "staging" : "prod";
-      var defBranch = { prod: "Produktiv", dev: "development", staging: "staging" }[env];
-      var s = { pat: "", repo: "martinseibring/lageplan" };
+      // Muss die Einstellungen des GH-Moduls spiegeln, da GH beim Init
+      // dieses Moduls noch nicht existiert. Radar-Dateien liegen für alle
+      // Umgebungen gemeinsam unter produktiv/ im Daten-Repo.
+      var s = { pat: "", repo: "martinseibring/lageplan", datenRepo: "martinseibring/lageplan-daten" };
       try {
         var roh = localStorage.getItem("github_sync_settings");
         if (roh) Object.assign(s, JSON.parse(roh));
       } catch(e) {}
-      s.branch = (s.branches && s.branches[env]) || defBranch;
+      s.datenRepo = s.datenRepo || "martinseibring/lageplan-daten";
       return s;
     }
 
@@ -4829,7 +4826,7 @@ body {
       };
       if (s.pat) headers["Authorization"] = "Bearer " + s.pat;
       const res = await fetch(
-        `https://api.github.com/repos/${s.repo}/contents/${pfad}?ref=${s.branch}&_=${Date.now()}`,
+        `https://api.github.com/repos/${s.datenRepo}/contents/produktiv/${pfad}?ref=main&_=${Date.now()}`,
         { headers, cache: "no-store" }
       );
       if (!res.ok) {
@@ -4876,7 +4873,7 @@ body {
     // Offene Vorschläge aus dem Repo laden (z. B. vom täglichen Cron-Lauf)
     async function ladeOffeneVorschlaege() {
       try {
-        const vDaten = await _ghDatei("data/radar-vorschlaege.json");
+        const vDaten = await _ghDatei("radar-vorschlaege.json");
         const liste = Array.isArray(vDaten) ? vDaten
                     : (Array.isArray(vDaten.vorschlaege) ? vDaten.vorschlaege : []);
         const bearbeitet = _bearbeiteteVorschlaege();
@@ -4897,7 +4894,7 @@ body {
         return;
       }
       try {
-        const data = await _ghDatei("data/last_run.json");
+        const data = await _ghDatei("last_run.json");
         const lauf = data.letzter_lauf;
         status.textContent = lauf
           ? "Zuletzt aktualisiert: " + new Date(lauf).toLocaleDateString("de-DE")
@@ -4946,7 +4943,8 @@ body {
               "X-GitHub-Api-Version": "2022-11-28",
               "Content-Type": "application/json"
             },
-            body: JSON.stringify({ ref: s.branch })
+            // Radar läuft immer mit dem Produktiv-Stand des Workflows
+            body: JSON.stringify({ ref: "Produktiv" })
           }
         );
         if (res.status === 204) {
@@ -4974,7 +4972,7 @@ body {
       const timer = setInterval(async () => {
         vergangen += intervall;
         try {
-          const data = await _ghDatei("data/last_run.json");
+          const data = await _ghDatei("last_run.json");
           const lauf = data.letzter_lauf;
           if (lauf && new Date(lauf) > startZeit) {
             clearInterval(timer);
@@ -4985,7 +4983,7 @@ body {
 
             // Vorschläge automatisch nachladen und anzeigen
             try {
-              const vDaten = await _ghDatei("data/radar-vorschlaege.json");
+              const vDaten = await _ghDatei("radar-vorschlaege.json");
               const liste = Array.isArray(vDaten) ? vDaten
                           : (Array.isArray(vDaten.vorschlaege) ? vDaten.vorschlaege : []);
               if (liste.length > 0) {
@@ -8704,15 +8702,12 @@ window.MS={exportiereJSON,zeigeDetail,renderUebersicht,oeffneMsFormular,schliess
   var _themenSha = null;
   var _themenSyncTimer = null;
   var _themenSyncPending = false;
-  var THEMEN_PFAD = "data/themen.json";
   var _forschungSha = null;
   var _forschungSyncTimer = null;
   var _forschungSyncPending = false;
-  var FORSCHUNG_PFAD = "data/forschung.json";
   var _risikenSha = null;
   var _risikenSyncTimer = null;
   var _risikenSyncPending = false;
-  var RISIKEN_PFAD = "data/risiken.json";
   var SETTINGS_KEY = "github_sync_settings";
   // Umgebung anhand des URL-Pfads: prod (/) | dev (/dev/) | staging (/staging/)
   function _umgebung() {
@@ -8723,7 +8718,19 @@ window.MS={exportiereJSON,zeigeDetail,renderUebersicht,oeffneMsFormular,schliess
   }
   var BRANCH_DEFAULTS = { prod: "Produktiv", dev: "development", staging: "staging" };
   function _defaultBranch() { return BRANCH_DEFAULTS[_umgebung()]; }
-  var DEFAULT = { pat: "", repo: "martinseibring/lageplan", pfad: "data/meilensteine.json" };
+  // Daten liegen im privaten Repo lageplan-daten (Branch main), je Umgebung
+  // ein eigener Ordner. Radar-Ergebnisse und config.json gibt es nur unter
+  // produktiv/ – dorthin schreibt der Radar-Workflow.
+  var DATEN_BRANCH = "main";
+  var DATEN_ORDNER = { prod: "produktiv", dev: "development", staging: "staging" };
+  var RADAR_ORDNER = "produktiv";
+  function _datenPfad(datei) { return DATEN_ORDNER[_umgebung()] + "/" + datei; }
+  var MEILENSTEINE_PFAD = _datenPfad("meilensteine.json");
+  var THEMEN_PFAD = _datenPfad("themen.json");
+  var FORSCHUNG_PFAD = _datenPfad("forschung.json");
+  var RISIKEN_PFAD = _datenPfad("risiken.json");
+  var CONFIG_PFAD = RADAR_ORDNER + "/config.json";
+  var DEFAULT = { pat: "", repo: "martinseibring/lageplan", datenRepo: "martinseibring/lageplan-daten" };
 
   function ladeEinstellungen() {
     var s;
@@ -8731,10 +8738,13 @@ window.MS={exportiereJSON,zeigeDetail,renderUebersicht,oeffneMsFormular,schliess
       var roh = localStorage.getItem(SETTINGS_KEY);
       s = roh ? Object.assign({}, DEFAULT, JSON.parse(roh)) : Object.assign({}, DEFAULT);
     } catch(e) { s = Object.assign({}, DEFAULT); }
-    // Branch wird pro Umgebung gespeichert (branches.prod/dev/staging),
-    // damit Produktiv- und DEV-Seite sich nicht gegenseitig verstellen.
-    // Das Legacy-Feld "branch" wird ignoriert.
-    s.branch = (s.branches && s.branches[_umgebung()]) || _defaultBranch();
+    // Code-Branch der Umgebung (nur noch informativ). Die Legacy-Felder
+    // "branch", "branches" und "pfad" spielen für die Daten keine Rolle mehr.
+    s.branch = _defaultBranch();
+    s.datenRepo = s.datenRepo || DEFAULT.datenRepo;
+    s.datenBranch = DATEN_BRANCH;
+    s.ordner = DATEN_ORDNER[_umgebung()];
+    s.radarOrdner = RADAR_ORDNER;
     return s;
   }
 
@@ -8755,7 +8765,7 @@ window.MS={exportiereJSON,zeigeDetail,renderUebersicht,oeffneMsFormular,schliess
   async function githubRequest(methode, pfadSuffix, body) {
     var s = ladeEinstellungen();
     if (!s.pat) throw new Error("Kein PAT konfiguriert");
-    var url = "https://api.github.com/repos/" + s.repo + "/contents/" + pfadSuffix;
+    var url = "https://api.github.com/repos/" + s.datenRepo + "/contents/" + pfadSuffix;
     var opts = {
       method: methode,
       headers: {
@@ -8776,9 +8786,15 @@ window.MS={exportiereJSON,zeigeDetail,renderUebersicht,oeffneMsFormular,schliess
     return resp.json();
   }
 
+  // Privates Daten-Repo: Lesen nur über die API mit Token möglich
+  async function _leseJson(pfad) {
+    var meta = await githubRequest("GET", pfad + "?ref=" + DATEN_BRANCH);
+    return JSON.parse(decodeURIComponent(escape(atob(meta.content.replace(/\s/g, "")))));
+  }
+
   async function ladeDatei() {
     var s = ladeEinstellungen();
-    var daten = await githubRequest("GET", s.pfad + "?ref=" + s.branch);
+    var daten = await githubRequest("GET", MEILENSTEINE_PFAD + "?ref=" + DATEN_BRANCH);
     _sha = daten.sha;
     var json = decodeURIComponent(escape(atob(daten.content.replace(/\s/g, ""))));
     return JSON.parse(json);
@@ -8787,12 +8803,12 @@ window.MS={exportiereJSON,zeigeDetail,renderUebersicht,oeffneMsFormular,schliess
   async function speichereDatei(inhalt) {
     var s = ladeEinstellungen();
     if (!_sha) {
-      var meta = await githubRequest("GET", s.pfad + "?ref=" + s.branch);
+      var meta = await githubRequest("GET", MEILENSTEINE_PFAD + "?ref=" + DATEN_BRANCH);
       _sha = meta.sha;
     }
     var encoded = btoa(unescape(encodeURIComponent(JSON.stringify(inhalt, null, 2))));
-    var body = { message: "Meilensteine aktualisiert", content: encoded, branch: s.branch, sha: _sha };
-    var result = await githubRequest("PUT", s.pfad, body);
+    var body = { message: "Meilensteine aktualisiert", content: encoded, branch: DATEN_BRANCH, sha: _sha };
+    var result = await githubRequest("PUT", MEILENSTEINE_PFAD, body);
     _sha = result.content.sha;
     return result;
   }
@@ -8857,11 +8873,11 @@ window.MS={exportiereJSON,zeigeDetail,renderUebersicht,oeffneMsFormular,schliess
   async function speichereThemenDatei(inhalt) {
     var s = ladeEinstellungen();
     if (!_themenSha) {
-      var meta = await githubRequest("GET", THEMEN_PFAD + "?ref=" + s.branch);
+      var meta = await githubRequest("GET", THEMEN_PFAD + "?ref=" + DATEN_BRANCH);
       _themenSha = meta.sha;
     }
     var encoded = btoa(unescape(encodeURIComponent(JSON.stringify(inhalt, null, 2))));
-    var body = { message: "Themenradar aktualisiert", content: encoded, branch: s.branch, sha: _themenSha };
+    var body = { message: "Themenradar aktualisiert", content: encoded, branch: DATEN_BRANCH, sha: _themenSha };
     var result = await githubRequest("PUT", THEMEN_PFAD, body);
     _themenSha = result.content.sha;
     return result;
@@ -8870,10 +8886,8 @@ window.MS={exportiereJSON,zeigeDetail,renderUebersicht,oeffneMsFormular,schliess
   async function ladeThemen() {
     var s = ladeEinstellungen();
     try {
-      var url = "https://raw.githubusercontent.com/" + s.repo + "/" + s.branch + "/" + THEMEN_PFAD + "?t=" + Date.now();
-      var resp = await fetch(url);
-      if (!resp.ok) throw new Error("HTTP " + resp.status);
-      var githubThemen = await resp.json();
+      if (!s.pat) throw new Error("Kein PAT konfiguriert");
+      var githubThemen = await _leseJson(THEMEN_PFAD);
       if (!Array.isArray(githubThemen)) githubThemen = [];
       var lokalThemen = (window.TR && TR.getManuell) ? TR.getManuell() : [];
       if (s.pat) {
@@ -8896,7 +8910,7 @@ window.MS={exportiereJSON,zeigeDetail,renderUebersicht,oeffneMsFormular,schliess
     var s = ladeEinstellungen();
     if (!s.pat) return;
     try {
-      var githubMeta = await githubRequest("GET", THEMEN_PFAD + "?ref=" + s.branch);
+      var githubMeta = await githubRequest("GET", THEMEN_PFAD + "?ref=" + DATEN_BRANCH);
       _themenSha = githubMeta.sha;
       var githubThemen = JSON.parse(decodeURIComponent(escape(atob(githubMeta.content.replace(/\s/g, "")))));
       if (!Array.isArray(githubThemen)) githubThemen = [];
@@ -8932,11 +8946,11 @@ window.MS={exportiereJSON,zeigeDetail,renderUebersicht,oeffneMsFormular,schliess
   async function speichereForschungDatei(inhalt) {
     var s = ladeEinstellungen();
     if (!_forschungSha) {
-      var meta = await githubRequest("GET", FORSCHUNG_PFAD + "?ref=" + s.branch);
+      var meta = await githubRequest("GET", FORSCHUNG_PFAD + "?ref=" + DATEN_BRANCH);
       _forschungSha = meta.sha;
     }
     var encoded = btoa(unescape(encodeURIComponent(JSON.stringify(inhalt, null, 2))));
-    var body = { message: "Forschungsprojekte aktualisiert", content: encoded, branch: s.branch, sha: _forschungSha };
+    var body = { message: "Forschungsprojekte aktualisiert", content: encoded, branch: DATEN_BRANCH, sha: _forschungSha };
     var result = await githubRequest("PUT", FORSCHUNG_PFAD, body);
     _forschungSha = result.content.sha;
     return result;
@@ -8945,10 +8959,8 @@ window.MS={exportiereJSON,zeigeDetail,renderUebersicht,oeffneMsFormular,schliess
   async function ladeForschung() {
     var s = ladeEinstellungen();
     try {
-      var url = "https://raw.githubusercontent.com/" + s.repo + "/" + s.branch + "/" + FORSCHUNG_PFAD + "?t=" + Date.now();
-      var resp = await fetch(url);
-      if (!resp.ok) throw new Error("HTTP " + resp.status);
-      var githubDaten = await resp.json();
+      if (!s.pat) throw new Error("Kein PAT konfiguriert");
+      var githubDaten = await _leseJson(FORSCHUNG_PFAD);
       if (!Array.isArray(githubDaten)) githubDaten = [];
       var lokalDaten = (window.FP && FP.getManuell) ? FP.getManuell() : [];
       if (s.pat) {
@@ -8971,7 +8983,7 @@ window.MS={exportiereJSON,zeigeDetail,renderUebersicht,oeffneMsFormular,schliess
     var s = ladeEinstellungen();
     if (!s.pat) return;
     try {
-      var githubMeta = await githubRequest("GET", FORSCHUNG_PFAD + "?ref=" + s.branch);
+      var githubMeta = await githubRequest("GET", FORSCHUNG_PFAD + "?ref=" + DATEN_BRANCH);
       _forschungSha = githubMeta.sha;
       var githubDaten = JSON.parse(decodeURIComponent(escape(atob(githubMeta.content.replace(/\s/g, "")))));
       if (!Array.isArray(githubDaten)) githubDaten = [];
@@ -9007,11 +9019,11 @@ window.MS={exportiereJSON,zeigeDetail,renderUebersicht,oeffneMsFormular,schliess
   async function speichereRisikenDatei(inhalt) {
     var s = ladeEinstellungen();
     if (!_risikenSha) {
-      var meta = await githubRequest("GET", RISIKEN_PFAD + "?ref=" + s.branch);
+      var meta = await githubRequest("GET", RISIKEN_PFAD + "?ref=" + DATEN_BRANCH);
       _risikenSha = meta.sha;
     }
     var encoded = btoa(unescape(encodeURIComponent(JSON.stringify(inhalt, null, 2))));
-    var body = { message: "Risiken aktualisiert", content: encoded, branch: s.branch, sha: _risikenSha };
+    var body = { message: "Risiken aktualisiert", content: encoded, branch: DATEN_BRANCH, sha: _risikenSha };
     var result = await githubRequest("PUT", RISIKEN_PFAD, body);
     _risikenSha = result.content.sha;
     return result;
@@ -9020,10 +9032,8 @@ window.MS={exportiereJSON,zeigeDetail,renderUebersicht,oeffneMsFormular,schliess
   async function ladeRisiken() {
     var s = ladeEinstellungen();
     try {
-      var url = "https://raw.githubusercontent.com/" + s.repo + "/" + s.branch + "/" + RISIKEN_PFAD + "?t=" + Date.now();
-      var resp = await fetch(url);
-      if (!resp.ok) throw new Error("HTTP " + resp.status);
-      var githubDaten = await resp.json();
+      if (!s.pat) throw new Error("Kein PAT konfiguriert");
+      var githubDaten = await _leseJson(RISIKEN_PFAD);
       if (!Array.isArray(githubDaten)) githubDaten = [];
       var lokalDaten = (window.RM && RM.getManuell) ? RM.getManuell() : [];
       if (s.pat) {
@@ -9046,7 +9056,7 @@ window.MS={exportiereJSON,zeigeDetail,renderUebersicht,oeffneMsFormular,schliess
     var s = ladeEinstellungen();
     if (!s.pat) return;
     try {
-      var githubMeta = await githubRequest("GET", RISIKEN_PFAD + "?ref=" + s.branch);
+      var githubMeta = await githubRequest("GET", RISIKEN_PFAD + "?ref=" + DATEN_BRANCH);
       _risikenSha = githubMeta.sha;
       var githubDaten = JSON.parse(decodeURIComponent(escape(atob(githubMeta.content.replace(/\s/g, "")))));
       if (!Array.isArray(githubDaten)) githubDaten = [];
@@ -9078,10 +9088,11 @@ window.MS={exportiereJSON,zeigeDetail,renderUebersicht,oeffneMsFormular,schliess
     var s = ladeEinstellungen();
     setzeSyncStatus("aktiv", "Lade Daten von GitHub…");
     try {
-      var url = "https://raw.githubusercontent.com/" + s.repo + "/" + s.branch + "/" + s.pfad + "?t=" + Date.now();
-      var resp = await fetch(url);
-      if (!resp.ok) throw new Error("HTTP " + resp.status);
-      var parsed = _parseGithubDatei(await resp.json());
+      if (!s.pat) {
+        setzeSyncStatus("fehler", "Kein Token – die Daten liegen in einem privaten Repository (⚙ Sync zum Einrichten)");
+        return;
+      }
+      var parsed = _parseGithubDatei(await _leseJson(MEILENSTEINE_PFAD));
       var githubMs = parsed.meilensteine;
       var githubZiele = parsed.ziele;
       var lokalDaten = (window.MS && MS.getDaten) ? MS.getDaten() : [];
@@ -9113,7 +9124,7 @@ window.MS={exportiereJSON,zeigeDetail,renderUebersicht,oeffneMsFormular,schliess
     if (!s.pat) return;
     setzeSyncStatus("aktiv", "Synchronisiere…");
     try {
-      var githubMeta = await githubRequest("GET", s.pfad + "?ref=" + s.branch);
+      var githubMeta = await githubRequest("GET", MEILENSTEINE_PFAD + "?ref=" + DATEN_BRANCH);
       _sha = githubMeta.sha;
       var parsed = _parseGithubDatei(JSON.parse(decodeURIComponent(escape(atob(githubMeta.content.replace(/\s/g, ""))))));
       var githubMs = parsed.meilensteine;
@@ -9155,7 +9166,7 @@ window.MS={exportiereJSON,zeigeDetail,renderUebersicht,oeffneMsFormular,schliess
     var s = ladeEinstellungen();
     document.getElementById("gh-pat-input").value = s.pat || "";
     document.getElementById("gh-repo-input").value = s.repo || DEFAULT.repo;
-    document.getElementById("gh-branch-input").value = s.branch || _defaultBranch();
+    document.getElementById("gh-daten-repo-input").value = s.datenRepo;
     document.getElementById("gh-test-ergebnis").textContent = "";
     document.getElementById("gh-einstellungen-modal").classList.add("offen");
   }
@@ -9165,14 +9176,10 @@ window.MS={exportiereJSON,zeigeDetail,renderUebersicht,oeffneMsFormular,schliess
   }
 
   function speichereEinstellungenUndSchliesse() {
-    var alt = ladeEinstellungen();
-    var branches = alt.branches || {};
-    branches[_umgebung()] = document.getElementById("gh-branch-input").value.trim() || _defaultBranch();
     var s = {
-      pat:      document.getElementById("gh-pat-input").value.trim(),
-      repo:     document.getElementById("gh-repo-input").value.trim() || DEFAULT.repo,
-      branches: branches,
-      pfad:     DEFAULT.pfad
+      pat:       document.getElementById("gh-pat-input").value.trim(),
+      repo:      document.getElementById("gh-repo-input").value.trim() || DEFAULT.repo,
+      datenRepo: document.getElementById("gh-daten-repo-input").value.trim() || DEFAULT.datenRepo
     };
     speichereEinstellungen(s);
     renderSettingsKarte();
@@ -9195,17 +9202,25 @@ window.MS={exportiereJSON,zeigeDetail,renderUebersicht,oeffneMsFormular,schliess
     el.style.color = "#888";
     var pat  = document.getElementById("gh-pat-input").value.trim();
     var repo = document.getElementById("gh-repo-input").value.trim() || DEFAULT.repo;
+    var datenRepo = document.getElementById("gh-daten-repo-input").value.trim() || DEFAULT.datenRepo;
     if (!pat) { el.textContent = "✕ Bitte PAT eingeben"; el.style.color = "red"; return; }
     try {
-      var resp = await fetch("https://api.github.com/repos/" + repo, {
-        headers: { "Authorization": "Bearer " + pat, "Accept": "application/vnd.github+json" }
+      // Beide Repos prüfen – der Token braucht Zugriff auf Code (Actions) und Daten
+      var namen = [repo, datenRepo];
+      var antworten = await Promise.all(namen.map(function(r) {
+        return fetch("https://api.github.com/repos/" + r, {
+          headers: { "Authorization": "Bearer " + pat, "Accept": "application/vnd.github+json" }
+        });
+      }));
+      var fehler = [];
+      antworten.forEach(function(resp, i) {
+        if (!resp.ok) fehler.push(namen[i] + " (" + resp.status + ")");
       });
-      if (resp.ok) {
-        var data = await resp.json();
-        el.textContent = "✓ Verbindung erfolgreich! Repo: " + data.full_name;
+      if (fehler.length === 0) {
+        el.textContent = "✓ Verbindung erfolgreich: " + namen.join(" + ");
         el.style.color = "green";
       } else {
-        el.textContent = "✕ Fehler " + resp.status + " – PAT oder Repo prüfen";
+        el.textContent = "✕ Kein Zugriff auf " + fehler.join(", ") + " – PAT oder Repo prüfen";
         el.style.color = "red";
       }
     } catch(e) {
@@ -9221,7 +9236,7 @@ window.MS={exportiereJSON,zeigeDetail,renderUebersicht,oeffneMsFormular,schliess
     var s = ladeEinstellungen();
     if (!s.pat) return false;
     try {
-      var meta = await githubRequest("GET", THEMEN_PFAD + "?ref=" + s.branch);
+      var meta = await githubRequest("GET", THEMEN_PFAD + "?ref=" + DATEN_BRANCH);
       var themen = JSON.parse(decodeURIComponent(escape(atob(meta.content.replace(/\s/g, "")))));
       if (!Array.isArray(themen)) themen = [];
       var idx = themen.findIndex(function(t){ return String(t.id) === String(thema.id); });
@@ -9229,7 +9244,7 @@ window.MS={exportiereJSON,zeigeDetail,renderUebersicht,oeffneMsFormular,schliess
       var encoded = btoa(unescape(encodeURIComponent(JSON.stringify(themen, null, 2))));
       await githubRequest("PUT", THEMEN_PFAD, {
         message: "Thema aktualisiert: " + (thema.titel || thema.id),
-        content: encoded, branch: s.branch, sha: meta.sha
+        content: encoded, branch: DATEN_BRANCH, sha: meta.sha
       });
       _themenSha = null;
       setzeSyncStatus("ok", "Thema gespeichert");
@@ -9252,7 +9267,7 @@ window.MS={exportiereJSON,zeigeDetail,renderUebersicht,oeffneMsFormular,schliess
     var s = ladeEinstellungen();
     if (!s.pat) return false;
     try {
-      var meta = await githubRequest("GET", "config.json?ref=" + s.branch);
+      var meta = await githubRequest("GET", CONFIG_PFAD + "?ref=" + DATEN_BRANCH);
       var cfg = JSON.parse(decodeURIComponent(escape(atob(meta.content.replace(/\s/g, "")))));
       if (patch.keywords) cfg.keywords = patch.keywords;
       if (patch.feeds) cfg.rss_feeds = patch.feeds.map(function(f) {
@@ -9263,9 +9278,9 @@ window.MS={exportiereJSON,zeigeDetail,renderUebersicht,oeffneMsFormular,schliess
                  selektor: q.selektor || "body", aktiv: q.aktiv !== false };
       });
       var encoded = btoa(unescape(encodeURIComponent(JSON.stringify(cfg, null, 2))));
-      await githubRequest("PUT", "config.json", {
+      await githubRequest("PUT", CONFIG_PFAD, {
         message: "Recherche-Konfiguration aktualisiert",
-        content: encoded, branch: s.branch, sha: meta.sha
+        content: encoded, branch: DATEN_BRANCH, sha: meta.sha
       });
       setzeSyncStatus("ok", "Konfiguration gespeichert");
       return true;
@@ -9284,8 +9299,7 @@ window.MS={exportiereJSON,zeigeDetail,renderUebersicht,oeffneMsFormular,schliess
     el.innerHTML =
       '<span style="color:' + (s.pat ? "#27ae60" : "#c0392b") + ';font-weight:600">' +
         (s.pat ? "✓ Token hinterlegt" : "✗ Kein Token hinterlegt") + '</span>' +
-      '<span style="color:#bbb;margin:0 8px">|</span>Repository: <strong>' + s.repo + '</strong>' +
-      '<span style="color:#bbb;margin:0 8px">|</span>Branch: <strong>' + s.branch + '</strong>' +
+      '<span style="color:#bbb;margin:0 8px">|</span>Daten: <strong>' + s.datenRepo + '/' + s.ordner + '</strong>' +
       ' <span style="color:#999">(' + umgLabel + ')</span>';
   }
 
@@ -10260,8 +10274,8 @@ window.LP={toggleVollbild,beendeVollbild,aktualisiereStatusleiste,zeichneLpRadar
         if (!s) { setzteServerStatus(false); return; }
         var headers = { "Accept": "application/vnd.github+json" };
         if (s.pat) headers["Authorization"] = "Bearer " + s.pat;
-        fetch("https://api.github.com/repos/" + s.repo + "/contents/config.json?ref=" +
-              s.branch + "&_=" + Date.now(), { headers: headers, cache: "no-store" })
+        fetch("https://api.github.com/repos/" + s.datenRepo + "/contents/" + s.radarOrdner +
+              "/config.json?ref=" + s.datenBranch + "&_=" + Date.now(), { headers: headers, cache: "no-store" })
           .then(function(res) {
             if (!res.ok) throw new Error("HTTP " + res.status);
             return res.json();

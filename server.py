@@ -271,13 +271,12 @@ class RadarHandler(BaseHTTPRequestHandler):
                 self._sende_json({"error": f"Ungültiges JSON: {e}"}, status=400)
                 return
 
-            # API-Key aus config.json
+            # API-Key bevorzugt aus der Umgebung; lokale config.json ist optional
             try:
                 with open(CONFIG_PATH, encoding="utf-8") as f:
                     config = json.load(f)
-            except (json.JSONDecodeError, OSError) as e:
-                self._sende_json({"error": f"config.json nicht lesbar: {e}"}, status=500)
-                return
+            except (json.JSONDecodeError, OSError):
+                config = {}
 
             api_key = _api_key(config)
             if not api_key:

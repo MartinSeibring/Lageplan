@@ -2,7 +2,10 @@
 
 Liest config.json (Keywords + RSS-Feeds), ruft die Feeds ab, gleicht
 Titel/Beschreibung gegen die Keywords ab und schreibt Vorschläge nach
-data/radar-vorschlaege.json sowie den Zeitstempel nach data/last_run.json.
+radar-vorschlaege.json sowie den Zeitstempel nach last_run.json.
+
+Alle Dateien liegen im Daten-Verzeichnis DATEN_DIR (Umgebungsvariable) –
+im Workflow ist das der Ordner produktiv/ des privaten Daten-Repos.
 
 Läuft in GitHub Actions (.github/workflows/update-radar.yml) — nutzt nur
 die Python-Standardbibliothek, keine externen Pakete nötig.
@@ -19,11 +22,13 @@ from datetime import datetime, timedelta, timezone
 from email.utils import parsedate_to_datetime
 
 BASE_DIR         = os.path.dirname(os.path.abspath(__file__))
-CONFIG_PATH      = os.path.join(BASE_DIR, "config.json")
-THEMEN_PATH      = os.path.join(BASE_DIR, "data", "themen.json")
-VORSCHLAEGE_PATH = os.path.join(BASE_DIR, "data", "radar-vorschlaege.json")
-GESEHEN_PATH     = os.path.join(BASE_DIR, "data", "radar-gesehen.json")
-LAST_RUN_PATH    = os.path.join(BASE_DIR, "data", "last_run.json")
+DATEN_DIR        = os.path.abspath(os.environ.get("DATEN_DIR")
+                                   or os.path.join(BASE_DIR, "data"))
+CONFIG_PATH      = os.path.join(DATEN_DIR, "config.json")
+THEMEN_PATH      = os.path.join(DATEN_DIR, "themen.json")
+VORSCHLAEGE_PATH = os.path.join(DATEN_DIR, "radar-vorschlaege.json")
+GESEHEN_PATH     = os.path.join(DATEN_DIR, "radar-gesehen.json")
+LAST_RUN_PATH    = os.path.join(DATEN_DIR, "last_run.json")
 
 MAX_GESEHEN = 500  # Merkliste alter Links begrenzen
 
@@ -136,7 +141,10 @@ def finde_kategorie(text):
 
 
 def main():
-    config   = lade_json(CONFIG_PATH, {})
+    config   = lade_json(CONFIG_PATH, None)
+    if config is None:
+        # Ohne Konfiguration lieferte der Lauf früher still "0 Treffer"
+        raise SystemExit(f"config.json fehlt oder ist ungültig: {CONFIG_PATH}")
     keywords = config.get("keywords", [])
     feeds    = config.get("rss_feeds", [])
     min_treffer = int(config.get("min_keyword_treffer", 1))
