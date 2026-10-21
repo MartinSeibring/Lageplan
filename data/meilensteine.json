@@ -3074,6 +3074,207 @@
       "beschreibung": "Gesetzespaket zur Beschleunigung des Verteilnetzausbaus, Modernisierung und Digitalisierung sowie Verbesserung der Finanzierungsmöglichkeiten; Ziel ist die Halbierung der Realisierungszeiträume von Netzprojekten, Nutzung des EU Grids Package, Flexibilisierung von Planfeststellungsverfahren, Straffung von UVP-Verfahren und Stichtagsregelungen. Enthält zudem zentrale Datenplattform für Netzausbau-, Auslastungs- und Anschlusskapazitätsdaten, Kooperationsanreize für Netzbetreiber-Software ('einer für alle') und Anschlussgarantie mit klarer Frist für Industriebetriebe.",
       "manuell_erfasst": true,
       "ki_extrahiert": true
+    },
+    {
+      "id": "M1790581663544",
+      "titel": "Meilenstein: Bernds zu hause",
+      "thema_id": 1780298987606,
+      "thema_titel": "Bernds zu hause",
+      "kategorie": "marktlich",
+      "start": "2026-09-28",
+      "ende": "2026-12-28",
+      "verantwortlicher": "–",
+      "status": "offen",
+      "fortschritt": 0,
+      "abhaengig_von": [],
+      "strategische_cluster": [
+        "Organisation"
+      ],
+      "radar_score": 1,
+      "notiz": ""
+    },
+    {
+      "id": "M17924973923863016",
+      "titel": "Ausweitung der Internetplattform auf alle Netzanschlussbegehren",
+      "thema_id": null,
+      "thema_titel": "",
+      "kategorie": "regulatorisch",
+      "start": "2026-10-20",
+      "ende": "2028-01-01",
+      "verantwortlicher": "",
+      "status": "offen",
+      "fortschritt": 0,
+      "abhaengig_von": [],
+      "pflicht_deadline": "2028-01-01",
+      "deadline_quelle": "§ 14e Abs. 2 Satz 2 EnWG-E",
+      "deadline_typ": "regulatorisch",
+      "strategische_cluster": [
+        "Netzwirtschaft",
+        "Digitalisierung"
+      ],
+      "radar_score": 0.5,
+      "notiz": "",
+      "tags": [
+        "Internetplattform",
+        "Netzanschluss"
+      ],
+      "auswirkung": 4,
+      "unsicherheit": 1,
+      "beschreibung": "Die Vorgaben der gemeinsamen Internetplattform sind auf sämtliche Netzanschlussbegehren anzuwenden.",
+      "manuell_erfasst": true,
+      "ki_extrahiert": true
+    },
+    {
+      "id": "M17924973944508789",
+      "titel": "Vorlage einheitlicher Anschlussverfahren der ÜNB",
+      "thema_id": null,
+      "thema_titel": "",
+      "kategorie": "regulatorisch",
+      "start": "2026-10-20",
+      "ende": "2027-01-01",
+      "verantwortlicher": "",
+      "status": "offen",
+      "fortschritt": 0,
+      "abhaengig_von": [],
+      "pflicht_deadline": "2027-01-01",
+      "deadline_quelle": "§ 17a Abs. 1 EnWG-E",
+      "deadline_typ": "regulatorisch",
+      "strategische_cluster": [
+        "Netzwirtschaft"
+      ],
+      "radar_score": 0.5,
+      "notiz": "",
+      "tags": [
+        "ÜNB",
+        "Netzanschlussverfahren"
+      ],
+      "auswirkung": 5,
+      "unsicherheit": 1,
+      "beschreibung": "Übertragungsnetzbetreiber mit Regelzonenverantwortung müssen gemeinsame Verfahrensregeln für Netzanschlüsse entwickeln und der Bundesnetzagentur zur Bestätigung vorlegen.",
+      "manuell_erfasst": true,
+      "ki_extrahiert": true
+    },
+    {
+      "id": "M17924974101008160",
+      "titel": "Einführung unverbindlicher Netzanschlussauskunft",
+      "thema_id": null,
+      "thema_titel": "",
+      "kategorie": "regulatorisch",
+      "start": "2026-10-20",
+      "ende": "2028-01-01",
+      "verantwortlicher": "",
+      "status": "offen",
+      "fortschritt": 0,
+      "abhaengig_von": [],
+      "pflicht_deadline": "2028-01-01",
+      "deadline_quelle": "§ 17c Abs. 2 Satz 1 EnWG-E",
+      "deadline_typ": "regulatorisch",
+      "strategische_cluster": [
+        "Netzwirtschaft",
+        "Digitalisierung"
+      ],
+      "radar_score": 0.5,
+      "notiz": "",
+      "tags": [
+        "Netzanschlussauskunft",
+        "VNB"
+      ],
+      "auswirkung": 5,
+      "unsicherheit": 1,
+      "beschreibung": "Verteilernetzbetreiber müssen ein elektronisches Verfahren für unverbindliche Netzanschlussauskünfte ab 135 kW bereitstellen.",
+      "manuell_erfasst": true,
+      "ki_extrahiert": true
+    },
+    {
+      "id": "M17924974169837986",
+      "titel": "Aktualisierung der Datenbasis für Netzanschlussauskünfte",
+      "thema_id": null,
+      "thema_titel": "",
+      "kategorie": "regulatorisch",
+      "start": "2026-10-20",
+      "ende": "2027-10-20",
+      "verantwortlicher": "",
+      "status": "offen",
+      "fortschritt": 0,
+      "abhaengig_von": [],
+      "pflicht_deadline": null,
+      "deadline_quelle": "§ 17c Abs. 2 Satz 6 EnWG-E",
+      "deadline_typ": "wiederkehrend",
+      "strategische_cluster": [
+        "Digitalisierung"
+      ],
+      "radar_score": 0.5,
+      "notiz": "",
+      "tags": [
+        "Netzanschlussauskunft",
+        "Datenpflege"
+      ],
+      "auswirkung": 3,
+      "unsicherheit": 1,
+      "beschreibung": "Die Daten der unverbindlichen Netzanschlussauskunft sind regelmäßig zu aktualisieren.",
+      "manuell_erfasst": true,
+      "ki_extrahiert": true
+    },
+    {
+      "id": "M17924975080673557",
+      "titel": "Leistungsbegrenzung neuer Windenergieanlagen",
+      "thema_id": null,
+      "thema_titel": "",
+      "kategorie": "regulatorisch",
+      "start": "2026-10-20",
+      "ende": "2027-01-01",
+      "verantwortlicher": "",
+      "status": "offen",
+      "fortschritt": 0,
+      "abhaengig_von": [],
+      "pflicht_deadline": "2027-01-01",
+      "deadline_quelle": "§ 8 Abs. 1 Satz 4 Nr. 2 EEG-E",
+      "deadline_typ": "regulatorisch",
+      "strategische_cluster": [
+        "EEG",
+        "Netzwirtschaft"
+      ],
+      "radar_score": 0.5,
+      "notiz": "",
+      "tags": [
+        "Windenergie",
+        "Einspeisebegrenzung"
+      ],
+      "auswirkung": 5,
+      "unsicherheit": 1,
+      "beschreibung": "Für neu angeschlossene Windenergieanlagen an Land wird die maximale Wirkleistungseinspeisung auf 280 W/m² Rotorfläche begrenzt.",
+      "manuell_erfasst": true,
+      "ki_extrahiert": true
+    },
+    {
+      "id": "M17924975156319033",
+      "titel": "Evaluierung kapazitätslimitierter Netzgebiete",
+      "thema_id": null,
+      "thema_titel": "",
+      "kategorie": "regulatorisch",
+      "start": "2026-10-20",
+      "ende": "2029-06-30",
+      "verantwortlicher": "",
+      "status": "offen",
+      "fortschritt": 0,
+      "abhaengig_von": [],
+      "pflicht_deadline": "2029-06-30",
+      "deadline_quelle": "§ 118 Abs. 9 EnWG-E",
+      "deadline_typ": "regulatorisch",
+      "strategische_cluster": [
+        "Regulierung"
+      ],
+      "radar_score": 0.5,
+      "notiz": "",
+      "tags": [
+        "Evaluierung",
+        "Kapazitätslimitierung"
+      ],
+      "auswirkung": 2,
+      "unsicherheit": 1,
+      "beschreibung": "Das Bundesministerium für Wirtschaft und Energie evaluiert die Wirkungen der Ausweisungen kapazitätslimitierter Netzgebiete.",
+      "manuell_erfasst": true,
+      "ki_extrahiert": true
     }
   ],
   "ziele": [
