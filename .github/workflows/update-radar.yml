@@ -6,42 +6,61 @@ on:
     - cron: '30 4 * * 1-5'  # werktags 05:30 MEZ / 06:30 MESZ
 
 permissions:
-  contents: write
+  contents: read
 
-# Nie zwei Läufe gleichzeitig auf demselben Branch (Cron + manueller Klick)
+# Nie zwei Läufe gleichzeitig (Cron + manueller Klick) – alle schreiben
+# in denselben Ordner produktiv/ des Daten-Repos
 concurrency:
-  group: radar-${{ github.ref }}
+  group: radar
   cancel-in-progress: false
+
+env:
+  DATEN_REPO: martinseibring/lageplan-daten
+  DATEN_ORDNER: produktiv
 
 jobs:
   update-radar:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - name: Checkout Code
+        uses: actions/checkout@v5
+
+      # Radar-Ergebnisse landen immer im Produktiv-Datenbestand,
+      # unabhängig davon, von welchem Code-Branch der Lauf startet
+      - name: Checkout Daten-Repo
+        uses: actions/checkout@v5
+        with:
+          repository: ${{ env.DATEN_REPO }}
+          token: ${{ secrets.DATEN_TOKEN }}
+          path: daten
 
       - name: Python einrichten
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: '3.12'
 
       - name: Radar-Update ausführen
+        env:
+          DATEN_DIR: daten/${{ env.DATEN_ORDNER }}
         run: python update_radar.py
 
       - name: Ergebnisse committen
+        working-directory: daten
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/radar-vorschlaege.json data/radar-gesehen.json data/last_run.json
+          git add "$DATEN_ORDNER/radar-vorschlaege.json" "$DATEN_ORDNER/radar-gesehen.json" "$DATEN_ORDNER/last_run.json"
           if git diff --cached --quiet; then
             echo "Keine Änderungen."
-          else
-            git commit -m "Themenradar: automatische Aktualisierung"
-            # Paralleler Push (App-Sync) darf den Lauf nicht scheitern lassen
-            for i in 1 2 3; do
-              git push && break
-              echo "Push fehlgeschlagen – rebase und erneut (Versuch $i)"
-              git pull --rebase origin "${GITHUB_REF_NAME}"
-              sleep 3
-            done
+            exit 0
           fi
+          git commit -m "Themenradar: automatische Aktualisierung"
+          # Paralleler Schreibzugriff der App darf den Lauf nicht scheitern lassen
+          for i in 1 2 3; do
+            if git push; then exit 0; fi
+            echo "Push fehlgeschlagen – rebase und erneut (Versuch $i)"
+            git pull --rebase
+            sleep 3
+          done
+          echo "::error::Push ins Daten-Repo nach 3 Versuchen fehlgeschlagen"
+          exit 1

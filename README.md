@@ -10,14 +10,20 @@ lokaler Python-Server ist dafür nicht mehr nötig.
 
 **Ablauf:**
 
-1. `update_radar.py` liest `config.json` (Keywords + RSS-Feeds), ruft die
-   Feeds ab und gleicht sie gegen die Keywords ab.
-2. Ergebnisse landen im Repository:
-   - `data/radar-vorschlaege.json` — die Themenvorschläge
-   - `data/last_run.json` — Zeitstempel des letzten Laufs
-   - `data/radar-gesehen.json` — Merkliste bereits vorgeschlagener Artikel
+1. Der Workflow checkt zusätzlich das private Daten-Repo
+   `martinseibring/lageplan-daten` aus. `update_radar.py` liest
+   `produktiv/config.json` (Keywords + RSS-Feeds), ruft die Feeds ab und
+   gleicht sie gegen die Keywords ab.
+2. Ergebnisse landen **immer** im Ordner `produktiv/` des Daten-Repos:
+   - `radar-vorschlaege.json` — die Themenvorschläge
+   - `last_run.json` — Zeitstempel des letzten Laufs
+   - `radar-gesehen.json` — Merkliste bereits vorgeschlagener Artikel
 3. Die App lädt die Vorschläge über die GitHub-API und zeigt sie im
-   Themenradar-Tab an („In Radar übernehmen" / „Ignorieren").
+   Themenradar-Tab an („In Radar übernehmen" / „Ignorieren"). Alle
+   Umgebungen lesen die Radar-Dateien aus `produktiv/`.
+
+Schlägt der Push ins Daten-Repo fehl, wird der Lauf **rot** (früher wurde
+der Fehler verschluckt).
 
 **Auslösung:**
 
@@ -27,19 +33,35 @@ lokaler Python-Server ist dafür nicht mehr nötig.
   startet den Workflow über die GitHub-API (dauert ca. 1–2 Minuten)
 - **Manuell auf GitHub:** Actions → „Themenradar aktualisieren" → Run workflow
 
-**Voraussetzung:** In der App muss unter *Einstellungen → GitHub-Sync* ein
-Personal Access Token (PAT) hinterlegt sein — derselbe, der auch für die
-Datensynchronisation genutzt wird. Der Token braucht Schreibrecht auf das
-Repository (classic: Scope `repo`; fine-grained: *Contents* und *Actions*
-Read/Write).
+**Voraussetzungen:**
+
+- Repository-Secret `DATEN_TOKEN` im Code-Repo: fine-grained PAT mit
+  *Contents: Read/Write* auf `lageplan-daten` (nutzt der Workflow).
+- In der App unter *Einstellungen → GitHub-Sync* ein PAT mit
+  *Contents: Read/Write* auf `lageplan-daten` und *Actions: Read/Write* auf
+  `lageplan` (classic: Scope `repo`).
+
+## Branches und Datenablage
+
+| Branch | Zweck | Seite |
+|---|---|---|
+| `development` | neue Entwicklungen | `/dev/` |
+| `staging` | Test | `/staging/` |
+| `Produktiv` | Regelbetrieb (geschützt, nur per Pull Request) | `/` |
+| `gh-pages` | technisch: Ziel von `deploy.yml`, nicht anfassen | – |
+
+Code wandert `development` → `staging` → `Produktiv`. Die Daten liegen
+**nicht** im Code-Repo, sondern im privaten Repo `lageplan-daten`
+(Ordner `produktiv/`, `staging/`, `development/`) – Merges zwischen den
+Branches erzeugen deshalb keine Datenkonflikte mehr.
 
 ### Fehlerbehebung
 
 | Anzeige | Ursache / Lösung |
 |---|---|
 | „GitHub-Token fehlt" | PAT unter Einstellungen → GitHub-Sync eintragen |
-| „Start fehlgeschlagen: 404" | Workflow-Datei fehlt auf dem eingestellten Branch, oder PAT hat keine Actions-Berechtigung |
-| „Start fehlgeschlagen: 422" | Der in den Sync-Einstellungen gewählte Branch existiert nicht |
+| „Start fehlgeschlagen: 404" | PAT hat keine Actions-Berechtigung auf `lageplan` |
+| Lauf rot bei „Checkout Daten-Repo“ / „Ergebnisse committen“ | Secret `DATEN_TOKEN` fehlt, ist abgelaufen oder hat kein Schreibrecht auf `lageplan-daten` |
 | „Timeout" | Actions-Tab auf GitHub öffnen und Lauf-Protokoll prüfen |
 
 ## Lokaler Server (optional, nur für KI-Analyse)
