@@ -9168,7 +9168,11 @@ window.MS={exportiereJSON,zeigeDetail,renderUebersicht,oeffneMsFormular,schliess
     document.getElementById("gh-repo-input").value = s.repo || DEFAULT.repo;
     document.getElementById("gh-daten-repo-input").value = s.datenRepo;
     document.getElementById("gh-test-ergebnis").textContent = "";
-    document.getElementById("gh-einstellungen-modal").classList.add("offen");
+    // Das Modal steht im Markup im Meilensteine-Panel; aus anderen Tabs
+    // (Einstellungen) wäre es mit dem ausgeblendeten Panel unsichtbar
+    var modal = document.getElementById("gh-einstellungen-modal");
+    if (modal.parentElement !== document.body) document.body.appendChild(modal);
+    modal.classList.add("offen");
   }
 
   function schliesseEinstellungen() {
