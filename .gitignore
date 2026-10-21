@@ -2,3 +2,6 @@ __pycache__/
 *.pyc
 /last_run.json
 /vorschlaege/
+# Daten liegen im privaten Repo lageplan-daten
+/data/
+/config.json
