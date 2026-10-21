@@ -339,6 +339,24 @@
       font-size: 12px !important;
     }
 
+    /* ── Themenradar: Ansicht Zielscheibe / Liste ───────── */
+    #tr-ansicht-leiste { display: flex; align-items: center; gap: 10px; padding: 6px 0 4px; clear: both; }
+    .tr-ansicht-umschalter { display: inline-flex; border: 1px solid #2d7a8e; border-radius: 5px; overflow: hidden; }
+    .tr-ansicht-btn { padding: 4px 12px; font-size: 12px; font-family: inherit; cursor: pointer; background: #fff; color: #2d7a8e; border: none; }
+    .tr-ansicht-btn + .tr-ansicht-btn { border-left: 1px solid #2d7a8e; }
+    .tr-ansicht-btn.aktiv { background: #2d7a8e; color: #fff; }
+    #tr-liste-sort-wrap { font-size: 12px; color: #555; }
+    #tr-liste-sort { font-size: 12px; font-family: inherit; padding: 3px 6px; }
+    #radar-liste table { border-collapse: collapse; width: 100%; background: #fff; }
+    #radar-liste th { position: sticky; top: 0; background: #fff; text-align: left; font-size: 11px; color: #666; font-weight: 600; padding: 6px 8px; border-bottom: 2px solid #ddd; z-index: 1; }
+    #radar-liste td { font-size: 12px; padding: 5px 8px; border-bottom: 1px solid #eee; vertical-align: top; }
+    #radar-liste tr.tr-liste-zeile { cursor: pointer; }
+    #radar-liste tr.tr-liste-zeile:hover { background: #f5f5f5; }
+    #radar-liste tr.tr-liste-gruppe td { background: #e8f4f7; color: #2d7a8e; font-weight: 600; font-size: 12px; border-bottom: 1px solid #cce0e7; }
+    #radar-liste .tr-liste-kat { color: #fff; border-radius: 3px; padding: 1px 7px; font-size: 11px; white-space: nowrap; }
+    #radar-liste .tr-liste-sterne { color: #f5a623; white-space: nowrap; }
+    #radar-liste .tr-liste-leer { padding: 24px; text-align: center; color: #999; font-size: 13px; }
+
     /* ── Filter-Panel kompakt ───────────────────────────── */
     #filter-panel h3 {
       color: var(--swm-blau-dunkel);
@@ -3264,6 +3282,20 @@ body {
   <div id="hinweis" style="position:absolute;top:70px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:8px 16px;border-radius:4px;font-size:13px;opacity:1;transition:opacity 1s;pointer-events:none;z-index:100">
     Hover über einen Punkt für Details – Klick für Vollansicht
   </div>
+  <div id="tr-ansicht-leiste">
+    <div class="tr-ansicht-umschalter" role="group" aria-label="Ansicht">
+      <button type="button" class="tr-ansicht-btn aktiv" data-ansicht="radar" onclick="TR.setzeAnsicht('radar')">◎ Zielscheibe</button>
+      <button type="button" class="tr-ansicht-btn" data-ansicht="liste" onclick="TR.setzeAnsicht('liste')">☰ Liste</button>
+    </div>
+    <label id="tr-liste-sort-wrap" style="display:none">Sortierung:
+      <select id="tr-liste-sort" onchange="TR.sortiereListe(this.value)">
+        <option value="score">Relevanz (Score)</option>
+        <option value="zeit">Zeithorizont</option>
+        <option value="cluster">Cluster</option>
+      </select>
+    </label>
+  </div>
+  <div id="radar-liste" style="display:none;width:70%;height:calc(100vh - 400px);min-height:500px;float:left;box-sizing:border-box;overflow-y:auto"></div>
   <div id="radar-canvas" style="width:70%;height:calc(100vh - 400px);min-height:500px;float:left;box-sizing:border-box">
     <svg id="radar-svg" width="100%" height="100%" viewBox="0 0 600 600">
       <line x1="20" y1="300" x2="580" y2="300" stroke="#dde8eb" stroke-width="1"></line>
@@ -4523,6 +4555,151 @@ body {
       });
     }
 
+    // ── Listenansicht ────────────────────────────────────
+    // Liefert die Themen als Gruppen [{ titel, themen }] in Anzeigereihenfolge.
+    // score:   eine Gruppe ohne Titel, Score absteigend
+    // zeit:    je Zeithorizont (kurz → lang) eine Gruppe, darin Score absteigend
+    // cluster: je Cluster eine Gruppe – ein Thema mit mehreren Clustern steht
+    //          in jeder davon; Themen ohne Cluster unter "Ohne Cluster"
+    function sortiereThemen(daten, modus) {
+      const nachScore = (a, b) =>
+        ((b.radar_score || 0) - (a.radar_score || 0)) ||
+        String(a.titel || "").localeCompare(String(b.titel || ""), "de");
+
+      if (modus === "zeit") {
+        const horizonte = [
+          ["kurzfristig",   "Kurzfristig (0–1 Jahr)"],
+          ["mittelfristig", "Mittelfristig (1–3 Jahre)"],
+          ["langfristig",   "Langfristig (> 3 Jahre)"]
+        ];
+        const bekannt = new Set(horizonte.map(h => h[0]));
+        const gruppen = horizonte.map(([key, titel]) => ({
+          titel, themen: daten.filter(d => d.zeithorizont === key).sort(nachScore)
+        }));
+        gruppen.push({ titel: "Ohne Zeithorizont",
+          themen: daten.filter(d => !bekannt.has(d.zeithorizont)).sort(nachScore) });
+        return gruppen.filter(g => g.themen.length > 0);
+      }
+
+      if (modus === "cluster") {
+        const reihenfolge = ["Netzanschluss", "Messstellenbetrieb", "Netzwirtschaft",
+                             "Technologie", "Organisation"];
+        const weitere = [];
+        daten.forEach(d => (d.strategische_cluster || []).forEach(c => {
+          if (!reihenfolge.includes(c) && !weitere.includes(c)) weitere.push(c);
+        }));
+        const gruppen = reihenfolge.concat(weitere.sort((a, b) => a.localeCompare(b, "de")))
+          .map(c => ({ titel: c,
+            themen: daten.filter(d => (d.strategische_cluster || []).includes(c)).sort(nachScore) }));
+        gruppen.push({ titel: "Ohne Cluster",
+          themen: daten.filter(d => !(d.strategische_cluster || []).length).sort(nachScore) });
+        return gruppen.filter(g => g.themen.length > 0);
+      }
+
+      return [{ titel: null, themen: [...daten].sort(nachScore) }];
+    }
+
+    let _listenSortierung = "score";
+    let _ansicht = "radar";
+    let _letzteAktiveDaten = [];
+    try {
+      const s = localStorage.getItem("tr-liste-sort");
+      if (s === "score" || s === "zeit" || s === "cluster") _listenSortierung = s;
+      if (localStorage.getItem("tr-ansicht") === "liste") _ansicht = "liste";
+    } catch(e) {}
+
+    function rendereListe(daten) {
+      _letzteAktiveDaten = daten;
+      const container = document.getElementById("radar-liste");
+      if (!container) return;
+      container.innerHTML = "";
+      if (daten.length === 0) {
+        const leer = document.createElement("div");
+        leer.className = "tr-liste-leer";
+        leer.textContent = "Keine Themen für die aktuelle Filterauswahl";
+        container.appendChild(leer);
+        return;
+      }
+
+      const zelle = (tr, text) => {
+        const td = document.createElement("td");
+        td.textContent = text;
+        tr.appendChild(td);
+        return td;
+      };
+      const sterne = n => {
+        const w = Math.max(0, Math.min(5, Number(n) || 0));
+        return "★".repeat(w) + "☆".repeat(5 - w);
+      };
+
+      const tabelle = document.createElement("table");
+      const kopf = document.createElement("tr");
+      ["Titel", "Kategorie", "Zeithorizont", "Auswirkung", "Unsicherheit", "Score", "Cluster"]
+        .forEach(t => { const th = document.createElement("th"); th.textContent = t; kopf.appendChild(th); });
+      const thead = document.createElement("thead");
+      thead.appendChild(kopf);
+      tabelle.appendChild(thead);
+      const tbody = document.createElement("tbody");
+
+      sortiereThemen(daten, _listenSortierung).forEach(gruppe => {
+        if (gruppe.titel) {
+          const gtr = document.createElement("tr");
+          gtr.className = "tr-liste-gruppe";
+          const td = zelle(gtr, gruppe.titel + " (" + gruppe.themen.length + ")");
+          td.colSpan = 7;
+          tbody.appendChild(gtr);
+        }
+        gruppe.themen.forEach(d => {
+          const tr = document.createElement("tr");
+          tr.className = "tr-liste-zeile";
+          const titel = zelle(tr, d.titel || "");
+          titel.style.fontWeight = "500";
+
+          const kat = document.createElement("td");
+          const badge = document.createElement("span");
+          badge.className = "tr-liste-kat";
+          badge.style.background = farbMap[d.kategorie] || "#999";
+          badge.textContent = d.kategorie || "–";
+          kat.appendChild(badge);
+          tr.appendChild(kat);
+
+          zelle(tr, d.zeithorizont || "–");
+          zelle(tr, sterne(d.auswirkung)).className = "tr-liste-sterne";
+          zelle(tr, sterne(d.unsicherheit)).className = "tr-liste-sterne";
+          const score = d.radar_score || 0;
+          const sc = zelle(tr, score.toFixed(2));
+          sc.style.fontWeight = "700";
+          sc.style.color = score >= 0.7 ? "#c0392b" : score >= 0.5 ? "#e67e22" : "#27ae60";
+          zelle(tr, (d.strategische_cluster || []).join(", ") || "–");
+
+          tr.addEventListener("click", () => zeigeDetail(d));
+          tbody.appendChild(tr);
+        });
+      });
+      tabelle.appendChild(tbody);
+      container.appendChild(tabelle);
+    }
+
+    function setzeAnsicht(modus) {
+      _ansicht = modus === "liste" ? "liste" : "radar";
+      try { localStorage.setItem("tr-ansicht", _ansicht); } catch(e) {}
+      const liste = _ansicht === "liste";
+      document.getElementById("radar-liste").style.display  = liste ? "block" : "none";
+      document.getElementById("radar-canvas").style.display = liste ? "none"  : "block";
+      document.getElementById("tr-liste-sort-wrap").style.display = liste ? "" : "none";
+      document.querySelectorAll(".tr-ansicht-btn").forEach(b =>
+        b.classList.toggle("aktiv", b.dataset.ansicht === _ansicht));
+      // getBBox() liefert im ausgeblendeten SVG 0 – Kollisionen erst nach
+      // dem Einblenden neu prüfen
+      if (liste) rendereListe(_letzteAktiveDaten); else filterAktualisieren();
+    }
+
+    function sortiereListe(modus) {
+      _listenSortierung = (modus === "zeit" || modus === "cluster") ? modus : "score";
+      try { localStorage.setItem("tr-liste-sort", _listenSortierung); } catch(e) {}
+      rendereListe(_letzteAktiveDaten);
+    }
+
     // ── Kollisionserkennung für Punkt-Titel ───────────────
     // Läuft nach jedem filterAktualisieren()-Aufruf.
     // Behält immer den Titel mit dem höheren radar_score sichtbar.
@@ -4685,6 +4862,7 @@ body {
       const aktiveDaten = radarData.filter(istAktiv);
       aktualisiereRangliste(aktiveDaten);
       befuellePestel(aktiveDaten);
+      rendereListe(aktiveDaten);
 
       // Filter-Info und Badge synchron halten
       const filterAktiv = aktiveCluster.length > 0 || suchtext !== "";
@@ -4699,6 +4877,8 @@ body {
     ladeMeilensteineAusLocalStorage();
     ladeManuellErfassteThemen();
     zeichnePunkte();
+    document.getElementById("tr-liste-sort").value = _listenSortierung;
+    if (_ansicht === "liste") setzeAnsicht("liste");
 
     // Update-Vorschlag an bestehendes Thema anhängen (Verlauf)
     function uebernehmeUpdateVorschlag(v, btn) {
@@ -6628,7 +6808,7 @@ body {
       document.body.appendChild(panel);
     }
 
-window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisierung,schliesseThemaFormular,aktualisiereScore,aktualisiereSlider,speichereThema,schliesseLoeschenModal,filterAktualisieren,zeigeDetail,oeffneKiModal,schliesseKiModal,_kiWechsleTab,_kiSetzeUrl,_kiKopierePrompt,starteKiAnalyse,ladeVonGithub,redraw:zeichnePunkte,renderMini:renderMini,pruefeStatus:pruefeServerStatus,getDaten:function(){ return radarData; },getManuell:function(){ return radarData.filter(d=>d.manuell_erfasst); },oeffneDokModal,schliesseDokModal,starteDokAnalyse,_trDokDateiGewaehlt,_trDokDropped};
+window.TR={setzeAnsicht,sortiereListe,oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisierung,schliesseThemaFormular,aktualisiereScore,aktualisiereSlider,speichereThema,schliesseLoeschenModal,filterAktualisieren,zeigeDetail,oeffneKiModal,schliesseKiModal,_kiWechsleTab,_kiSetzeUrl,_kiKopierePrompt,starteKiAnalyse,ladeVonGithub,redraw:zeichnePunkte,renderMini:renderMini,pruefeStatus:pruefeServerStatus,getDaten:function(){ return radarData; },getManuell:function(){ return radarData.filter(d=>d.manuell_erfasst); },oeffneDokModal,schliesseDokModal,starteDokAnalyse,_trDokDateiGewaehlt,_trDokDropped};
 })();
 </script>
 <script>/* ===== Meilensteine ===== */
