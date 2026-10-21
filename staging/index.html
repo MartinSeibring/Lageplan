@@ -3981,6 +3981,32 @@ body {
 
 </div>
 
+<script>/* ===== Lokaler Speicher je Umgebung ===== */
+// Produktiv, Staging und DEV laufen unter derselben Origin und teilen sich
+// localStorage. Die Daten-Caches bekommen deshalb ein Präfix je Umgebung –
+// sonst lädt der Sync lokale Einträge einer Umgebung in eine andere hoch.
+(function() {
+  var p = window.location.pathname;
+  var umg = p.includes("/dev/") ? "dev" : p.includes("/staging/") ? "staging" : "prod";
+  window.lsKey = function(name) { return umg + ":" + name; };
+  // Einmalig: alte, gemeinsame Caches verwerfen – der Stand kommt beim Laden
+  // frisch aus dem Daten-Repo. Nur die Liste ausgeblendeter Standard-Themen
+  // wird für alle Umgebungen übernommen.
+  try {
+    if (!localStorage.getItem("ls-umgebung-v1")) {
+      var gel = localStorage.getItem("radarData-geloescht");
+      if (gel) ["prod", "staging", "dev"].forEach(function(u) {
+        localStorage.setItem(u + ":radarData-geloescht", gel);
+      });
+      ["meilensteine", "ziele", "radarData-manuell", "radarData-geloescht",
+       "forschung", "risiken", "last_update"].forEach(function(k) {
+        localStorage.removeItem(k);
+      });
+      localStorage.setItem("ls-umgebung-v1", "1");
+    }
+  } catch(e) {}
+})();
+</script>
 <script>/* ===== Themenradar ===== */
 (function(){
 
@@ -4022,7 +4048,7 @@ body {
 
     (function() {
       try {
-        var _gel = JSON.parse(localStorage.getItem("radarData-geloescht") || "[]");
+        var _gel = JSON.parse(localStorage.getItem(lsKey("radarData-geloescht")) || "[]");
         var _gelSet = new Set(_gel);
         for (var _i = radarData.length - 1; _i >= 0; _i--) {
           if (_gelSet.has(radarData[_i].id)) radarData.splice(_i, 1);
@@ -5089,7 +5115,7 @@ body {
 
     function ladeMeilensteineAusLocalStorage() {
       try {
-        const raw = localStorage.getItem("meilensteine");
+        const raw = localStorage.getItem(lsKey("meilensteine"));
         meilensteinCache = raw ? JSON.parse(raw) : [];
         if (!Array.isArray(meilensteinCache)) meilensteinCache = [];
       } catch (e) {
@@ -5100,8 +5126,8 @@ body {
     function speichereMeilensteinInLocalStorage(ms) {
       ladeMeilensteineAusLocalStorage();       // frisch lesen (Mehrfach-Tab-Sicherheit)
       meilensteinCache.push(ms);
-      localStorage.setItem("meilensteine", JSON.stringify(meilensteinCache));
-      localStorage.setItem("last_update", new Date().toLocaleString("de-DE"));
+      localStorage.setItem(lsKey("meilensteine"), JSON.stringify(meilensteinCache));
+      localStorage.setItem(lsKey("last_update"), new Date().toLocaleString("de-DE"));
       ladeMeilensteineAusLocalStorage();       // Cache aktualisieren
     }
 
@@ -5365,7 +5391,7 @@ body {
       schliesseThemaFormular();
       if (gespeichert) zeigeDetail(gespeichert);
       speichereManuelleThemen();
-      localStorage.setItem("last_update", new Date().toLocaleString("de-DE"));
+      localStorage.setItem(lsKey("last_update"), new Date().toLocaleString("de-DE"));
     }
 
     // ── Thema bearbeiten: Formular im Bearbeiten-Modus öffnen ──
@@ -5427,9 +5453,9 @@ body {
         radarData.splice(idx, 1);
         if (!eintrag.manuell_erfasst) {
           try {
-            var _gel = JSON.parse(localStorage.getItem("radarData-geloescht") || "[]");
+            var _gel = JSON.parse(localStorage.getItem(lsKey("radarData-geloescht")) || "[]");
             if (!_gel.includes(id)) _gel.push(id);
-            localStorage.setItem("radarData-geloescht", JSON.stringify(_gel));
+            localStorage.setItem(lsKey("radarData-geloescht"), JSON.stringify(_gel));
           } catch(e) {}
         }
       }
@@ -5485,7 +5511,7 @@ body {
       });
       // Nur manuell erfasste Themen in den localStorage-Store schreiben
       try {
-        localStorage.setItem("radarData-manuell",
+        localStorage.setItem(lsKey("radarData-manuell"),
           JSON.stringify(daten.filter(function(d){ return d.manuell_erfasst; })));
       } catch(e) {}
       aktualisiereManuellCounter();
@@ -5496,7 +5522,7 @@ body {
     function speichereManuelleThemen() {
       const manuell = radarData.filter(d => d.manuell_erfasst);
       try {
-        localStorage.setItem("radarData-manuell", JSON.stringify(manuell));
+        localStorage.setItem(lsKey("radarData-manuell"), JSON.stringify(manuell));
       } catch (e) { /* Storage voll – ignorieren */ }
       aktualisiereManuellCounter();
       if (window.GH && GH.debouncedThemenSync) GH.debouncedThemenSync();
@@ -5505,7 +5531,7 @@ body {
     // ── Beim Seitenstart: manuell erfasste Themen laden ──
     function ladeManuellErfassteThemen() {
       try {
-        const raw = localStorage.getItem("radarData-manuell");
+        const raw = localStorage.getItem(lsKey("radarData-manuell"));
         if (!raw) { aktualisiereManuellCounter(); return; }
         const gespeichert = JSON.parse(raw);
         if (!Array.isArray(gespeichert) || gespeichert.length === 0) {
@@ -6138,7 +6164,7 @@ body {
         var ms = baueMs(vorschlaege[idx]);
         if (window.MS && MS.getDaten) {
           MS.getDaten().push(ms);
-          try { localStorage.setItem("meilensteine", JSON.stringify(MS.getDaten())); } catch(e) {}
+          try { localStorage.setItem(lsKey("meilensteine"), JSON.stringify(MS.getDaten())); } catch(e) {}
           try { if (MS.refresh) MS.refresh(); else MS.redraw(); } catch(e) {}
         }
         var karte = document.getElementById("ki-karte-" + idx);
@@ -7287,7 +7313,7 @@ window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisieru
         msObj.notiz = document.getElementById("detail-notiz").value;
 
         speichereMeilensteineLocal();
-        localStorage.setItem("last_update", new Date().toLocaleString("de-DE"));
+        localStorage.setItem(lsKey("last_update"), new Date().toLocaleString("de-DE"));
 
         const fb = document.getElementById("detail-speichern-feedback");
         fb.style.display = "inline";
@@ -7834,7 +7860,7 @@ window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisieru
     // -----------------------------------------------------------------------
 
     function ladeAusLocalStorage() {
-      const raw = localStorage.getItem("meilensteine");
+      const raw = localStorage.getItem(lsKey("meilensteine"));
       if (!raw) return;
 
       let gespeichert;
@@ -8039,7 +8065,7 @@ window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisieru
     // Ziele aus localStorage laden
     (function() {
       try {
-        var rz = localStorage.getItem("ziele");
+        var rz = localStorage.getItem(lsKey("ziele"));
         if (rz) { var gz = JSON.parse(rz); if (Array.isArray(gz)) gz.forEach(function(z){ zielenData.push(z); }); }
       } catch(e) {}
     })();
@@ -8203,8 +8229,8 @@ window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisieru
     // ── Ende Abhängigkeits-Hilfsfunktionen ─────────────────────────────────
 
     function speichereMeilensteineLocal() {
-      try { localStorage.setItem("meilensteine", JSON.stringify(meilensteinData)); } catch (e) {}
-      localStorage.setItem("last_update", new Date().toLocaleString("de-DE"));
+      try { localStorage.setItem(lsKey("meilensteine"), JSON.stringify(meilensteinData)); } catch (e) {}
+      localStorage.setItem(lsKey("last_update"), new Date().toLocaleString("de-DE"));
       if (window.GH && GH.debouncedSync) { try { GH.debouncedSync(); } catch(e) {} }
     }
 
@@ -8217,8 +8243,8 @@ window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisieru
         m.abhaengig_von = normAbh(m.abhaengig_von);
         meilensteinData.push(m);
       });
-      try { localStorage.setItem("meilensteine", JSON.stringify(meilensteinData)); } catch(e) {}
-      localStorage.setItem("last_update", new Date().toLocaleString("de-DE"));
+      try { localStorage.setItem(lsKey("meilensteine"), JSON.stringify(meilensteinData)); } catch(e) {}
+      localStorage.setItem(lsKey("last_update"), new Date().toLocaleString("de-DE"));
       refreshGanttUndMini();
     }
 
@@ -8450,7 +8476,7 @@ window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisieru
       if (!Array.isArray(daten)) return;
       zielenData.length = 0;
       daten.forEach(function(z) { zielenData.push(z); });
-      try { localStorage.setItem("ziele", JSON.stringify(zielenData)); } catch(e) {}
+      try { localStorage.setItem(lsKey("ziele"), JSON.stringify(zielenData)); } catch(e) {}
       _aktualisiereZielePanel();
       zeichneGantt(gefilterteDaten()); // Z-Badges aktualisieren
     }
@@ -8459,7 +8485,7 @@ window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisieru
       if (!ziel.id) ziel.id = "ZI-" + Date.now();
       var idx = zielenData.findIndex(function(z) { return z.id === ziel.id; });
       if (idx >= 0) zielenData[idx] = ziel; else zielenData.push(ziel);
-      try { localStorage.setItem("ziele", JSON.stringify(zielenData)); } catch(e) {}
+      try { localStorage.setItem(lsKey("ziele"), JSON.stringify(zielenData)); } catch(e) {}
       if (window.GH && GH.debouncedSync) GH.debouncedSync();
       _aktualisiereZielePanel();
       zeichneGantt(gefilterteDaten());
@@ -8469,7 +8495,7 @@ window.TR={oeffneThemaFormular,exportiereJSON,ladeVorschlaege,starteAktualisieru
       var idx = zielenData.findIndex(function(z) { return z.id === id; });
       if (idx < 0) return;
       zielenData.splice(idx, 1);
-      try { localStorage.setItem("ziele", JSON.stringify(zielenData)); } catch(e) {}
+      try { localStorage.setItem(lsKey("ziele"), JSON.stringify(zielenData)); } catch(e) {}
       if (window.GH && GH.debouncedSync) GH.debouncedSync();
       _aktualisiereZielePanel();
       zeichneGantt(gefilterteDaten());
@@ -9323,7 +9349,7 @@ window.MS={exportiereJSON,zeigeDetail,renderUebersicht,oeffneMsFormular,schliess
   // localStorage init
   (function() {
     try {
-      var r = localStorage.getItem("forschung");
+      var r = localStorage.getItem(lsKey("forschung"));
       if (r) { var d = JSON.parse(r); if (Array.isArray(d)) d.forEach(function(p){ forschungData.push(p); }); }
     } catch(e) {}
   })();
@@ -9332,12 +9358,12 @@ window.MS={exportiereJSON,zeigeDetail,renderUebersicht,oeffneMsFormular,schliess
     if (!Array.isArray(daten)) return;
     forschungData.length = 0;
     daten.forEach(function(p){ forschungData.push(p); });
-    try { localStorage.setItem("forschung", JSON.stringify(forschungData)); } catch(e) {}
+    try { localStorage.setItem(lsKey("forschung"), JSON.stringify(forschungData)); } catch(e) {}
     renderKachel();
   }
 
   function speichereLokal() {
-    try { localStorage.setItem("forschung", JSON.stringify(forschungData)); } catch(e) {}
+    try { localStorage.setItem(lsKey("forschung"), JSON.stringify(forschungData)); } catch(e) {}
     if (window.GH && GH.debouncedForschungSync) GH.debouncedForschungSync();
   }
 
@@ -9578,7 +9604,7 @@ window.MS={exportiereJSON,zeigeDetail,renderUebersicht,oeffneMsFormular,schliess
 
   (function() {
     try {
-      var r = localStorage.getItem("risiken");
+      var r = localStorage.getItem(lsKey("risiken"));
       if (r) { var d = JSON.parse(r); if (Array.isArray(d)) d.forEach(function(e){ risikenDaten.push(e); }); }
     } catch(e) {}
   })();
@@ -9602,7 +9628,7 @@ window.MS={exportiereJSON,zeigeDetail,renderUebersicht,oeffneMsFormular,schliess
   }
 
   function _speichereLokalOhneSync() {
-    try { localStorage.setItem("risiken", JSON.stringify(risikenDaten)); } catch(e) {}
+    try { localStorage.setItem(lsKey("risiken"), JSON.stringify(risikenDaten)); } catch(e) {}
   }
 
   function speichereLokal() {
@@ -9931,7 +9957,7 @@ window.MS={exportiereJSON,zeigeDetail,renderUebersicht,oeffneMsFormular,schliess
           themenGesamt   = daten.length;
           themenKritisch = daten.filter(d => (d.radar_score||0) >= 0.7).length;
         } else {
-          const raw = localStorage.getItem("radarData-manuell");
+          const raw = localStorage.getItem(lsKey("radarData-manuell"));
           const manuell = raw ? JSON.parse(raw) : [];
           if (Array.isArray(manuell)) {
             themenGesamt   = manuell.length;
@@ -9963,7 +9989,7 @@ window.MS={exportiereJSON,zeigeDetail,renderUebersicht,oeffneMsFormular,schliess
           msOffen      = liste.filter(m => m.status === "offen" || m.status === "in Bearbeitung").length;
           msVerzoegert = liste.filter(m => m.status === "verzögert").length;
         } else {
-          const raw = localStorage.getItem("meilensteine");
+          const raw = localStorage.getItem(lsKey("meilensteine"));
           const ls  = raw ? JSON.parse(raw) : [];
           if (Array.isArray(ls)) {
             msGesamt     = ls.length;
@@ -9989,7 +10015,7 @@ window.MS={exportiereJSON,zeigeDetail,renderUebersicht,oeffneMsFormular,schliess
       // Letzte Aktualisierung
       let letzteAktualisierung = "Noch nicht aktualisiert";
       try {
-        const ts = localStorage.getItem("last_update");
+        const ts = localStorage.getItem(lsKey("last_update"));
         if (ts) letzteAktualisierung = ts;
       } catch(e) {}
       setKachel("ampel-update","wert-update",
