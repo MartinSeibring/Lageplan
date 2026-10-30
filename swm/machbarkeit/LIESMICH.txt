@@ -1,0 +1,37 @@
+﻿Lageplan – Machbarkeits-Check
+=============================
+
+Ziel: herausfinden, ob die HTML-Version des Lageplans in der SWM-Umgebung
+(Edge, Netzlaufwerk, PowerShell) funktionieren kann – bevor sie gebaut wird.
+Dauer: ca. 10 Minuten. Es werden keine Daten ins Internet gesendet.
+
+Vorbereitung
+------------
+1. Den Ordner "machbarkeit" auf das Netzlaufwerk kopieren, auf dem der
+   Lageplan später liegen soll.
+   Falls er als ZIP heruntergeladen wurde: VOR dem Entpacken die ZIP-Datei
+   mit Rechtsklick > Eigenschaften > "Zulassen" freigeben.
+
+Teil A – PowerShell (zuerst)
+----------------------------
+2. "Check starten.cmd" doppelklicken.
+   - Erscheint eine blaue Windows-Warnung (SmartScreen): "Weitere
+     Informationen" > "Trotzdem ausführen" – oder abbrechen und genau das
+     zurückmelden.
+3. Ein Fenster zeigt grüne/gelbe/rote Zeilen. Das Ergebnis steht danach
+   auch in "check-ergebnis.txt".
+
+Teil B – Browser
+----------------
+4. "check.html" mit Microsoft Edge öffnen (Doppelklick oder in Edge ziehen).
+5. "Ordner wählen und testen" klicken, den Ordner "machbarkeit" wählen und
+   die Frage nach dem Bearbeiten bestätigen.
+6. Seite mit F5 neu laden und "Gespeicherten Ordner erneut prüfen" klicken.
+7. Unter "3 · Ergebnis" auf "Ergebnis kopieren" klicken.
+
+Zurückmelden
+------------
+- Inhalt von "check-ergebnis.txt"
+- kopierter Text aus check.html
+- falls etwas gar nicht startete: was genau passiert ist (Meldungstext
+  oder Screenshot)
