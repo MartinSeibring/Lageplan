@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lageplan – Machbarkeits-Check</title>
+<style>
+  :root {
+    --farbe-text: #1f2328;
+    --farbe-text-leise: #59636e;
+    --farbe-flaeche: #f6f7f9;
+    --farbe-karte: #ffffff;
+    --farbe-rahmen: #d0d7de;
+    --farbe-akzent: #3d5a80;
+    --farbe-ok: #1a7f37;
+    --farbe-warnung: #9a6700;
+    --farbe-fehler: #cf222e;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 24px 16px 48px;
+    font-family: "Segoe UI", system-ui, -apple-system, Arial, sans-serif;
+    font-size: 14px; line-height: 1.5;
+    background: var(--farbe-flaeche); color: var(--farbe-text);
+  }
+  main { max-width: 860px; margin: 0 auto; }
+  h1 { font-size: 22px; margin: 0 0 4px; }
+  h2 { font-size: 16px; margin: 0 0 8px; }
+  p.leise { color: var(--farbe-text-leise); margin: 0 0 20px; }
+  section {
+    background: var(--farbe-karte); border: 1px solid var(--farbe-rahmen);
+    border-radius: 8px; padding: 16px; margin-bottom: 14px;
+  }
+  button {
+    font: inherit; padding: 6px 14px; border-radius: 6px; cursor: pointer;
+    border: 1px solid var(--farbe-akzent); background: var(--farbe-akzent); color: #fff;
+  }
+  button.zweit { background: #fff; color: var(--farbe-akzent); }
+  button:disabled { opacity: .5; cursor: default; }
+  table { border-collapse: collapse; width: 100%; margin-top: 8px; }
+  td { padding: 5px 8px; border-top: 1px solid var(--farbe-rahmen); vertical-align: top; }
+  td:first-child { width: 42%; color: var(--farbe-text-leise); }
+  .ok { color: var(--farbe-ok); font-weight: 600; }
+  .warnung { color: var(--farbe-warnung); font-weight: 600; }
+  .fehler { color: var(--farbe-fehler); font-weight: 600; }
+  textarea {
+    width: 100%; min-height: 180px; font-family: Consolas, monospace; font-size: 12px;
+    border: 1px solid var(--farbe-rahmen); border-radius: 6px; padding: 8px;
+  }
+  .zeile { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Lageplan – Machbarkeits-Check</h1>
+  <p class="leise">Prüft, ob die HTML-Version des Lageplans in dieser Umgebung Daten in einem Ordner lesen und
+    schreiben kann. Es werden keine Daten ins Internet gesendet. Angelegt wird nur die Testdatei
+    <code>lageplan-check.json</code>, die am Ende wieder gelöscht wird.</p>
+
+  <section>
+    <h2>1 · Browser</h2>
+    <table id="t-browser"></table>
+  </section>
+
+  <section>
+    <h2>2 · Ordnerzugriff</h2>
+    <p class="leise" style="margin-bottom:10px">Bitte den Ordner wählen, in dem diese Datei liegt (bzw. den späteren
+      Datenordner auf dem Netzlaufwerk) und die Frage nach dem Bearbeiten mit „Dateien bearbeiten“ bestätigen.</p>
+    <div class="zeile">
+      <button id="btn-ordner">Ordner wählen und testen</button>
+      <button id="btn-erneut" class="zweit" disabled>Gespeicherten Ordner erneut prüfen (nach Neuladen)</button>
+    </div>
+    <table id="t-ordner"></table>
+  </section>
+
+  <section>
+    <h2>3 · Ergebnis</h2>
+    <p class="leise" style="margin-bottom:10px">Diesen Text bitte vollständig kopieren und zurückmelden.</p>
+    <textarea id="ergebnis" readonly></textarea>
+    <div class="zeile" style="margin-top:8px">
+      <button id="btn-kopieren" class="zweit">Ergebnis kopieren</button>
+      <span id="kopiert" class="leise"></span>
+    </div>
+  </section>
+</main>
+
+<script>
+(function () {
+  "use strict";
+
+  var TESTDATEI = "lageplan-check.json";
+  var PS_DATEI = "check-ps.json";
+  var ergebnisse = [];
+
+  function zeile(tabelleId, name, status, text) {
+    var tr = document.createElement("tr");
+    var a = document.createElement("td");
+    var b = document.createElement("td");
+    a.textContent = name;
+    var s = document.createElement("span");
+    s.className = status;
+    s.textContent = { ok: "OK", warnung: "Hinweis", fehler: "Fehler" }[status] || status;
+    b.appendChild(s);
+    if (text) b.appendChild(document.createTextNode(" – " + text));
+    tr.appendChild(a); tr.appendChild(b);
+    document.getElementById(tabelleId).appendChild(tr);
+    ergebnisse.push("[" + s.textContent + "] " + name + (text ? ": " + text : ""));
+    aktualisiereErgebnis();
+  }
+
+  function aktualisiereErgebnis() {
+    document.getElementById("ergebnis").value =
+      "Lageplan Machbarkeits-Check (HTML) – " + new Date().toLocaleString("de-DE") + "\n" +
+      ergebnisse.join("\n");
+  }
+
+  // ── 1 · Browser ─────────────────────────────────────────
+  var ua = navigator.userAgent;
+  var edge = /Edg\//.test(ua);
+  zeile("t-browser", "Browser", edge ? "ok" : "warnung",
+        (ua.match(/Edg\/[\d.]+|Chrome\/[\d.]+|Firefox\/[\d.]+/) || [ua])[0]);
+  zeile("t-browser", "Geöffnet über", "ok", location.protocol + "//" + (location.host || "") +
+        decodeURIComponent(location.pathname).replace(/[^\/\\]+$/, ""));
+  zeile("t-browser", "Sicherer Kontext", window.isSecureContext ? "ok" : "fehler",
+        window.isSecureContext ? "ja" : "nein – Ordnerzugriff nicht möglich");
+  var hatPicker = typeof window.showDirectoryPicker === "function";
+  zeile("t-browser", "Ordnerzugriff (File System Access API)", hatPicker ? "ok" : "fehler",
+        hatPicker ? "verfügbar" : "nicht verfügbar – es bleibt nur der Datei-Modus (Laden/Herunterladen)");
+  try {
+    localStorage.setItem("lageplan-check", "1");
+    localStorage.removeItem("lageplan-check");
+    zeile("t-browser", "Lokaler Speicher (localStorage)", "ok", "verfügbar");
+  } catch (e) {
+    zeile("t-browser", "Lokaler Speicher (localStorage)", "fehler", e.message);
+  }
+  zeile("t-browser", "IndexedDB", window.indexedDB ? "ok" : "fehler",
+        window.indexedDB ? "verfügbar" : "nicht verfügbar – Ordner muss bei jedem Öffnen neu gewählt werden");
+
+  // ── IndexedDB: Ordner-Handle merken ─────────────────────
+  function db() {
+    return new Promise(function (resolve, reject) {
+      var req = indexedDB.open("lageplan-check", 1);
+      req.onupgradeneeded = function () { req.result.createObjectStore("handles"); };
+      req.onsuccess = function () { resolve(req.result); };
+      req.onerror = function () { reject(req.error); };
+    });
+  }
+  function handleSpeichern(h) {
+    return db().then(function (d) {
+      return new Promise(function (resolve, reject) {
+        var tx = d.transaction("handles", "readwrite");
+        tx.objectStore("handles").put(h, "ordner");
+        tx.oncomplete = resolve; tx.onerror = function () { reject(tx.error); };
+      });
+    });
+  }
+  function handleLaden() {
+    return db().then(function (d) {
+      return new Promise(function (resolve, reject) {
+        var req = d.transaction("handles").objectStore("handles").get("ordner");
+        req.onsuccess = function () { resolve(req.result || null); };
+        req.onerror = function () { reject(req.error); };
+      });
+    });
+  }
+
+  // ── 2 · Ordnerzugriff ───────────────────────────────────
+  async function testeOrdner(ordner, quelle) {
+    zeile("t-ordner", "Ordner (" + quelle + ")", "ok", ordner.name);
+
+    var recht = await ordner.queryPermission({ mode: "readwrite" });
+    if (recht !== "granted") recht = await ordner.requestPermission({ mode: "readwrite" });
+    if (recht !== "granted") {
+      zeile("t-ordner", "Schreibrecht", "fehler", "nicht erteilt (" + recht + ")");
+      return;
+    }
+    zeile("t-ordner", "Schreibrecht", "ok", "erteilt");
+
+    // Schreiben
+    var inhalt = { test: "Lageplan", zeit: new Date().toISOString(), umlaute: "äöüß€" };
+    try {
+      var fh = await ordner.getFileHandle(TESTDATEI, { create: true });
+      var w = await fh.createWritable();
+      await w.write(JSON.stringify(inhalt, null, 2));
+      await w.close();
+      zeile("t-ordner", "Testdatei schreiben", "ok", TESTDATEI);
+    } catch (e) {
+      zeile("t-ordner", "Testdatei schreiben", "fehler", e.name + ": " + e.message);
+      return;
+    }
+
+    // Lesen + Vergleich
+    try {
+      var datei = await (await ordner.getFileHandle(TESTDATEI)).getFile();
+      var gelesen = JSON.parse(await datei.text());
+      var gleich = gelesen.zeit === inhalt.zeit && gelesen.umlaute === inhalt.umlaute;
+      zeile("t-ordner", "Testdatei lesen", gleich ? "ok" : "fehler",
+            gleich ? "Inhalt identisch, Umlaute korrekt" : "Inhalt weicht ab");
+      var alter = Math.abs(Date.now() - datei.lastModified);
+      zeile("t-ordner", "Änderungszeit der Datei (für Konfliktprüfung)", alter < 120000 ? "ok" : "warnung",
+            new Date(datei.lastModified).toLocaleString("de-DE"));
+    } catch (e) {
+      zeile("t-ordner", "Testdatei lesen", "fehler", e.name + ": " + e.message);
+    }
+
+    // Aufräumen
+    try {
+      await ordner.removeEntry(TESTDATEI);
+      zeile("t-ordner", "Testdatei löschen", "ok", "entfernt");
+    } catch (e) {
+      zeile("t-ordner", "Testdatei löschen", "warnung", "bitte " + TESTDATEI + " von Hand löschen (" + e.message + ")");
+    }
+
+    // Ergebnis des PowerShell-Checks (falls bereits gelaufen)
+    try {
+      var ps = await (await ordner.getFileHandle(PS_DATEI)).getFile();
+      var bytes = new Uint8Array(await ps.slice(0, 3).arrayBuffer());
+      var bom = bytes[0] === 0xEF && bytes[1] === 0xBB && bytes[2] === 0xBF;
+      var text = await ps.text();
+      var daten = JSON.parse(text.replace(/^﻿/, ""));
+      zeile("t-ordner", "Datei vom PowerShell-Check lesen", bom ? "warnung" : "ok",
+            (bom ? "mit BOM (Skript muss ohne BOM schreiben)" : "ohne BOM, lesbar") +
+            ", erstellt " + (daten.erstellt || "?") + ", Umlaute: " + (daten.umlaute || "?"));
+    } catch (e) {
+      if (e.name === "NotFoundError") {
+        zeile("t-ordner", "Datei vom PowerShell-Check lesen", "warnung",
+              PS_DATEI + " nicht gefunden – PowerShell-Check noch nicht gelaufen oder anderer Ordner");
+      } else {
+        zeile("t-ordner", "Datei vom PowerShell-Check lesen", "fehler", e.name + ": " + e.message);
+      }
+    }
+
+    // Für den Test nach dem Neuladen merken
+    try {
+      await handleSpeichern(ordner);
+      zeile("t-ordner", "Ordner für nächsten Start merken", "ok",
+            "gespeichert – jetzt Seite neu laden (F5) und „Gespeicherten Ordner erneut prüfen“ klicken");
+    } catch (e) {
+      zeile("t-ordner", "Ordner für nächsten Start merken", "warnung", e.message);
+    }
+  }
+
+  document.getElementById("btn-ordner").addEventListener("click", async function () {
+    if (!hatPicker) {
+      zeile("t-ordner", "Ordner wählen", "fehler", "Ordnerzugriff in diesem Browser nicht verfügbar");
+      return;
+    }
+    try {
+      var ordner = await window.showDirectoryPicker({ id: "lageplan-check", mode: "readwrite" });
+      await testeOrdner(ordner, "neu gewählt");
+    } catch (e) {
+      zeile("t-ordner", "Ordner wählen", e.name === "AbortError" ? "warnung" : "fehler",
+            e.name === "AbortError" ? "abgebrochen" : e.name + ": " + e.message);
+    }
+  });
+
+  document.getElementById("btn-erneut").addEventListener("click", async function () {
+    try {
+      var ordner = await handleLaden();
+      if (!ordner) {
+        zeile("t-ordner", "Gespeicherter Ordner", "warnung", "keiner gespeichert – erst „Ordner wählen und testen“");
+        return;
+      }
+      zeile("t-ordner", "Gespeicherter Ordner nach Neuladen", "ok",
+            "gefunden, Berechtigung: " + await ordner.queryPermission({ mode: "readwrite" }));
+      await testeOrdner(ordner, "gespeichert");
+    } catch (e) {
+      zeile("t-ordner", "Gespeicherter Ordner", "fehler", e.name + ": " + e.message);
+    }
+  });
+
+  if (window.indexedDB) {
+    handleLaden().then(function (h) {
+      if (h) document.getElementById("btn-erneut").disabled = false;
+    }).catch(function () {});
+  }
+
+  document.getElementById("btn-kopieren").addEventListener("click", function () {
+    var feld = document.getElementById("ergebnis");
+    var fertig = function () { document.getElementById("kopiert").textContent = "kopiert"; };
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(feld.value).then(fertig, function () { feld.select(); document.execCommand("copy"); fertig(); });
+    } else {
+      feld.select(); document.execCommand("copy"); fertig();
+    }
+  });
+})();
+</script>
+</body>
+</html>
