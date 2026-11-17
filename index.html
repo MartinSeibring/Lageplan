@@ -2773,6 +2773,9 @@ body {
   --radius: 14px;
   --radius-s: 10px;
   --schatten: 0 1px 2px rgba(16, 24, 40, .04);
+  /* Seitenbreite wächst mit dem Bildschirm, bleibt aber lesbar */
+  --seiten-max: 2000px;
+  --seiten-rand: clamp(16px, 2.5vw, 56px);
 }
 [hidden] { display: none !important; }
 html, body { background: var(--bg); }
@@ -2782,7 +2785,7 @@ button, input, select, textarea { font-family: inherit; }
 /* ── Kopfzeile + Navigation ─────────────────────────────────────── */
 #app-header {
   background: var(--karte); border: none; border-bottom: 1px solid var(--linie);
-  padding: 10px 24px; display: flex; align-items: center; gap: 20px;
+  padding: 10px var(--seiten-rand); display: flex; align-items: center; gap: 20px;
   position: sticky; top: 0; z-index: 600;
 }
 #app-marke { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
@@ -2831,8 +2834,8 @@ button, input, select, textarea { font-family: inherit; }
 #gf-indikator { background: var(--primaer-hell); color: var(--primaer); border-bottom: 1px solid var(--linie); }
 
 /* ── Übersicht ──────────────────────────────────────────────────── */
-#panel-lageplan { background: var(--bg); }
-#ue { max-width: 1240px; margin: 0 auto; padding: 32px 24px 48px; box-sizing: border-box; }
+#panel-lageplan { background: var(--bg); height: auto; overflow: visible; padding: 0; font-size: 13px; }
+#ue { max-width: var(--seiten-max); margin: 0 auto; padding: 32px var(--seiten-rand) 48px; box-sizing: border-box; }
 .ue-kopf { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px 24px; flex-wrap: wrap; margin-bottom: 22px; }
 #ue-gruss { margin: 0 0 4px; font-size: 26px; font-weight: 700; letter-spacing: -.01em; color: var(--text); }
 .ue-unterzeile { font-size: 14px; color: var(--text-2); }
@@ -2871,7 +2874,7 @@ button, input, select, textarea { font-family: inherit; }
 .ue-r-ring  { fill: none; stroke: #e2e3e0; stroke-width: 1; }
 .ue-r-innen { fill: #eef3f3; }
 .ue-r-achse { stroke: #e2e3e0; stroke-width: 1; }
-.ue-r-label { font-size: 11px; fill: var(--text-2); font-weight: 500; }
+.ue-r-label { font-size: 10px; fill: var(--text-2); font-weight: 500; }
 .ue-r-punkt { cursor: pointer; outline: none; }
 .ue-r-kern  { fill: var(--primaer); stroke: #fff; stroke-width: 1.5; transition: r .12s; }
 .ue-r-halo  { fill: var(--kritisch-hell); }
@@ -2960,8 +2963,8 @@ button, input, select, textarea { font-family: inherit; }
 
 /* Seitenkopf + Seitenfläche (alle Reiter außer Übersicht) */
 .seiten-kopf {
-  max-width: 1240px; margin: 0 auto; box-sizing: border-box;
-  padding: 32px 24px 20px; display: flex; align-items: flex-end; justify-content: space-between;
+  max-width: var(--seiten-max); margin: 0 auto; box-sizing: border-box;
+  padding: 32px var(--seiten-rand) 20px; display: flex; align-items: flex-end; justify-content: space-between;
   gap: 14px 24px; flex-wrap: wrap; background: none !important; border: none !important;
   overflow: visible;
 }
@@ -2973,7 +2976,7 @@ button, input, select, textarea { font-family: inherit; }
 .seiten-status { display: block; font-size: 12px; margin-top: 4px; }
 .seiten-status:empty { display: none; }
 .seiten-aktionen { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
-.seite { max-width: 1240px; margin: 0 auto; padding: 0 24px 48px; box-sizing: border-box; }
+.seite { max-width: var(--seiten-max); margin: 0 auto; padding: 0 var(--seiten-rand) 48px; box-sizing: border-box; }
 .seite > .ue-karte, .seite > div > .ue-karte { margin-bottom: 14px; }
 
 /* Buttons */
@@ -3010,8 +3013,8 @@ input[type=checkbox], input[type=radio], input[type=range] { accent-color: var(-
 .tr-ansicht-btn { background: transparent; color: #4a4f52; border: none !important; border-radius: 8px; padding: 6px 12px; font-size: 13px; font-weight: 500; }
 .tr-ansicht-btn.aktiv { background: var(--karte); color: var(--text); font-weight: 600; box-shadow: 0 1px 2px rgba(0,0,0,.08); }
 #tr-liste-sort { border-radius: 8px; padding: 5px 8px; }
-#radar-canvas { width: 100%; height: min(72vh, 680px); min-height: 460px; }
-#radar-liste { max-height: min(72vh, 680px); overflow-y: auto; }
+#radar-canvas { width: 100%; height: min(74vh, 860px); min-height: 460px; }
+#radar-liste { max-height: min(74vh, 860px); overflow-y: auto; }
 #radar-svg line { stroke: #e2e3e0; }
 #radar-svg > circle { stroke: #e2e3e0; }
 #radar-svg > circle:first-of-type { fill: #eef3f3; }
@@ -3117,7 +3120,7 @@ input[type=checkbox], input[type=radio], input[type=range] { accent-color: var(-
   --nn-swm: var(--primaer); --nn-dark: var(--primaer); --nn-ink: var(--text); --nn-grey: var(--text-2);
   --nn-light: #f7f7f6; --nn-line: var(--linie); font-size: 14px;
 }
-#panel-normennetz .nn-wrap { max-width: 1240px; padding: 0 24px 48px; }
+#panel-normennetz .nn-wrap { max-width: var(--seiten-max); padding: 0 var(--seiten-rand) 48px; }
 #panel-normennetz .nn-toolbar { background: var(--karte); border: 1px solid var(--linie); border-radius: var(--radius); box-shadow: var(--schatten); padding: 12px 16px; margin: 0 0 14px; }
 #panel-normennetz .nn-chip { border-color: var(--linie-2); }
 #panel-normennetz .nn-chip[aria-pressed="true"].nn-stufe { background: var(--text); color: #fff; border-color: var(--text); }
@@ -3144,11 +3147,25 @@ input[type=checkbox], input[type=radio], input[type=range] { accent-color: var(-
 }
 
 /* Spezifität gegen ältere ID-Regeln der Köpfe */
-#header.seiten-kopf, #ms-header.seiten-kopf, #rm-header.seiten-kopf { padding: 32px 24px 20px; overflow: visible; }
+#header.seiten-kopf, #ms-header.seiten-kopf, #rm-header.seiten-kopf { padding: 32px var(--seiten-rand) 20px; overflow: visible; }
 #rm-header-titel.seiten-titel { color: var(--text); font-size: 26px; font-weight: 700; margin: 0 0 4px; }
 #rm-header .rm-filter-select { padding: 8px 12px; border-radius: 999px; font-size: 13px; }
 @media (max-width: 760px) {
   #header.seiten-kopf, #ms-header.seiten-kopf, #rm-header.seiten-kopf { padding: 22px 16px 16px; }
+}
+
+/* Breite Bildschirme: Visualisierungen und Schrift mitwachsen lassen */
+@media (min-width: 1600px) {
+  #ue-radar-svg { max-width: 470px; }
+  .ue-kpi-wert { font-size: 32px; }
+  #ue-gruss, .seiten-titel { font-size: 28px; }
+  .tr-raster { grid-template-columns: minmax(0, 2.4fr) minmax(300px, 1fr); }
+  #ms-layout { grid-template-columns: 300px minmax(0, 1fr); }
+}
+@media (min-width: 2200px) {
+  body { font-size: 15px; }
+  .app-tab { font-size: 15px; }
+  #ue-radar-svg { max-width: 540px; }
 }
 
 /* Einstellungen */
@@ -3803,11 +3820,11 @@ input[type=checkbox], input[type=radio], input[type=range] { accent-color: var(-
         <!-- Tab 0: JSON einfügen (Standard) -->
         <div id="tab-json">
           <div class="ki-anleitung">
-            Öffne <strong>claude.ai</strong>, lade dein Dokument hoch und sende den folgenden Prompt. Füge dann die JSON-Antwort unten ein:
+            Öffne <strong>Copilot</strong>, lade dein Dokument hoch und sende den folgenden Prompt. Füge dann die JSON-Antwort unten ein:
           </div>
           <div id="ki-prompt-box"></div>
           <button id="ki-kopieren-btn" onclick="TR._kiKopierePrompt()">📋 Prompt kopieren</button>
-          <label class="ki-feld-label" for="ki-json-eingabe">JSON-Antwort von Claude einfügen</label>
+          <label class="ki-feld-label" for="ki-json-eingabe">JSON-Antwort von Copilot einfügen</label>
           <textarea id="ki-json-eingabe" rows="5" placeholder='[{"titel": "...", "deadline": "2025-12-31", ...}]'></textarea>
           <div id="ki-json-fehler"></div>
         </div>
@@ -4091,11 +4108,11 @@ input[type=checkbox], input[type=radio], input[type=range] { accent-color: var(-
       </div>
       <div class="jz-modal-body">
         <div class="jz-anleitung">
-          <strong>Anleitung:</strong> 1. Prompt kopieren → 2. Bei <a href="https://claude.ai" target="_blank" style="color:#2d7a8e">claude.ai</a> einfügen → 3. JSON-Antwort hierher kopieren → 4. „Ziele anzeigen" klicken
+          <strong>Anleitung:</strong> 1. Prompt kopieren → 2. Bei <a href="https://m365.cloud.microsoft/chat" target="_blank" rel="noopener" style="color:#2d7a8e">Copilot</a> einfügen → 3. JSON-Antwort hierher kopieren → 4. „Ziele anzeigen" klicken
         </div>
         <div id="jz-prompt-box"></div>
         <button id="jz-kopieren-btn" onclick="MS._jahreszieleKopierePrompt()">📋 Prompt kopieren</button>
-        <textarea id="jz-json-eingabe" placeholder="JSON-Antwort von Claude hier einfügen…"></textarea>
+        <textarea id="jz-json-eingabe" placeholder="JSON-Antwort von Copilot hier einfügen…"></textarea>
         <div id="jz-json-fehler" style="display:none"></div>
         <div id="jz-ergebnisse" style="display:none"></div>
       </div>
@@ -6489,7 +6506,7 @@ input[type=checkbox], input[type=radio], input[type=range] { accent-color: var(-
     // ── KI-Analyse Logik ──
     var kiVorschlaege = null;
 
-    // JSON-Array aus beliebigem Text extrahieren (auch mit Preamble-Text von Claude)
+    // JSON-Array aus beliebigem Text extrahieren (auch mit Einleitungstext von Copilot)
     function _extrahiereJsonArray(text) {
       var s = text.trim();
       // Markdown-Fences entfernen
@@ -9187,12 +9204,12 @@ window.TR={setzeAnsicht,sortiereListe,oeffneThemaFormular,exportiereJSON,ladeVor
       var raw = document.getElementById("jz-json-eingabe").value.trim();
       var fehlerEl = document.getElementById("jz-json-fehler");
       fehlerEl.style.display = "none";
-      if (!raw) { fehlerEl.textContent = "Bitte JSON aus Claude einfügen."; fehlerEl.style.display = "block"; return; }
+      if (!raw) { fehlerEl.textContent = "Bitte JSON aus Copilot einfügen."; fehlerEl.style.display = "block"; return; }
       var cleaned = _extrahiereJsonArray(raw);
       var ziele;
       try {
         ziele = JSON.parse(cleaned);
-        if (!Array.isArray(ziele)) throw new Error("Kein Array – stelle sicher, dass Claude ein JSON-Array zurückgibt");
+        if (!Array.isArray(ziele)) throw new Error("Kein Array – stelle sicher, dass Copilot ein JSON-Array zurückgibt");
       } catch(e) { fehlerEl.textContent = "JSON-Fehler: " + e.message; fehlerEl.style.display = "block"; return; }
 
       // Duplikat-Check innerhalb der Liste
