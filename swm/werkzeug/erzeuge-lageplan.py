@@ -137,6 +137,14 @@ lines[s:e + 1] = """<script>/* ===== Lokaler Zwischenspeicher ===== */
 window.lsKey = function(name) { return "lageplan-html:" + name; };
 </script>""".split("\n")
 
+# ────────────────────────── Leere Auslieferung ───────────────────
+# Die Standalone-Datei startet ohne vorbefüllte Themen und Meilensteine;
+# Inhalte entstehen von Hand oder per Import.
+for name in ("radarData", "meilensteinData"):
+    s0 = find(f"    const {name} = [")
+    e0 = find("    ];", start=s0, exact=True, unique=False)
+    lines[s0:e0 + 1] = [f"    const {name} = [];   // Standalone: leer ausgeliefert"]
+
 # ────────────────────────── JS: Themenradar ──────────────────────
 cut("// Update-Vorschlag an bestehendes Thema anhängen (Verlauf)",
     "    function uebernehmeVorschlag(", )

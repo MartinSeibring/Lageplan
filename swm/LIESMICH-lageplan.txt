@@ -10,6 +10,10 @@ Bibliothek D3 ist eingebettet).
 Datei per Doppelklick in Microsoft Edge (oder Chrome) öffnen – auch direkt
 vom Netzlaufwerk.
 
+Die Datei wird leer ausgeliefert: Es sind keine Themen, Meilensteine,
+Jahresziele oder Risiken vorbefüllt. Inhalte werden von Hand angelegt oder
+über „↑ Importieren" aus einer gesicherten JSON-Datei geladen.
+
 Enthalten
 ---------
 - Lageplan (Kacheln: Horizont & Themenradar, Strategische Ziele,

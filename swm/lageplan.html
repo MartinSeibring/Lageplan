@@ -2396,39 +2396,207 @@ button, input, select, textarea { font-family: inherit; }
 }
 
 /* ── Angleichung der übrigen Reiter ─────────────────────────────── */
-/* Themenradar: Kopf als helle Karte (Inline-Stile → !important) */
-#panel-themenradar #header {
-  background: var(--karte) !important; border: none !important; border-bottom: 1px solid var(--linie) !important;
-  padding: 14px 24px !important;
+/* Alte Farbvariablen auf die neue Palette umlenken – färbt Primär-
+   Buttons, Banner und Akzente der älteren Regeln einheitlich ein. */
+:root {
+  --swm-blau: #1f6f7a;
+  --swm-blau-dunkel: #174f57;
+  --swm-blau-hell: #e8f1f2;
+  --swm-grau-hell: #f6f6f5;
 }
-#panel-themenradar #header strong { color: var(--text) !important; font-size: 20px !important; font-weight: 700 !important; }
-#panel-themenradar #header #stand-datum { color: var(--text-2) !important; }
-#panel-themenradar #header button {
-  background: var(--karte) !important; color: var(--text) !important; border: 1px solid var(--linie-2) !important;
-  border-radius: 999px !important; padding: 7px 14px !important; font-weight: 500 !important; font-size: 13px !important;
-}
-#panel-themenradar #header button[onclick*="oeffneThemaFormular"] {
-  background: var(--text) !important; color: #fff !important; border-color: var(--text) !important; font-weight: 600 !important;
-}
-#panel-themenradar #header button:disabled { opacity: .55; }
-#panel-themenradar #header #update-status { color: var(--text-2); }
 
-/* Meilensteine */
-#ms-header { background: var(--karte); border: none; border-bottom: 1px solid var(--linie); padding: 14px 24px; }
-#ms-header strong { color: var(--text); font-size: 20px; font-weight: 700; }
-#ms-stand-datum { color: var(--text-2); }
-#btn-ms-neu { background: var(--text); color: #fff; border: 1px solid var(--text); border-radius: 999px; font-weight: 600; }
-#btn-ms-neu:hover { background: #2c3133; }
-#btn-ms-export { color: var(--primaer); }
-#ms-layout { padding: 12px 24px 0; }
-#ms-filter-panel h3 { color: var(--text-2); }
+/* Seitenkopf + Seitenfläche (alle Reiter außer Übersicht) */
+.seiten-kopf {
+  max-width: 1240px; margin: 0 auto; box-sizing: border-box;
+  padding: 32px 24px 20px; display: flex; align-items: flex-end; justify-content: space-between;
+  gap: 14px 24px; flex-wrap: wrap; background: none !important; border: none !important;
+  overflow: visible;
+}
+.seiten-kopf-text { min-width: 0; }
+.seiten-titel { margin: 0 0 4px; font-size: 26px; font-weight: 700; letter-spacing: -.01em; color: var(--text); line-height: 1.2; }
+.seiten-unterzeile { font-size: 14px; color: var(--text-2); }
+.seiten-text { margin: 8px 0 0; font-size: 13.5px; color: var(--text-2); max-width: 82ch; line-height: 1.55; }
+.seiten-text em { color: var(--primaer); }
+.seiten-status { display: block; font-size: 12px; margin-top: 4px; }
+.seiten-status:empty { display: none; }
+.seiten-aktionen { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.seite { max-width: 1240px; margin: 0 auto; padding: 0 24px 48px; box-sizing: border-box; }
+.seite > .ue-karte, .seite > div > .ue-karte { margin-bottom: 14px; }
 
-/* Risiken */
-#rm-header { background: var(--karte); border: none; border-bottom: 1px solid var(--linie); padding: 12px 24px; gap: 10px; }
-#rm-header-titel { color: var(--text); font-size: 20px; font-weight: 700; margin-right: 8px; }
-.rm-filter-select { background: var(--karte); color: var(--text); border: 1px solid var(--linie-2); border-radius: 999px; padding: 6px 12px; font-size: 13px; }
-.rm-filter-select option { background: #fff; color: var(--text); }
-.rm-neu-btn { background: var(--text); color: #fff; border-radius: 999px; padding: 7px 14px; font-size: 13px; }
+/* Buttons */
+.btn-primaer, .btn-sekundaer, #btn-ms-neu, .rm-neu-btn, #btn-ms-export {
+  display: inline-flex; align-items: center; gap: 6px; padding: 8px 15px; border-radius: 999px;
+  font-size: 13px; font-weight: 500; cursor: pointer; line-height: 1.2; float: none; margin: 0;
+  box-shadow: var(--schatten); text-decoration: none;
+}
+.btn-primaer, #btn-ms-neu, .rm-neu-btn { background: var(--text); color: #fff; border: 1px solid var(--text); font-weight: 600; }
+.btn-primaer:hover, #btn-ms-neu:hover, .rm-neu-btn:hover { background: #2c3133; }
+.btn-sekundaer, #btn-ms-export { background: var(--karte); color: var(--text); border: 1px solid var(--linie-2); }
+.btn-sekundaer:hover, #btn-ms-export:hover { background: #f7f7f6; text-decoration: none; }
+.btn-sekundaer:disabled { opacity: .5; cursor: default; }
+.btn-text { background: none; border: none; padding: 6px 0; margin-top: 4px; font-size: 13px; font-weight: 500; color: var(--primaer); cursor: pointer; }
+.btn-text:hover { text-decoration: underline; }
+.leer-zustand { padding: 40px 20px; text-align: center; color: var(--text-2); font-size: 13px; display: flex; flex-direction: column; gap: 4px; }
+.leer-zustand strong { color: var(--text); font-size: 15px; font-weight: 600; }
+
+/* Formularelemente einheitlich */
+#panel-themenradar input[type=text], #panel-meilensteine input[type=text], #panel-meilensteine input[type=date],
+#panel-meilensteine select, #panel-themenradar select, .rm-filter-select {
+  border: 1px solid var(--linie-2); border-radius: 8px; background: var(--karte); color: var(--text);
+}
+input[type=checkbox], input[type=radio], input[type=range] { accent-color: var(--primaer); }
+
+/* ── Themenradar ── */
+#panel-themenradar { font-size: 13px; }
+.tr-raster { display: grid; grid-template-columns: minmax(0, 2fr) minmax(260px, 1fr); gap: 14px; margin-bottom: 14px; }
+.tr-radar-karte { padding: 16px 20px 20px; }
+.tr-filter-karte { padding: 18px 20px; }
+.tr-karte { padding: 20px 22px; }
+#tr-ansicht-leiste { padding: 0 0 10px; }
+.tr-ansicht-umschalter { background: #f1f1ef; border: none; border-radius: 10px; padding: 3px; display: inline-flex; gap: 2px; }
+.tr-ansicht-btn { background: transparent; color: #4a4f52; border: none !important; border-radius: 8px; padding: 6px 12px; font-size: 13px; font-weight: 500; }
+.tr-ansicht-btn.aktiv { background: var(--karte); color: var(--text); font-weight: 600; box-shadow: 0 1px 2px rgba(0,0,0,.08); }
+#tr-liste-sort { border-radius: 8px; padding: 5px 8px; }
+#radar-canvas { width: 100%; height: min(72vh, 680px); min-height: 460px; }
+#radar-liste { max-height: min(72vh, 680px); overflow-y: auto; }
+#radar-svg line { stroke: #e2e3e0; }
+#radar-svg > circle { stroke: #e2e3e0; }
+#radar-svg > circle:first-of-type { fill: #eef3f3; }
+#radar-svg > text { fill: var(--text-2); font-family: var(--schrift); }
+#radar-svg > text[font-weight="600"] { fill: var(--text); font-size: 13px; letter-spacing: .01em; }
+#radar-svg circle.punkt { stroke: #fff; stroke-width: 1.5px; }
+#radar-svg g.punkt-label rect { fill: #fff; stroke: var(--linie-2); rx: 6px; }
+#radar-svg g.punkt-label text { fill: var(--text); font-family: var(--schrift); }
+#tooltip { background: var(--karte) !important; color: var(--text) !important; border: 1px solid var(--linie);
+  border-radius: 10px !important; box-shadow: 0 8px 24px rgba(16,24,40,.12) !important; }
+#hinweis { top: auto !important; bottom: 24px; position: fixed !important; background: var(--text) !important;
+  border-radius: 999px !important; font-size: 12.5px !important; z-index: 700 !important; }
+#filter-panel { padding: 0; height: auto; }
+#filter-panel h3 { margin: 18px 0 8px; font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--text-2); }
+#filter-panel h3:first-child { margin-top: 0; }
+#filter-panel .fp-checkbox-zeile { padding: 3px 0; font-size: 13.5px; color: var(--text); }
+#suche { width: 100%; box-sizing: border-box; padding: 8px 10px; font-size: 13px; }
+#manuell-counter { color: var(--text-3) !important; }
+#fp-legende { gap: 6px 12px; }
+#fp-legende div { display: flex; align-items: center; gap: 7px; font-size: 13px; color: var(--text); }
+.tr-leg-punkt { width: 9px; height: 9px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+#fp-legende-hinweis { color: var(--text-3); margin-top: 8px; }
+#rangliste { max-height: none; overflow-x: auto; }
+@media (max-width: 600px) {
+  #rang-tabelle th:nth-child(3), #rang-tabelle td:nth-child(3),
+  #rang-tabelle th:nth-child(4), #rang-tabelle td:nth-child(4) { display: none; }
+}
+#rang-tabelle { border-collapse: collapse; width: 100%; }
+#rang-tabelle th { text-align: left; font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase;
+  color: var(--text-2); padding: 0 10px 8px; border-bottom: 1px solid var(--linie); }
+#rang-tabelle td { padding: 11px 10px; font-size: 13.5px; color: var(--text-2); border-bottom: 1px solid var(--linie); }
+#rang-tabelle tr:last-child td { border-bottom: none; }
+#rang-tabelle tbody tr { cursor: pointer; }
+#rang-tabelle tbody tr:hover td, #rang-tabelle tbody tr:focus td { background: #f7f7f6; }
+#rang-tabelle .tr-rang { width: 44px; color: var(--text-3); font-variant-numeric: tabular-nums; }
+#rang-tabelle .tr-rang-titel { color: var(--text); font-weight: 500; }
+#rang-tabelle .ue-punkt { display: inline-block; margin: 0 9px 1px 0; vertical-align: middle; }
+#rang-tabelle .tr-num { text-align: right; font-variant-numeric: tabular-nums; }
+.tr-badge-gefiltert { margin-left: 8px; font-size: 11px; font-weight: 500; color: var(--warnung); background: var(--warnung-bg); padding: 2px 8px; border-radius: 999px; }
+#pestel-filter-info { color: var(--text-3) !important; font-size: 12px !important; margin: -6px 0 12px !important; }
+#pestel-grid { gap: 10px; }
+.pestel-spalte { background: #f7f7f6; border: 1px solid var(--linie); border-radius: var(--radius-s); overflow: hidden; }
+.pestel-header { background: transparent !important; color: var(--text) !important; border-bottom: 1px solid var(--linie);
+  padding: 10px 12px !important; text-align: left !important; display: flex; align-items: baseline; gap: 8px; }
+.pestel-header-kuerzel { font-size: 18px !important; font-weight: 700; color: var(--primaer) !important; }
+.pestel-header-name { font-size: 12px !important; color: var(--text-2) !important; opacity: 1 !important; text-transform: none !important; letter-spacing: 0 !important; }
+.pestel-spalte[data-dimension="political"] .pestel-header-kuerzel { color: #2d7a8e !important; }
+.pestel-spalte[data-dimension="economic"] .pestel-header-kuerzel { color: #3f8fa3 !important; }
+.pestel-spalte[data-dimension="social"] .pestel-header-kuerzel { color: #4a8a6f !important; }
+.pestel-spalte[data-dimension="technological"] .pestel-header-kuerzel { color: #7a6ea0 !important; }
+.pestel-spalte[data-dimension="environmental"] .pestel-header-kuerzel { color: #3a7a5a !important; }
+.pestel-spalte[data-dimension="legal"] .pestel-header-kuerzel { color: #8e6b2d !important; }
+.pestel-karte { background: var(--karte) !important; border: 1px solid var(--linie) !important; border-radius: 8px !important; box-shadow: none !important; }
+.tr-vorschlaege { border: 1px solid var(--linie); }
+
+/* ── Meilensteine ── */
+#panel-meilensteine { font-size: 14px; }
+#ms-stand-datum { color: inherit; margin: 0; font-size: inherit; }
+#ms-layout { display: grid; grid-template-columns: 280px minmax(0, 1fr); gap: 14px; padding: 0; overflow: visible; margin-bottom: 14px; }
+#ms-filter-panel { width: auto; float: none; padding: 18px 20px; align-self: start; }
+#ms-filter-panel h3 { margin: 18px 0 8px; font-size: 11px; font-weight: 600; letter-spacing: .06em; color: var(--text-2); }
+#ms-filter-panel h3:first-of-type { margin-top: 4px; }
+#ms-suche { border-radius: 8px !important; border-color: var(--linie-2) !important; padding: 8px 10px !important; }
+#btn-filter-reset { background: var(--karte); color: var(--text); border: 1px solid var(--linie-2); border-radius: 999px; }
+#btn-jz-generieren { background: var(--primaer-hell); color: var(--primaer); border: 1px solid transparent; border-radius: 999px; font-weight: 600; }
+#btn-jz-generieren:hover { background: #d9e9eb; color: var(--primaer); }
+#ms-filter-info { color: var(--text-3); border-top-color: var(--linie); }
+#ms-gantt-bereich { width: auto; float: none; padding: 18px 20px 20px; min-width: 0; }
+#deadline-uebersicht { background: #f7f7f6; border: 1px solid var(--linie); border-radius: var(--radius-s); margin: 0 0 16px; }
+.dl-ue-label { color: var(--text-2); letter-spacing: .06em; }
+.dl-chip { background: var(--karte); border: 1px solid var(--linie); border-radius: 8px; color: var(--text); }
+.dl-chip:hover { background: #fafaf9; border-color: var(--linie-2); }
+#gantt-zoom-leiste { background: #f1f1ef; border-radius: 10px; padding: 3px; display: inline-flex; gap: 2px; border: none; }
+.gantt-zoom-btn { background: transparent; border: none; border-radius: 8px; color: #4a4f52; font-weight: 500; padding: 5px 12px; }
+.gantt-zoom-btn.aktiv { background: var(--karte); color: var(--text); box-shadow: 0 1px 2px rgba(0,0,0,.08); }
+#ms-import-banner, #ms-neu-banner { border-radius: var(--radius-s); margin-bottom: 14px; }
+#ziele-panel { border-radius: var(--radius); border: 1px solid var(--linie); overflow: hidden; box-shadow: var(--schatten); background: var(--karte); }
+#ziele-panel-header { background: var(--karte) !important; color: var(--text) !important; border-bottom: 1px solid var(--linie); }
+#btn-ziele-einklappen { background: #f1f1ef !important; color: var(--text) !important; border: none !important; border-radius: 8px !important; }
+
+/* ── Risiken ── */
+#panel-risiko { height: auto !important; overflow: visible !important; display: none; }
+#rm-header { padding: 32px 24px 20px; }
+.rm-kpis { margin-bottom: 14px; }
+.rm-liste-karte { padding: 18px 0 6px; }
+.rm-liste-karte .ue-karte-kopf { padding: 0 22px; margin-bottom: 8px; }
+.rm-liste-info { font-size: 12px; color: var(--text-2); }
+#rm-tab-inhalt .rm-list-item { padding: 12px 22px; border-bottom: 1px solid var(--linie); }
+#rm-tab-inhalt .rm-list-item:last-child { border-bottom: none; }
+#rm-tab-inhalt .rm-list-item:hover { background: #f7f7f6; }
+.rm-list-titel { color: var(--text); font-size: 14px; font-weight: 500; }
+.rm-list-meta { color: var(--text-2); }
+.rm-typ-badge { background: #f1f1ef !important; color: var(--text-2) !important; border-radius: 999px; font-weight: 600; }
+.rm-score-niedrig { background: #eef1f1 !important; color: var(--text-2) !important; }
+.rm-score-mittel  { background: var(--warnung-bg) !important; color: var(--warnung) !important; }
+.rm-score-hoch    { background: #fbe9e7 !important; color: var(--kritisch) !important; }
+#rm-detail-kopf, #fp-detail-kopf { background: var(--karte) !important; color: var(--text) !important; border-bottom: 1px solid var(--linie); }
+#rm-detail-kopf *, #fp-detail-kopf * { color: inherit; }
+#rm-detail-kopf button, #fp-detail-kopf button { background: #f1f1ef !important; color: var(--text) !important; }
+
+/* ── Normennetz ── */
+#panel-normennetz {
+  --nn-swm: var(--primaer); --nn-dark: var(--primaer); --nn-ink: var(--text); --nn-grey: var(--text-2);
+  --nn-light: #f7f7f6; --nn-line: var(--linie); font-size: 14px;
+}
+#panel-normennetz .nn-wrap { max-width: 1240px; padding: 0 24px 48px; }
+#panel-normennetz .nn-toolbar { background: var(--karte); border: 1px solid var(--linie); border-radius: var(--radius); box-shadow: var(--schatten); padding: 12px 16px; margin: 0 0 14px; }
+#panel-normennetz .nn-chip { border-color: var(--linie-2); }
+#panel-normennetz .nn-chip[aria-pressed="true"].nn-stufe { background: var(--text); color: #fff; border-color: var(--text); }
+#panel-normennetz .nn-btn { background: var(--karte); color: var(--text); border: 1px solid var(--linie-2); border-radius: 999px; }
+#panel-normennetz .nn-btn:hover { background: #f7f7f6; }
+#panel-normennetz .nn-canvas-box, #panel-normennetz .nn-aside { border-radius: var(--radius); border-color: var(--linie); box-shadow: var(--schatten); background: var(--karte); }
+#panel-normennetz .nn-aside-h2 { color: var(--text-2); }
+#panel-normennetz .nn-footer { border-top-color: var(--linie); color: var(--text-3); }
+
+/* Detail-Panels und Modals */
+#detail-panel, #ms-detail-panel, #rm-detail-panel, #fp-detail-panel { border-left: 1px solid var(--linie); }
+.tf-box, .ki-modal-box, .rm-form-box, .fp-form-box, .jz-modal-box, .gh-modal-box, .lm-box { border-radius: var(--radius) !important; }
+.ki-modal-header, .jz-modal-header, .gh-modal-header { background: var(--karte) !important; color: var(--text) !important; border-bottom: 1px solid var(--linie); }
+.ki-modal-header *, .jz-modal-header *, .gh-modal-header * { color: inherit !important; }
+
+@media (max-width: 900px) {
+  .tr-raster, #ms-layout { grid-template-columns: minmax(0, 1fr); }
+  #pestel-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+  #radar-canvas { height: auto; min-height: 0; aspect-ratio: 1 / 1; }
+}
+@media (max-width: 760px) {
+  .seiten-kopf, #rm-header { padding: 22px 16px 16px; }
+  .seite, #panel-normennetz .nn-wrap { padding: 0 16px 36px; }
+}
+
+/* Spezifität gegen ältere ID-Regeln der Köpfe */
+#header.seiten-kopf, #ms-header.seiten-kopf, #rm-header.seiten-kopf { padding: 32px 24px 20px; overflow: visible; }
+#rm-header-titel.seiten-titel { color: var(--text); font-size: 26px; font-weight: 700; margin: 0 0 4px; }
+#rm-header .rm-filter-select { padding: 8px 12px; border-radius: 999px; font-size: 13px; }
+@media (max-width: 760px) {
+  #header.seiten-kopf, #ms-header.seiten-kopf, #rm-header.seiten-kopf { padding: 22px 16px 16px; }
+}
 
 /* Einstellungen */
 #st-header { background: var(--karte); border: none; border-bottom: 1px solid var(--linie); padding: 14px 24px; }
@@ -2452,7 +2620,7 @@ button, input, select, textarea { font-family: inherit; }
 
   <header id="app-header">
     <div id="app-marke">
-      <div id="app-logo">SWM</div>
+      <div id="app-logo">AM</div>
       <div id="app-titel">Lageplan</div>
     </div>
     <nav id="app-tabbar" aria-label="Bereiche">
@@ -2560,13 +2728,17 @@ button, input, select, textarea { font-family: inherit; }
 
 </div>
   <div class="tab-panel" id="panel-themenradar">
-  <div id="header" style="background:#63a2b4;border-left:4px solid #2d7a8e;border-bottom:none;padding:6px 16px;margin-bottom:0;overflow:hidden;box-sizing:border-box">
-    <strong style="font-size:20px;font-weight:600;color:#fff">Themenradar – Energienetz Asset Management</strong>
-    <span id="stand-datum" style="font-size:13px;color:rgba(255,255,255,0.75);margin-left:12px"></span>
-    <button style="padding:6px 12px;cursor:pointer;margin-left:8px;float:right;background:#fff;color:#2d7a8e;border:none;border-radius:4px;font-size:12px;font-weight:600"
+  <div id="header" class="seiten-kopf">
+    <div class="seiten-kopf-text">
+      <h1 class="seiten-titel">Themenradar</h1>
+      <div class="seiten-unterzeile">Energienetz Asset Management · <span id="stand-datum"></span></div>
+    </div>
+    <div class="seiten-aktionen">
+    <button class="btn-primaer"
       onclick="TR.oeffneThemaFormular()">+ Thema hinzufügen</button>
+    </div>
   </div>
-  
+
 
   <!-- ── Modales Formular: Neues Thema erfassen ──────── -->
   <div id="thema-formular" style="display:none" onclick="TR.schliesseThemaFormular()">
@@ -2719,6 +2891,9 @@ button, input, select, textarea { font-family: inherit; }
   <div id="hinweis" style="position:absolute;top:70px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:8px 16px;border-radius:4px;font-size:13px;opacity:1;transition:opacity 1s;pointer-events:none;z-index:100">
     Hover über einen Punkt für Details – Klick für Vollansicht
   </div>
+  <div class="seite" id="tr-seite">
+  <div class="tr-raster">
+  <section class="ue-karte tr-radar-karte">
   <div id="tr-ansicht-leiste">
     <div class="tr-ansicht-umschalter" role="group" aria-label="Ansicht">
       <button type="button" class="tr-ansicht-btn aktiv" data-ansicht="radar" onclick="TR.setzeAnsicht('radar')">◎ Zielscheibe</button>
@@ -2732,8 +2907,8 @@ button, input, select, textarea { font-family: inherit; }
       </select>
     </label>
   </div>
-  <div id="radar-liste" style="display:none;width:70%;height:calc(100vh - 400px);min-height:500px;float:left;box-sizing:border-box;overflow-y:auto"></div>
-  <div id="radar-canvas" style="width:70%;height:calc(100vh - 400px);min-height:500px;float:left;box-sizing:border-box">
+  <div id="radar-liste" style="display:none"></div>
+  <div id="radar-canvas">
     <svg id="radar-svg" width="100%" height="100%" viewBox="0 0 600 600">
       <line x1="20" y1="300" x2="580" y2="300" stroke="#dde8eb" stroke-width="1"></line>
       <line x1="300" y1="20" x2="300" y2="580" stroke="#dde8eb" stroke-width="1"></line>
@@ -2749,14 +2924,16 @@ button, input, select, textarea { font-family: inherit; }
       <text x="300" y="17" text-anchor="middle" font-size="11" fill="#666666">&gt; 3 Jahre</text>
     </svg>
   </div>
-  <div id="filter-panel" style="width:28%;float:right;height:calc(100vh - 400px);min-height:500px;overflow-y:auto;box-sizing:border-box;padding:8px">
+  </section>
+  <aside class="ue-karte tr-filter-karte">
+  <div id="filter-panel">
     <h3>Strategische Cluster</h3>
     <div class="fp-checkbox-zeile"><input type="checkbox" id="cluster-netzanschluss" value="Netzanschluss" onchange="TR.filterAktualisieren()"><label for="cluster-netzanschluss">Netzanschluss</label></div>
     <div class="fp-checkbox-zeile"><input type="checkbox" id="cluster-messstellenbetrieb" value="Messstellenbetrieb" onchange="TR.filterAktualisieren()"><label for="cluster-messstellenbetrieb">Messstellenbetrieb</label></div>
     <div class="fp-checkbox-zeile"><input type="checkbox" id="cluster-netzwirtschaft" value="Netzwirtschaft" onchange="TR.filterAktualisieren()"><label for="cluster-netzwirtschaft">Netzwirtschaft</label></div>
     <div class="fp-checkbox-zeile"><input type="checkbox" id="cluster-technologie" value="Technologie" onchange="TR.filterAktualisieren()"><label for="cluster-technologie">Technologie</label></div>
     <div class="fp-checkbox-zeile"><input type="checkbox" id="cluster-organisation" value="Organisation" onchange="TR.filterAktualisieren()"><label for="cluster-organisation">Organisation</label></div>
-    <button style="margin-top:6px;padding:4px 10px;height:28px;font-size:12px;cursor:pointer"
+    <button class="btn-text"
       onclick="document.querySelectorAll('#filter-panel input[type=checkbox]').forEach(cb => cb.checked = false); document.getElementById('suche').value = ''; TR.filterAktualisieren()">
       Filter zurücksetzen
     </button>
@@ -2767,33 +2944,35 @@ button, input, select, textarea { font-family: inherit; }
 
     <h3>Legende</h3>
     <div id="fp-legende">
-      <div><span style="color:#2d7a8e">●</span> Regulatorisch</div>
-      <div><span style="color:#63a2b4">●</span> Marktlich</div>
-      <div><span style="color:#4a8a6f">●</span> Technologisch</div>
-      <div><span style="color:#7a6ea0">●</span> Wettbewerblich</div>
+      <div><span class="tr-leg-punkt" style="background:#2d7a8e"></span>Regulatorisch</div>
+      <div><span class="tr-leg-punkt" style="background:#63a2b4"></span>Marktlich</div>
+      <div><span class="tr-leg-punkt" style="background:#4a8a6f"></span>Technologisch</div>
+      <div><span class="tr-leg-punkt" style="background:#7a6ea0"></span>Wettbewerblich</div>
     </div>
     <div id="fp-legende-hinweis">
       <span style="font-size:9px">●</span> klein = geringe &nbsp;·&nbsp;
       <span style="font-size:13px">●</span> groß = hohe Auswirkung
     </div>
   </div>
-  <div id="rangliste" style="clear:both;padding:6px 0;max-height:160px;overflow-y:auto">
-    <h3 style="margin:0 0 4px;font-size:13px">Top 5 nach Priorität</h3>
+  </aside>
+  </div>
+  <div id="rangliste" class="ue-karte tr-karte">
+    <div class="ue-karte-kopf"><h2>Top 5 nach Priorität</h2></div>
     <table id="rang-tabelle" style="border-collapse:collapse;width:100%">
       <thead>
-        <tr style="text-align:left;border-bottom:2px solid #ddd">
-          <th style="padding:4px 8px;font-size:12px">Rang</th>
-          <th style="padding:4px 8px;font-size:12px">Titel</th>
-          <th style="padding:4px 8px;font-size:12px">Kategorie</th>
-          <th style="padding:4px 8px;font-size:12px">Zeithorizont</th>
-          <th style="padding:4px 8px;font-size:12px">Score</th>
+        <tr>
+          <th>Rang</th>
+          <th>Titel</th>
+          <th>Kategorie</th>
+          <th>Zeithorizont</th>
+          <th class="tr-num">Score</th>
         </tr>
       </thead>
       <tbody></tbody>
     </table>
   </div>
-  <div id="pestel-bereich">
-    <h3 style="margin:6px 0 4px;font-size:13px">PESTEL-Analyse<span id="pestel-gefiltert-badge" style="display:none;color:#e67e22;font-size:10px;font-weight:400;margin-left:6px">(gefiltert)</span></h3>
+  <div id="pestel-bereich" class="ue-karte tr-karte">
+    <div class="ue-karte-kopf"><h2>PESTEL-Analyse<span id="pestel-gefiltert-badge" style="display:none" class="tr-badge-gefiltert">gefiltert</span></h2></div>
     <div id="pestel-filter-info" style="font-size:11px;color:#aaa;margin-bottom:4px"></div>
     <div id="pestel-grid">
 
@@ -2847,6 +3026,7 @@ button, input, select, textarea { font-family: inherit; }
 
     </div>
   </div>
+  </div>
 
   <div id="detail-panel" style="display:none">
     <button id="dp-schliessen" onclick="document.getElementById('detail-panel').style.display='none'">✕</button>
@@ -2891,19 +3071,23 @@ button, input, select, textarea { font-family: inherit; }
 </div>
   <div class="tab-panel" id="panel-meilensteine">
 
-  <div id="ms-header">
-    <strong>Meilenstein-Zielrahmen</strong>
-    <span id="ms-stand-datum"></span>
+  <div id="ms-header" class="seiten-kopf">
+    <div class="seiten-kopf-text">
+      <h1 class="seiten-titel">Meilensteine</h1>
+      <div class="seiten-unterzeile">Zielrahmen · <span id="ms-stand-datum"></span></div>
+    </div>
+    <div class="seiten-aktionen">
     <button id="btn-ms-neu" onclick="MS.oeffneMsFormular()">+ Meilenstein anlegen</button>
+    </div>
   </div>
 
-
+  <div class="seite" id="ms-seite">
   <div id="ms-import-banner"></div>
   <div id="ms-neu-banner"></div>
 
   <div id="ms-layout">
-    <div id="ms-filter-panel"></div>
-    <div id="ms-gantt-bereich">
+    <div id="ms-filter-panel" class="ue-karte"></div>
+    <div id="ms-gantt-bereich" class="ue-karte">
       <div id="deadline-uebersicht"></div>
     </div>
   </div>
@@ -2917,6 +3101,7 @@ button, input, select, textarea { font-family: inherit; }
       <button id="btn-ziele-einklappen" onclick="event.stopPropagation();MS.toggleZielePanel()">▲</button>
     </div>
     <div id="ziele-panel-body"></div>
+  </div>
   </div>
 
   <div id="ms-detail-panel"></div>
@@ -3107,8 +3292,12 @@ button, input, select, textarea { font-family: inherit; }
 
 </div>
   <div class="tab-panel" id="panel-risiko">
-    <div id="rm-header">
-      <span id="rm-header-titel">Risikomanagement</span>
+    <div id="rm-header" class="seiten-kopf">
+      <div class="seiten-kopf-text">
+        <h1 class="seiten-titel" id="rm-header-titel">Risiken</h1>
+        <div class="seiten-unterzeile" id="rm-unterzeile">Risikomanagement</div>
+      </div>
+      <div class="seiten-aktionen">
       <select id="rm-filter-cluster" class="rm-filter-select" onchange="RM._filterChanged()">
         <option value="alle">Alle Cluster</option>
         <option>Netzanschluss</option>
@@ -3131,18 +3320,32 @@ button, input, select, textarea { font-family: inherit; }
         <option>geschlossen</option>
       </select>
       <button class="rm-neu-btn" onclick="RM.oeffneFormular(null)">+ Neues Risiko</button>
+      </div>
     </div>
-    <div id="rm-tab-inhalt" style="flex:1;overflow-y:auto"></div>
+    <div class="seite" id="rm-seite">
+      <div class="ue-kpis rm-kpis">
+        <div class="ue-karte ue-kpi"><div class="ue-kpi-label">Offene Risiken</div><div class="ue-kpi-wert" id="rm-kpi-offen">0</div><div class="ue-kpi-sub" id="rm-kpi-offen-sub"></div></div>
+        <div class="ue-karte ue-kpi"><div class="ue-kpi-label">Hoch</div><div class="ue-kpi-wert ue-rot" id="rm-kpi-hoch">0</div><div class="ue-kpi-sub">Score ab 3,0</div></div>
+        <div class="ue-karte ue-kpi"><div class="ue-kpi-label">Mittel</div><div class="ue-kpi-wert ue-warn" id="rm-kpi-mittel">0</div><div class="ue-kpi-sub">Score 1,5 bis 3,0</div></div>
+        <div class="ue-karte ue-kpi"><div class="ue-kpi-label">Gering</div><div class="ue-kpi-wert" id="rm-kpi-gering">0</div><div class="ue-kpi-sub">Score unter 1,5</div></div>
+      </div>
+      <section class="ue-karte rm-liste-karte">
+        <div class="ue-karte-kopf"><h2>Risikoliste</h2><span class="rm-liste-info" id="rm-liste-info"></span></div>
+        <div id="rm-tab-inhalt"></div>
+      </section>
+    </div>
   </div>
 
   <!-- ── Normennetz (Regulatorischer Rahmen) ──────────── -->
   <div class="tab-panel" id="panel-normennetz">
+    <header class="seiten-kopf nn-seitenkopf">
+      <div class="seiten-kopf-text">
+        <h1 class="seiten-titel">Normennetz</h1>
+        <div class="seiten-unterzeile">Messstellenbetrieb · Regulatorischer Rahmen · Verweisnetz</div>
+        <p class="seiten-text">Jeder Knoten ist ein Regelwerk, jede Kante ein inhaltlicher Querverweis. Knoten anklicken, um alle Verbindungen und verknüpfte Meilensteine/Themen zu sehen — oder über eine Kante fahren, um zu lesen, was genau referenziert wird. <em>Fokus Messstellenbetrieb; unabhängig vom globalen Cluster-Filter.</em></p>
+      </div>
+    </header>
     <div class="nn-wrap">
-      <header class="nn-header">
-        <p class="nn-eyebrow">Messstellenbetrieb · Regulatorischer Rahmen</p>
-        <h1 class="nn-h1">Das Verweisnetz</h1>
-        <p class="nn-sub">Jeder Knoten ist ein Regelwerk, jede Kante ein inhaltlicher Querverweis. Knoten anklicken, um alle Verbindungen und verknüpfte Meilensteine/Themen zu sehen — oder über eine Kante fahren, um zu lesen, was genau referenziert wird. <em>Fokus Messstellenbetrieb; unabhängig vom globalen Cluster-Filter.</em></p>
-      </header>
 
       <div class="nn-toolbar">
         <span class="nn-tb-label">Ebenen</span>
@@ -3203,7 +3406,7 @@ window.lsKey = function(name) { return "lageplan-html:" + name; };
       setTimeout(() => { hinweis.style.display  = "none"; }, 4000);
     })();
     document.getElementById("stand-datum").textContent =
-      "Stand: " + new Date().toLocaleDateString("de-DE");
+      "Stand " + new Date().toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit", year: "numeric" });
 
     function berechneScore(eintrag) {
       const zeitgewicht = { kurzfristig: 1.0, mittelfristig: 0.6, langfristig: 0.3 };
@@ -3211,20 +3414,7 @@ window.lsKey = function(name) { return "lageplan-html:" + name; };
       return Math.round(score * 100) / 100;
     }
 
-    const radarData = [
-      { id:1, titel:"MsbG-Novelle", kategorie:"regulatorisch", zeithorizont:"kurzfristig", auswirkung:5, unsicherheit:2, beschreibung:"Die Novellierung des Messstellenbetriebsgesetzes verschärft Rollout-Pflichten für iMSys. Netzbetreiber müssen Einbauquoten nachweisen und haften bei Verzug.", strategische_cluster:["Messstellenbetrieb","Netzwirtschaft"], tags:["MsbG","Smart Meter","Rollout","Regulierung"] },
-      { id:2, titel:"Netzentgeltreform BNetzA", kategorie:"regulatorisch", zeithorizont:"kurzfristig", auswirkung:5, unsicherheit:3, beschreibung:"Die Bundesnetzagentur überarbeitet die Systematik der Netzentgelte grundlegend. Änderungen der Erlösobergrenzen und Wälzungsmechanismen betreffen direkt die Erlössituation.", strategische_cluster:["Netzwirtschaft"], tags:["Netzentgelt","BNetzA","Regulierung","Erlösobergrenze"] },
-      { id:3, titel:"§14a EnWG Flexibilität", kategorie:"regulatorisch", zeithorizont:"kurzfristig", auswirkung:4, unsicherheit:2, beschreibung:"Die Umsetzung von §14a EnWG verpflichtet Netzbetreiber zum steuerbaren Netzanschluss für steuerbare Verbrauchseinrichtungen. Prozesse und IT-Systeme müssen angepasst werden.", strategische_cluster:["Netzanschluss","Technologie"], tags:["§14a","Flexibilität","Steuerung","EnWG"] },
-      { id:4, titel:"Eigenkapitalverzinsung ARegV", kategorie:"regulatorisch", zeithorizont:"mittelfristig", auswirkung:4, unsicherheit:4, beschreibung:"Die anstehende Überprüfung des Eigenkapitalzinssatzes in der Anreizregulierung beeinflusst die Investitionsrendite erheblich. Steigende Zinsen könnten zu Anpassungen führen.", strategische_cluster:["Netzwirtschaft"], tags:["ARegV","Eigenkapital","Verzinsung","Regulierung"] },
-      { id:5, titel:"Flexibilitätsmärkte", kategorie:"marktlich", zeithorizont:"mittelfristig", auswirkung:4, unsicherheit:3, beschreibung:"Lokale und überregionale Flexibilitätsmärkte gewinnen an Bedeutung. Netzbetreiber müssen Schnittstellen zu Aggregatoren und Flexibilitätsanbietern schaffen.", strategische_cluster:["Netzwirtschaft","Technologie"], tags:["Flexibilität","Markt","Aggregator","Redispatch"] },
-      { id:6, titel:"Wärmepumpen-Hochlauf", kategorie:"marktlich", zeithorizont:"kurzfristig", auswirkung:5, unsicherheit:2, beschreibung:"Der starke Anstieg von Wärmepumpen erzeugt lokale Lastspitzen im Niederspannungsnetz. Netzplanung und Netzausbau müssen beschleunigt werden.", strategische_cluster:["Netzanschluss","Technologie"], tags:["Wärmepumpe","Last","Niederspannung","Netzausbau"] },
-      { id:7, titel:"Eigenverbrauch Gewerbe", kategorie:"marktlich", zeithorizont:"mittelfristig", auswirkung:3, unsicherheit:3, beschreibung:"Zunehmende PV-Anlagen mit Eigenverbrauchsoptimierung verändern Lastprofile im Gewerbebereich. Rückspeisungen und Nulleinspeisung erfordern neue Messlösungen.", strategische_cluster:["Messstellenbetrieb","Netzanschluss"], tags:["PV","Eigenverbrauch","Gewerbe","Einspeisung"] },
-      { id:8, titel:"Smart Meter Gateway Rollout", kategorie:"technologisch", zeithorizont:"kurzfristig", auswirkung:4, unsicherheit:2, beschreibung:"Der verpflichtende Einbau von Smart Meter Gateways erfordert umfangreiche Logistik, IT-Integration und Feldprozesse. Interoperabilität mit Backendsystemen ist kritisch.", strategische_cluster:["Messstellenbetrieb","Technologie"], tags:["SMGW","Smart Meter","Rollout","IT"] },
-      { id:9, titel:"Digitaler Zwilling Netz", kategorie:"technologisch", zeithorizont:"mittelfristig", auswirkung:3, unsicherheit:4, beschreibung:"Digitale Abbilder des Netzes ermöglichen Echtzeit-Simulation und vorausschauende Wartung. Datenverfügbarkeit und Modellpflege sind zentrale Herausforderungen.", strategische_cluster:["Technologie","Organisation"], tags:["Digitalisierung","Simulation","Asset Management","GIS"] },
-      { id:10, titel:"Netzautomatisierung SCADA", kategorie:"technologisch", zeithorizont:"langfristig", auswirkung:4, unsicherheit:3, beschreibung:"Automatisierte Schalthandlungen und selbstheilende Netze reduzieren Ausfallzeiten. Investitionen in Fernwirktechnik und Cybersicherheit sind erforderlich.", strategische_cluster:["Technologie","Netzwirtschaft"], tags:["SCADA","Automatisierung","Fernwirk","Cybersicherheit"] },
-      { id:11, titel:"Neue Messstellenbetreiber", kategorie:"wettbewerblich", zeithorizont:"kurzfristig", auswirkung:4, unsicherheit:2, beschreibung:"Dritte Messstellenbetreiber drängen in den Markt und übernehmen Einbau und Betrieb von Messsystemen. Marktanteilsverluste im Messstellenbetrieb sind realistisch.", strategische_cluster:["Messstellenbetrieb","Organisation"], tags:["Wettbewerb","MSB","Dritte","Marktöffnung"] },
-      { id:12, titel:"Sektorkonvergenz Energie & IT", kategorie:"wettbewerblich", zeithorizont:"langfristig", auswirkung:3, unsicherheit:5, beschreibung:"Technologieunternehmen und Startups dringen in die Energiewirtschaft vor. Neue Geschäftsmodelle rund um Daten und Plattformen konkurrieren mit klassischen Netzbetreiberleistungen.", strategische_cluster:["Organisation","Technologie"], tags:["Disruption","Plattform","Digitalisierung","Wettbewerb"] }
-    ];
+    const radarData = [];   // Standalone: leer ausgeliefert
 
     radarData.forEach(d => d.radar_score = berechneScore(d));
 
@@ -3689,18 +3879,18 @@ window.lsKey = function(name) { return "lageplan-html:" + name; };
       tbody.innerHTML = "";
       top5.forEach((d, i) => {
         const tr = document.createElement("tr");
-        tr.style.cursor = "pointer";
-        tr.style.borderBottom = "1px solid #eee";
+        const _hz = { kurzfristig: "0–1 Jahr", mittelfristig: "1–3 Jahre", langfristig: "> 3 Jahre" };
+        const _kat = String(d.kategorie || "");
         tr.innerHTML = `
-          <td style="padding:4px 8px;font-size:12px">${i + 1}</td>
-          <td style="padding:4px 8px;font-size:12px">${d.titel}</td>
-          <td style="padding:4px 8px;font-size:12px">${d.kategorie}</td>
-          <td style="padding:4px 8px;font-size:12px">${d.zeithorizont}</td>
-          <td style="padding:4px 8px;font-size:12px">${d.radar_score}</td>
+          <td class="tr-rang">${i + 1}</td>
+          <td><span class="ue-punkt${(d.radar_score || 0) >= 0.7 ? " kritisch" : ""}"></span><span class="tr-rang-titel">${_escT(d.titel)}</span></td>
+          <td>${_escT(_kat.charAt(0).toUpperCase() + _kat.slice(1))}</td>
+          <td>${_escT(_hz[d.zeithorizont] || d.zeithorizont || "")}</td>
+          <td class="tr-num">${_escT(d.radar_score)}</td>
         `;
-        tr.addEventListener("mouseover", () => tr.style.background = "#f5f5f5");
-        tr.addEventListener("mouseout",  () => tr.style.background = "");
+        tr.tabIndex = 0;
         tr.addEventListener("click",     () => zeigeDetail(d));
+        tr.addEventListener("keydown",   e => { if (e.key === "Enter") zeigeDetail(d); });
         tbody.appendChild(tr);
       });
     }
@@ -5169,245 +5359,7 @@ window.TR={setzeAnsicht,sortiereListe,oeffneThemaFormular,exportiereJSON,schlies
     document.getElementById("ms-stand-datum").textContent =
       "Stand: " + new Date().toLocaleDateString("de-DE");
 
-    const meilensteinData = [
-      {
-        id: "M001",
-        titel: "§14a EnWG Prozesse umgestellt",
-        thema_id: 3,
-        thema_titel: "§14a EnWG Flexibilität",
-        kategorie: "regulatorisch",
-        start: "2025-01-01",
-        ende: "2025-09-30",
-        verantwortlicher: "Maier",
-        status: "abgeschlossen",
-        fortschritt: 100,
-        abhaengig_von: ["M002"],
-        pflicht_deadline: "2025-04-01",
-        deadline_quelle: "§14a EnWG",
-        deadline_typ: "regulatorisch",
-        strategische_cluster: ["Netzanschluss", "Technologie"],
-        radar_score: 0.84,
-        notiz: "Rollout in allen Netzgebieten abgeschlossen, Dokumentation liegt vor."
-      },
-      {
-        id: "M002",
-        titel: "IT-Schnittstelle Flexibilitätsmanagement live",
-        thema_id: 3,
-        thema_titel: "§14a EnWG Flexibilität",
-        kategorie: "technologisch",
-        start: "2024-10-01",
-        ende: "2025-06-30",
-        verantwortlicher: "Schneider",
-        status: "abgeschlossen",
-        fortschritt: 100,
-        abhaengig_von: [],
-        pflicht_deadline: null,
-        deadline_quelle: "",
-        deadline_typ: "intern",
-        strategische_cluster: ["Technologie"],
-        radar_score: 0.76,
-        notiz: "API-Anbindung an Aggregatoren erfolgreich getestet."
-      },
-      {
-        id: "M003",
-        titel: "Smart Meter Rollout Pflichtquote erreicht",
-        thema_id: 8,
-        thema_titel: "Smart Meter Gateway Rollout",
-        kategorie: "regulatorisch",
-        start: "2025-03-01",
-        ende: "2025-12-31",
-        verantwortlicher: "Bauer",
-        status: "verzögert",
-        fortschritt: 82,
-        abhaengig_von: ["M004"],
-        pflicht_deadline: "2025-12-31",
-        deadline_quelle: "§45 MsbG Rolloutpflicht",
-        deadline_typ: "regulatorisch",
-        strategische_cluster: ["Messstellenbetrieb"],
-        radar_score: 0.76,
-        notiz: "Lieferengpässe bei SMGW-Hardware verzögern Erreichung der Pflichtquote."
-      },
-      {
-        id: "M004",
-        titel: "SMGW Backend-Integration abgeschlossen",
-        thema_id: 8,
-        thema_titel: "Smart Meter Gateway Rollout",
-        kategorie: "technologisch",
-        start: "2024-11-01",
-        ende: "2025-09-30",
-        verantwortlicher: "Schneider",
-        status: "abgeschlossen",
-        fortschritt: 100,
-        abhaengig_von: [],
-        pflicht_deadline: null,
-        deadline_quelle: "",
-        deadline_typ: "intern",
-        strategische_cluster: ["Messstellenbetrieb", "Technologie"],
-        radar_score: 0.76,
-        notiz: "WAN-Anbindung und Zertifikatsmanagement vollständig implementiert."
-      },
-      {
-        id: "M005",
-        titel: "Netzentgelt-Kalkulation neue Systematik",
-        thema_id: 2,
-        thema_titel: "Netzentgeltreform BNetzA",
-        kategorie: "regulatorisch",
-        start: "2025-10-01",
-        ende: "2026-03-31",
-        verantwortlicher: "Fischer",
-        status: "abgeschlossen",
-        fortschritt: 100,
-        abhaengig_von: [],
-        pflicht_deadline: "2026-01-01",
-        deadline_quelle: "ARegV §21 Anpassungspflicht",
-        deadline_typ: "regulatorisch",
-        strategische_cluster: ["Netzwirtschaft"],
-        radar_score: 0.88,
-        notiz: "Neue Kalkulationsmethodik BNetzA fristgerecht implementiert und geprüft."
-      },
-      {
-        id: "M006",
-        titel: "Digitaler Zwilling Pilotbereich",
-        thema_id: 9,
-        thema_titel: "Digitaler Zwilling Netz",
-        kategorie: "technologisch",
-        start: "2026-01-01",
-        ende: "2026-06-30",
-        verantwortlicher: "Wagner",
-        status: "in Bearbeitung",
-        fortschritt: 50,
-        abhaengig_von: ["M004"],
-        pflicht_deadline: null,
-        deadline_quelle: "",
-        deadline_typ: "intern",
-        strategische_cluster: ["Technologie", "Organisation"],
-        radar_score: 0.60,
-        notiz: "Pilotgebiet Nord im Aufbau, GIS-Datenabgleich läuft."
-      },
-      {
-        id: "M007",
-        titel: "Wärmepumpen Netzanschluss Prozess optimiert",
-        thema_id: 6,
-        thema_titel: "Wärmepumpen-Hochlauf",
-        kategorie: "marktlich",
-        start: "2025-01-01",
-        ende: "2025-06-30",
-        verantwortlicher: "Müller",
-        status: "abgeschlossen",
-        fortschritt: 100,
-        abhaengig_von: [],
-        pflicht_deadline: "2025-06-30",
-        deadline_quelle: "BMWK Wärmepumpen-Initiative",
-        deadline_typ: "marktlich",
-        strategische_cluster: ["Netzanschluss"],
-        radar_score: 0.80,
-        notiz: "Standardprozess für WP-Netzanschluss inklusive §14a-Steuerung eingeführt."
-      },
-      {
-        id: "M008",
-        titel: "MSB-Wettbewerber Monitoring eingeführt",
-        thema_id: 11,
-        thema_titel: "Neue Messstellenbetreiber",
-        kategorie: "wettbewerblich",
-        start: "2025-04-01",
-        ende: "2025-09-30",
-        verantwortlicher: "Weber",
-        status: "verzögert",
-        fortschritt: 65,
-        abhaengig_von: [],
-        pflicht_deadline: null,
-        deadline_quelle: "",
-        deadline_typ: "intern",
-        strategische_cluster: ["Messstellenbetrieb", "Organisation"],
-        radar_score: 0.68,
-        notiz: "Datenerfassung läuft, Dashboard-Fertigstellung steht noch aus."
-      },
-      {
-        id: "M009",
-        titel: "MsbG Vollrollout iMSys 80%",
-        thema_id: 8,
-        thema_titel: "Smart Meter Gateway Rollout",
-        kategorie: "regulatorisch",
-        zeithorizont: "langfristig",
-        start: "2026-01-01",
-        ende: "2028-12-31",
-        verantwortlicher: "Bauer",
-        status: "offen",
-        fortschritt: 0,
-        abhaengig_von: ["M003", "M004"],
-        pflicht_deadline: "2028-12-31",
-        deadline_quelle: "§45 MsbG Abs. 3 Vollrollout",
-        deadline_typ: "regulatorisch",
-        auswirkung: 5,
-        unsicherheit: 2,
-        strategische_cluster: ["Messstellenbetrieb"],
-        radar_score: 0.80,
-        notiz: "Vollständiger Rollout intelligenter Messsysteme gemäß gesetzlicher Rolloutpflicht."
-      },
-      {
-        id: "M010",
-        titel: "Netzdigitalisierungsstrategie 2030",
-        thema_id: 9,
-        thema_titel: "Digitaler Zwilling Netz",
-        kategorie: "technologisch",
-        start: "2025-07-01",
-        ende: "2030-06-30",
-        verantwortlicher: "Wagner",
-        status: "offen",
-        fortschritt: 0,
-        abhaengig_von: ["M006"],
-        pflicht_deadline: "2030-01-01",
-        deadline_quelle: "Konzernstrategie 2030",
-        deadline_typ: "konzern",
-        auswirkung: 4,
-        unsicherheit: 3,
-        strategische_cluster: ["Technologie", "Organisation"],
-        radar_score: 0.65,
-        notiz: "Umsetzung der konzernweiten Digitalisierungsstrategie für den Netzbetrieb bis 2030."
-      },
-      {
-        id: "M011",
-        titel: "§14c EnWG Netzplanung digital",
-        thema_id: 2,
-        thema_titel: "Netzentgeltreform BNetzA",
-        kategorie: "regulatorisch",
-        start: "2026-01-01",
-        ende: "2027-06-30",
-        verantwortlicher: "Fischer",
-        status: "offen",
-        fortschritt: 0,
-        abhaengig_von: [],
-        pflicht_deadline: "2027-01-01",
-        deadline_quelle: "§14c EnWG (geplant)",
-        deadline_typ: "regulatorisch",
-        auswirkung: 4,
-        unsicherheit: 4,
-        strategische_cluster: ["Netzwirtschaft", "Technologie"],
-        radar_score: 0.70,
-        notiz: "Gesetzliche Anforderung zur digitalen Netzplanung gem. geplantem §14c EnWG."
-      },
-      {
-        id: "M012",
-        titel: "ISO 55000 Zertifizierung Asset Mgmt",
-        thema_id: 9,
-        thema_titel: "Digitaler Zwilling Netz",
-        kategorie: "technologisch",
-        start: "2025-10-01",
-        ende: "2027-03-31",
-        verantwortlicher: "Wagner",
-        status: "offen",
-        fortschritt: 0,
-        abhaengig_von: [],
-        pflicht_deadline: null,
-        deadline_quelle: "Interne Qualitätsvorgabe",
-        deadline_typ: "intern",
-        auswirkung: 3,
-        unsicherheit: 2,
-        strategische_cluster: ["Organisation", "Technologie"],
-        radar_score: 0.50,
-        notiz: "Zertifizierung des Asset-Management-Systems nach ISO 55000 / 55001."
-      }
-    ];
+    const meilensteinData = [];   // Standalone: leer ausgeliefert
 
     // Normalize legacy abhaengig_von string[] → object[] on startup
     meilensteinData.forEach(function(m) {
@@ -5867,7 +5819,11 @@ window.TR={setzeAnsicht,sortiereListe,oeffneThemaFormular,exportiereJSON,schlies
 
       const zoom       = zoomStufen[aktuellerZoom];
       const container  = document.getElementById("ms-gantt-bereich");
-      const cWidth     = container.getBoundingClientRect().width || 900;
+      // Innenbreite (ohne Padding der Karte), sonst ragt das Gantt heraus
+      const _cs        = getComputedStyle(container);
+      const cWidth     = container.clientWidth > 0
+        ? container.clientWidth - parseFloat(_cs.paddingLeft || 0) - parseFloat(_cs.paddingRight || 0)
+        : 900;
       const titleWidth = 220;
       const rowHeight  = 60;
       const hdrHoch    = zoom.einheit === "quartal" ? 52 : 40;
@@ -7296,19 +7252,36 @@ window.MS={exportiereJSON,zeigeDetail,renderUebersicht,oeffneMsFormular,schliess
     renderTab();
   }
 
+  // Kennzahlen über der Risikoliste (berücksichtigt den globalen Cluster-Filter)
+  function _renderKennzahlen() {
+    var gc = window.GlobalFilter && GlobalFilter.cluster;
+    var basis = risikenDaten.filter(function(r){ return !gc || r.cluster === gc; });
+    var offen = basis.filter(function(r){ return r.status !== "geschlossen"; });
+    var n = { hoch: 0, mittel: 0, gering: 0 };
+    offen.forEach(function(r){ var s = r.risikoscore || 0; n[s >= 3 ? "hoch" : s >= 1.5 ? "mittel" : "gering"]++; });
+    function set(id, v) { var e = document.getElementById(id); if (e) e.textContent = v; }
+    set("rm-kpi-offen", offen.length);
+    set("rm-kpi-offen-sub", basis.length - offen.length > 0 ? (basis.length - offen.length) + " geschlossen" : "keine geschlossenen");
+    set("rm-kpi-hoch", n.hoch); set("rm-kpi-mittel", n.mittel); set("rm-kpi-gering", n.gering);
+    set("rm-unterzeile", "Risikomanagement · " + basis.length + (basis.length === 1 ? " Risiko erfasst" : " Risiken erfasst"));
+    var gef = _gefilterteDaten().length;
+    set("rm-liste-info", gef === basis.length ? "" : gef + " von " + basis.length + " angezeigt");
+  }
+
   function renderTab() {
     var el = document.getElementById("rm-tab-inhalt");
     if (!el) return;
     el.innerHTML = "";
+    _renderKennzahlen();
 
     if (risikenDaten.length === 0) {
-      el.innerHTML = '<div style="padding:60px 40px;text-align:center;color:#aaa"><div style="font-size:40px;margin-bottom:12px">🛡</div><div style="font-size:15px;font-weight:600;margin-bottom:6px">Noch keine Risiken erfasst</div><div style="font-size:12px">Klicke auf "+ Neues Risiko" um zu beginnen</div></div>';
+      el.innerHTML = '<div class="leer-zustand"><strong>Noch keine Risiken erfasst</strong><span>Mit „+ Neues Risiko“ legst du das erste Risiko an.</span></div>';
       return;
     }
 
     var gefiltert = _gefilterteDaten();
     if (gefiltert.length === 0) {
-      el.innerHTML = '<div style="padding:40px;text-align:center;color:#aaa;font-size:13px">Keine Risiken entsprechen dem Filter</div>';
+      el.innerHTML = '<div class="leer-zustand"><span>Keine Risiken entsprechen dem Filter.</span></div>';
       return;
     }
 
@@ -7755,7 +7728,12 @@ window.MS={exportiereJSON,zeigeDetail,renderUebersicht,oeffneMsFormular,schliess
       var ul = document.getElementById("ue-top-liste");
       if (!ul) return;
       var top = themen().slice().sort(function(a, b) { return (b.radar_score || 0) - (a.radar_score || 0); }).slice(0, 4);
-      if (!top.length) { ul.innerHTML = '<li class="ue-leer">Keine Themen im gewählten Cluster.</li>'; return; }
+      if (!top.length) {
+        var gesamt = (window.TR && TR.getDaten) ? TR.getDaten().length : 0;
+        ul.innerHTML = '<li class="ue-leer">' + (gesamt ? 'Keine Themen im gewählten Cluster.'
+          : 'Noch keine Themen erfasst – im Reiter Themenradar mit „+ Thema hinzufügen“ anlegen.') + '</li>';
+        return;
+      }
       ul.innerHTML = top.map(function(d) {
         return '<li><button class="ue-top-eintrag" data-id="' + esc(d.id) + '">' +
           '<span class="ue-punkt' + (istKritisch(d) ? ' kritisch' : '') + '" aria-hidden="true"></span>' +
@@ -7784,7 +7762,12 @@ window.MS={exportiereJSON,zeigeDetail,renderUebersicht,oeffneMsFormular,schliess
       var auswahl = spaet.slice(0, 1).concat(naechste).slice(0, 3);
       if (auswahl.length < 3) auswahl = auswahl.concat(spaet.slice(1, 1 + 3 - auswahl.length));
       auswahl.sort(function(a, b) { return msDatum(a) - msDatum(b); });
-      if (!auswahl.length) { ul.innerHTML = '<li class="ue-leer">Keine offenen Meilensteine.</li>'; return; }
+      if (!auswahl.length) {
+        var msGesamt = (window.MS && MS.getDaten) ? MS.getDaten().length : 0;
+        ul.innerHTML = '<li class="ue-leer">' + (msGesamt ? 'Keine offenen Meilensteine.'
+          : 'Noch keine Meilensteine erfasst.') + '</li>';
+        return;
+      }
       ul.innerHTML = auswahl.map(function(m) {
         var d = msDatum(m);
         var verspaetet = m.status === "verzögert" || d < h;
@@ -8361,7 +8344,7 @@ window.LP={toggleVollbild,beendeVollbild,aktualisiereStatusleiste,zeichneLpRadar
     normennetz:   "Normennetz | Energie & Asset Management"
   };
 
-  var FLEX_PANELS = { risiko: true };
+  var FLEX_PANELS = {};
   function activate(name){
     PANELS.forEach(function(p){
       var panel = document.getElementById("panel-"+p);
