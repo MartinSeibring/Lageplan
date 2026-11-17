@@ -1,0 +1,47 @@
+Lageplan – Standalone-HTML
+==========================
+
+lageplan.html ist eine eigenständige Fassung des Lageplans: eine einzige
+Datei, ohne GitHub, ohne Server, ohne Internetverbindung (die Grafik-
+Bibliothek D3 ist eingebettet).
+
+Öffnen
+------
+Datei per Doppelklick in Microsoft Edge (oder Chrome) öffnen – auch direkt
+vom Netzlaufwerk.
+
+Enthalten
+---------
+- Lageplan (Kacheln: Horizont & Themenradar, Strategische Ziele,
+  Meilensteine – Übersicht)
+- Themenradar (inkl. KI-Prompt kopieren → JSON-Antwort einfügen)
+- Meilensteine & GANTT (inkl. Jahresziele)
+- Risikomanagement
+- Normennetz
+
+Nicht enthalten (gegenüber der Web-Version)
+-------------------------------------------
+- Kacheln Forschungsprojekte, Betrieb & Performance, Risikomanagement
+- „Radar aktualisieren" und alle GitHub-Synchronisation
+- Kategorie-Filter bei den Meilensteinen
+- Reiter „Max" und „Einstellungen", Handbuch
+- KI-Analyse über den lokalen Server (URL/PDF)
+
+Daten sichern – WICHTIG
+-----------------------
+Änderungen werden nur im Zwischenspeicher des Browsers gehalten. Dieser
+gilt nur für diesen Rechner und diesen Browser und kann durch das Löschen
+von Browserdaten verloren gehen.
+
+- „↓ Daten exportieren" (oben rechts) speichert ALLE Daten (Themen,
+  Meilensteine, Jahresziele, Risiken) in eine Datei
+  lageplan-daten-JJJJ-MM-TT.json. Diese Datei ist der eigentliche
+  Datenstand – bitte auf dem Netzlaufwerk ablegen.
+- „↑ Daten importieren" lädt eine solche Datei und ersetzt den aktuellen
+  Stand. Ältere Einzel-Exporte (nur Themen bzw. nur Meilensteine) werden
+  ebenfalls erkannt.
+- Ein oranger Punkt am Export-Button zeigt Änderungen seit dem letzten
+  Export an. Beim Schließen des Fensters warnt der Browser in diesem Fall.
+
+Arbeiten mehrere Personen mit der Datei, gilt: Die zuletzt importierte
+Datei gewinnt – es gibt keinen automatischen Abgleich.
