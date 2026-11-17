@@ -2615,6 +2615,29 @@ input[type=checkbox], input[type=radio], input[type=range] { accent-color: var(-
   #ue-radar-svg { max-width: 540px; }
 }
 
+/* Abteilungen (Chips-Eingabe + Anzeige) */
+.abt-feld {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 6px; min-height: 38px; box-sizing: border-box;
+  padding: 5px 8px; border: 1px solid var(--linie-2); border-radius: 8px; background: var(--karte); cursor: text;
+}
+.abt-feld:focus-within { border-color: var(--primaer); box-shadow: 0 0 0 3px rgba(31,111,122,.12); }
+.abt-feld input { flex: 1; min-width: 140px; border: none !important; outline: none; padding: 4px 2px !important;
+  font-size: 13px; background: transparent; box-shadow: none !important; }
+.abt-feld-klein { min-height: 30px; padding: 3px 6px; }
+.abt-feld-klein input { min-width: 90px; font-size: 12px; }
+.abt-chips, .abt-anzeige { display: contents; }
+.abt-chip { display: inline-flex; align-items: center; gap: 4px; padding: 3px 4px 3px 10px; border-radius: 999px;
+  background: var(--primaer-hell); color: var(--primaer); font-size: 12px; font-weight: 500; line-height: 1.3; }
+.abt-chip button { border: none; background: none; color: inherit; cursor: pointer; font-size: 14px; line-height: 1;
+  padding: 0 4px; border-radius: 999px; }
+.abt-chip button:hover { background: rgba(31,111,122,.15); }
+.abt-chip-anzeige { padding: 3px 10px; margin: 0 4px 4px 0; }
+.abt-hinweis { font-size: 11.5px; color: var(--text-3); margin-top: 4px; }
+.abt-leer, .ms-abt-leer { color: var(--text-3); font-size: 12.5px; }
+.jz-abt-zeile { display: flex; flex-direction: column; gap: 5px; margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--linie); }
+.jz-abt-label { font-size: 11px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; color: var(--text-2); }
+.zp-abt { margin-top: 4px; }
+
 /* Einstellungen */
 #st-header { background: var(--karte); border: none; border-bottom: 1px solid var(--linie); padding: 14px 24px; }
 #st-logo-placeholder { display: none; }
@@ -3193,6 +3216,14 @@ input[type=checkbox], input[type=radio], input[type=range] { accent-color: var(-
           <input id="msf-verantwortlicher" type="text" class="tf-input" placeholder="z. B. Schneider">
         </div>
       </div>
+      <div class="tf-gruppe">
+        <label class="tf-label" for="msf-abteilungen-eingabe">Betroffene Abteilungen</label>
+        <div class="abt-feld" id="msf-abteilungen">
+          <span class="abt-chips"></span>
+          <input id="msf-abteilungen-eingabe" type="text" placeholder="Abteilung eingeben – Enter fügt hinzu">
+        </div>
+        <div class="abt-hinweis">Mehrere möglich – Enter oder Komma trennt. Bereits verwendete Abteilungen werden vorgeschlagen.</div>
+      </div>
 
       <!-- Detailfelder -->
       <div class="tf-trennlinie">Pflicht-Deadline &amp; Verknüpfungen</div>
@@ -3408,6 +3439,103 @@ input[type=checkbox], input[type=radio], input[type=range] { accent-color: var(-
 // als JSON-Datei gesichert. Eigenes Präfix, damit sich die Daten nicht mit
 // der Web-Version mischen.
 window.lsKey = function(name) { return "lageplan-html:" + name; };
+</script>
+<script>/* ===== Abteilungen: Eingabe als Chips mit Vorschlägen ===== */
+// Freie Eingabe mehrerer Abteilungen. Bereits verwendete Abteilungen
+// (aus Meilensteinen und Jahreszielen) werden vorgeschlagen, damit die
+// Schreibweise einheitlich bleibt; Groß-/Kleinschreibung wird angeglichen.
+(function() {
+  function esc(s) {
+    return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  }
+  function norm(liste) {
+    var gesehen = {}, out = [];
+    (Array.isArray(liste) ? liste : []).forEach(function(a) {
+      a = String(a == null ? "" : a).replace(/\s+/g, " ").trim();
+      if (!a) return;
+      var k = a.toLowerCase();
+      if (gesehen[k]) return;
+      gesehen[k] = true; out.push(a);
+    });
+    return out;
+  }
+  function alle() {
+    var l = [];
+    try {
+      ((window.MS && MS.getDaten) ? MS.getDaten() : []).forEach(function(m) { l = l.concat(m.abteilungen || []); });
+      ((window.MS && MS.getZiele) ? MS.getZiele() : []).forEach(function(z) { l = l.concat(z.abteilungen || []); });
+    } catch (e) {}
+    return norm(l).sort(function(a, b) { return a.localeCompare(b, "de"); });
+  }
+  function vorschlaege() {
+    var dl = document.getElementById("abt-vorschlaege");
+    if (!dl) { dl = document.createElement("datalist"); dl.id = "abt-vorschlaege"; document.body.appendChild(dl); }
+    dl.innerHTML = alle().map(function(a) { return '<option value="' + esc(a) + '"></option>'; }).join("");
+  }
+  function render(feld) {
+    var chips = feld.querySelector(".abt-chips");
+    if (!chips) return;
+    chips.innerHTML = (feld._abt || []).map(function(a, i) {
+      return '<span class="abt-chip">' + esc(a) +
+        '<button type="button" data-i="' + i + '" aria-label="' + esc(a) + ' entfernen" title="Entfernen">×</button></span>';
+    }).join("");
+  }
+  function hinzu(feld, text) {
+    var bekannt = alle();
+    var neu = String(text).split(/[,;]/).map(function(x) {
+      x = x.replace(/\s+/g, " ").trim();
+      var treffer = bekannt.filter(function(a) { return a.toLowerCase() === x.toLowerCase(); })[0];
+      return treffer || x;
+    });
+    feld._abt = norm((feld._abt || []).concat(neu));
+    render(feld);
+  }
+  function init(feld) {
+    if (feld._abtInit) return;
+    feld._abtInit = true;
+    var inp = feld.querySelector("input");
+    inp.setAttribute("list", "abt-vorschlaege");
+    inp.setAttribute("autocomplete", "off");
+    function uebernehmen() { if (inp.value.trim()) { hinzu(feld, inp.value); inp.value = ""; } }
+    inp.addEventListener("keydown", function(e) {
+      if (e.key === "Enter" || e.key === "," || e.key === ";") { e.preventDefault(); uebernehmen(); }
+      else if (e.key === "Backspace" && !inp.value && feld._abt && feld._abt.length) { feld._abt.pop(); render(feld); }
+    });
+    // Auswahl aus der Vorschlagsliste direkt übernehmen
+    inp.addEventListener("input", function(e) {
+      if (e.inputType === "insertReplacementText" || e.inputType === undefined) uebernehmen();
+    });
+    inp.addEventListener("blur", uebernehmen);
+    feld.addEventListener("click", function(e) {
+      var b = e.target.closest("button[data-i]");
+      if (b) { feld._abt.splice(+b.dataset.i, 1); render(feld); inp.focus(); return; }
+      if (e.target === feld || e.target.classList.contains("abt-chips")) inp.focus();
+    });
+  }
+  function setze(feld, liste) {
+    if (!feld) return;
+    init(feld);
+    feld._abt = norm(liste);
+    feld.querySelector("input").value = "";
+    render(feld);
+    vorschlaege();
+  }
+  function lese(feld) {
+    if (!feld) return [];
+    var inp = feld.querySelector("input");
+    if (inp && inp.value.trim()) { hinzu(feld, inp.value); inp.value = ""; }
+    return (feld._abt || []).slice();
+  }
+  function chips(liste) {
+    liste = norm(liste);
+    if (!liste.length) return '<span class="abt-leer">–</span>';
+    return '<span class="abt-anzeige">' + liste.map(function(a) {
+      return '<span class="abt-chip abt-chip-anzeige">' + esc(a) + '</span>';
+    }).join("") + '</span>';
+  }
+  window.ABT = { norm: norm, alle: alle, setze: setze, lese: lese, chips: chips, vorschlaege: vorschlaege };
+})();
 </script>
 <script>/* ===== Themenradar ===== */
 (function(){
@@ -3769,6 +3897,13 @@ window.lsKey = function(name) { return "lageplan-html:" + name; };
               <input id="form-ms-verantwortlicher" type="text" placeholder="Name"
                 style="width:100%;padding:4px 7px;border:1px solid #ddd;border-radius:4px;font-size:12px;box-sizing:border-box">
             </div>
+            <div style="margin-bottom:8px">
+              <label style="font-size:11px;color:#888;display:block;margin-bottom:2px" for="form-ms-abteilungen-eingabe">Betroffene Abteilungen</label>
+              <div class="abt-feld abt-feld-klein" id="form-ms-abteilungen">
+                <span class="abt-chips"></span>
+                <input id="form-ms-abteilungen-eingabe" type="text" placeholder="Enter fügt hinzu">
+              </div>
+            </div>
             <div style="display:flex;gap:6px">
               <button id="btn-ms-erstellen"
                 style="flex:1;padding:4px 0;background:#63a2b4;color:#fff;border:none;border-radius:4px;font-size:11px;cursor:pointer">
@@ -3833,6 +3968,7 @@ window.lsKey = function(name) { return "lageplan-html:" + name; };
       }
 
       // Toggle Ableitungs-Formular
+      ABT.setze(document.getElementById("form-ms-abteilungen"), []);
       document.getElementById("btn-meilenstein-ableiten").addEventListener("click", function() {
         const form = document.getElementById("ableitungs-formular");
         const offen = form.style.display === "none";
@@ -3867,6 +4003,7 @@ window.lsKey = function(name) { return "lageplan-html:" + name; };
           start,
           ende,
           verantwortlicher:     verantwortlicher || "–",
+          abteilungen:          ABT.lese(document.getElementById("form-ms-abteilungen")),
           status:               "offen",
           fortschritt:          0,
           abhaengig_von:        [],
@@ -5439,7 +5576,8 @@ window.TR={setzeAnsicht,sortiereListe,oeffneThemaFormular,exportiereJSON,schlies
       zeitraumBis:   null,
       suchtext:      "",
       cluster:       new Set(["Netzanschluss","Messstellenbetrieb","Netzwirtschaft","Technologie","Organisation"]),
-      statusWerte:   new Set(["offen","in Bearbeitung","abgeschlossen","verzögert"])
+      statusWerte:   new Set(["offen","in Bearbeitung","abgeschlossen","verzögert"]),
+      abtAus:        new Set()   // abgewählte Abteilungen (Kleinschreibung), "__ohne__" = ohne Abteilung
     };
 
     function gefilterteDaten() {
@@ -5472,12 +5610,18 @@ window.TR={setzeAnsicht,sortiereListe,oeffneThemaFormular,exportiereJSON,schlies
           // Kategorie- und Status-Abgleich
           const statOk = filterState.statusWerte.has(ms.status);
 
+          // Abteilungs-Abgleich: neue Abteilungen sind automatisch ausgewählt
+          const _abt = ABT.norm(ms.abteilungen);
+          const abtOk = _abt.length
+            ? _abt.some(a => !filterState.abtAus.has(a.toLowerCase()))
+            : !filterState.abtAus.has("__ohne__");
+
           // Freitext-Suche
           const q = filterState.suchtext.toLowerCase();
           const suchtextOk = !q || ms.titel.toLowerCase().includes(q);
 
           return Object.assign({}, ms, {
-            _aktiv: clusterOk && statOk && suchtextOk
+            _aktiv: clusterOk && statOk && suchtextOk && abtOk
           });
         });
     }
@@ -5528,6 +5672,9 @@ window.TR={setzeAnsicht,sortiereListe,oeffneThemaFormular,exportiereJSON,schlies
           </label>
         `).join("")}
 
+        <h3>Abteilung</h3>
+        <div id="ms-abt-filter"></div>
+
         <button id="btn-filter-reset">Filter zurücksetzen</button>
         <button id="btn-jz-generieren" onclick="MS.oeffneJahreszieleModal()">🎯 Jahresziele generieren</button>
         <div id="ms-filter-info"></div>
@@ -5564,6 +5711,16 @@ window.TR={setzeAnsicht,sortiereListe,oeffneThemaFormular,exportiereJSON,schlies
         wendeFilterAn();
       });
 
+      // Abteilung (Liste wird dynamisch aus den Meilensteinen gebildet)
+      panel.addEventListener("change", function(e) {
+        const cb = e.target;
+        if (!cb.matches || !cb.matches("input[data-gruppe='abteilung']")) return;
+        if (cb.checked) filterState.abtAus.delete(cb.value);
+        else            filterState.abtAus.add(cb.value);
+        wendeFilterAn();
+      });
+      renderAbteilungsFilter();
+
       // Status
       panel.querySelectorAll("input[data-gruppe='status']").forEach(cb => {
         cb.addEventListener("change", function() {
@@ -5581,6 +5738,7 @@ window.TR={setzeAnsicht,sortiereListe,oeffneThemaFormular,exportiereJSON,schlies
         filterState.suchtext      = "";
         filterState.cluster       = new Set(["Netzanschluss","Messstellenbetrieb","Netzwirtschaft","Technologie","Organisation"]);
         filterState.statusWerte   = new Set(["offen","in Bearbeitung","abgeschlossen","verzögert"]);
+        filterState.abtAus        = new Set();
         document.getElementById("ms-suche").value = "";
         document.getElementById("filter-zeitraum-modus").value = "60";
         document.getElementById("filter-zeitraum-custom").style.display = "none";
@@ -5591,6 +5749,29 @@ window.TR={setzeAnsicht,sortiereListe,oeffneThemaFormular,exportiereJSON,schlies
       });
 
       aktualisiereFilterInfo();
+    }
+
+    // Abteilungs-Filter aus den vorhandenen Meilensteinen aufbauen
+    function renderAbteilungsFilter() {
+      const box = document.getElementById("ms-abt-filter");
+      if (!box) return;
+      const abt = ABT.norm([].concat.apply([], meilensteinData.map(m => m.abteilungen || [])))
+        .sort((a, b) => a.localeCompare(b, "de"));
+      const ohne = meilensteinData.some(m => !ABT.norm(m.abteilungen).length);
+      if (!abt.length) {
+        box.innerHTML = '<div class="ms-abt-leer">Noch keine Abteilungen erfasst.</div>';
+        return;
+      }
+      const esc = s => String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/"/g,"&quot;");
+      box.innerHTML = abt.map(a => `
+          <label class="ms-filter-zeile">
+            <input type="checkbox" data-gruppe="abteilung" value="${esc(a.toLowerCase())}" ${filterState.abtAus.has(a.toLowerCase()) ? "" : "checked"}>
+            ${esc(a)}
+          </label>`).join("") + (ohne ? `
+          <label class="ms-filter-zeile ms-abt-ohne">
+            <input type="checkbox" data-gruppe="abteilung" value="__ohne__" ${filterState.abtAus.has("__ohne__") ? "" : "checked"}>
+            Ohne Abteilung
+          </label>` : "");
     }
 
     function wendeFilterAn() {
@@ -5674,6 +5855,9 @@ window.TR={setzeAnsicht,sortiereListe,oeffneThemaFormular,exportiereJSON,schlies
 
           <span class="ms-detail-label">Verantwortlicher</span>
           <span class="ms-detail-value">${ms.verantwortlicher}</span>
+
+          <span class="ms-detail-label">Abteilungen</span>
+          <span class="ms-detail-value">${ABT.chips(ms.abteilungen)}</span>
 
           <span class="ms-detail-label">Fortschritt</span>
           <div class="ms-detail-value">
@@ -6753,6 +6937,7 @@ window.TR={setzeAnsicht,sortiereListe,oeffneThemaFormular,exportiereJSON,schlies
     }
 
     function refreshGanttUndMini() {
+      renderAbteilungsFilter();
       zeichneDeadlineUebersicht();
       zeichneGantt(gefilterteDaten());
       aktualisiereFilterInfo();
@@ -6802,6 +6987,7 @@ window.TR={setzeAnsicht,sortiereListe,oeffneThemaFormular,exportiereJSON,schlies
         });
         document.getElementById("msf-status").value             = m.status || "offen";
         document.getElementById("msf-verantwortlicher").value   = m.verantwortlicher || "";
+        ABT.setze(document.getElementById("msf-abteilungen"), m.abteilungen || []);
         document.getElementById("msf-deadline").value           = m.pflicht_deadline || "";
         document.getElementById("msf-deadline-quelle").value    = m.deadline_quelle || "";
         document.getElementById("msf-deadline-typ").value       = m.deadline_typ || "regulatorisch";
@@ -6820,6 +7006,7 @@ window.TR={setzeAnsicht,sortiereListe,oeffneThemaFormular,exportiereJSON,schlies
         document.querySelectorAll(".msf-cluster").forEach(cb => cb.checked = false);
         document.getElementById("msf-status").value             = "offen";
         document.getElementById("msf-verantwortlicher").value   = "";
+        ABT.setze(document.getElementById("msf-abteilungen"), []);
         document.getElementById("msf-deadline").value           = "";
         document.getElementById("msf-deadline-quelle").value    = "";
         document.getElementById("msf-deadline-typ").value       = "regulatorisch";
@@ -6898,13 +7085,14 @@ window.TR={setzeAnsicht,sortiereListe,oeffneThemaFormular,exportiereJSON,schlies
       const kategorie        = document.getElementById("msf-kategorie").value;
       const status           = document.getElementById("msf-status").value;
       const verantwortlicher = document.getElementById("msf-verantwortlicher").value.trim();
+      const abteilungen      = ABT.lese(document.getElementById("msf-abteilungen"));
 
       if (_bearbeitenId) {
         const obj = meilensteinData.find(m => m.id === _bearbeitenId);
         if (obj) {
           Object.assign(obj, {
             titel, kategorie, start, ende, strategische_cluster: cluster,
-            status, verantwortlicher, pflicht_deadline: deadline,
+            status, verantwortlicher, abteilungen, pflicht_deadline: deadline,
             deadline_quelle: dlQuelle, deadline_typ: dlTyp,
             thema_id: themaId, thema_titel: themaTitel, radar_score: radarScore,
             abhaengig_von: abh, fortschritt, notiz
@@ -6915,7 +7103,7 @@ window.TR={setzeAnsicht,sortiereListe,oeffneThemaFormular,exportiereJSON,schlies
         meilensteinData.push({
           id: "M" + Date.now(),
           titel, kategorie, start, ende, strategische_cluster: cluster,
-          status, verantwortlicher, pflicht_deadline: deadline,
+          status, verantwortlicher, abteilungen, pflicht_deadline: deadline,
           deadline_quelle: dlQuelle, deadline_typ: dlTyp,
           thema_id: themaId, thema_titel: themaTitel, radar_score: radarScore,
           abhaengig_von: abh, fortschritt, notiz,
@@ -7022,6 +7210,7 @@ window.TR={setzeAnsicht,sortiereListe,oeffneThemaFormular,exportiereJSON,schlies
         html += '<div class="zp-ziel-titel">' + _escHtml(z.titel||"") + '</div>';
         if (z.t_beschreibung||z.t_terminiert) html += '<div class="zp-ziel-meta">⏱ ' + _escHtml(z.t_beschreibung||z.t_terminiert) + '</div>';
         if (z.verantwortlicher) html += '<div class="zp-ziel-meta">👤 ' + _escHtml(z.verantwortlicher) + '</div>';
+        if (z.abteilungen && z.abteilungen.length) html += '<div class="zp-ziel-meta zp-abt">' + ABT.chips(z.abteilungen) + '</div>';
         if (z.abgeleitete_meilensteine && z.abgeleitete_meilensteine.length) {
           html += '<div class="zp-ms-chips">';
           z.abgeleitete_meilensteine.forEach(function(msId) {
@@ -7072,12 +7261,13 @@ window.TR={setzeAnsicht,sortiereListe,oeffneThemaFormular,exportiereJSON,schlies
           deadline: m.pflicht_deadline || m.ende,
           deadline_quelle: m.deadline_quelle || "",
           verantwortlicher: m.verantwortlicher || "",
+          abteilungen: m.abteilungen || [],
           cluster: m.strategische_cluster || [],
           status: m.status, fortschritt: m.fortschritt || 0,
           notiz: m.notiz || ""
         };
       }), null, 2);
-      return "Du bist Experte für strategische Jahresplanung in der deutschen Energiewirtschaft.\n\nAnalysiere die folgenden Meilensteine und leite daraus SMART-Jahresziele für " + folgejahr + " ab. Fasse thematisch verwandte Meilensteine zu einem Ziel zusammen wo sinnvoll.\n\nJedes Ziel muss exakt dieses JSON-Format haben:\n{\n  \"ziel_nr\": \"Z01\",\n  \"titel\": \"Prägnanter Zielname (max. 60 Zeichen)\",\n  \"s_spezifisch\": \"Was genau wird erreicht\",\n  \"m_messbar\": \"Konkrete Kennzahl / messbares Kriterium\",\n  \"a_erreichbar\": \"Warum realistisch / Voraussetzungen\",\n  \"r_relevant\": \"Strategischer oder regulatorischer Bezug\",\n  \"t_terminiert\": \"YYYY-MM-DD\",\n  \"t_beschreibung\": \"z.B. bis 31.12." + folgejahr + "\",\n  \"verantwortlicher\": \"Name\",\n  \"kategorie\": \"regulatorisch|marktlich|technologisch|wettbewerblich\",\n  \"prioritaet\": \"hoch|mittel|niedrig\",\n  \"abgeleitete_meilensteine\": [\"M001\",\"M002\"],\n  \"ki_generiert\": true\n}\n\nAntworte NUR mit einem JSON-Array ohne Markdown-Formatierung.\n\nMeilensteine:\n" + msJson;
+      return "Du bist Experte für strategische Jahresplanung in der deutschen Energiewirtschaft.\n\nAnalysiere die folgenden Meilensteine und leite daraus SMART-Jahresziele für " + folgejahr + " ab. Fasse thematisch verwandte Meilensteine zu einem Ziel zusammen wo sinnvoll.\n\nJedes Ziel muss exakt dieses JSON-Format haben:\n{\n  \"ziel_nr\": \"Z01\",\n  \"titel\": \"Prägnanter Zielname (max. 60 Zeichen)\",\n  \"s_spezifisch\": \"Was genau wird erreicht\",\n  \"m_messbar\": \"Konkrete Kennzahl / messbares Kriterium\",\n  \"a_erreichbar\": \"Warum realistisch / Voraussetzungen\",\n  \"r_relevant\": \"Strategischer oder regulatorischer Bezug\",\n  \"t_terminiert\": \"YYYY-MM-DD\",\n  \"t_beschreibung\": \"z.B. bis 31.12." + folgejahr + "\",\n  \"verantwortlicher\": \"Name\",\n  \"abteilungen\": [\"Betroffene Abteilung\"],\n  \"kategorie\": \"regulatorisch|marktlich|technologisch|wettbewerblich\",\n  \"prioritaet\": \"hoch|mittel|niedrig\",\n  \"abgeleitete_meilensteine\": [\"M001\",\"M002\"],\n  \"ki_generiert\": true\n}\n\nÜbernimm in \"abteilungen\" die betroffenen Abteilungen der zugrunde liegenden Meilensteine.\n\nAntworte NUR mit einem JSON-Array ohne Markdown-Formatierung.\n\nMeilensteine:\n" + msJson;
     }
 
     function _jahreszieleKopierePrompt() {
@@ -7095,6 +7285,19 @@ window.TR={setzeAnsicht,sortiereListe,oeffneThemaFormular,exportiereJSON,schlies
         document.body.appendChild(ta); ta.select(); document.execCommand("copy");
         document.body.removeChild(ta); success();
       }
+    }
+
+    // JSON-Array aus beliebigem Text extrahieren (auch mit Einleitungstext von
+    // Copilot oder Markdown-Fences). Eigene Kopie: die gleichnamige Funktion im
+    // Themenradar-Modul ist hier nicht sichtbar – „Ziele anzeigen“ brach deshalb
+    // bisher mit einem ReferenceError ab.
+    function _extrahiereJsonArray(text) {
+      var s = String(text || "").trim();
+      s = s.replace(/^```(?:json)?\s*/im, "").replace(/\s*```\s*$/m, "").trim();
+      if (s.startsWith("[")) return s;
+      var start = s.indexOf("["), end = s.lastIndexOf("]");
+      if (start !== -1 && end > start) return s.slice(start, end + 1);
+      return s;
     }
 
     function _jahreszieleVerarbeite() {
@@ -7118,6 +7321,15 @@ window.TR={setzeAnsicht,sortiereListe,oeffneThemaFormular,exportiereJSON,schlies
           if (ta === tb) { duplikate.add(i); duplikate.add(j); }
         }
       }
+      // Abteilungen aus den abgeleiteten Meilensteinen vorbelegen (vor dem Speichern editierbar)
+      ziele.forEach(function(z) {
+        var ausMs = [];
+        (z.abgeleitete_meilensteine || []).forEach(function(id) {
+          var m = meilensteinData.find(function(x) { return x.id === id; });
+          if (m) ausMs = ausMs.concat(m.abteilungen || []);
+        });
+        z.abteilungen = ABT.norm((Array.isArray(z.abteilungen) ? z.abteilungen : []).concat(ausMs));
+      });
       _jahreszieleZiele = ziele;
       _zeigeJahreszieleErgebnisse(ziele, duplikate);
     }
@@ -7148,10 +7360,17 @@ window.TR={setzeAnsicht,sortiereListe,oeffneThemaFormular,exportiereJSON,schlies
         html += '<div class="jz-ziel-footer">';
         if (z.verantwortlicher) html += '<span class="jz-info-chip">👤 ' + _escHtml(z.verantwortlicher) + '</span>';
         if (z.abgeleitete_meilensteine && z.abgeleitete_meilensteine.length) html += '<span class="jz-info-chip">🔗 ' + z.abgeleitete_meilensteine.join(", ") + '</span>';
-        html += '</div></div>';
+        html += '</div>';
+        html += '<div class="jz-abt-zeile"><span class="jz-abt-label">Betroffene Abteilungen</span>' +
+          '<div class="abt-feld jz-abt-feld" data-ziel-idx="' + idx + '"><span class="abt-chips"></span>' +
+          '<input type="text" aria-label="Abteilung für Ziel ' + (idx + 1) + ' ergänzen" placeholder="Abteilung ergänzen – Enter fügt hinzu"></div></div>';
+        html += '</div>';
       });
       var el = document.getElementById("jz-ergebnisse");
       el.innerHTML = html; el.style.display = "block";
+      el.querySelectorAll(".jz-abt-feld").forEach(function(f) {
+        ABT.setze(f, (ziele[+f.dataset.zielIdx] || {}).abteilungen || []);
+      });
       document.getElementById("btn-jz-exportieren").style.display = "inline-block";
       document.getElementById("btn-jz-speichern-ziele").style.display = "inline-block";
       el.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -7174,6 +7393,7 @@ window.TR={setzeAnsicht,sortiereListe,oeffneThemaFormular,exportiereJSON,schlies
           "R – Relevant:     " + (z.r_relevant||"–"),
           "T – Terminiert:   " + (z.t_beschreibung||z.t_terminiert||"–"),
           "Verantwortlich:   " + (z.verantwortlicher||"–"),
+          "Abteilungen:      " + ((z.abteilungen && z.abteilungen.length) ? z.abteilungen.join(", ") : "–"),
           "Kategorie:        " + (z.kategorie||"–") + "  |  Priorität: " + (z.prioritaet||"–"));
         if (z.abgeleitete_meilensteine && z.abgeleitete_meilensteine.length)
           lines.push("Meilensteine:     " + z.abgeleitete_meilensteine.join(", "));
@@ -7197,6 +7417,8 @@ window.TR={setzeAnsicht,sortiereListe,oeffneThemaFormular,exportiereJSON,schlies
       var heute = new Date().toISOString().slice(0, 10);
       var folgejahr = new Date().getFullYear() + 1;
       _jahreszieleZiele.forEach(function(z, i) {
+        var abtFeld = document.querySelector('.jz-abt-feld[data-ziel-idx="' + i + '"]');
+        if (abtFeld) z.abteilungen = ABT.lese(abtFeld);
         if (!z.id) z.id = "ZI-" + folgejahr + "-" + String(i+1).padStart(3,"0");
         z.ki_generiert = true;
         z.erstellt_am = heute;
