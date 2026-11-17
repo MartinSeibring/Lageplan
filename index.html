@@ -6,7 +6,7 @@
   <title>Energie &amp; Asset Management</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
 /* ===== Themenradar ===== */
 
@@ -325,7 +325,7 @@
 
     /* ── Kompakt-Layout für 1400 × 1050 px ─────────────── */
     html { margin: 0; }
-    body { margin: 0; overflow-x: hidden; font-family: "Open Sans", Arial, Helvetica, sans-serif; background: var(--swm-grau-hell); color: var(--swm-grau-dunkel); }
+    body { margin: 0; overflow-x: hidden; font-family: Inter, "Segoe UI", system-ui, -apple-system, Arial, sans-serif; background: var(--swm-grau-hell); color: var(--swm-grau-dunkel); }
 
     #radar-svg {
       height: 100%;
@@ -542,7 +542,7 @@
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      font-family: "Open Sans", Arial, Helvetica, sans-serif;
+      font-family: Inter, "Segoe UI", system-ui, -apple-system, Arial, sans-serif;
       font-size: 14px;
       background: var(--swm-grau-hell);
       color: var(--swm-grau-dunkel);
@@ -1433,7 +1433,7 @@
     html { margin: 0; }
 
     body {
-      font-family: "Open Sans", Arial, Helvetica, sans-serif;
+      font-family: Inter, "Segoe UI", system-ui, -apple-system, Arial, sans-serif;
       font-size: 13px;
       color: var(--swm-grau-dunkel);
       background: var(--swm-grau-hell);
@@ -1827,7 +1827,7 @@
     html { margin: 0; }
 
     body {
-      font-family: "Open Sans", Arial, Helvetica, sans-serif;
+      font-family: Inter, "Segoe UI", system-ui, -apple-system, Arial, sans-serif;
       font-size: 13px;
       color: var(--swm-grau-dunkel);
       background: var(--swm-grau-hell);
@@ -2340,7 +2340,7 @@
 html { margin: 0; }
 body {
   margin: 0;
-  font-family: "Open Sans", Arial, Helvetica, sans-serif;
+  font-family: Inter, "Segoe UI", system-ui, -apple-system, Arial, sans-serif;
   background: var(--swm-grau-hell);
   color: var(--swm-grau-dunkel);
   overflow-x: hidden;
@@ -2746,30 +2746,286 @@ body {
     .rechtsrahmen-chip { display:inline-block;font-size:10.5px;font-weight:700;padding:1px 8px;border-radius:12px;background:#eaf1f3;color:#24454e;border:1px solid #cadde3;cursor:pointer;margin:0 4px 3px 0; }
     .rechtsrahmen-chip:hover { background:#24454e;color:#fff; }
 
+
+/* ===================================================================
+   ===== Redesign 2026 – „B – Clean (hell)“ =========================
+   Liegt bewusst am Ende des Stylesheets und überschreibt die älteren
+   Regeln. Tokens zuerst, dann Rahmen (Kopf/Navigation), Übersicht,
+   zuletzt die Angleichung der übrigen Reiter.
+   =================================================================== */
+:root {
+  --schrift: Inter, "Segoe UI", system-ui, -apple-system, Arial, sans-serif;
+  --bg: #f6f6f5;
+  --karte: #ffffff;
+  --linie: #e7e7e4;
+  --linie-2: #d9dad6;
+  --text: #16191a;
+  --text-2: #5f6466;
+  --text-3: #8a8f91;
+  --primaer: #1f6f7a;
+  --primaer-hell: #e8f1f2;
+  --kritisch: #b3261e;
+  --kritisch-hell: rgba(179, 38, 30, .16);
+  --warnung: #a35a00;
+  --warnung-bg: #fdf1e6;
+  --mittel: #d9822b;
+  --gering: #c9d9dc;
+  --radius: 14px;
+  --radius-s: 10px;
+  --schatten: 0 1px 2px rgba(16, 24, 40, .04);
+}
+[hidden] { display: none !important; }
+html, body { background: var(--bg); }
+body { font-family: var(--schrift); color: var(--text); }
+button, input, select, textarea { font-family: inherit; }
+
+/* ── Kopfzeile + Navigation ─────────────────────────────────────── */
+#app-header {
+  background: var(--karte); border: none; border-bottom: 1px solid var(--linie);
+  padding: 10px 24px; display: flex; align-items: center; gap: 20px;
+  position: sticky; top: 0; z-index: 600;
+}
+#app-marke { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+#app-logo {
+  width: 30px; height: 30px; border-radius: 8px; background: var(--primaer);
+  color: #fff; font-size: 9.5px; font-weight: 700; letter-spacing: .02em;
+}
+#app-titel { font-size: 16px; font-weight: 600; color: var(--text); }
+#app-tabbar {
+  background: #f1f1ef; border-radius: 12px; padding: 4px; gap: 2px;
+  display: flex; flex-wrap: wrap; align-items: center; overflow: visible;
+}
+.app-tab {
+  padding: 7px 14px; border: none; border-radius: 9px; background: transparent;
+  font-size: 14px; font-weight: 500; color: #4a4f52; line-height: 1.2;
+}
+.app-tab:hover { background: rgba(0,0,0,.04); color: var(--text); }
+.app-tab.aktiv {
+  background: var(--karte); color: var(--text); font-weight: 600;
+  border-bottom-color: transparent; box-shadow: 0 1px 2px rgba(0,0,0,.08), 0 0 0 1px rgba(0,0,0,.03);
+}
+#app-aktionen { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+.app-icon-btn {
+  width: 38px; height: 38px; padding: 0; display: inline-flex; align-items: center; justify-content: center;
+  background: var(--karte); color: var(--text); border: 1px solid var(--linie-2); border-radius: 10px;
+  cursor: pointer; box-shadow: var(--schatten);
+}
+.app-icon-btn:hover { background: #f7f7f6; }
+.app-icon-btn.aktiv { background: var(--primaer-hell); border-color: var(--primaer); color: var(--primaer); }
+#app-hilfe-btn {
+  margin: 0; padding: 0; font-size: inherit; letter-spacing: 0;
+  background: var(--karte); color: var(--text); border: 1px solid var(--linie-2); border-radius: 10px;
+}
+#app-hilfe-btn:hover { background: #f7f7f6; }
+/* Tooltip-Container des früheren Mini-Radars wird nicht mehr genutzt */
+#lp-radar-tooltip { display: none !important; }
+.app-datei-btn {
+  padding: 8px 14px; border-radius: 999px; border: 1px solid var(--linie-2); background: var(--karte);
+  color: var(--text); font-size: 13px; font-weight: 500; cursor: pointer; box-shadow: var(--schatten);
+}
+.app-datei-btn:hover { background: #f7f7f6; }
+#datei-dirty { color: #d9822b; }
+:focus-visible { outline: 2px solid var(--primaer); outline-offset: 2px; }
+
+/* Cluster-Indikator auf den anderen Reitern */
+#gf-indikator { background: var(--primaer-hell); color: var(--primaer); border-bottom: 1px solid var(--linie); }
+
+/* ── Übersicht ──────────────────────────────────────────────────── */
+#panel-lageplan { background: var(--bg); }
+#ue { max-width: 1240px; margin: 0 auto; padding: 32px 24px 48px; box-sizing: border-box; }
+.ue-kopf { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px 24px; flex-wrap: wrap; margin-bottom: 22px; }
+#ue-gruss { margin: 0 0 4px; font-size: 26px; font-weight: 700; letter-spacing: -.01em; color: var(--text); }
+.ue-unterzeile { font-size: 14px; color: var(--text-2); }
+#gf-cluster-panel { display: flex; flex-wrap: wrap; gap: 6px; padding: 0; background: none; border: none; }
+.gf-label { display: none; }
+.gf-btn {
+  padding: 7px 14px; font-size: 13px; font-weight: 500; border-radius: 999px;
+  border: 1px solid var(--linie-2); background: var(--karte); color: var(--text); cursor: pointer;
+}
+.gf-btn:hover { border-color: var(--text-3); background: var(--karte); }
+.gf-btn.aktiv { background: var(--text); border-color: var(--text); color: #fff; }
+
+.ue-karte {
+  background: var(--karte); border: 1px solid var(--linie); border-radius: var(--radius);
+  box-shadow: var(--schatten); box-sizing: border-box; min-width: 0;
+}
+.ue-kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin-bottom: 14px; }
+.ue-kpi { padding: 18px 18px 16px; }
+.ue-kpi-label { font-size: 13px; color: var(--text-2); margin-bottom: 8px; }
+.ue-kpi-wert { font-size: 28px; font-weight: 700; line-height: 1.1; color: var(--text); font-variant-numeric: tabular-nums; }
+.ue-kpi-wert-text { font-size: 19px; line-height: 1.6; }
+.ue-kpi-sub { font-size: 12px; color: var(--text-2); margin-top: 6px; min-height: 15px; }
+.ue-akzent { color: var(--primaer); }
+.ue-rot { color: var(--kritisch); }
+.ue-warn { color: var(--warnung); }
+
+.ue-mitte { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 14px; margin-bottom: 14px; }
+.ue-karte-kopf { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 14px; }
+.ue-karte-kopf h2 { margin: 0; font-size: 16px; font-weight: 600; color: var(--text); }
+.ue-link { background: none; border: none; padding: 2px 0; font-size: 13px; font-weight: 500; color: var(--primaer); cursor: pointer; white-space: nowrap; }
+.ue-link:hover { text-decoration: underline; }
+
+.ue-radar-karte, .ue-ms-karte { padding: 20px 22px; }
+.ue-radar-body { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 24px; align-items: center; }
+#ue-radar-svg { display: block; width: 100%; height: auto; max-width: 400px; margin: 0 auto; overflow: visible; }
+.ue-r-ring  { fill: none; stroke: #e2e3e0; stroke-width: 1; }
+.ue-r-innen { fill: #eef3f3; }
+.ue-r-achse { stroke: #e2e3e0; stroke-width: 1; }
+.ue-r-label { font-size: 11px; fill: var(--text-2); font-weight: 500; }
+.ue-r-punkt { cursor: pointer; outline: none; }
+.ue-r-kern  { fill: var(--primaer); stroke: #fff; stroke-width: 1.5; transition: r .12s; }
+.ue-r-halo  { fill: var(--kritisch-hell); }
+.ue-r-punkt.kritisch .ue-r-kern { fill: var(--kritisch); }
+.ue-r-punkt:hover .ue-r-kern, .ue-r-punkt:focus .ue-r-kern { stroke: var(--text); stroke-width: 2; }
+
+.ue-abschnitt { font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--text-2); margin-bottom: 8px; }
+.ue-liste, .ue-ms-liste { list-style: none; margin: 0; padding: 0; }
+.ue-liste li + li { border-top: 1px solid var(--linie); }
+.ue-top-eintrag {
+  display: flex; align-items: flex-start; gap: 10px; width: 100%; text-align: left;
+  background: none; border: none; padding: 10px 2px; cursor: pointer; color: inherit;
+}
+.ue-top-eintrag:hover .ue-top-titel { color: var(--primaer); }
+.ue-punkt { width: 7px; height: 7px; border-radius: 50%; background: var(--primaer); margin-top: 6px; flex-shrink: 0; }
+.ue-punkt.kritisch { background: var(--kritisch); }
+.ue-top-titel { display: block; font-size: 14px; font-weight: 500; color: var(--text); }
+.ue-top-meta  { display: block; font-size: 12px; color: var(--text-2); margin-top: 2px; }
+.ue-leer { font-size: 13px; color: var(--text-2); padding: 8px 0; }
+
+.ue-ms-liste li + li { margin-top: 8px; }
+.ue-ms-eintrag {
+  display: flex; align-items: center; gap: 16px; width: 100%; text-align: left;
+  background: #f6f6f5; border: 1px solid transparent; border-radius: var(--radius-s);
+  padding: 10px 14px; cursor: pointer; color: inherit;
+}
+.ue-ms-eintrag:hover { border-color: var(--linie-2); }
+.ue-ms-eintrag.verzoegert { background: var(--warnung-bg); }
+.ue-datum { display: flex; flex-direction: column; align-items: center; min-width: 38px; flex-shrink: 0; }
+.ue-datum span { font-size: 10px; font-weight: 500; letter-spacing: .04em; color: var(--text-2); }
+.ue-datum strong { font-size: 18px; font-weight: 700; color: var(--text); line-height: 1.1; }
+.ue-ms-eintrag.verzoegert .ue-datum span, .ue-ms-eintrag.verzoegert .ue-datum strong { color: var(--warnung); }
+.ue-ms-titel { display: block; font-size: 14px; font-weight: 500; color: var(--text); }
+.ue-ms-hinweis { display: block; font-size: 12px; color: var(--warnung); margin-top: 2px; }
+
+.ue-unten { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+.ue-link-karte {
+  display: flex; align-items: center; gap: 14px; padding: 18px; text-decoration: none; color: inherit;
+}
+.ue-link-karte:hover { border-color: var(--linie-2); }
+.ue-icon { width: 40px; height: 40px; border-radius: 10px; background: var(--primaer-hell); color: var(--primaer);
+  display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.ue-link-text { flex: 1; min-width: 0; }
+.ue-link-text strong { display: block; font-size: 14px; font-weight: 600; color: var(--text); }
+.ue-link-text span { display: block; font-size: 12px; color: var(--text-2); margin-top: 2px; }
+.ue-pfeil { color: var(--text-2); font-size: 14px; }
+.ue-klein-karte { padding: 16px 18px; }
+.ue-klein-karte .ue-karte-kopf { margin-bottom: 12px; }
+.ue-klein-karte .ue-karte-kopf h2 { font-size: 14px; }
+.ue-risiko-balken { display: flex; height: 7px; border-radius: 4px; overflow: hidden; background: var(--gering); gap: 0; }
+.ue-rb-hoch { background: var(--kritisch); } .ue-rb-mittel { background: var(--mittel); }
+.ue-rb-gering { background: var(--gering); } .ue-rb-leer { background: #ececea; }
+.ue-risiko-legende { font-size: 12px; color: var(--text-2); margin-top: 10px; white-space: pre; }
+/* Forschungsprojekte-Kachel (Inhalt von FP.renderKachel) */
+.ue-fp-karte #fp-kachel-inhalt { height: auto; }
+.ue-fp-karte .fp-kachel-actions { padding: 0 0 8px; border: none; background: none; }
+.ue-fp-karte .fp-neu-btn { background: var(--karte); color: var(--primaer); border: 1px solid var(--linie-2); border-radius: 8px; padding: 4px 12px; }
+.ue-fp-karte .fp-kachel-leer { padding: 0; align-items: flex-start; font-size: 13px; color: var(--text-2); }
+.ue-fp-karte .fp-kachel-leer > div:first-child { display: none; }
+.ue-fp-karte .fp-list-wrap { max-height: 120px; }
+
+@media (max-width: 1100px) {
+  .ue-kpis, .ue-unten { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .ue-mitte { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 760px) {
+  #app-header { flex-wrap: wrap; padding: 10px 16px; gap: 10px; position: static; }
+  #app-tabbar { order: 3; width: 100%; overflow-x: auto; flex-wrap: nowrap; }
+  .app-tab { white-space: nowrap; padding: 7px 11px; }
+  #ue { padding: 22px 16px 36px; }
+  .ue-radar-body { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 520px) {
+  .ue-kpis, .ue-unten { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* ── Angleichung der übrigen Reiter ─────────────────────────────── */
+/* Themenradar: Kopf als helle Karte (Inline-Stile → !important) */
+#panel-themenradar #header {
+  background: var(--karte) !important; border: none !important; border-bottom: 1px solid var(--linie) !important;
+  padding: 14px 24px !important;
+}
+#panel-themenradar #header strong { color: var(--text) !important; font-size: 20px !important; font-weight: 700 !important; }
+#panel-themenradar #header #stand-datum { color: var(--text-2) !important; }
+#panel-themenradar #header button {
+  background: var(--karte) !important; color: var(--text) !important; border: 1px solid var(--linie-2) !important;
+  border-radius: 999px !important; padding: 7px 14px !important; font-weight: 500 !important; font-size: 13px !important;
+}
+#panel-themenradar #header button[onclick*="oeffneThemaFormular"] {
+  background: var(--text) !important; color: #fff !important; border-color: var(--text) !important; font-weight: 600 !important;
+}
+#panel-themenradar #header button:disabled { opacity: .55; }
+#panel-themenradar #header #update-status { color: var(--text-2); }
+
+/* Meilensteine */
+#ms-header { background: var(--karte); border: none; border-bottom: 1px solid var(--linie); padding: 14px 24px; }
+#ms-header strong { color: var(--text); font-size: 20px; font-weight: 700; }
+#ms-stand-datum { color: var(--text-2); }
+#btn-ms-neu { background: var(--text); color: #fff; border: 1px solid var(--text); border-radius: 999px; font-weight: 600; }
+#btn-ms-neu:hover { background: #2c3133; }
+#btn-ms-export { color: var(--primaer); }
+#ms-layout { padding: 12px 24px 0; }
+#ms-filter-panel h3 { color: var(--text-2); }
+
+/* Risiken */
+#rm-header { background: var(--karte); border: none; border-bottom: 1px solid var(--linie); padding: 12px 24px; gap: 10px; }
+#rm-header-titel { color: var(--text); font-size: 20px; font-weight: 700; margin-right: 8px; }
+.rm-filter-select { background: var(--karte); color: var(--text); border: 1px solid var(--linie-2); border-radius: 999px; padding: 6px 12px; font-size: 13px; }
+.rm-filter-select option { background: #fff; color: var(--text); }
+.rm-neu-btn { background: var(--text); color: #fff; border-radius: 999px; padding: 7px 14px; font-size: 13px; }
+
+/* Einstellungen */
+#st-header { background: var(--karte); border: none; border-bottom: 1px solid var(--linie); padding: 14px 24px; }
+#st-logo-placeholder { display: none; }
+#st-titel { color: var(--text); font-size: 20px; font-weight: 700; }
+#st-untertitel { color: var(--text-2); }
+.settings-karte { border-radius: var(--radius); border: 1px solid var(--linie); border-top: 1px solid var(--linie); box-shadow: var(--schatten); }
+
+/* GitHub-Sync-Hinweis im Meilenstein-Kopf auf hellem Grund lesbar */
+.gh-sync-bereit { background: #f1f1ef; color: var(--text-2); border-color: var(--linie-2); }
+.gh-sync-aktiv  { background: var(--primaer-hell); color: var(--primaer); }
+.gh-sync-ok     { background: #e6f4ea; color: #1e6b37; border-color: #b9dfc4; }
+.gh-sync-lesend { background: #eef3fb; color: #2b4f86; border-color: #cbd8ee; }
+.gh-sync-fehler { background: #fdecea; color: var(--kritisch); border-color: #f3c3bf; }
+
   </style>
 </head>
 <body>
 
   <div id="env-banner" style="display:none"></div>
 
-  <div id="app-header">
-    <div id="app-logo">SWM</div>
-    <div>
-      <div id="app-titel">Energie &amp; Asset Management</div>
-      <div id="app-untertitel">Strategisches Cockpit</div>
+  <header id="app-header">
+    <div id="app-marke">
+      <div id="app-logo">SWM</div>
+      <div id="app-titel">Lageplan</div>
     </div>
-    <button id="app-hilfe-btn" onclick="oeffneHandbuch()" title="Handbuch öffnen">? Hilfe</button>
-  </div>
-
-  <div id="app-tabbar">
-    <button class="app-tab" id="tab-lageplan"     data-tab="lageplan">Lageplan</button>
-    <button class="app-tab" id="tab-themenradar"  data-tab="themenradar">Themenradar</button>
-    <button class="app-tab" id="tab-meilensteine" data-tab="meilensteine">Meilensteine &amp; GANTT</button>
-    <button class="app-tab" id="tab-risiko"       data-tab="risiko">Risikomanagement</button>
-    <button class="app-tab" id="tab-normennetz"   data-tab="normennetz">Normennetz</button>
-    <button class="app-tab" id="tab-max" title="Platzhalter – Funktion folgt">Max</button>
-    <button class="app-tab" id="tab-settings"     data-tab="settings">Einstellungen</button>
-  </div>
+    <nav id="app-tabbar" aria-label="Bereiche">
+      <button class="app-tab" id="tab-lageplan"     data-tab="lageplan">Übersicht</button>
+      <button class="app-tab" id="tab-themenradar"  data-tab="themenradar">Themenradar</button>
+      <button class="app-tab" id="tab-meilensteine" data-tab="meilensteine">Meilensteine</button>
+      <button class="app-tab" id="tab-risiko"       data-tab="risiko">Risiken</button>
+      <button class="app-tab" id="tab-normennetz"   data-tab="normennetz">Normennetz</button>
+    </nav>
+    <div id="app-aktionen">
+      <!-- web:aktionen:start -->
+      <button class="app-icon-btn" id="app-hilfe-btn" onclick="oeffneHandbuch()" title="Handbuch öffnen" aria-label="Handbuch öffnen">
+        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M9.6 9.3a2.5 2.5 0 0 1 4.8.9c0 1.7-2.4 2.1-2.4 3.6" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><circle cx="12" cy="16.9" r="1" fill="currentColor"/></svg>
+      </button>
+      <button class="app-tab app-icon-btn" id="tab-settings" data-tab="settings" title="Einstellungen" aria-label="Einstellungen">
+        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M12 2.8v2.4M12 18.8v2.4M21.2 12h-2.4M5.2 12H2.8M18.5 5.5l-1.7 1.7M7.2 16.8l-1.7 1.7M18.5 18.5l-1.7-1.7M7.2 7.2 5.5 5.5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><circle cx="12" cy="12" r="6.2" fill="none" stroke="currentColor" stroke-width="1.7"/></svg>
+      </button>
+      <!-- web:aktionen:end -->
+    </div>
+  </header>
 
   <div id="gf-indikator">
     Cluster-Filter aktiv:&nbsp;<strong id="gf-indikator-name"></strong>
@@ -2777,196 +3033,119 @@ body {
   </div>
 
   <div class="tab-panel" id="panel-lageplan">
+  <div id="ue">
 
-  <!-- ── Header ─────────────────────────────────────── -->
-  <div id="lp-header">
-    <div id="lp-logo-placeholder">SWM</div>
-    <div id="lp-header-text">
-      <div id="lp-titel">Strategischer Lageplan</div>
-      <div id="lp-untertitel">Energie / Asset Management – Stand: <span id="lp-stand-datum"></span></div>
-    </div>
-  </div>
-
-  <!-- ── Navigation ─────────────────────────────────── -->
-
-
-  <!-- ── Globaler Cluster-Filter ──────────────────── -->
-  <div id="gf-cluster-panel">
-    <span class="gf-label">Cluster-Filter:</span>
-    <button class="gf-btn aktiv" data-cluster="" onclick="GlobalFilter.set(null)">Alle Cluster</button>
-    <button class="gf-btn" data-cluster="Netzanschluss"      onclick="GlobalFilter.set('Netzanschluss')">Netzanschluss</button>
-    <button class="gf-btn" data-cluster="Messstellenbetrieb" onclick="GlobalFilter.set('Messstellenbetrieb')">Messstellenbetrieb</button>
-    <button class="gf-btn" data-cluster="Netzwirtschaft"     onclick="GlobalFilter.set('Netzwirtschaft')">Netzwirtschaft</button>
-    <button class="gf-btn" data-cluster="Technologie"        onclick="GlobalFilter.set('Technologie')">Technologie</button>
-    <button class="gf-btn" data-cluster="Organisation"       onclick="GlobalFilter.set('Organisation')">Organisation</button>
-  </div>
-
-  <!-- ── Statusleiste (LP2) ────────────────────────── -->
-  <div id="status-leiste">
-
-    <div class="status-kachel">
-      <span class="status-ampel" id="ampel-themen">●</span>
-      <span class="status-label">Themen im Radar</span>
-      <span class="status-wert" id="wert-themen">–</span>
+    <!-- ── Kopf: Begrüßung + Cluster-Filter ─────────────── -->
+    <div class="ue-kopf">
+      <div class="ue-kopf-text">
+        <h1 id="ue-gruss">Guten Tag</h1>
+        <div id="ue-unterzeile" class="ue-unterzeile"></div>
+      </div>
+      <div id="gf-cluster-panel" role="group" aria-label="Cluster-Filter">
+        <button class="gf-btn aktiv" data-cluster="" onclick="GlobalFilter.set(null)">Alle Cluster</button>
+        <button class="gf-btn" data-cluster="Netzanschluss"      onclick="GlobalFilter.set('Netzanschluss')">Netzanschluss</button>
+        <button class="gf-btn" data-cluster="Messstellenbetrieb" onclick="GlobalFilter.set('Messstellenbetrieb')">Messstellenbetrieb</button>
+        <button class="gf-btn" data-cluster="Netzwirtschaft"     onclick="GlobalFilter.set('Netzwirtschaft')">Netzwirtschaft</button>
+        <button class="gf-btn" data-cluster="Technologie"        onclick="GlobalFilter.set('Technologie')">Technologie</button>
+        <button class="gf-btn" data-cluster="Organisation"       onclick="GlobalFilter.set('Organisation')">Organisation</button>
+      </div>
     </div>
 
-    <div class="status-trennlinie"></div>
-
-    <div class="status-kachel">
-      <span class="status-ampel" id="ampel-kritisch">●</span>
-      <span class="status-label">Kritische Themen</span>
-      <span class="status-wert" id="wert-kritisch">–</span>
+    <!-- ── Kennzahlen ────────────────────────────────────── -->
+    <div class="ue-kpis">
+      <div class="ue-karte ue-kpi">
+        <div class="ue-kpi-label">Themen im Radar</div>
+        <div class="ue-kpi-wert" id="ue-kpi-themen">–</div>
+        <div class="ue-kpi-sub ue-akzent" id="ue-kpi-themen-sub"></div>
+      </div>
+      <div class="ue-karte ue-kpi">
+        <div class="ue-kpi-label">Kritisch</div>
+        <div class="ue-kpi-wert ue-rot" id="ue-kpi-kritisch">–</div>
+        <div class="ue-kpi-sub" id="ue-kpi-kritisch-sub"></div>
+      </div>
+      <div class="ue-karte ue-kpi">
+        <div class="ue-kpi-label">Offene Meilensteine</div>
+        <div class="ue-kpi-wert" id="ue-kpi-ms">–</div>
+        <div class="ue-kpi-sub ue-warn" id="ue-kpi-ms-sub"></div>
+      </div>
+      <!-- nur-web:start -->
+      <div class="ue-karte ue-kpi">
+        <div class="ue-kpi-label">Radar-Recherche</div>
+        <div class="ue-kpi-wert ue-kpi-wert-text" id="ue-kpi-recherche">–</div>
+        <div class="ue-kpi-sub" id="ue-kpi-recherche-sub"></div>
+      </div>
+      <!-- nur-web:end -->
+      <div class="ue-karte ue-kpi" data-nur-standalone hidden>
+        <div class="ue-kpi-label">Verzögerte Meilensteine</div>
+        <div class="ue-kpi-wert ue-warn" id="ue-kpi-verz">–</div>
+        <div class="ue-kpi-sub" id="ue-kpi-verz-sub"></div>
+      </div>
     </div>
 
-    <div class="status-trennlinie"></div>
-
-    <div class="status-kachel">
-      <span class="status-ampel" id="ampel-meilensteine">●</span>
-      <span class="status-label">Offene Meilensteine</span>
-      <span class="status-wert" id="wert-meilensteine">–</span>
-    </div>
-
-    <div class="status-trennlinie"></div>
-
-    <div class="status-kachel">
-      <span class="status-ampel" id="ampel-verzoegert">●</span>
-      <span class="status-label">Verzögerte MS</span>
-      <span class="status-wert" id="wert-verzoegert">–</span>
-    </div>
-
-    <div class="status-trennlinie"></div>
-
-    <div class="status-kachel">
-      <span class="status-ampel" id="ampel-update">●</span>
-      <span class="status-label">Letzte Aktualisierung</span>
-      <span class="status-wert" id="wert-update">–</span>
-    </div>
-
-    <div class="status-trennlinie"></div>
-
-    <div class="status-kachel">
-      <span class="status-ampel" id="ampel-keywords" style="color:var(--swm-blau)">●</span>
-      <span class="status-label">Keywords aktiv</span>
-      <span class="status-wert" id="wert-keywords">–</span>
-    </div>
-
-  </div>
-
-  <!-- ── Hauptbereich ───────────────────────────────── -->
-  <div id="lp-main">
-
-    <!-- SCHRITT LP3: Hauptraster -->
-    <div id="lageplan-raster">
-
-      <!-- ── Kachel 1: Horizont & Themenradar ────────── -->
-      <div class="lp-kachel" data-bereich="horizont">
-        <button class="lp-vollbild-exit" onclick="LP.beendeVollbild(this)">✕ Vollbild beenden</button>
-        <div class="lp-kachel-header">
-          <span class="lp-kachel-titel">Horizont &amp; Themenradar</span>
-          <span id="kz-horizont" class="lp-kz-badge" style="display:none"></span>
-          <span class="lp-quelle-badge">HTML lokal</span>
-          <button class="lp-vollbild-btn" title="Vollbild" onclick="LP.toggleVollbild(this.closest('.lp-kachel'))">⛶</button>
+    <!-- ── Themenradar + Meilensteine ────────────────────── -->
+    <div class="ue-mitte">
+      <section class="ue-karte ue-radar-karte" aria-labelledby="ue-h-radar">
+        <div class="ue-karte-kopf">
+          <h2 id="ue-h-radar">Themenradar</h2>
+          <button class="ue-link" data-jump="themenradar">Alle Themen &rarr;</button>
         </div>
-        <div class="lp-kachel-body">
-          <svg id="lp-radar-svg" style="display:block;flex:1;min-height:0;width:100%"></svg>
-          <div class="lp-radar-footer">
-            <span id="lp-radar-footer-info" class="lp-radar-footer-info">– Themen</span>
-            <button class="lp-radar-footer-link" data-jump="themenradar">Vollansicht &rarr;</button>
+        <div class="ue-radar-body">
+          <div class="ue-radar-grafik">
+            <svg id="ue-radar-svg" viewBox="0 0 360 372" role="img" aria-label="Themenradar nach Kategorie und Zeithorizont"></svg>
+          </div>
+          <div class="ue-top">
+            <div class="ue-abschnitt">Top-Priorität</div>
+            <ul id="ue-top-liste" class="ue-liste"></ul>
           </div>
         </div>
-      </div>
+      </section>
 
-      <!-- ── Kachel 2: Strategische Ziele ─────────────── -->
-      <div class="lp-kachel" data-bereich="ziele">
-        <button class="lp-vollbild-exit" onclick="LP.beendeVollbild(this)">✕ Vollbild beenden</button>
-        <div class="lp-kachel-header">
-          <span class="lp-kachel-titel">Strategische Ziele</span>
-          <span class="lp-quelle-badge">Power BI</span>
-          <button class="lp-vollbild-btn" title="Vollbild" onclick="LP.toggleVollbild(this.closest('.lp-kachel'))">⛶</button>
+      <section class="ue-karte ue-ms-karte" aria-labelledby="ue-h-ms">
+        <div class="ue-karte-kopf">
+          <h2 id="ue-h-ms">Meilensteine</h2>
+          <button class="ue-link" data-jump="meilensteine">Gantt &rarr;</button>
         </div>
-        <div class="lp-kachel-body">
-          <div class="lp-platzhalter">
-            <div class="lp-platzhalter-icon">📊</div>
-            <div class="lp-platzhalter-name">Power BI Scorecard</div>
-            <div class="lp-platzhalter-beschr">Verbindung zur Power BI Ziel-Scorecard</div>
-            <a class="lp-platzhalter-btn" href="#" target="_blank" rel="noopener">Power BI öffnen →</a>
-            <div class="lp-platzhalter-hinweis">Bitte Power BI Link in href eintragen</div>
-          </div>
-        </div>
-      </div>
+        <ul id="ue-ms-liste" class="ue-ms-liste"></ul>
+      </section>
+    </div>
 
-      <!-- ── Kachel 3: Meilensteine – Übersicht ──────────── -->
-      <div class="lp-kachel" data-bereich="meilensteine">
-        <button class="lp-vollbild-exit" onclick="LP.beendeVollbild(this)">✕ Vollbild beenden</button>
-        <div class="lp-kachel-header">
-          <span class="lp-kachel-titel">Meilensteine – Übersicht</span>
-          <span id="kz-meilensteine" class="lp-kz-badge" style="display:none"></span>
-          <span class="lp-quelle-badge">HTML lokal</span>
-          <button class="lp-vollbild-btn" title="Vollbild" onclick="LP.toggleVollbild(this.closest('.lp-kachel'))">⛶</button>
+    <!-- ── Untere Zeile ──────────────────────────────────── -->
+    <div class="ue-unten">
+      <a class="ue-karte ue-link-karte" href="#" target="_blank" rel="noopener" data-extern-link="Power BI Scorecard">
+        <span class="ue-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.7"/><circle cx="12" cy="12" r="5" fill="none" stroke="currentColor" stroke-width="1.7"/><circle cx="12" cy="12" r="1.6" fill="currentColor"/></svg></span>
+        <span class="ue-link-text"><strong>Strategische Ziele</strong><span>Scorecard in Power BI</span></span>
+        <span class="ue-pfeil" aria-hidden="true">&#8599;</span>
+      </a>
+      <!-- nur-web:start -->
+      <a class="ue-karte ue-link-karte" href="#" target="_blank" rel="noopener" data-extern-link="Power BI Betriebsmonitoring">
+        <span class="ue-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20"><path d="M3 12h4l2.5-6 4 12 2.5-6H21" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        <span class="ue-link-text"><strong>Betrieb &amp; Performance</strong><span>Operative KPIs &middot; SAP S/4HANA</span></span>
+        <span class="ue-pfeil" aria-hidden="true">&#8599;</span>
+      </a>
+      <!-- nur-web:end -->
+      <!-- nur-web:start -->
+      <section class="ue-karte ue-klein-karte" aria-labelledby="ue-h-risiken">
+        <div class="ue-karte-kopf">
+          <h2 id="ue-h-risiken">Risiken</h2>
+          <button class="ue-link" data-jump="risiko">Matrix &rarr;</button>
         </div>
-        <div class="lp-kachel-body" style="flex-direction:column;padding:0">
-          <div id="ms-uebersicht-inhalt" style="flex:1;overflow-y:auto"></div>
-          <div class="lp-radar-footer">
-            <span class="lp-radar-footer-info"></span>
-            <button class="lp-radar-footer-link" data-jump="meilensteine">Vollansicht &rarr;</button>
-          </div>
+        <div class="ue-risiko-balken" id="ue-risiko-balken"></div>
+        <div class="ue-risiko-legende" id="ue-risiko-legende"></div>
+      </section>
+      <!-- nur-web:end -->
+      <!-- nur-web:start -->
+      <section class="ue-karte ue-klein-karte ue-fp-karte" aria-labelledby="ue-h-fp">
+        <div class="ue-karte-kopf">
+          <h2 id="ue-h-fp">Forschungsprojekte</h2>
         </div>
-      </div>
-
-      <!-- ── Kachel 4: Forschungsprojekte ─────────────── -->
-      <div class="lp-kachel" data-bereich="projekte">
-        <button class="lp-vollbild-exit" onclick="LP.beendeVollbild(this)">✕ Vollbild beenden</button>
-        <div class="lp-kachel-header">
-          <span class="lp-kachel-titel">Forschungsprojekte</span>
-          <span class="lp-quelle-badge">GitHub</span>
-          <button class="lp-vollbild-btn" title="Vollbild" onclick="LP.toggleVollbild(this.closest('.lp-kachel'))">⛶</button>
-        </div>
-        <div class="lp-kachel-body">
-          <div id="fp-kachel-inhalt"></div>
-        </div>
-      </div>
-
-      <!-- ── Kachel 5: Betrieb & Performance ───────────── -->
-      <div class="lp-kachel" data-bereich="betrieb">
-        <button class="lp-vollbild-exit" onclick="LP.beendeVollbild(this)">✕ Vollbild beenden</button>
-        <div class="lp-kachel-header">
-          <span class="lp-kachel-titel">Betrieb &amp; Performance</span>
-          <span class="lp-quelle-badge">Power BI</span>
-          <button class="lp-vollbild-btn" title="Vollbild" onclick="LP.toggleVollbild(this.closest('.lp-kachel'))">⛶</button>
-        </div>
-        <div class="lp-kachel-body">
-          <div class="lp-platzhalter">
-            <div class="lp-platzhalter-icon">⚡</div>
-            <div class="lp-platzhalter-name">Power BI Betriebsmonitoring</div>
-            <div class="lp-platzhalter-beschr">Operative KPIs auf Basis SAP S/4HANA Utilities</div>
-            <a class="lp-platzhalter-btn" href="#" target="_blank" rel="noopener">Betriebsbericht öffnen →</a>
-            <div class="lp-platzhalter-hinweis">Bitte Power BI Link in href eintragen</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- ── Kachel 6: Risikomanagement ───────────────── -->
-      <div class="lp-kachel" data-bereich="risiko">
-        <button class="lp-vollbild-exit" onclick="LP.beendeVollbild(this)">✕ Vollbild beenden</button>
-        <div class="lp-kachel-header">
-          <span class="lp-kachel-titel">Risikomanagement</span>
-          <span class="lp-quelle-badge">GitHub</span>
-          <button class="lp-vollbild-btn" title="Vollbild" onclick="LP.toggleVollbild(this.closest('.lp-kachel'))">⛶</button>
-        </div>
-        <div class="lp-kachel-body" style="flex-direction:column;padding:0">
-          <div id="rm-kachel-inhalt" style="flex:1;overflow-y:auto"></div>
-          <div class="lp-radar-footer">
-            <span class="lp-radar-footer-info"></span>
-            <button class="lp-radar-footer-link" data-jump="risiko">Vollansicht &rarr;</button>
-          </div>
-        </div>
-      </div>
-
+        <div id="fp-kachel-inhalt"></div>
+      </section>
+      <!-- nur-web:end -->
     </div>
 
   </div>
 
-  
+
 
 
   <!-- ── Forschungsprojekte Detail-Panel ─────────────────── -->
@@ -5089,6 +5268,12 @@ body {
       } catch(e) { return 0; }
     }
 
+    // Status der Radar-Recherche an die Übersicht melden
+    function _meldeRecherche(info) {
+      window.LP_RECHERCHE = info;
+      try { if (window.LP && LP.aktualisiereStatusleiste) LP.aktualisiereStatusleiste(); } catch(e) {}
+    }
+
     async function pruefeServerStatus() {
       const btn    = document.getElementById("btn-aktualisieren");
       const status = document.getElementById("update-status");
@@ -5097,6 +5282,7 @@ body {
         status.style.color = "#c0392b";
         status.textContent = "⚠ GitHub-Token fehlt – unter Einstellungen → GitHub-Sync eintragen";
         btn.disabled = true;
+        _meldeRecherche({ status: "token" });
         return;
       }
       try {
@@ -5109,6 +5295,7 @@ body {
         btn.disabled = false;
         // Offene Vorschläge des letzten Laufs direkt anzeigen
         const offen = await ladeOffeneVorschlaege();
+        _meldeRecherche({ status: lauf ? "ok" : "leer", lauf: lauf || null, offen: offen });
         if (offen > 0) {
           status.textContent += " · " + offen + " offene Vorschläge";
         }
@@ -5117,7 +5304,9 @@ body {
           status.textContent = "Bereit – noch kein Lauf";
           status.style.color = "#555";
           btn.disabled = false;
+          _meldeRecherche({ status: "leer" });
         } else {
+          _meldeRecherche({ status: "fehler", fehler: String(e.status || e.message) });
           status.style.color = "#c0392b";
           status.textContent = "⚠ GitHub nicht erreichbar (" + (e.status || e.message) + ")";
           btn.disabled = true;
@@ -10103,177 +10292,301 @@ window.MS={exportiereJSON,zeigeDetail,renderUebersicht,oeffneMsFormular,schliess
   };
 })();
 </script>
-<script>/* ===== Lageplan ===== */
+<script>/* ===== Lageplan / Übersicht ===== */
+// Übersicht im Design „B – Clean (hell)“. Die Einstiegspunkte
+// LP.aktualisiereStatusleiste / zeichneLpRadar / zeichneLpGantt bleiben
+// erhalten, damit Tab-Wechsel, Cluster-Filter und Import weiter neu zeichnen.
 (function(){
 
     document.title = "Lageplan | Energie & Asset Management";
-    document.getElementById("lp-stand-datum").textContent =
-      new Date().toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit", year: "numeric" });
 
-    // ── Statusleiste befüllen (aufrufbar bei Tab-Wechsel) ─
+    var SVG_NS = "http://www.w3.org/2000/svg";
+    var KAT_LABEL = { regulatorisch: "Regulatorisch", marktlich: "Marktlich",
+                      technologisch: "Technologisch", wettbewerblich: "Wettbewerblich" };
+    var HZ_LABEL  = { kurzfristig: "0–1 Jahr", mittelfristig: "1–3 Jahre", langfristig: "> 3 Jahre" };
+    // Quadranten wie im Mockup (Winkel in SVG-Koordinaten, y nach unten)
+    var QUADRANT  = { regulatorisch: 180, marktlich: 270, wettbewerblich: 90, technologisch: 0 };
+    var MONATE    = ["JAN","FEB","MÄR","APR","MAI","JUN","JUL","AUG","SEP","OKT","NOV","DEZ"];
+    var KRITISCH_AB = 0.7;
+
+    function esc(s) {
+      return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+    }
+    function setText(id, txt) { var el = document.getElementById(id); if (el) el.textContent = txt; }
+    function clusterFilter() {
+      var gc = window.GlobalFilter && GlobalFilter.cluster;
+      return function(d) { return !gc || (d.strategische_cluster || []).indexOf(gc) !== -1; };
+    }
+    function themen() {
+      try { return ((window.TR && TR.getDaten) ? TR.getDaten() : []).filter(clusterFilter()); }
+      catch (e) { return []; }
+    }
+    function meilensteine() {
+      try { return ((window.MS && MS.getDaten) ? MS.getDaten() : []).filter(clusterFilter()); }
+      catch (e) { return []; }
+    }
+    function istKritisch(d) { return (d.radar_score || 0) >= KRITISCH_AB; }
+    function heute0() { var h = new Date(); h.setHours(0, 0, 0, 0); return h; }
+    function msDatum(m) {
+      var s = m.ende || m.pflicht_deadline || m.start;
+      if (!s) return null;
+      var d = new Date(s + "T00:00:00");
+      return isNaN(d) ? null : d;
+    }
+    function plural(n, eins, mehr) { return n + " " + (n === 1 ? eins : mehr); }
+
+    // ── Kopf + Kennzahlen ─────────────────────────────────
+    function renderKopf() {
+      var std = new Date().getHours();
+      setText("ue-gruss", std < 11 ? "Guten Morgen" : (std < 18 ? "Guten Tag" : "Guten Abend"));
+
+      var t = themen();
+      var krit = t.filter(istKritisch);
+      var stand = "Stand " + new Date().toLocaleDateString("de-DE",
+        { day: "2-digit", month: "2-digit", year: "numeric" });
+      setText("ue-unterzeile", (krit.length === 0
+        ? "Keine kritischen Themen"
+        : (krit.length === 1 ? "1 Thema braucht" : krit.length + " Themen brauchen") + " deine Aufmerksamkeit")
+        + " · " + stand);
+
+      setText("ue-kpi-themen", t.length);
+      setText("ue-kpi-themen-sub", plural(t.filter(function(d){ return d.zeithorizont === "kurzfristig"; }).length,
+        "kurzfristig", "kurzfristig") + " (0–1 Jahr)");
+      setText("ue-kpi-kritisch", krit.length);
+      setText("ue-kpi-kritisch-sub", krit.filter(function(d){ return d.kategorie === "regulatorisch"; }).length + " regulatorisch");
+
+      var ms = meilensteine();
+      var offen = ms.filter(function(m){ return m.status !== "abgeschlossen"; });
+      var verz  = ms.filter(function(m){ return m.status === "verzögert"; });
+      var h = heute0();
+      var ueberfaellig = offen.filter(function(m){ var d = msDatum(m); return d && d < h; });
+      setText("ue-kpi-ms", offen.length);
+      setText("ue-kpi-ms-sub", verz.length ? verz.length + " verzögert" : "keine verzögert");
+      var msSub = document.getElementById("ue-kpi-ms-sub");
+      if (msSub) msSub.classList.toggle("ue-warn", verz.length > 0);
+      setText("ue-kpi-verz", verz.length);
+      setText("ue-kpi-verz-sub", ueberfaellig.length ? ueberfaellig.length + " mit überschrittenem Termin" : "alle Termine im Plan");
+
+      renderRecherche();
+    }
+
+    function renderRecherche() {
+      var wert = document.getElementById("ue-kpi-recherche");
+      if (!wert) return;
+      var info = window.LP_RECHERCHE;
+      var sub = "";
+      if (!info) { wert.textContent = "–"; sub = "Status wird geprüft …"; }
+      else if (info.status === "token") { wert.textContent = "–"; sub = "GitHub-Token fehlt"; }
+      else if (info.status === "fehler") { wert.textContent = "–"; sub = "GitHub nicht erreichbar"; }
+      else if (info.status === "leer" || !info.lauf) { wert.textContent = "noch kein Lauf"; sub = ""; }
+      else {
+        var d = new Date(info.lauf), h = heute0();
+        var tag = new Date(d); tag.setHours(0, 0, 0, 0);
+        var diff = Math.round((h - tag) / 86400000);
+        var zeit = d.toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" });
+        wert.textContent = (diff === 0 ? "heute " : diff === 1 ? "gestern " :
+          d.toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit" }) + " ") + zeit;
+        sub = info.offen ? plural(info.offen, "neuer Vorschlag", "neue Vorschläge") : "keine neuen Vorschläge";
+      }
+      setText("ue-kpi-recherche-sub", sub);
+    }
+
+    // ── Mini-Radar ────────────────────────────────────────
+    function el(tag, attrs, eltern) {
+      var e = document.createElementNS(SVG_NS, tag);
+      for (var k in attrs) e.setAttribute(k, attrs[k]);
+      if (eltern) eltern.appendChild(e);
+      return e;
+    }
+
+    function renderRadar() {
+      var svg = document.getElementById("ue-radar-svg");
+      if (!svg) return;
+      while (svg.firstChild) svg.removeChild(svg.firstChild);
+      var cx = 180, cy = 186, R = [54, 108, 162];
+
+      el("circle", { cx: cx, cy: cy, r: R[0], "class": "ue-r-innen" }, svg);
+      R.forEach(function(r) { el("circle", { cx: cx, cy: cy, r: r, "class": "ue-r-ring" }, svg); });
+      el("line", { x1: cx, y1: cy - R[2], x2: cx, y2: cy + R[2], "class": "ue-r-achse" }, svg);
+      el("line", { x1: cx - R[2], y1: cy, x2: cx + R[2], y2: cy, "class": "ue-r-achse" }, svg);
+      [["Regulatorisch", 22, 14, "start"], ["Marktlich", 338, 14, "end"],
+       ["Wettbewerblich", 22, 366, "start"], ["Technologisch", 338, 366, "end"]].forEach(function(l) {
+        var tx = el("text", { x: l[1], y: l[2], "text-anchor": l[3], "class": "ue-r-label" }, svg);
+        tx.textContent = l[0];
+      });
+
+      // Gruppen je Kategorie + Horizont gleichmäßig im Quadranten verteilen
+      var gruppen = {};
+      themen().forEach(function(d) {
+        var k = (QUADRANT[d.kategorie] !== undefined ? d.kategorie : "regulatorisch") + "|" + (d.zeithorizont || "mittelfristig");
+        (gruppen[k] = gruppen[k] || []).push(d);
+      });
+      var band = { kurzfristig: [14, R[0] - 9], mittelfristig: [R[0] + 11, R[1] - 11], langfristig: [R[1] + 11, R[2] - 11] };
+      var kritischeZuletzt = [];
+      Object.keys(gruppen).forEach(function(k) {
+        var teile = k.split("|"), liste = gruppen[k];
+        var start = QUADRANT[teile[0]], b = band[teile[1]] || band.mittelfristig;
+        liste.sort(function(a, c) { return String(a.id).localeCompare(String(c.id)); });
+        liste.forEach(function(d, i) {
+          var w = start + 10 + (i + 0.5) * (70 / liste.length);
+          var stufen = Math.min(3, liste.length);
+          var r = b[0] + (b[1] - b[0]) * (stufen === 1 ? 0.6 : (i % stufen + 0.5) / stufen);
+          var rr = 4.5 + (Math.max(1, Math.min(5, d.auswirkung || 3)) * 0.5);
+          kritischeZuletzt.push({ d: d, w: w, r: r, rr: rr, wMin: start + 6, wMax: start + 84, rMin: b[0], rMax: b[1] });
+        });
+      });
+      // Überlappungen auflösen: Punkte stoßen sich ab, bleiben aber in
+      // ihrem Quadranten (Kategorie) und ihrem Ring (Zeithorizont).
+      function kart(p) { var a = p.w * Math.PI / 180; p.x = cx + p.r * Math.cos(a); p.y = cy + p.r * Math.sin(a); }
+      kritischeZuletzt.forEach(kart);
+      for (var it = 0; it < 120; it++) {
+        var bewegt = false;
+        for (var i = 0; i < kritischeZuletzt.length; i++) {
+          for (var j = i + 1; j < kritischeZuletzt.length; j++) {
+            var a = kritischeZuletzt[i], c = kritischeZuletzt[j];
+            var dx = c.x - a.x, dy = c.y - a.y, dist = Math.sqrt(dx * dx + dy * dy) || 0.01;
+            var min = a.rr + c.rr + (istKritisch(a.d) || istKritisch(c.d) ? 12 : 5);
+            if (dist < min) {
+              var s = (min - dist) / 2 / dist; bewegt = true;
+              a.x -= dx * s; a.y -= dy * s; c.x += dx * s; c.y += dy * s;
+            }
+          }
+        }
+        kritischeZuletzt.forEach(function(p) {
+          var vx = p.x - cx, vy = p.y - cy;
+          var w = Math.atan2(vy, vx) * 180 / Math.PI; if (w < 0) w += 360;
+          // Winkel in den Quadranten zurückholen (Quadrant 0° liegt bei 0–90)
+          if (p.wMax <= 90 && w > 270) w -= 360;
+          p.w = Math.max(p.wMin, Math.min(p.wMax, w));
+          p.r = Math.max(p.rMin, Math.min(p.rMax, Math.sqrt(vx * vx + vy * vy)));
+          kart(p);
+        });
+        if (!bewegt) break;
+      }
+      // Kritische oben zeichnen
+      kritischeZuletzt.sort(function(a, b) { return istKritisch(a.d) - istKritisch(b.d); });
+      kritischeZuletzt.forEach(function(p) {
+        var krit = istKritisch(p.d);
+        var g = el("g", { "class": "ue-r-punkt" + (krit ? " kritisch" : ""), tabindex: "0", role: "button",
+                          "aria-label": p.d.titel }, svg);
+        var rr = p.rr;
+        if (krit) el("circle", { cx: p.x, cy: p.y, r: rr + 6, "class": "ue-r-halo" }, g);
+        el("circle", { cx: p.x, cy: p.y, r: rr, "class": "ue-r-kern" }, g);
+        var tt = el("title", {}, g);
+        tt.textContent = p.d.titel + " – " + (KAT_LABEL[p.d.kategorie] || p.d.kategorie) + " · " +
+          (HZ_LABEL[p.d.zeithorizont] || p.d.zeithorizont || "") + " · Score " + (p.d.radar_score || 0);
+        var oeffne = function() { if (window.App) App.wechsleZuTab("themenradar", p.d.id); };
+        g.addEventListener("click", oeffne);
+        g.addEventListener("keydown", function(e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); oeffne(); } });
+      });
+    }
+
+    function renderTop() {
+      var ul = document.getElementById("ue-top-liste");
+      if (!ul) return;
+      var top = themen().slice().sort(function(a, b) { return (b.radar_score || 0) - (a.radar_score || 0); }).slice(0, 4);
+      if (!top.length) { ul.innerHTML = '<li class="ue-leer">Keine Themen im gewählten Cluster.</li>'; return; }
+      ul.innerHTML = top.map(function(d) {
+        return '<li><button class="ue-top-eintrag" data-id="' + esc(d.id) + '">' +
+          '<span class="ue-punkt' + (istKritisch(d) ? ' kritisch' : '') + '" aria-hidden="true"></span>' +
+          '<span><span class="ue-top-titel">' + esc(d.titel) + '</span>' +
+          '<span class="ue-top-meta">' + esc(KAT_LABEL[d.kategorie] || d.kategorie) + ' · ' +
+          esc(HZ_LABEL[d.zeithorizont] || d.zeithorizont || "") + '</span></span></button></li>';
+      }).join("");
+      ul.querySelectorAll(".ue-top-eintrag").forEach(function(b) {
+        b.addEventListener("click", function() {
+          var id = b.dataset.id, d = themen().find(function(x) { return String(x.id) === id; });
+          if (d && window.App) App.wechsleZuTab("themenradar", d.id);
+        });
+      });
+    }
+
+    // ── Nächste Meilensteine ──────────────────────────────
+    function renderMeilensteine() {
+      var ul = document.getElementById("ue-ms-liste");
+      if (!ul) return;
+      var h = heute0();
+      var kand = meilensteine().filter(function(m) { return m.status !== "abgeschlossen" && msDatum(m); });
+      // Verzögerte/überfällige zuerst berücksichtigen, dann die nächsten Termine
+      kand.sort(function(a, b) { return msDatum(a) - msDatum(b); });
+      var spaet = kand.filter(function(m) { return m.status === "verzögert" || msDatum(m) < h; });
+      var naechste = kand.filter(function(m) { return spaet.indexOf(m) === -1; });
+      var auswahl = spaet.slice(0, 1).concat(naechste).slice(0, 3);
+      if (auswahl.length < 3) auswahl = auswahl.concat(spaet.slice(1, 1 + 3 - auswahl.length));
+      auswahl.sort(function(a, b) { return msDatum(a) - msDatum(b); });
+      if (!auswahl.length) { ul.innerHTML = '<li class="ue-leer">Keine offenen Meilensteine.</li>'; return; }
+      ul.innerHTML = auswahl.map(function(m) {
+        var d = msDatum(m);
+        var verspaetet = m.status === "verzögert" || d < h;
+        var hinweis = "";
+        if (d < h) {
+          var wochen = Math.max(1, Math.round((h - d) / (7 * 86400000)));
+          hinweis = "verzögert um " + plural(wochen, "Woche", "Wochen");
+        } else if (m.status === "verzögert") {
+          hinweis = "verzögert";
+        }
+        return '<li><button class="ue-ms-eintrag' + (verspaetet ? ' verzoegert' : '') + '" data-id="' + esc(m.id) + '">' +
+          '<span class="ue-datum"><span>' + MONATE[d.getMonth()] +
+            (d.getFullYear() !== new Date().getFullYear() ? " ’" + String(d.getFullYear()).slice(2) : "") +
+            '</span><strong>' + d.getDate() + '</strong></span>' +
+          '<span class="ue-ms-text"><span class="ue-ms-titel">' + esc(m.titel) + '</span>' +
+          (hinweis ? '<span class="ue-ms-hinweis">' + hinweis + '</span>' : '') + '</span></button></li>';
+      }).join("");
+      ul.querySelectorAll(".ue-ms-eintrag").forEach(function(b) {
+        b.addEventListener("click", function() { if (window.App) App.wechsleZuTab("meilensteine", b.dataset.id); });
+      });
+    }
+
+    // ── Risiken (nur Web-Version sichtbar) ────────────────
+    function renderRisiken() {
+      var balken = document.getElementById("ue-risiko-balken");
+      var leg = document.getElementById("ue-risiko-legende");
+      if (!balken || !leg) return;
+      var gc = window.GlobalFilter && GlobalFilter.cluster;
+      var r = ((window.RM && RM.getDaten) ? RM.getDaten() : []).filter(function(x) {
+        return x.status !== "geschlossen" && (!gc || x.cluster === gc);
+      });
+      var n = { hoch: 0, mittel: 0, gering: 0 };
+      r.forEach(function(x) { var s = x.risikoscore || 0; n[s >= 3 ? "hoch" : s >= 1.5 ? "mittel" : "gering"]++; });
+      var summe = r.length;
+      balken.innerHTML = summe ? ["hoch", "mittel", "gering"].map(function(k) {
+        return n[k] ? '<span class="ue-rb-' + k + '" style="flex:' + n[k] + '"></span>' : "";
+      }).join("") : '<span class="ue-rb-leer" style="flex:1"></span>';
+      leg.textContent = summe ? (n.hoch + " hoch   " + n.mittel + " mittel   " + n.gering + " gering")
+                              : "Noch keine Risiken erfasst.";
+    }
+
+    // ── Externe Links ohne hinterlegtes Ziel abfangen ─────
+    document.querySelectorAll("[data-extern-link]").forEach(function(a) {
+      a.addEventListener("click", function(e) {
+        if (a.getAttribute("href") === "#") {
+          e.preventDefault();
+          alert("Für „" + a.dataset.externLink + "“ ist noch kein Link hinterlegt.");
+        }
+      });
+    });
+
     function aktualisiereStatusleiste() {
-      const C = {
-        blau:      "#63a2b4",
-        kritisch:  "#c0392b",
-        relevant:  "#e67e22",
-        beobachten:"#27ae60"
-      };
-
-      function setKachel(ampelId, wertId, wert, farbe) {
-        const wa = document.getElementById(ampelId);
-        const ww = document.getElementById(wertId);
-        if (ww) ww.textContent = wert;
-        if (wa) wa.style.color = farbe;
-      }
-
-      // Radar-Themen: direkt aus TR.getDaten() wenn vorhanden
-      let themenGesamt = 0, themenKritisch = 0;
-      const _gfc = window.GlobalFilter && GlobalFilter.cluster;
-      const _gfThemen = d => !_gfc || (d.strategische_cluster||[]).includes(_gfc);
-      try {
-        let daten = (window.TR && TR.getDaten) ? TR.getDaten() : [];
-        daten = daten.filter(_gfThemen);
-        if (daten.length > 0) {
-          themenGesamt   = daten.length;
-          themenKritisch = daten.filter(d => (d.radar_score||0) >= 0.7).length;
-        } else {
-          const raw = localStorage.getItem(lsKey("radarData-manuell"));
-          const manuell = raw ? JSON.parse(raw) : [];
-          if (Array.isArray(manuell)) {
-            themenGesamt   = manuell.length;
-            themenKritisch = manuell.filter(d => (d.radar_score||0) >= 0.7).length;
-          }
-        }
-      } catch(e) {}
-
-      setKachel("ampel-themen","wert-themen",
-        themenGesamt > 0 ? themenGesamt : "Keine Daten",
-        themenGesamt > 0 ? C.blau : C.beobachten);
-      setKachel("ampel-kritisch","wert-kritisch",
-        themenKritisch,
-        themenKritisch > 3 ? C.kritisch : (themenKritisch > 0 ? C.relevant : C.beobachten));
-
-      const kzH = document.getElementById("kz-horizont");
-      if (kzH && themenGesamt > 0) {
-        kzH.textContent = `${themenGesamt} Themen · ${themenKritisch} kritisch`;
-        kzH.style.display = "inline";
-      }
-
-      // Meilensteine: direkt aus MS.getDaten() wenn vorhanden
-      let msGesamt = 0, msOffen = 0, msVerzoegert = 0;
-      try {
-        let liste = (window.MS && MS.getDaten) ? MS.getDaten() : [];
-        liste = liste.filter(_gfThemen);
-        if (liste.length > 0) {
-          msGesamt     = liste.length;
-          msOffen      = liste.filter(m => m.status === "offen" || m.status === "in Bearbeitung").length;
-          msVerzoegert = liste.filter(m => m.status === "verzögert").length;
-        } else {
-          const raw = localStorage.getItem(lsKey("meilensteine"));
-          const ls  = raw ? JSON.parse(raw) : [];
-          if (Array.isArray(ls)) {
-            msGesamt     = ls.length;
-            msOffen      = ls.filter(m => m.status === "offen" || m.status === "in Bearbeitung").length;
-            msVerzoegert = ls.filter(m => m.status === "verzögert").length;
-          }
-        }
-      } catch(e) {}
-
-      setKachel("ampel-meilensteine","wert-meilensteine",
-        msOffen > 0 ? msOffen : "Keine",
-        msOffen > 0 ? C.blau : C.beobachten);
-      setKachel("ampel-verzoegert","wert-verzoegert",
-        msVerzoegert > 0 ? msVerzoegert : "Keine",
-        msVerzoegert > 0 ? C.relevant : C.beobachten);
-
-      const kzM = document.getElementById("kz-meilensteine");
-      if (kzM && msGesamt > 0) {
-        kzM.textContent = `${msGesamt} Meilensteine · ${msOffen} offen`;
-        kzM.style.display = "inline";
-      }
-
-      // Letzte Aktualisierung
-      let letzteAktualisierung = "Noch nicht aktualisiert";
-      try {
-        const ts = localStorage.getItem(lsKey("last_update"));
-        if (ts) letzteAktualisierung = ts;
-      } catch(e) {}
-      setKachel("ampel-update","wert-update",
-        letzteAktualisierung,
-        letzteAktualisierung === "Noch nicht aktualisiert" ? C.relevant : C.blau);
-
-      // Keywords
-      let kwAnzahl = 0;
-      try {
-        const raw = localStorage.getItem("config-keywords");
-        const kw  = raw ? JSON.parse(raw) : [];
-        if (Array.isArray(kw)) kwAnzahl = kw.length;
-      } catch(e) {}
-      const wk = document.getElementById("wert-keywords");
-      if (wk) wk.textContent = kwAnzahl || 12;
-      if (window.FP && FP.renderKachel)       { try { FP.renderKachel();       } catch(e) {} }
-      if (window.MS && MS.renderUebersicht)   { try { MS.renderUebersicht();   } catch(e) {} }
-      if (window.RM && RM.renderKachel)       { try { RM.renderKachel();       } catch(e) {} }
+      try { renderKopf(); } catch (e) { console.warn("Übersicht/Kopf:", e); }
+      try { renderTop(); } catch (e) { console.warn("Übersicht/Top:", e); }
+      try { renderMeilensteine(); } catch (e) { console.warn("Übersicht/Meilensteine:", e); }
+      try { renderRisiken(); } catch (e) { console.warn("Übersicht/Risiken:", e); }
+      if (window.FP && FP.renderKachel) { try { FP.renderKachel(); } catch (e) {} }
+    }
+    function zeichneLpRadar() {
+      requestAnimationFrame(function() { try { renderRadar(); renderTop(); } catch (e) { console.warn("Übersicht/Radar:", e); } });
+    }
+    function zeichneLpGantt() {
+      requestAnimationFrame(function() { try { renderMeilensteine(); } catch (e) {} });
     }
 
     aktualisiereStatusleiste();
+    zeichneLpRadar();
 
-    // ── Wrapper für Mini-Visualisierungen ─────────────
-    function zeichneLpRadar(vollbild) {
-      requestAnimationFrame(function() {
-        if (window.TR && TR.renderMini) { try { TR.renderMini(vollbild); } catch(e){} }
-      });
-    }
-    function zeichneLpGantt() {
-      requestAnimationFrame(function() {
-        if (window.MS && MS.renderUebersicht) { try { MS.renderUebersicht(); } catch(e){} }
-      });
-    }
-
-    // ── Vollbild-Toggle ────────────────────────────────
-    function _schliesseAlleVollbilder() {
-      document.querySelectorAll(".lp-kachel.vollbild").forEach(k => {
-        k.classList.remove("vollbild");
-        const btn = k.querySelector(".lp-vollbild-btn");
-        if (btn) btn.textContent = "⛶";
-        // Normalansicht neu zeichnen
-        const b = k.dataset.bereich;
-        if (b === "horizont")    zeichneLpRadar(false);
-        if (b === "meilensteine") zeichneLpGantt(false);
-      });
-    }
-
-    function toggleVollbild(kachelEl) {
-      const istVollbild = kachelEl.classList.contains("vollbild");
-      _schliesseAlleVollbilder();
-      if (!istVollbild) {
-        kachelEl.classList.add("vollbild");
-        const btn = kachelEl.querySelector(".lp-vollbild-btn");
-        if (btn) btn.textContent = "⊡";
-        // Vollbild neu zeichnen (nach kurzer Verzögerung, damit Layout fertig ist)
-        const bereich = kachelEl.dataset.bereich;
-        setTimeout(function() {
-          if (bereich === "horizont")    zeichneLpRadar(true);
-          if (bereich === "meilensteine") zeichneLpGantt(true);
-        }, 50);
-      }
-    }
-
-    function beendeVollbild(exitBtn) {
-      const kachelEl = exitBtn.closest(".lp-kachel");
-      if (!kachelEl) return;
-      const bereich = kachelEl.dataset.bereich;
-      kachelEl.classList.remove("vollbild");
-      const btn = kachelEl.querySelector(".lp-vollbild-btn");
-      if (btn) btn.textContent = "⛶";
-      if (bereich === "horizont")    zeichneLpRadar(false);
-      if (bereich === "meilensteine") zeichneLpGantt(false);
-    }
-
-    document.addEventListener("keydown", function(e) {
-      if (e.key === "Escape") _schliesseAlleVollbilder();
-    });
-
+    // Kompatibilität: Vollbild gibt es in der neuen Übersicht nicht mehr
+    function toggleVollbild() {}
+    function beendeVollbild() {}
 
 window.LP={toggleVollbild,beendeVollbild,aktualisiereStatusleiste,zeichneLpRadar,zeichneLpGantt};
 })();

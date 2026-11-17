@@ -1,6 +1,6 @@
-BUTTONS = '''    <button class="app-tab app-datei-btn" id="btn-daten-export" style="margin-left:auto" onclick="DATEI.exportieren()" title="Alle Daten als JSON-Datei speichern">&#8595; Daten exportieren<span id="datei-dirty" title="Ungesicherte Änderungen seit dem letzten Export">&#9679;</span></button>
-    <button class="app-tab app-datei-btn" id="btn-daten-import" onclick="document.getElementById('datei-import-input').click()" title="Daten aus JSON-Datei laden (ersetzt den aktuellen Stand)">&#8593; Daten importieren</button>
-    <input type="file" id="datei-import-input" accept=".json,application/json" style="display:none" onchange="DATEI.importieren(this)">'''
+BUTTONS = '''      <button class="app-datei-btn" id="btn-daten-export" onclick="DATEI.exportieren()" title="Alle Daten als JSON-Datei speichern">&#8595; Exportieren<span id="datei-dirty" title="Ungesicherte Änderungen seit dem letzten Export">&#9679;</span></button>
+      <button class="app-datei-btn" id="btn-daten-import" onclick="document.getElementById('datei-import-input').click()" title="Daten aus JSON-Datei laden (ersetzt den aktuellen Stand)">&#8593; Importieren</button>
+      <input type="file" id="datei-import-input" accept=".json,application/json" style="display:none" onchange="DATEI.importieren(this)">'''
 
 CSS = '''.app-datei-btn { font-weight: 600; font-size: 12px; }
 #datei-dirty { display: none; color: #f5a623; margin-left: 6px; font-size: 11px; }

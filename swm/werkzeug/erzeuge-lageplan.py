@@ -54,10 +54,12 @@ d3src = pathlib.Path(D3).read_text(encoding="utf-8")
 i = find('<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>')
 lines[i] = "  <script>/* d3 v7.8.5 (ISC License, https://d3js.org) – eingebettet für Offline-Betrieb */\n" + d3src.strip() + "\n</script>"
 cut_line('<link rel="preconnect" href="https://fonts.googleapis.com">')
-cut_line('href="https://fonts.googleapis.com/css2?family=Open+Sans')
+cut_line('href="https://fonts.googleapis.com/css2?family=')
 
 # ───────────────────────────── CSS ──────────────────────────────
-cut("#st-header {", "/* ── Bestätigungs-Banner", start_off=-1)
+s = find("    #st-header {", exact=True) - 1
+e = find("/* ── Bestätigungs-Banner", start=s, unique=False)
+del lines[s:e]
 cut_line("#tab-max       {")
 cut_line("#tab-max:hover {")
 cut("/* ── GitHub Sync ── */", "/* ── Dokument-Analyse Modal ── */")
@@ -76,15 +78,18 @@ text_rep("/* Grid: 4 Spalten, 4 Zeilen.\n       Horizont belegt links col 1-2 ü
          "/* Grid: 4 Spalten, 2 Zeilen.\n       Horizont belegt links col 1-2 über beide Zeilen")
 
 # ───────────────────────────── HTML ─────────────────────────────
-cut_line('<button id="app-hilfe-btn"')
-cut_line('<button class="app-tab" id="tab-max"')
-cut_line('<button class="app-tab" id="tab-settings"')
-# Statusleiste: "Keywords aktiv"
-k = find('id="ampel-keywords"')
-assert "status-trennlinie" in lines[k - 3] and "</div>" in lines[k + 3], lines[k-3:k+4]
-del lines[k - 3:k + 4]
-# Kacheln 4–6 (bis zum schließenden </div> des Rasters)
-cut("<!-- ── Kachel 4: Forschungsprojekte", "    </div>", end_exact=True)
+# Kopfzeile: Hilfe- und Einstellungs-Symbol entfallen (Platz für Export/Import, s. u.)
+s = find("<!-- web:aktionen:start -->")
+e = find("<!-- web:aktionen:end -->", start=s, unique=False)
+lines[s:e + 1] = ["<!-- DATEI-AKTIONEN -->"]
+# Übersicht: nur in der Web-Version vorhandene Karten (Radar-Recherche,
+# Betrieb & Performance, Risiken, Forschungsprojekte) entfernen …
+while any("<!-- nur-web:start -->" in l for l in lines):
+    s = find("<!-- nur-web:start -->", unique=False)
+    e = find("<!-- nur-web:end -->", start=s, unique=False)
+    del lines[s:e + 1]
+# … und die Standalone-Kennzahl „Verzögerte Meilensteine“ einblenden
+text_rep(" data-nur-standalone hidden>", ">")
 # Forschungsprojekte-Panels/Modals bis zum Ende des Lageplan-Panels
 cut("<!-- ── Forschungsprojekte Detail-Panel", "</div>", end_exact=True)
 # Themenradar-Kopf: "Daten exportieren (JSON)" (ersetzt durch Gesamt-Export) + "Radar aktualisieren"
@@ -332,16 +337,7 @@ text_rep("""    getDaten:   function(){ return risikenDaten; },
          """    getDaten:   function(){ return risikenDaten; }""")
 
 # ────────────────────────── JS: Lageplan / App ───────────────────
-text_rep("""      // Keywords
-      let kwAnzahl = 0;
-      try {
-        const raw = localStorage.getItem("config-keywords");
-        const kw  = raw ? JSON.parse(raw) : [];
-        if (Array.isArray(kw)) kwAnzahl = kw.length;
-      } catch(e) {}
-      const wk = document.getElementById("wert-keywords");
-      if (wk) wk.textContent = kwAnzahl || 12;
-      if (window.FP && FP.renderKachel)       { try { FP.renderKachel();       } catch(e) {} }
+text_rep("""      if (window.FP && FP.renderKachel) { try { FP.renderKachel(); } catch (e) {} }
 """, "")
 text_rep('  var PANELS = ["lageplan","themenradar","meilensteine","risiko","normennetz","settings"];',
          '  var PANELS = ["lageplan","themenradar","meilensteine","risiko","normennetz"];')
@@ -357,8 +353,8 @@ text_rep("""  // GitHub Sync: Nach kurzem Delay laden, damit alle IIFEs initiali
 # ────────────────────────── Neu: Export/Import ───────────────────
 sys.path.insert(0, str(pathlib.Path(__file__).parent))
 from datei_snippets import BUTTONS, CSS, MODUL
-i = find('<button class="app-tab" id="tab-normennetz"')
-lines[i + 1:i + 1] = BUTTONS.split("\n")
+i = find("<!-- DATEI-AKTIONEN -->")
+lines[i:i + 1] = BUTTONS.split("\n")
 i = find(".app-tab.aktiv { color: #fff; border-bottom-color: #fff; }")
 lines[i + 1:i + 1] = CSS.split("\n")
 i = find("<script>/* ===== App-Controller / Tab-Navigation ===== */")
