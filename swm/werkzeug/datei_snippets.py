@@ -60,11 +60,21 @@ MODUL = r'''<script>/* ===== Datei: Export / Import (Gesamt-JSON) ===== */
     banner._t = setTimeout(function() { b.style.display = "none"; }, 4000);
   }
 
+  // Lokaler Zeitstempel für den Dateinamen, z. B. 2026-11-17_15-24-08
+  // (Ortszeit, damit mehrere Exporte am selben Tag unterscheidbar sind)
+  function zeitstempel(d) {
+    function z(n) { return (n < 10 ? "0" : "") + n; }
+    return d.getFullYear() + "-" + z(d.getMonth() + 1) + "-" + z(d.getDate()) + "_" +
+           z(d.getHours()) + "-" + z(d.getMinutes()) + "-" + z(d.getSeconds());
+  }
+
   function exportieren() {
     var daten = sammle();
+    var jetzt = new Date();
     var paket = {
       format: FORMAT, version: VERSION,
-      exportiert: new Date().toISOString(),
+      exportiert: jetzt.toISOString(),
+      exportiert_lokal: jetzt.toLocaleString("de-DE"),
       themen: daten.themen, meilensteine: daten.meilensteine,
       ziele: daten.ziele, risiken: daten.risiken
     };
@@ -72,7 +82,7 @@ MODUL = r'''<script>/* ===== Datei: Export / Import (Gesamt-JSON) ===== */
     var url  = URL.createObjectURL(blob);
     var a    = document.createElement("a");
     a.href = url;
-    a.download = "lageplan-daten-" + new Date().toISOString().slice(0, 10) + ".json";
+    a.download = "lageplan-daten-" + zeitstempel(jetzt) + ".json";
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);

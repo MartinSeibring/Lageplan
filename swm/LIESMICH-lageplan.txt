@@ -39,11 +39,13 @@ Daten sichern – WICHTIG
 gilt nur für diesen Rechner und diesen Browser und kann durch das Löschen
 von Browserdaten verloren gehen.
 
-- „↓ Daten exportieren" (oben rechts) speichert ALLE Daten (Themen,
+- „↓ Exportieren" (oben rechts) speichert ALLE Daten (Themen,
   Meilensteine, Jahresziele, Risiken) in eine Datei
-  lageplan-daten-JJJJ-MM-TT.json. Diese Datei ist der eigentliche
-  Datenstand – bitte auf dem Netzlaufwerk ablegen.
-- „↑ Daten importieren" lädt eine solche Datei und ersetzt den aktuellen
+  lageplan-daten-JJJJ-MM-TT_HH-MM-SS.json (Datum und Uhrzeit des
+  Exports, z. B. lageplan-daten-2026-11-17_15-24-08.json). So bleiben
+  mehrere Exporte am selben Tag unterscheidbar. Diese Datei ist der
+  eigentliche Datenstand – bitte auf dem Netzlaufwerk ablegen.
+- „↑ Importieren" lädt eine solche Datei und ersetzt den aktuellen
   Stand. Ältere Einzel-Exporte (nur Themen bzw. nur Meilensteine) werden
   ebenfalls erkannt.
 - Ein oranger Punkt am Export-Button zeigt Änderungen seit dem letzten
