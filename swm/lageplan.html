@@ -2367,10 +2367,6 @@ body {
     <span id="stand-datum" style="font-size:13px;color:rgba(255,255,255,0.75);margin-left:12px"></span>
     <button style="padding:6px 12px;cursor:pointer;margin-left:8px;float:right;background:#fff;color:#2d7a8e;border:none;border-radius:4px;font-size:12px;font-weight:600"
       onclick="TR.oeffneThemaFormular()">+ Thema hinzufügen</button>
-    <button style="padding:6px 12px;cursor:pointer;margin-left:8px;float:right;background:rgba(255,255,255,0.15);color:#fff;border:1px solid rgba(255,255,255,0.4);border-radius:4px;font-size:12px"
-      onclick="document.getElementById('vorschlaege-import').click()">⬆ Vorschläge importieren</button>
-    <input type="file" id="vorschlaege-import" accept=".json" style="display:none"
-      onchange="TR.ladeVorschlaege(this)">
   </div>
   
 
@@ -2582,15 +2578,6 @@ body {
       <span style="font-size:9px">●</span> klein = geringe &nbsp;·&nbsp;
       <span style="font-size:13px">●</span> groß = hohe Auswirkung
     </div>
-  </div>
-  <div id="vorschlaege-panel" style="clear:both;display:none;border:2px solid #63a2b4;border-radius:6px;padding:16px;margin:16px 0">
-    <div style="overflow:hidden;margin-bottom:12px">
-      <strong style="font-size:16px">🔎 Neue Themen-Vorschläge (Recherche-Ergebnis)</strong>
-      <button onclick="document.getElementById('vorschlaege-panel').style.display='none'"
-        style="float:right;cursor:pointer;background:none;border:none;font-size:18px;line-height:1">✕</button>
-      <span id="vorschlaege-meta" style="font-size:12px;color:#888;margin-left:12px"></span>
-    </div>
-    <div id="vorschlaege-liste"></div>
   </div>
   <div id="rangliste" style="clear:both;padding:6px 0;max-height:160px;overflow-y:auto">
     <h3 style="margin:0 0 4px;font-size:13px">Top 5 nach Priorität</h3>
@@ -3845,105 +3832,6 @@ window.lsKey = function(name) { return "lageplan-html:" + name; };
     document.getElementById("tr-liste-sort").value = _listenSortierung;
     if (_ansicht === "liste") setzeAnsicht("liste");
 
-    function uebernehmeVorschlag(v, btn) {
-      const neuerEintrag = {
-        id:                   Date.now(),
-        titel:                _sanitize(v.titel) || "Neues Thema",
-        kategorie:            v.vorgeschlagene_kategorie  || "regulatorisch",
-        zeithorizont:         v.vorgeschlagener_zeithorizont || "mittelfristig",
-        auswirkung:           v.vorgeschlagene_auswirkung  || 3,
-        unsicherheit:         3,
-        beschreibung:         _sanitize(v.zusammenfassung),
-        strategische_cluster: v.vorgeschlagene_cluster || [],
-        tags:                 (v.vorgeschlagene_tags || []).map(_sanitize),
-        quelle:               /^https?:\/\//i.test(v.link || "") ? v.link : "",
-        beobachtung:          [],
-        aktualisierungen:     [],
-        manuell_erfasst:      true
-      };
-      neuerEintrag.radar_score = berechneScore(neuerEintrag);
-      radarData.push(neuerEintrag);
-      speichereManuelleThemen();
-      _merkeVorschlagBearbeitet(v);
-      zeichnePunkte();
-      btn.textContent = "✓ Im Radar";
-      btn.disabled    = true;
-      btn.style.cssText = "padding:4px 10px;font-size:11px;cursor:default;background:#aaa;color:#fff;border:none;border-radius:3px;margin-top:8px";
-    }
-
-    function ladeVorschlaege(input) {
-      const file = input.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        let daten;
-        try {
-          daten = JSON.parse(e.target.result);
-        } catch(err) {
-          alert("Fehler beim Lesen der JSON-Datei: " + err.message);
-          return;
-        }
-        if (!Array.isArray(daten) || daten.length === 0) {
-          alert("Keine Vorschläge in der Datei gefunden.");
-          return;
-        }
-
-        const katFarben = {
-          regulatorisch:  "#2d7a8e",
-          marktlich:      "#63a2b4",
-          technologisch:  "#4a8a6f",
-          wettbewerblich: "#7a6ea0"
-        };
-
-        document.getElementById("vorschlaege-meta").textContent =
-          `${daten.length} Vorschläge aus ${file.name}`;
-
-        const liste = document.getElementById("vorschlaege-liste");
-        liste.innerHTML = "";
-
-        daten.forEach((v, i) => {
-          const farbe = katFarben[v.vorgeschlagene_kategorie] || "#888";
-          const sterne = "★".repeat(v.vorgeschlagene_auswirkung || 1) +
-                         "☆".repeat(5 - (v.vorgeschlagene_auswirkung || 1));
-          const clusterBadges = (v.vorgeschlagene_cluster || []).map(c =>
-            `<span style="background:#e0e0e0;border-radius:3px;padding:1px 7px;margin-right:3px;font-size:11px">${_escT(c)}</span>`
-          ).join("");
-          const tagBadges = (v.vorgeschlagene_tags || []).map(t =>
-            `<span style="background:#f0f4ff;border-radius:3px;padding:1px 6px;margin-right:3px;font-size:11px">${_escT(t)}</span>`
-          ).join("");
-
-          const karte = document.createElement("div");
-          karte.style.cssText = "border:1px solid #ddd;border-radius:5px;padding:12px 14px;margin-bottom:10px;background:#fafafa";
-          karte.innerHTML = `
-            <div style="overflow:hidden;margin-bottom:6px">
-              <strong style="font-size:14px">${_escT(v.titel) || "–"}</strong>
-              <span style="background:${farbe};color:#fff;border-radius:3px;padding:1px 8px;font-size:11px;margin-left:8px">${_escT(v.vorgeschlagene_kategorie) || "–"}</span>
-              <span style="float:right;font-size:11px;color:#888">${_escT(v.datum)} · <a href="${_safeUrl(v.link)}" target="_blank" rel="noopener noreferrer" style="color:#63a2b4">Quelle ↗</a></span>
-            </div>
-            <div style="font-size:12px;color:#555;margin-bottom:6px">${v.zusammenfassung ? _escT(v.zusammenfassung.slice(0,200)) + (v.zusammenfassung.length > 200 ? "…" : "") : ""}</div>
-            <div style="margin-bottom:4px">
-              <span style="font-size:12px"><strong>Horizont:</strong> ${_escT(v.vorgeschlagener_zeithorizont) || "–"}</span>
-              <span style="font-size:16px;color:#f5a623;margin-left:12px">${sterne}</span>
-            </div>
-            <div style="margin-bottom:4px">${clusterBadges}</div>
-            <div style="margin-bottom:6px">${tagBadges}</div>
-            <div style="font-size:11px;color:#888;font-style:italic">${_escT(v.begruendung)}</div>
-          `;
-          const btn = document.createElement("button");
-          btn.textContent = "⊕ In Radar übernehmen";
-          btn.style.cssText = "padding:4px 10px;font-size:11px;cursor:pointer;background:#27ae60;color:#fff;border:none;border-radius:3px;margin-top:8px";
-          btn.addEventListener("click", () => uebernehmeVorschlag(v, btn));
-          karte.appendChild(btn);
-          liste.appendChild(karte);
-        });
-
-        document.getElementById("vorschlaege-panel").style.display = "block";
-        document.getElementById("vorschlaege-panel").scrollIntoView({behavior:"smooth"});
-        input.value = "";
-      };
-      reader.readAsText(file, "utf-8");
-    }
-
     // ── HTML-Escaping für Inhalte aus externen Feeds (XSS-Schutz) ──
     function _escT(s) {
       return String(s == null ? "" : s)
@@ -3953,29 +3841,6 @@ window.lsKey = function(name) { return "lageplan-html:" + name; };
     function _safeUrl(u) {
       return /^https?:\/\//i.test(u || "") ? _escT(u) : "#";
     }
-    // Feed-Texte vor Übernahme in die Daten bereinigen
-    function _sanitize(s) {
-      return String(s == null ? "" : s).replace(/<[^>]*>/g, "").trim();
-    }
-
-    // ── Bearbeitete Vorschläge (übernommen/ignoriert) dauerhaft merken ──
-    const VORSCHLAG_LOG_KEY = "radar-vorschlaege-bearbeitet";
-    function _vorschlagKey(v) {
-      return v.link || ((v.titel || "") + "|" + (v.datum || ""));
-    }
-    function _bearbeiteteVorschlaege() {
-      try { return new Set(JSON.parse(localStorage.getItem(VORSCHLAG_LOG_KEY) || "[]")); }
-      catch(e) { return new Set(); }
-    }
-    function _merkeVorschlagBearbeitet(v) {
-      const keys = _bearbeiteteVorschlaege();
-      keys.add(_vorschlagKey(v));
-      try {
-        localStorage.setItem(VORSCHLAG_LOG_KEY,
-          JSON.stringify(Array.from(keys).slice(-300)));
-      } catch(e) {}
-    }
-
     // -----------------------------------------------------------------------
     // Meilenstein-Verbindung (localStorage)
     // -----------------------------------------------------------------------
@@ -5096,7 +4961,7 @@ window.lsKey = function(name) { return "lageplan-html:" + name; };
       document.body.appendChild(panel);
     }
 
-window.TR={setzeAnsicht,sortiereListe,oeffneThemaFormular,exportiereJSON,ladeVorschlaege,schliesseThemaFormular,aktualisiereScore,aktualisiereSlider,speichereThema,schliesseLoeschenModal,filterAktualisieren,zeigeDetail,oeffneKiModal,schliesseKiModal,_kiWechsleTab,_kiKopierePrompt,starteKiAnalyse,ladeDaten,redraw:zeichnePunkte,renderMini:renderMini,getDaten:function(){ return radarData; }};
+window.TR={setzeAnsicht,sortiereListe,oeffneThemaFormular,exportiereJSON,schliesseThemaFormular,aktualisiereScore,aktualisiereSlider,speichereThema,schliesseLoeschenModal,filterAktualisieren,zeigeDetail,oeffneKiModal,schliesseKiModal,_kiWechsleTab,_kiKopierePrompt,starteKiAnalyse,ladeDaten,redraw:zeichnePunkte,renderMini:renderMini,getDaten:function(){ return radarData; }};
 })();
 </script>
 <script>/* ===== Meilensteine ===== */

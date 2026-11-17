@@ -23,6 +23,8 @@ Nicht enthalten (gegenüber der Web-Version)
 -------------------------------------------
 - Kacheln Forschungsprojekte, Betrieb & Performance, Risikomanagement
 - „Radar aktualisieren" und alle GitHub-Synchronisation
+- „Vorschläge importieren" (Ergebnisse der früheren Radar-Recherche) –
+  Themen werden von Hand angelegt
 - Kategorie-Filter bei den Meilensteinen
 - Reiter „Max" und „Einstellungen", Handbuch
 - KI-Analyse über den lokalen Server (URL/PDF)

@@ -93,6 +93,14 @@ del lines[i - 1:i + 1]
 i = find('onclick="TR.starteAktualisierung()">Radar aktualisieren</button>')
 del lines[i - 1:i + 1]
 cut_line('<span id="update-status"')
+i = find("onclick=\"document.getElementById('vorschlaege-import').click()\">⬆ Vorschläge importieren</button>")
+del lines[i - 1:i + 1]
+i = find('<input type="file" id="vorschlaege-import"')
+assert "TR.ladeVorschlaege(this)" in lines[i + 1], lines[i + 1]
+del lines[i:i + 2]
+i = find('<div id="vorschlaege-panel"')
+assert lines[i + 8].strip() == "</div>" and lines[i + 7].strip() == '<div id="vorschlaege-liste"></div>', lines[i:i + 9]
+del lines[i:i + 9]
 # Dokument-Kasten im Thema-Formular
 i = find('<div style="margin:0 0 12px;padding:10px 12px;background:#f0f7fa')
 assert lines[i + 7].strip() == "</div>", lines[i + 7]
@@ -131,6 +139,12 @@ s = find("    // Radar-Aktualisierung über GitHub Actions") - 1
 e = find("    // ── HTML-Escaping für Inhalte aus externen Feeds", start=s, unique=False)
 del lines[s:e]
 s = find("    // Offene Vorschläge aus dem Repo laden")
+e = find("    // Meilenstein-Verbindung (localStorage)", start=s, unique=False) - 1
+del lines[s:e]
+# „Vorschläge importieren" (Ergebnisse der früheren Radar-Recherche) entfällt:
+# Übernahme-/Importfunktion, Bereinigung und Merkliste bearbeiteter Vorschläge
+cut("    function uebernehmeVorschlag(v, btn) {", "    // ── HTML-Escaping für Inhalte aus externen Feeds")
+s = find("    // Feed-Texte vor Übernahme in die Daten bereinigen")
 e = find("    // Meilenstein-Verbindung (localStorage)", start=s, unique=False) - 1
 del lines[s:e]
 cut_line("    pruefeServerStatus();")
@@ -208,7 +222,7 @@ s = find("    // ── Dokument-Analyse ─────")
 e = find("window.TR={", start=s, unique=False)
 del lines[s:e]
 i = find("window.TR={")
-lines[i] = ("window.TR={setzeAnsicht,sortiereListe,oeffneThemaFormular,exportiereJSON,ladeVorschlaege,"
+lines[i] = ("window.TR={setzeAnsicht,sortiereListe,oeffneThemaFormular,exportiereJSON,"
             "schliesseThemaFormular,aktualisiereScore,aktualisiereSlider,speichereThema,schliesseLoeschenModal,"
             "filterAktualisieren,zeigeDetail,oeffneKiModal,schliesseKiModal,_kiWechsleTab,_kiKopierePrompt,"
             "starteKiAnalyse,ladeDaten,redraw:zeichnePunkte,renderMini:renderMini,"
